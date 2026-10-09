@@ -2,7 +2,7 @@
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -81,4 +81,4 @@ Latest independent review at 2026-10-09T17:41:29Z reports no bugs in the focused
 - 2026-10-09T17:42:49Z · status review→active
 - 2026-10-09T17:53:25Z · status active→review
 - 2026-10-09T17:53:26Z · note: handoff requested (cli)
-- 2026-10-09T17:53:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T17:53:35Z · status active→review
