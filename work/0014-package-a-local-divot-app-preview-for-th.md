@@ -2,7 +2,7 @@
 id: "0014"
 title: Package a local Divot.app preview for this Mac
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: [macos, docs]
 story: A beautiful bar from the first launch
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:44:33Z"
-updated_at: "2026-10-09T16:47:36Z"
+updated_at: "2026-10-09T17:20:40Z"
 ---
 ## Problem
 
@@ -42,3 +42,4 @@ The maintainer Mac runs AeroSpace with a-bar. The reference bar has compact numb
 
 - 2026-10-09T16:44:33Z · created · njachowski@gmail.com
 - 2026-10-09T16:47:36Z · body: section Local rollout context
+- 2026-10-09T17:20:40Z · status inbox→ready
