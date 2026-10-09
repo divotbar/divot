@@ -68,6 +68,22 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('widgets.clock: unknown field timezone')
   })
 
+  test('accepts either supported workspace adapter', () => {
+    const aero = base()
+    aero.widgets = { workspaces: { adapter: 'aerospace' } }
+    expect(() => validate(aero)).not.toThrow()
+
+    const yabai = base()
+    yabai.widgets = { workspaces: { adapter: 'yabai' } }
+    expect(() => validate(yabai)).not.toThrow()
+  })
+
+  test('rejects an unknown workspace adapter', () => {
+    const config = base()
+    config.widgets = { workspaces: { adapter: 'amphibian' } }
+    expect(() => validate(config)).toThrow('widgets.workspaces.adapter: expected aerospace | yabai')
+  })
+
   test('rejects options for an item that is not placed', () => {
     const config = base()
     config.left = ['workspaces']

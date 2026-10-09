@@ -68,7 +68,7 @@ Default left is `workspaces`, `front-app`; default right is `battery`, `clock`, 
 
 | Namespace | Option | Type | Meaning |
 | --- | --- | --- | --- |
-| `workspaces` | `adapter` | `aerospace` | Window-manager adapter; `yabai` is a later milestone |
+| `workspaces` | `adapter` | `aerospace`, `yabai` | Window-manager adapter; unset uses the deterministic priority |
 | `workspaces` | `showEmpty` | Boolean | Show workspaces with no windows |
 | `workspaces` | `showAppIcons` | Boolean | Show optional per-workspace app icons (each deduplicated app, not just the first) |
 | `workspaces` | `showDetails` | Boolean | Show workspace detail: app count and the current-program label |

@@ -30,18 +30,25 @@ enum DivotAppReport {
         printWorkspaceReport()
     }
 
-    /// One read-only AeroSpace pass. Blocks the (idle) main thread on a
-    /// short-lived subprocess so the whole report stays a single synchronous
-    /// command; it never subscribes or mutates manager state.
+    /// One read-only pass against whichever manager is installed. Blocks the
+    /// (idle) main thread on short-lived subprocesses so the whole report stays
+    /// a single synchronous command; it never subscribes or mutates manager
+    /// state.
     private static func printWorkspaceReport() {
         print("# workspaces")
-        guard let executable = AeroSpaceBinaryLocator.locate() else {
-            print("adapter=aerospace")
+        // The screen mapping must be captured on the main actor before the
+        // adapter runs its queries on background work.
+        let displayIndex = ScreenDisplayIndexResolver.live()
+        let installed = WorkspaceAdapterFactory.installedManagers()
+        guard let selection = WorkspaceManagerSelector.select(preferred: WorkspaceOptionsStore.preferredAdapter(),
+                                                              installed: installed),
+              let adapter = WorkspaceAdapterFactory.makeAdapter(for: selection.kind,
+                                                                displayIndex: displayIndex) else {
+            print("adapter=(none)")
             print("availability=unavailable (\(WorkspaceUnavailabilityReason.managerNotInstalled.summary))")
             return
         }
 
-        let adapter = AeroSpaceWorkspaceAdapter(executablePath: executable, runner: ProcessWorkspaceRunner())
         let semaphore = DispatchSemaphore(value: 0)
         Task.detached {
             let availability = await adapter.capabilities()
@@ -53,7 +60,8 @@ enum DivotAppReport {
                     for workspace in snapshot.workspaces {
                         let state = workspace.isFocused ? "focused" : (workspace.isOccupied ? "occupied" : "empty")
                         let apps = workspace.apps.map(\.identity.name).joined(separator: ",")
-                        print("  \(workspace.id) monitor=\(workspace.monitor?.id ?? 0) state=\(state) apps=[\(apps)]")
+                        let screens = workspace.monitor?.screensID.map(String.init) ?? "-"
+                        print("  \(workspace.id) monitor=\(workspace.monitor?.id ?? 0) screens=\(screens) state=\(state) apps=[\(apps)]")
                     }
                 } catch {
                     print("snapshot=error \(error)")

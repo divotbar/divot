@@ -44,6 +44,24 @@ public enum WorkspaceOptionsStore {
         return options
     }
 
+    /// The user's manager override from `widgets.workspaces.adapter`, or `nil`
+    /// to let the deterministic priority choose. An unrecognized value is
+    /// ignored so a typo cannot silently disable workspaces.
+    public static func preferredAdapter(configURL: URL? = defaultConfigURL(),
+                                        environment: [String: String] = ProcessInfo.processInfo.environment) -> WorkspaceManagerKind? {
+        if let raw = environment["DIVOT_WORKSPACES_ADAPTER"],
+           let kind = WorkspaceManagerKind(rawValue: raw.trimmingCharacters(in: .whitespaces).lowercased()) {
+            return kind
+        }
+        guard let configURL,
+              let data = try? Data(contentsOf: configURL),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let widgets = root["widgets"] as? [String: Any],
+              let workspaces = widgets["workspaces"] as? [String: Any],
+              let raw = workspaces["adapter"] as? String else { return nil }
+        return WorkspaceManagerKind(rawValue: raw.trimmingCharacters(in: .whitespaces).lowercased())
+    }
+
     private static func boolean(_ raw: String?) -> Bool? {
         switch raw?.trimmingCharacters(in: .whitespaces).lowercased() {
         case "1", "true", "yes", "on": return true

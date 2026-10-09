@@ -3,24 +3,28 @@ import Testing
 import DivotCore
 @testable import DivotAppKit
 
-@Test func aeroSpaceIsTheOnlyInstalledManagerToday() {
-    #expect(WorkspaceAdapterFactory.installedManagers(aeroSpacePath: "/opt/homebrew/bin/aerospace") == [.aerospace])
-    #expect(WorkspaceAdapterFactory.installedManagers(aeroSpacePath: nil).isEmpty)
+@Test func installedManagersReflectEverySupportedBinary() {
+    #expect(WorkspaceAdapterFactory.installedManagers(aeroSpacePath: "/opt/homebrew/bin/aerospace",
+                                                      yabaiPath: nil) == [.aerospace])
+    #expect(WorkspaceAdapterFactory.installedManagers(aeroSpacePath: nil,
+                                                      yabaiPath: "/opt/homebrew/bin/yabai") == [.yabai])
+    // Priority order is deterministic when both are present.
+    #expect(WorkspaceAdapterFactory.installedManagers(aeroSpacePath: "/opt/homebrew/bin/aerospace",
+                                                      yabaiPath: "/opt/homebrew/bin/yabai") == [.aerospace, .yabai])
+    #expect(WorkspaceAdapterFactory.installedManagers(aeroSpacePath: nil, yabaiPath: nil).isEmpty)
 }
 
-@Test func aeroSpaceAdapterIsBuiltForTheSelectedManager() {
-    let adapter = WorkspaceAdapterFactory.makeAdapter(for: .aerospace)
-    #expect(adapter?.kind == .aerospace)
+@Test func anAdapterIsBuiltForBothSupportedManagers() {
+    #expect(WorkspaceAdapterFactory.makeAdapter(for: .aerospace)?.kind == .aerospace)
+    #expect(WorkspaceAdapterFactory.makeAdapter(for: .yabai)?.kind == .yabai)
 }
 
-@Test func yabaiHasNoAdapterOrEventSourceYet() {
-    switch WorkspaceAdapterFactory.makeAdapter(for: .yabai) {
-    case nil: break
-    case .some: Issue.record("yabai must not claim an adapter before its milestone")
-    }
+@Test func yabaiHasNoPersistentEventSourceButAeroSpaceDoes() {
+    // yabai has no documented event stream; signals are its callback path, so a
+    // stub stream is never fabricated here.
     switch WorkspaceAdapterFactory.makeEventSource(for: .yabai) {
     case nil: break
-    case .some: Issue.record("yabai must not claim an event source before its milestone")
+    case .some: Issue.record("yabai must not claim a persistent event source")
     }
 }
 
@@ -35,4 +39,10 @@ import DivotCore
         case .some: Issue.record("no adapter should be built when no manager is installed")
         }
     }
+}
+
+@Test func resolveHonorsAUserOverrideEvenWhenThatManagerIsNotInstalled() {
+    let resolved = WorkspaceAdapterFactory.resolve(preferred: .yabai)
+    #expect(resolved.selection?.kind == .yabai)
+    #expect(resolved.selection?.reason == .userOverride)
 }

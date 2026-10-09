@@ -47,3 +47,25 @@ private func writeConfig(_ json: String) throws -> URL {
     let fallback = WorkspaceOptionsStore.defaultConfigURL(homeDirectory: "/Users/x", environment: [:])
     #expect(fallback.path == "/Users/x/.config/divot/config.json")
 }
+
+@Test func preferredAdapterReadsTheDocumentedConfigValue() throws {
+    let url = try writeConfig(#"{"widgets":{"workspaces":{"adapter":"yabai"}}}"#)
+    #expect(WorkspaceOptionsStore.preferredAdapter(configURL: url, environment: [:]) == .yabai)
+
+    let aero = try writeConfig(#"{"widgets":{"workspaces":{"adapter":"aerospace"}}}"#)
+    #expect(WorkspaceOptionsStore.preferredAdapter(configURL: aero, environment: [:]) == .aerospace)
+}
+
+@Test func preferredAdapterIsNilWhenAbsentOrUnknown() throws {
+    let none = try writeConfig(#"{"widgets":{"workspaces":{"showEmpty":false}}}"#)
+    #expect(WorkspaceOptionsStore.preferredAdapter(configURL: none, environment: [:]) == nil)
+
+    // A typo must not disable workspaces; the deterministic priority still runs.
+    let typo = try writeConfig(#"{"widgets":{"workspaces":{"adapter":"amphibian"}}}"#)
+    #expect(WorkspaceOptionsStore.preferredAdapter(configURL: typo, environment: [:]) == nil)
+}
+
+@Test func preferredAdapterHonorsTheEnvironmentOverride() {
+    #expect(WorkspaceOptionsStore.preferredAdapter(configURL: nil,
+                                                   environment: ["DIVOT_WORKSPACES_ADAPTER": "yabai"]) == .yabai)
+}

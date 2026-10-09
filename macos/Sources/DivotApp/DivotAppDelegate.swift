@@ -79,7 +79,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        let selection = WorkspaceManagerSelector.select(preferred: nil,
+        let selection = WorkspaceManagerSelector.select(preferred: WorkspaceOptionsStore.preferredAdapter(),
                                                         installed: WorkspaceAdapterFactory.installedManagers())
         let options = WorkspaceOptionsStore.load()
         guard let selection else {
@@ -87,7 +87,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         let kind = selection.kind
-        feed.start(adapter: WorkspaceAdapterFactory.makeAdapter(for: kind),
+        feed.start(adapter: WorkspaceAdapterFactory.makeAdapter(for: kind,
+                                                               displayIndex: ScreenDisplayIndexResolver.live()),
                    eventSourceProvider: { WorkspaceAdapterFactory.makeEventSource(for: kind) },
                    options: options)
     }
