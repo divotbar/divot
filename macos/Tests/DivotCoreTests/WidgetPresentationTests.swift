@@ -93,6 +93,26 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(presentation.accessibilityLabel.contains("Xcode"))
 }
 
+@Test func frontAppOptionsControlNameAndIconIndependently() {
+    let snapshot = FrontAppSnapshot(name: "Xcode", bundleIdentifier: "com.apple.dt.Xcode")
+
+    let nameOnly = WidgetPresenter.present(
+        id: .frontApp,
+        state: state(.frontApp, .frontApp(snapshot)),
+        options: WidgetPresentationOptions(frontApp: FrontAppFormatOptions(showIcon: false, showName: true)))
+    #expect(nameOnly.text == "Xcode")
+    #expect(nameOnly.iconBundleIdentifier == nil)
+
+    let iconOnly = WidgetPresenter.present(
+        id: .frontApp,
+        state: state(.frontApp, .frontApp(snapshot)),
+        options: WidgetPresentationOptions(frontApp: FrontAppFormatOptions(showIcon: true, showName: false)))
+    #expect(iconOnly.text == "")
+    #expect(iconOnly.iconBundleIdentifier == "com.apple.dt.Xcode")
+    // The name is still announced even when the label is hidden.
+    #expect(iconOnly.accessibilityLabel.contains("Xcode"))
+}
+
 @Test func unavailableStatesAreHonestAndOnlyFailuresAreErrors() {
     let denied = WidgetPresenter.present(
         id: .network,
