@@ -2,7 +2,7 @@
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 story: Make either side of the bar my own
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-versioned-configuration-settin
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T21:23:11Z"
+updated_at: "2026-10-09T21:27:00Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -53,3 +53,4 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 - 2026-10-09T21:22:15Z · status active→review
 - 2026-10-09T21:23:11Z · note: review pass 1: needs some work
 - 2026-10-09T21:23:11Z · status review→active
+- 2026-10-09T21:27:00Z · status active→review
