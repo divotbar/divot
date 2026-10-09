@@ -2,7 +2,7 @@
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -71,4 +71,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:09:22Z · needs_input
 - 2026-10-09T17:09:56Z · status review→active
 - 2026-10-09T17:10:01Z · note: handoff requested (ui-review)
-- 2026-10-09T17:10:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T17:10:03Z · status active→review
