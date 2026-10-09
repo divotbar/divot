@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-09T18:43:05Z"
+review_passes: 3
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
@@ -14,9 +16,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-native-provider-lifecycle-and-
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:43:05Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 
@@ -52,3 +52,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:41:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T18:43:05Z · note: review pass 3: needs some work
 - 2026-10-09T18:43:05Z · needs_input
+
