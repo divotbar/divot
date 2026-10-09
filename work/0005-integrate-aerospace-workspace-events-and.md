@@ -3,9 +3,6 @@ id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
@@ -99,3 +96,4 @@ Independent review at 2026-10-09T19:02:25Z found two remaining blockers. Workspa
 - 2026-10-09T19:07:29Z · status active→review
 - 2026-10-09T19:07:29Z · note: shots: skipped — 3 handoff shots already captured for this exact plan (ace4c66) during finalization (#0734)
 - 2026-10-09T19:08:23Z · note: review pass 5: good to go
+- 2026-10-09T19:08:23Z · needs_input
