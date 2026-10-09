@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
@@ -99,3 +100,4 @@ Independent review at 2026-10-09T19:02:25Z found two remaining blockers. Workspa
 - 2026-10-09T19:08:23Z · needs_input
 - 2026-10-09T19:08:32Z · status review→active
 - 2026-10-09T19:08:32Z · note: close-out repair: merge-conflict
+
