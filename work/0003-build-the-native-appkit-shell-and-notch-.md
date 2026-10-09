@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T16:41:15Z"
+updated_at: "2026-10-09T17:11:41Z"
 ---
 ## Problem
 
@@ -29,6 +29,9 @@ Executable app builds on macOS 26+; tested placement state machine and notch/no-
 
 User-approved story supersedes starter hide-on-fullscreen assumption. Read the feasibility report and aligned docs. Do not implement hide as fallback without a product decision.
 
+## Feasibility handoff
+Tasks 0009 and 0010 are landed after independent review and validated close-out. Read docs/evidence/0009-native-menu-bar-coexistence.md carefully: top/below geometry and state logic are tested, but actual native menu-bar reveal/hide detection on notched hardware is NOT proven. Build the app shell and reusable public-API observation adapter honestly, exposing indeterminate state and documenting any required Accessibility permission and remaining physical validation. Do not silently convert pointer proximity to true visibility, hide as fallback, or claim continuous behavior has been physically verified. Keep fullscreen/Spaces and window-manager gap policy limits explicit; raise concrete product decisions when needed. Current maintainer Mac uses AeroSpace with a-bar; do not stop a-bar until a usable checked preview exists. The user revoked the spend cap provided configured roles, coding agents and models stay unchanged.
+
 ## Activity
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
@@ -37,3 +40,4 @@ User-approved story supersedes starter hide-on-fullscreen assumption. Read the f
 - 2026-10-09T16:41:13Z · story, depends_on, body
 - 2026-10-09T16:41:15Z · status ready→inbox
 - 2026-10-09T16:41:15Z · note: Product stories add a persistent top/below feasibility gate and docs alignment before the shell.
+- 2026-10-09T17:11:41Z · body: section Feasibility handoff
