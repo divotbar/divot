@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/investigate-native-macos-spaces-adapter-
 created_at: "2026-10-09T16:41:13Z"
-updated_at: "2026-10-09T21:08:45Z"
+updated_at: "2026-10-09T21:09:16Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ This is research, not a committed first-release adapter. Do not block AeroSpace 
 - 2026-10-09T20:33:26Z · status ready→active, branch
 - 2026-10-09T21:08:45Z · status active→review
 - 2026-10-09T21:08:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T21:09:16Z · note: review pass 1: good to go
