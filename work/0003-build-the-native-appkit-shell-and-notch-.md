@@ -3,6 +3,9 @@ id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 story: Divot stays visible when the native menu bar appears
@@ -56,3 +59,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:29:28Z · status active→review
 - 2026-10-09T17:29:28Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T17:31:16Z · note: review pass 3: needs some work
+- 2026-10-09T17:31:16Z · needs_input
