@@ -72,3 +72,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:09:56Z · status review→active
 - 2026-10-09T17:10:01Z · note: handoff requested (ui-review)
 - 2026-10-09T17:10:03Z · status active→review
+- 2026-10-09T17:10:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
