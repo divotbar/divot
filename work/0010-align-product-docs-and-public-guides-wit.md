@@ -65,3 +65,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:04:34Z · body: section Review repair requirements
 - 2026-10-09T17:04:46Z · status review→active
 - 2026-10-09T17:08:13Z · status active→review
+- 2026-10-09T17:08:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
