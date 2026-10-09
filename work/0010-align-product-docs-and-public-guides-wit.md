@@ -41,3 +41,4 @@ This is planning/docs alignment, not a native implementation claim or landing re
 - 2026-10-09T16:51:17Z · note: review pass 1: needs some work
 - 2026-10-09T16:51:17Z · status review→active
 - 2026-10-09T16:52:02Z · status active→review
+- 2026-10-09T16:52:02Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
