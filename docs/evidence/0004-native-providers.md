@@ -34,7 +34,11 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
   expensive, and constrained flags. It reads **no** SSID or other
   location-gated detail, so it never triggers a location prompt.
 - **Volume** reads the default output device and observes Core Audio volume,
-  mute, and default-device changes. No output device is an explicit state.
+  mute, and default-device changes. Reads and listeners use the same elements:
+  the main element when the device exposes it, otherwise the per-channel
+  controls (front channels for volume, channel 1 for mute), so volume and mute
+  changes stay live on devices that only expose channels. No output device is an
+  explicit state.
 - **Front app** reads `NSWorkspace.frontmostApplication` on the main actor and
   observes activation notifications.
 
@@ -75,6 +79,11 @@ asserted, by category:
   the volume watcher marks itself stopped before removing listeners, so a
   default-device callback queued at cancellation is ignored, installs nothing,
   and does not fire the handler (and `stop` is idempotent).
+- **Volume element coverage**: the watcher observes the same elements the
+  snapshot reads — the main element when the device exposes it, otherwise the
+  per-channel controls — so a per-channel-only device is not left with a stale
+  value, and a device with a main control still registers exactly the main
+  element.
 - **Stale completions**: a completion from before a disable/reconfigure is
   ignored, whether it arrives through the pipeline or through a captured emit
   closure; `configure` keeps an unchanged activation running and replaces one

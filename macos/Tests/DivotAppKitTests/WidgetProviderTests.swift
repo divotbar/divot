@@ -295,9 +295,26 @@ private final class MockAudioBackend: AudioPropertyListening, @unchecked Sendabl
     private var everHandlers: [(object: AudioObjectID, handler: @Sendable () -> Void)] = []
     private var adds = 0
     private var removes = 0
+    /// Property elements the mock device exposes, per selector. Defaults to the
+    /// main element, matching a device with a master volume/mute control.
+    private var supportedElements: [AudioObjectPropertySelector: Set<AudioObjectPropertyElement>] = [
+        kAudioDevicePropertyVolumeScalar: [kAudioObjectPropertyElementMain],
+        kAudioDevicePropertyMute: [kAudioObjectPropertyElementMain],
+    ]
 
     var addCount: Int { lock.lock(); defer { lock.unlock() }; return adds }
     var removeCount: Int { lock.lock(); defer { lock.unlock() }; return removes }
+
+    var registeredAddresses: [AudioObjectPropertyAddress] {
+        lock.lock(); defer { lock.unlock() }
+        return registrations.map(\.token.address)
+    }
+
+    /// Models a device that only exposes per-channel controls (no main element).
+    func setSupportedElements(_ elements: Set<AudioObjectPropertyElement>,
+                              for selector: AudioObjectPropertySelector) {
+        lock.lock(); supportedElements[selector] = elements; lock.unlock()
+    }
 
     var device: AudioDeviceID? {
         get { lock.lock(); defer { lock.unlock() }; return deviceValue }
@@ -305,6 +322,11 @@ private final class MockAudioBackend: AudioPropertyListening, @unchecked Sendabl
     }
 
     func defaultOutputDevice() -> AudioDeviceID? { device }
+
+    func hasProperty(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        return supportedElements[address.mSelector]?.contains(address.mElement) ?? false
+    }
 
     func addListener(on object: AudioObjectID,
                      address: AudioObjectPropertyAddress,
@@ -373,6 +395,49 @@ private final class Counter: @unchecked Sendable {
     // Cancellation is idempotent.
     watcher.stop()
     #expect(backend.removeCount == removesAtStop)
+}
+
+@Test func volumeWatcherObservesPerChannelControlsWhenMainElementIsAbsent() {
+    let backend = MockAudioBackend()
+    // A device with no main-element control exposes volume on the two front
+    // channels and mute on channel 1. The watcher must observe those elements,
+    // or the displayed value goes stale after a volume or mute change.
+    backend.setSupportedElements([1, 2], for: kAudioDevicePropertyVolumeScalar)
+    backend.setSupportedElements([1], for: kAudioDevicePropertyMute)
+
+    let fires = Counter()
+    let watcher = CoreAudioVolumeWatcher(backend: backend) { fires.increment() }
+    watcher.start()
+
+    // System listener + per-channel volume (1, 2) + per-channel mute (1).
+    #expect(backend.addCount == 4)
+    let volumeElements = Set(backend.registeredAddresses
+        .filter { $0.mSelector == kAudioDevicePropertyVolumeScalar }
+        .map(\.mElement))
+    #expect(volumeElements == [1, 2])
+    let muteElements = Set(backend.registeredAddresses
+        .filter { $0.mSelector == kAudioDevicePropertyMute }
+        .map(\.mElement))
+    #expect(muteElements == [1])
+
+    backend.fireDeviceHandlersEver()
+    // All three observed channel listeners deliver a change callback.
+    #expect(fires.count == 3)
+
+    watcher.stop()
+}
+
+@Test func volumeWatcherPrefersTheMainElementWhenTheDeviceExposesIt() {
+    let backend = MockAudioBackend()
+    let watcher = CoreAudioVolumeWatcher(backend: backend) { }
+    watcher.start()
+
+    // Default mock exposes only the main element for both controls.
+    let elements = backend.registeredAddresses
+        .filter { $0.mSelector == kAudioDevicePropertyVolumeScalar || $0.mSelector == kAudioDevicePropertyMute }
+        .map(\.mElement)
+    #expect(elements == [kAudioObjectPropertyElementMain, kAudioObjectPropertyElementMain])
+    watcher.stop()
 }
 
 @Test func volumeReadingReportsNoOutputWhenThereIsNoDevice() {

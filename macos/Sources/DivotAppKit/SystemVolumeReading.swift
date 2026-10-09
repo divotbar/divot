@@ -2,6 +2,14 @@ import Foundation
 import CoreAudio
 import DivotCore
 
+/// Builds an output-scope property address for a device.
+private func outputAddress(selector: AudioObjectPropertySelector,
+                           element: AudioObjectPropertyElement) -> AudioObjectPropertyAddress {
+    AudioObjectPropertyAddress(mSelector: selector,
+                               mScope: kAudioDevicePropertyScopeOutput,
+                               mElement: element)
+}
+
 /// A registered Core Audio property listener.
 final class AudioListenerToken: @unchecked Sendable {
     let address: AudioObjectPropertyAddress
@@ -24,6 +32,9 @@ protocol AudioPropertyListening: Sendable {
                      queue: DispatchQueue,
                      handler: @escaping @Sendable () -> Void) -> AudioListenerToken
     func removeListener(_ token: AudioListenerToken, on object: AudioObjectID, queue: DispatchQueue)
+    /// Whether `object` exposes `address`. Used to pick the property elements a
+    /// device actually has (main control versus per-channel controls).
+    func hasProperty(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool
 }
 
 /// Live Core Audio implementation.
@@ -53,6 +64,11 @@ struct CoreAudioPropertyListening: AudioPropertyListening {
     func removeListener(_ token: AudioListenerToken, on object: AudioObjectID, queue: DispatchQueue) {
         var mutable = token.address
         AudioObjectRemovePropertyListenerBlock(object, &mutable, queue, token.block)
+    }
+
+    func hasProperty(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool {
+        var mutable = address
+        return AudioObjectHasProperty(object, &mutable)
     }
 }
 
@@ -97,9 +113,11 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
         return status == noErr ? Float(value) : nil
     }
 
-    private static func isMuted(_ device: AudioDeviceID) -> Bool? {
-        if let value = mute(device, element: kAudioObjectPropertyElementMain) { return value }
-        return mute(device, element: 1)
+    private static func isMuted(backend: any AudioPropertyListening, device: AudioDeviceID) -> Bool? {
+        for element in muteElements(backend: backend, device: device) {
+            if let value = mute(device, element: element) { return value }
+        }
+        return nil
     }
 
     private static func mute(_ device: AudioDeviceID, element: AudioObjectPropertyElement) -> Bool? {
@@ -113,19 +131,41 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
     }
 
     /// Main element first; some devices only expose per-channel volume, so fall
-    /// back to the two front channels.
-    private static func level(_ device: AudioDeviceID) -> Float? {
-        if let main = float(device, kAudioDevicePropertyVolumeScalar,
-                            element: kAudioObjectPropertyElementMain) {
-            return main
+    /// back to the two front channels. The watcher observes the same elements.
+    private static func level(backend: any AudioPropertyListening, device: AudioDeviceID) -> Float? {
+        let values = volumeElements(backend: backend, device: device)
+            .compactMap { float(device, kAudioDevicePropertyVolumeScalar, element: $0) }
+        switch values.count {
+        case 0: return nil
+        default: return values.reduce(0, +) / Float(values.count)
         }
-        let left = float(device, kAudioDevicePropertyVolumeScalar, element: 1)
-        let right = float(device, kAudioDevicePropertyVolumeScalar, element: 2)
-        switch (left, right) {
-        case let (l?, r?): return (l + r) / 2
-        case let (l?, nil): return l
-        case let (nil, r?): return r
-        default: return nil
+    }
+
+    /// The volume elements this device exposes: the main element when present,
+    /// otherwise the front channels that per-channel-only devices provide.
+    static func volumeElements(backend: any AudioPropertyListening,
+                               device: AudioDeviceID) -> [AudioObjectPropertyElement] {
+        controlElements(backend: backend, device: device,
+                        selector: kAudioDevicePropertyVolumeScalar,
+                        fallbackElements: [1, 2])
+    }
+
+    /// The mute elements this device exposes: main element first, then channel 1.
+    static func muteElements(backend: any AudioPropertyListening,
+                             device: AudioDeviceID) -> [AudioObjectPropertyElement] {
+        controlElements(backend: backend, device: device,
+                        selector: kAudioDevicePropertyMute,
+                        fallbackElements: [1])
+    }
+
+    private static func controlElements(backend: any AudioPropertyListening,
+                                        device: AudioDeviceID,
+                                        selector: AudioObjectPropertySelector,
+                                        fallbackElements: [AudioObjectPropertyElement]) -> [AudioObjectPropertyElement] {
+        let main = outputAddress(selector: selector, element: kAudioObjectPropertyElementMain)
+        if backend.hasProperty(on: device, address: main) { return [kAudioObjectPropertyElementMain] }
+        return fallbackElements.filter {
+            backend.hasProperty(on: device, address: outputAddress(selector: selector, element: $0))
         }
     }
 
@@ -144,8 +184,8 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
 
     static func read(backend: any AudioPropertyListening = CoreAudioPropertyListening()) -> VolumeSnapshot? {
         guard let device = backend.defaultOutputDevice() else { return .noOutput }
-        let muted = isMuted(device) ?? false
-        let level = level(device)
+        let muted = isMuted(backend: backend, device: device) ?? false
+        let level = level(backend: backend, device: device)
         return VolumeSnapshot(hasOutputDevice: true,
                               outputDeviceName: deviceName(device),
                               // A device with no software volume control is
@@ -220,13 +260,12 @@ final class CoreAudioVolumeWatcher: @unchecked Sendable {
             return
         }
         self.device = device
-        let volume = backend.addListener(on: device, address: Self.volumeAddress, queue: queue) { [weak self] in
-            self?.deviceChanged()
+        let addresses = Self.observedAddresses(backend: backend, device: device)
+        deviceListeners = addresses.map { address in
+            backend.addListener(on: device, address: address, queue: queue) { [weak self] in
+                self?.deviceChanged()
+            }
         }
-        let mute = backend.addListener(on: device, address: Self.muteAddress, queue: queue) { [weak self] in
-            self?.deviceChanged()
-        }
-        deviceListeners = [volume, mute]
         lock.unlock()
     }
 
@@ -266,12 +305,19 @@ final class CoreAudioVolumeWatcher: @unchecked Sendable {
         mSelector: kAudioHardwarePropertyDefaultOutputDevice,
         mScope: kAudioObjectPropertyScopeGlobal,
         mElement: kAudioObjectPropertyElementMain)
-    private static let volumeAddress = AudioObjectPropertyAddress(
-        mSelector: kAudioDevicePropertyVolumeScalar,
-        mScope: kAudioDevicePropertyScopeOutput,
-        mElement: kAudioObjectPropertyElementMain)
-    private static let muteAddress = AudioObjectPropertyAddress(
-        mSelector: kAudioDevicePropertyMute,
-        mScope: kAudioDevicePropertyScopeOutput,
-        mElement: kAudioObjectPropertyElementMain)
+
+    /// The property addresses the watcher registers on the current output device.
+    ///
+    /// The snapshot prefers the main element and falls back to per-channel
+    /// controls on devices that expose no main element (front channels 1 and 2
+    /// for volume, channel 1 for mute). The watcher observes the exact same
+    /// elements: listening only on the main element would leave those devices
+    /// showing a stale value after a volume or mute change.
+    static func observedAddresses(backend: any AudioPropertyListening,
+                                  device: AudioDeviceID) -> [AudioObjectPropertyAddress] {
+        CoreAudioVolumeReading.volumeElements(backend: backend, device: device)
+            .map { outputAddress(selector: kAudioDevicePropertyVolumeScalar, element: $0) }
+            + CoreAudioVolumeReading.muteElements(backend: backend, device: device)
+            .map { outputAddress(selector: kAudioDevicePropertyMute, element: $0) }
+    }
 }
