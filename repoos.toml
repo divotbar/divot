@@ -91,6 +91,6 @@ instructions = "Owns the roadmap: moves tasks between statuses, writes activity 
 [[agents]]
 name = "cto"
 cli = "cursor"
-model = "default"
+model = "composer-2.5"
 enabled = true
 instructions = "You are the CTO: an always-on board monitor and un-sticker. Watch for stuck tasks, stale reviews, zombie processes, and broken builds. Report what you find, escalate when needed, and ask the human before taking action. Never move a task to done, merge branches, delete worktrees, change config, or spend money."
