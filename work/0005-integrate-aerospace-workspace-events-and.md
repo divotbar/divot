@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T19:02:25Z"
-review_passes: 4
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
@@ -15,7 +13,10 @@ depends_on: ["0003"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
+review_cli_override: cursor
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T19:02:49Z"
+review_passes: 4
 last_check_failure: "repoos check at 2026-10-09T18:59:35.328Z: repoos check failed: ui verification failed (3 issue(s)): [route] Workspace guide: adapter reads AeroSpace and renders the left row: declared route /guide/workspaces#left-of-the-camera but the browser landed on /guide/workspaces (login or redirect?) (captured http://127.0.0.1:65493/guide/workspaces#left-of-the-camera) (http://127.0.0.1:65493/guide/workspaces#left-of-the-camera); [route] Workspace options: showDetails and maxAppIconsPerWorkspace: declared route /reference/configuration#widget-opt… (truncated)"
 review_rounds: 2
 ---
@@ -87,4 +88,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T19:02:25Z · note: review pass 4: needs some work
 - 2026-10-09T19:02:25Z · needs_input
 - 2026-10-09T19:02:25Z · needs_input
-
+- 2026-10-09T19:02:49Z · review_cli_override
