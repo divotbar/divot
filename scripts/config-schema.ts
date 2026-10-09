@@ -35,6 +35,9 @@ const ITEMS = ['workspaces', 'front-app', 'battery', 'network', 'volume', 'clock
 // are present the palette value wins.
 const PALETTE_TOKENS = ['foreground', 'background', 'accent', 'selected', 'occupied', 'error']
 
+/** Versions the native loader knows how to migrate up to version 2. */
+export const MIGRATABLE_VERSIONS = [1]
+
 function group(value: unknown, path: string): string[] {
   if (!Array.isArray(value)) throw new Error(`${path}: expected array`)
   for (const item of value) oneOf(item, ITEMS, path)
@@ -42,14 +45,37 @@ function group(value: unknown, path: string): string[] {
   return value as string[]
 }
 
+function appearance(value: unknown) {
+  shape(value, ['family', 'mode', 'accent', 'material'], ['palette'], 'appearance')
+  oneOf(value.family, FAMILIES, 'appearance.family')
+  oneOf(value.mode, ['system', 'dark', 'light'], 'appearance.mode')
+  oneOf(value.material, ['native', 'opaque'], 'appearance.material')
+  hex(value.accent, 'appearance.accent')
+  if ('palette' in value) {
+    shape(value.palette, [], PALETTE_TOKENS, 'appearance.palette')
+    for (const token of Object.keys(value.palette)) hex(value.palette[token], `appearance.palette.${token}`)
+  }
+}
+
+function layout(value: unknown) {
+  shape(value, ['height', 'padding', 'notchGap'], [], 'layout')
+  range(value.height, 24, 40, 'layout.height')
+  range(value.padding, 0, 24, 'layout.padding')
+  range(value.notchGap, 0, 32, 'layout.notchGap')
+}
+
+function workspacesOptions(value: unknown, path: string) {
+  shape(value, [], ['adapter', 'showEmpty', 'showAppIcons', 'showDetails', 'maxAppIconsPerWorkspace'], path)
+  if ('adapter' in value) oneOf(value.adapter, ['aerospace', 'yabai'], `${path}.adapter`)
+  flags(value, ['showEmpty', 'showAppIcons', 'showDetails'], path)
+  if ('maxAppIconsPerWorkspace' in value) range(value.maxAppIconsPerWorkspace, 0, 32, `${path}.maxAppIconsPerWorkspace`)
+}
+
 function options(id: string, value: unknown) {
   const path = `widgets.${id}`
   switch (id) {
     case 'workspaces':
-      shape(value, [], ['adapter', 'showEmpty', 'showAppIcons', 'showDetails', 'maxAppIconsPerWorkspace'], path)
-      if ('adapter' in value) oneOf(value.adapter, ['aerospace', 'yabai'], `${path}.adapter`)
-      flags(value, ['showEmpty', 'showAppIcons', 'showDetails'], path)
-      if ('maxAppIconsPerWorkspace' in value) range(value.maxAppIconsPerWorkspace, 0, 32, `${path}.maxAppIconsPerWorkspace`)
+      workspacesOptions(value, path)
       return
     case 'front-app':
       shape(value, [], ['showIcon', 'showName'], path)
@@ -67,19 +93,8 @@ function options(id: string, value: unknown) {
 export function validate(value: unknown) {
   shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['widgets'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
-  shape(value.appearance, ['family', 'mode', 'accent', 'material'], ['palette'], 'appearance')
-  oneOf(value.appearance.family, FAMILIES, 'appearance.family')
-  oneOf(value.appearance.mode, ['system', 'dark', 'light'], 'appearance.mode')
-  oneOf(value.appearance.material, ['native', 'opaque'], 'appearance.material')
-  hex(value.appearance.accent, 'appearance.accent')
-  if ('palette' in value.appearance) {
-    shape(value.appearance.palette, [], PALETTE_TOKENS, 'appearance.palette')
-    for (const token of Object.keys(value.appearance.palette)) hex(value.appearance.palette[token], `appearance.palette.${token}`)
-  }
-  shape(value.layout, ['height', 'padding', 'notchGap'], [], 'layout')
-  range(value.layout.height, 24, 40, 'layout.height')
-  range(value.layout.padding, 0, 24, 'layout.padding')
-  range(value.layout.notchGap, 0, 32, 'layout.notchGap')
+  appearance(value.appearance)
+  layout(value.layout)
   const placed = [...group(value.left, 'left'), ...group(value.right, 'right')]
   if (new Set(placed).size !== placed.length) throw new Error('left/right: an item may appear in only one group')
   if ('widgets' in value) {
@@ -89,4 +104,21 @@ export function validate(value: unknown) {
       options(id, value.widgets[id])
     }
   }
+}
+
+/**
+ * Validate the pre-release version 1 starter shape the native loader migrates:
+ * workspaces hard-coded on the left and a status-only right array, with the
+ * workspace options at the document root. It never shipped and is not a
+ * supported runtime version; this exists so the migration fixtures are checked
+ * with the same rigor as the version 2 examples.
+ */
+export function validateVersion1(value: unknown) {
+  shape(value, ['version', 'status'], ['appearance', 'layout', 'workspaces'], 'root')
+  if (value.version !== 1) throw new Error('version: expected 1')
+  const status = group(value.status, 'status')
+  if (status.includes('workspaces')) throw new Error('left/right: an item may appear in only one group')
+  if ('appearance' in value) appearance(value.appearance)
+  if ('layout' in value) layout(value.layout)
+  if ('workspaces' in value) workspacesOptions(value.workspaces, 'workspaces')
 }

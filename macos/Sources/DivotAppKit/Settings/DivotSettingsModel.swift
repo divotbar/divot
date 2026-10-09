@@ -1,0 +1,120 @@
+import DivotCore
+import Foundation
+import Observation
+
+/// View model for the settings window.
+///
+/// Every edit goes through `ConfigurationController`, so the window edits the
+/// same validated model as the file and never keeps a second copy of the truth.
+/// An invalid edit is refused and reported; the bar keeps its last good
+/// configuration.
+@MainActor
+@Observable
+public final class DivotSettingsModel {
+    public private(set) var configuration: DivotConfiguration
+    /// The field error from the most recent refused edit or bad file.
+    public private(set) var errorMessage: String?
+    /// Launch-at-login state, mirrored from the system so the toggle is honest.
+    public private(set) var loginItemEnabled: Bool
+    public private(set) var loginItemStatus: String
+
+    private let controller: ConfigurationController
+    private let loginItem: LoginItemControlling
+
+    public init(controller: ConfigurationController,
+                loginItem: LoginItemControlling = SMAppServiceLoginItem()) {
+        self.controller = controller
+        self.loginItem = loginItem
+        self.configuration = controller.configuration
+        self.errorMessage = controller.lastError?.description
+        self.loginItemEnabled = loginItem.isEnabled
+        self.loginItemStatus = loginItem.statusDescription
+        // Keep the window in step with external edits (the file watcher) and with
+        // the bar's own reloads. Values are equal after our own save, so this is
+        // idempotent; there is no second copy of the truth.
+        controller.addObserver { [weak self] configuration in
+            self?.configuration = configuration
+            self?.errorMessage = nil
+        }
+    }
+
+    /// The file the settings edit, shown so a power user can open it directly.
+    public var configPath: String { controller.configURL.path }
+
+    /// Re-read the shared snapshot (e.g. when the window is reopened after an
+    /// external file change).
+    public func refresh() {
+        configuration = controller.configuration
+        errorMessage = controller.lastError?.description
+        loginItemEnabled = loginItem.isEnabled
+        loginItemStatus = loginItem.statusDescription
+    }
+
+    /// Apply a settings edit through the shared store.
+    public func update(_ mutate: (inout DivotConfiguration) -> Void) {
+        switch controller.update(mutate) {
+        case .success(let configuration):
+            self.configuration = configuration
+            errorMessage = nil
+        case .failure(let error):
+            errorMessage = error.description
+        }
+    }
+
+    // MARK: Bar items
+
+    /// Show or hide an item. Showing places it on the left unless it already
+    /// lives somewhere.
+    public func setPlaced(_ id: BarItemID, _ placed: Bool) {
+        update { configuration in
+            if placed {
+                if !configuration.isPlaced(id) { configuration.move(id, to: .left) }
+            } else {
+                configuration.remove(id)
+            }
+        }
+    }
+
+    public func setSide(_ id: BarItemID, _ side: BarSide) {
+        update { configuration in
+            guard configuration.isPlaced(id), configuration.side(of: id) != side else { return }
+            configuration.move(id, to: side)
+        }
+    }
+
+    /// Move an item one slot earlier (`delta < 0`) or later (`delta > 0`) within
+    /// its current group.
+    public func moveWithinSide(_ id: BarItemID, delta: Int) {
+        update { configuration in
+            guard let side = configuration.side(of: id) else { return }
+            var items = configuration.items(on: side)
+            guard let index = items.firstIndex(of: id) else { return }
+            let target = index + delta
+            guard items.indices.contains(target) else { return }
+            items.swapAt(index, target)
+            configuration.remove(id)
+            for (offset, item) in items.enumerated() {
+                configuration.move(item, to: side, at: offset)
+            }
+        }
+    }
+
+    public func canMove(_ id: BarItemID, delta: Int) -> Bool {
+        guard let side = configuration.side(of: id) else { return false }
+        let items = configuration.items(on: side)
+        guard let index = items.firstIndex(of: id) else { return false }
+        return items.indices.contains(index + delta)
+    }
+
+    // MARK: Login item
+
+    public func setLaunchAtLogin(_ enabled: Bool) {
+        if loginItem.setEnabled(enabled) {
+            errorMessage = nil
+        } else {
+            errorMessage = "Could not update the login item. Check Login Items in System Settings."
+        }
+        loginItemEnabled = loginItem.isEnabled
+        loginItemStatus = loginItem.statusDescription
+    }
+}

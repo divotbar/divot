@@ -4,24 +4,36 @@ import DivotCore
 
 /// App lifecycle for the Divot shell.
 ///
-/// It is an accessory app: no Dock tile, no app menu, and the bar panels refuse
-/// key/main status, so launching Divot never steals focus from the frontmost
-/// app. The bar is filled from the built-in provider pipeline; physical
-/// fullscreen/Spaces/multi-display behavior is a separate human evidence gate.
+/// It is an accessory app: no Dock tile, and the bar panels refuse key/main
+/// status, so launching Divot never steals focus from the frontmost app. The bar
+/// is filled from the validated configuration: the display coordinator, the
+/// provider pipeline, and the workspace feed all follow the same published
+/// snapshot, so removing an item stops its provider and editing the file
+/// reconfigures the bar. Physical fullscreen/Spaces/multi-display behavior is a
+/// separate human evidence gate.
 @MainActor
 public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: DisplayCoordinator?
     private var pipeline: WidgetPipeline?
     private var pipelineTask: Task<Void, Never>?
     private var workspaceFeed: WorkspaceFeed?
+    private var configurationController: ConfigurationController?
+    private var configurationObserver: UUID?
+    private var settingsController: DivotSettingsWindowController?
+    private var statusItem: NSStatusItem?
     private var reportedWorkspaceAvailability = false
-
-    /// The first-launch item groups. The versioned configuration milestone
-    /// loads into this same shape.
-    private let layout = BarLayout.default
+    /// The manager the running workspace feed was started with, so a config
+    /// change applies options without re-probing and a re-added item restarts.
+    private var startedWorkspaceManager: WorkspaceManagerKind?
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        installMainMenu()
+        installStatusItem()
+
+        let controller = ConfigurationController()
+        self.configurationController = controller
+        let initial = controller.configuration
 
         // The workspace feed exists before the surfaces so each display's left
         // panel can subscribe to it as it is created.
@@ -29,16 +41,15 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         self.workspaceFeed = workspaceFeed
         let icons = WorkspaceIconInventory()
 
-        let layout = self.layout
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
-        let coordinator = DisplayCoordinator(adapter: adapter) { [weak workspaceFeed] id, screen in
+        let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak workspaceFeed] id, screen, configuration in
             let screensID = NSScreen.screens
                 .firstIndex { NSScreenGeometryProvider.displayID(of: $0) == id }
                 .map { $0 + 1 }
             return NSPanelBarSurface(id: id,
                                      on: screen,
-                                     layout: layout,
+                                     configuration: configuration,
                                      workspaceFeed: workspaceFeed,
                                      workspaceIcons: icons,
                                      displayScreensID: screensID) { action in
@@ -51,9 +62,17 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         let pipeline = WidgetPipeline { changes in
             coordinator.applyWidgetChanges(changes)
         }
-        let providers = DefaultWidgetProviders.make()
-        pipelineTask = Task { await pipeline.configure(providers) }
         self.pipeline = pipeline
+
+        configurationObserver = controller.addObserver { [weak self] configuration in
+            self?.apply(configuration)
+        }
+        apply(initial)
+
+        // Read the file away from the main thread; a valid document reconfigures
+        // the bar, an invalid one reports its field error and changes nothing.
+        controller.reloadAsync()
+        controller.startWatching()
 
         if !coordinator.accessibilityPermissionGranted {
             // Reported once at launch; the notched-display detector stays
@@ -61,15 +80,47 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             FileHandle.standardError.write(
                 Data("divot: Accessibility permission not granted; notched-display native-menu-bar detection is indeterminate.\n".utf8))
         }
-
-        startWorkspaceFeed()
     }
 
-    /// Start the workspace provider. The workspace indicators render in each
-    /// display's left panel; this also reports an honest unavailable reason when
-    /// no supported manager is present.
-    private func startWorkspaceFeed() {
+    // MARK: Configuration
+
+    /// Apply one validated configuration to every consumer.
+    private func apply(_ configuration: DivotConfiguration) {
+        coordinator?.apply(configuration: configuration)
+        let pipeline = self.pipeline
+        let providers = DefaultWidgetProviders.make(for: configuration)
+        Task { await pipeline?.configure(providers) }
+        applyWorkspaceRow(configuration)
+        applyAppearance(configuration.appearance)
+    }
+
+    /// Start, reconfigure, or stop the workspace row. When the item is not placed
+    /// anywhere the feed stops, so a disabled provider does not keep collecting.
+    private func applyWorkspaceRow(_ configuration: DivotConfiguration) {
         guard let feed = workspaceFeed else { return }
+        guard configuration.isPlaced(.workspaces) else {
+            if startedWorkspaceManager != nil {
+                feed.stop()
+                startedWorkspaceManager = nil
+            }
+            return
+        }
+
+        let options = WorkspaceEnvironmentOverrides
+            .displayOptions(configuration.widgets.workspaces.displayOptions)
+        let preferred = WorkspaceEnvironmentOverrides
+            .adapter(configuration.widgets.workspaces.adapter)
+        let selection = WorkspaceManagerSelector.select(preferred: preferred,
+                                                        installed: WorkspaceAdapterFactory.installedManagers())
+
+        // Same manager already running: apply the new options in place so the
+        // provider activity is not duplicated by a restart.
+        if startedWorkspaceManager == selection?.kind {
+            feed.setOptions(options)
+            return
+        }
+
+        startedWorkspaceManager = selection?.kind
         feed.onChange = { [weak self] state in
             guard let self, !self.reportedWorkspaceAvailability else { return }
             self.reportedWorkspaceAvailability = true
@@ -79,9 +130,6 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        let selection = WorkspaceManagerSelector.select(preferred: WorkspaceOptionsStore.preferredAdapter(),
-                                                        installed: WorkspaceAdapterFactory.installedManagers())
-        let options = WorkspaceOptionsStore.load()
         guard let selection else {
             feed.start(adapter: nil, eventSourceProvider: nil, options: options)
             return
@@ -93,7 +141,67 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                    options: options)
     }
 
+    /// Apply the System/Light/Dark variant. Theme family colors land with the
+    /// separate theme milestone; the variant is a live, app-wide override.
+    private func applyAppearance(_ appearance: AppearanceConfiguration) {
+        switch appearance.mode {
+        case .system: NSApp.appearance = nil
+        case .dark: NSApp.appearance = NSAppearance(named: .darkAqua)
+        case .light: NSApp.appearance = NSAppearance(named: .aqua)
+        }
+    }
+
+    // MARK: Menus
+
+    private func installMainMenu() {
+        let mainMenu = NSMenu()
+        let appMenuItem = NSMenuItem()
+        mainMenu.addItem(appMenuItem)
+        let appMenu = NSMenu()
+        let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        settings.target = self
+        appMenu.addItem(settings)
+        appMenu.addItem(.separator())
+        appMenu.addItem(NSMenuItem(title: "Quit Divot",
+                                  action: #selector(NSApplication.terminate(_:)),
+                                  keyEquivalent: "q"))
+        appMenuItem.submenu = appMenu
+        NSApp.mainMenu = mainMenu
+    }
+
+    /// A small menu-bar item is the reliable way to open settings from an
+    /// accessory app that owns no window at launch. It is Divot's own menu; it
+    /// never mirrors another application's menu extras.
+    private func installStatusItem() {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        item.button?.image = NSImage(systemSymbolName: "rectangle.topthird.inset.filled",
+                                     accessibilityDescription: "Divot")
+        item.button?.toolTip = "Divot"
+        let menu = NSMenu()
+        let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        settings.target = self
+        menu.addItem(settings)
+        menu.addItem(.separator())
+        menu.addItem(NSMenuItem(title: "Quit Divot",
+                                action: #selector(NSApplication.terminate(_:)),
+                                keyEquivalent: "q"))
+        item.menu = menu
+        statusItem = item
+    }
+
+    @objc private func openSettings() {
+        guard let controller = configurationController else { return }
+        if settingsController == nil {
+            settingsController = DivotSettingsWindowController(model: DivotSettingsModel(controller: controller))
+        }
+        settingsController?.present()
+    }
+
     public func applicationWillTerminate(_ notification: Notification) {
+        if let configurationObserver {
+            configurationController?.removeObserver(configurationObserver)
+        }
+        configurationController?.stopWatching()
         workspaceFeed?.stop()
         pipelineTask?.cancel()
         let pipeline = self.pipeline

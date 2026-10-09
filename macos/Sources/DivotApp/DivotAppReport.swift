@@ -39,8 +39,13 @@ enum DivotAppReport {
         // The screen mapping must be captured on the main actor before the
         // adapter runs its queries on background work.
         let displayIndex = ScreenDisplayIndexResolver.live()
+        // Read the validated configuration for the adapter and honor the same
+        // environment override the running app uses.
+        let store = ConfigurationStore()
+        _ = store.load()
+        let preferred = WorkspaceEnvironmentOverrides.adapter(store.current.widgets.workspaces.adapter)
         let installed = WorkspaceAdapterFactory.installedManagers()
-        guard let selection = WorkspaceManagerSelector.select(preferred: WorkspaceOptionsStore.preferredAdapter(),
+        guard let selection = WorkspaceManagerSelector.select(preferred: preferred,
                                                               installed: installed),
               let adapter = WorkspaceAdapterFactory.makeAdapter(for: selection.kind,
                                                                 displayIndex: displayIndex) else {
