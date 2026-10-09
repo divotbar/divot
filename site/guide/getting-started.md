@@ -1,6 +1,6 @@
 # Meet Divot
 
-A quieter edge for your Mac. Divot is an open-source native macOS bar built around a simple idea: workspaces live left of the camera notch; everyday status lives right of it.
+A quieter edge for your Mac. Divot is an open-source native macOS bar built around a simple idea: workspaces and the active app live left of the camera notch; everyday status lives right of it.
 
 ::: warning Pre-alpha
 There is no downloadable native app yet. The website, requirements, configuration examples, and Swift geometry library are available. App panels and providers are the next milestone. The preview below is a browser concept, not the running macOS app.
@@ -10,7 +10,7 @@ There is no downloadable native app yet. The website, requirements, configuratio
 
 ## What we're building
 
-A Swift/AppKit application for macOS 26+ on Apple silicon. A purposeful default layout, native interaction, local configuration, and event-driven updates. AeroSpace integration is planned first; the bar will remain useful without a window manager.
+A Swift/AppKit application for macOS 26+ on Apple silicon. A polished default — workspaces and the active app left of the camera, battery, clock, network, and volume to the right — and both sides are configurable. A native theme plus four families pair with light and dark. AeroSpace comes first, with yabai planned, and the bar stays useful without a window manager. Local configuration and event-driven updates throughout.
 
 ## Explore
 

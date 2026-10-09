@@ -1,6 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "appearance": {
+    "family": "dracula",
     "mode": "dark",
     "accent": "#B7CEFF",
     "material": "opaque"
@@ -10,13 +11,25 @@
     "padding": 14,
     "notchGap": 10
   },
-  "workspaces": {
-    "enabled": true,
-    "adapter": "aerospace",
-    "showEmpty": true
-  },
-  "status": [
+  "left": [
+    "workspaces",
+    "front-app"
+  ],
+  "right": [
     "battery",
-    "clock"
-  ]
+    "clock",
+    "network",
+    "volume"
+  ],
+  "widgets": {
+    "workspaces": {
+      "adapter": "aerospace",
+      "showEmpty": true,
+      "showAppIcons": true
+    },
+    "front-app": {
+      "showIcon": true,
+      "showName": true
+    }
+  }
 }

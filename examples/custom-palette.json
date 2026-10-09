@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "appearance": {
+    "family": "gruvbox",
+    "mode": "dark",
+    "accent": "#D6F58A",
+    "material": "opaque",
+    "palette": {
+      "foreground": "#EBDBB2",
+      "background": "#282828",
+      "accent": "#B8BB26",
+      "selected": "#458588",
+      "occupied": "#83A598",
+      "error": "#FB4934"
+    }
+  },
+  "layout": {
+    "height": 30,
+    "padding": 12,
+    "notchGap": 10
+  },
+  "left": [
+    "workspaces",
+    "front-app"
+  ],
+  "right": [
+    "battery",
+    "clock",
+    "network",
+    "volume"
+  ],
+  "widgets": {
+    "workspaces": {
+      "adapter": "aerospace",
+      "showEmpty": false,
+      "showAppIcons": true
+    },
+    "front-app": {
+      "showIcon": true,
+      "showName": true
+    },
+    "clock": {
+      "weekday": true,
+      "date": true,
+      "seconds": false
+    }
+  }
+}

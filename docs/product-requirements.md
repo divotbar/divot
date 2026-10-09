@@ -2,11 +2,11 @@
 
 ## Intent
 
-An open-source macOS bar that makes workspaces immediately legible and everyday status easy to access, without becoming another source of background load. The camera notch is a deliberate divide: navigation on the left, status on the right. People should be able to use a polished default and customize it without assembling a collection of shell scripts.
+An open-source macOS bar that makes workspaces immediately legible and everyday status easy to access, without becoming another source of background load. The camera notch is a deliberate divide: workspaces and the active app on the left, everyday status on the right. People should be able to use a polished default and customize either side without assembling a collection of shell scripts.
 
 ## Audience and platform
 
-Primary: Apple-silicon Mac users with AeroSpace, multiple workspaces, and a strong preference for native responsiveness. Initial minimum OS is macOS 26; Intel and older macOS are outside v1. Notched and notch-free displays, mixed scaling, and multi-monitor setups are required. AeroSpace is optional for the bar itself. Yabai is a later adapter, not an MVP dependency.
+Primary: Apple-silicon Mac users with AeroSpace, multiple workspaces, and a strong preference for native responsiveness. Initial minimum OS is macOS 26; Intel and older macOS are outside v1. Notched and notch-free displays, mixed scaling, and multi-monitor setups are required. AeroSpace is optional for the bar itself and is the first workspace adapter; yabai follows as a second adapter in its own milestone. Native macOS Spaces is a research question, not a committed adapter.
 
 ## Product principles
 
@@ -14,6 +14,7 @@ Primary: Apple-silicon Mac users with AeroSpace, multiple workspaces, and a stro
 - Native interactions: focus preservation, keyboard access, VoiceOver, system appearance.
 - Local first: no account, telemetry, cloud backend, or network request for core functionality.
 - Honest customization: one versioned configuration with useful errors; settings edit the same model.
+- Expressive but restrained: a comfortable native default plus four curated theme families, each with honest light and dark variants.
 - Performance is measured over the app, helpers, and compositor impact, not just one PID.
 
 ## Layout and display behavior
@@ -22,23 +23,25 @@ Use system-reported screen geometry, never a fixed notch width. On notched displ
 
 Each display has independent geometry and workspace assignment. Observe display configuration changes, backing-scale changes, sleep/wake, and workspace changes. Preserve customization when displays disappear. Stable display identifiers must be derived from system identity; transient array indices are not persistent IDs.
 
-The system menu bar remains accessible. MVP asks the user to enable system auto-hide if they want to use its top region; it does not force-hide system UI. Divot moves below the native bar when it is visible and returns to the top edge when it hides, staying continuously visible. Detecting native bar visibility, and the fullscreen/Spaces and multi-display behavior, are still under feasibility validation; the starter's earlier fullscreen-hide default is superseded pending that decision (see [the menu-bar evidence](evidence/0009-native-menu-bar-coexistence.md)). Reserving tiling space belongs to the window-manager adapter, not a claim that AppKit changes every app's work area.
+The system menu bar remains accessible and Divot stays visible around it. Persistent top/below behavior replaces the starter's earlier fullscreen-hide default: when the native menu bar is hidden, Divot occupies the top edge; when it appears, Divot shifts below it, and it returns to the top when the bar hides. If the system bar is configured always visible, Divot remains below it. This is a requirement, not a proven capability: detecting actual native-menu-bar visibility is still under feasibility validation, and on notched displays the camera housing masks the same band, so that case remains unresolved without a validated Accessibility observation. No run yet proves always-visible behavior. Fullscreen, Spaces, and multi-display limits will be documented with the design; see [the menu-bar evidence](evidence/0009-native-menu-bar-coexistence.md). Reserving tiling space belongs to the window-manager adapter, not a claim that AppKit changes every app's work area.
 
 ## MVP interaction
 
+Both sides are ordered `left`/`right` groups, and any supported item can move between them. Defaults preserve the first-launch bar.
+
 | Area | Required behavior |
 | --- | --- |
-| Left | Workspace indicators; distinguish focused, occupied, empty; click/keyboard activation through AeroSpace |
-| Right | Minute-resolution clock, battery, frontmost app; status providers fail independently |
+| Left | Workspace indicators and the frontmost application; distinguish focused, occupied, empty; optional per-workspace app icons; click/keyboard activation through the workspace adapter |
+| Right | Battery percentage, minute clock with weekday and date, network status, and volume; status providers fail independently |
 | Menus | AppKit menus/popovers; escape dismisses; focus returns predictably |
-| Settings | Reorder/enable widgets, size/padding, system or opaque appearance, launch at login |
+| Settings | Add/remove/reorder/move items on both sides, per-item options, theme family and System/Light/Dark, size/padding, material, launch at login |
 | Permissions | Request only when the enabled feature needs them; denial preserves other widgets |
 | Configuration | Validate before applying; invalid reload preserves last known good configuration |
 | Accessibility | Names, roles, selected state, actions, keyboard traversal; no color-only state |
 
 ## Release acceptance
 
-Two monitors with different scales; a built-in notched screen; an external notch-free screen; unplug/replug; sleep/wake; app activation; fullscreen transitions; menu-bar auto-hide; reduced motion/transparency; light/dark and VoiceOver must pass on physical hardware. Performance must pass the documented protocol. Sign and notarize the app; installation must not instruct users to strip quarantine. Website is static, responsive, keyboard usable, and labels unfinished features accurately.
+Two monitors with different scales; a built-in notched screen; an external notch-free screen; unplug/replug; sleep/wake; app activation; fullscreen transitions; persistent menu-bar top/below transitions; reduced motion/transparency; light/dark and all four theme families; and VoiceOver must pass on physical hardware. Performance must pass the documented protocol. Sign and notarize the app; installation must not instruct users to strip quarantine. Website is static, responsive, keyboard usable, and labels unfinished features accurately.
 
 ## Outside MVP
 
@@ -46,8 +49,8 @@ Third-party menu-extra mirroring, recreation of another application's menu tree,
 
 ## Current implementation
 
-Static Vue/VitePress website, public guides, proposed JSON examples, and Swift geometry foundation only. Every app behavior above is a requirement, not a delivered capability.
+Static Vue/VitePress website, public guides, proposed JSON examples, and Swift geometry foundation only. The left/right item model and the four theme families are proposed, not implemented. Every app behavior above is a requirement, not a delivered capability.
 
-## Appearance release gate
+## Appearance and themes
 
-System, Light, and Dark are first-class product modes. Follow system appearance live by default, allow explicit overrides, and persist the choice. Validate every workspace state, widget, settings surface, menu/popover, and error in both light and dark; respect increased contrast and reduced transparency. Changing mode must invalidate cached appearance-dependent assets only. Website and docs share a persisted theme preference; the landing retains the Tahoe palette in both modes.
+System, Light, and Dark remain first-class appearance modes, and the chosen theme family is a separate, persisted setting. Follow system appearance live by default, allow explicit overrides, and validate every workspace state, widget, settings surface, menu/popover, and error in both variants. Ship the comfortable native default plus four curated hacker families—Gruvbox, Ayu, Dracula, and Tokyo Night—as first-class release content, not deferred polish. Where an upstream family has no official light variant, label Divot's light adaptation honestly. Semantic color tokens carry foreground/background/accent/selected/occupied/error roles, and color alone never carries state. Changing family or mode invalidates cached appearance-dependent assets only; respect increased contrast and reduced transparency. Website and docs share a persisted theme preference; the landing retains the Tahoe palette in both modes.

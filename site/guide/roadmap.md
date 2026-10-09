@@ -9,13 +9,13 @@
 
 ## First native release
 
-AppKit panel shell → native providers → AeroSpace workspaces → configuration/settings → accessibility/device QA → measured performance → signed and notarized release.
+AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume) → AeroSpace workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release.
 
 There is no promised release date. Each step has its own acceptance criteria and review. A downloadable build appears only after the release gates pass.
 
 ## After that
 
-More native widgets, per-display customization, and an opt-in script protocol. Yabai and an update mechanism may follow. Third-party menu-extra mirroring and private system APIs are outside the initial scope.
+A yabai workspace adapter, more native widgets, per-display customization, and an opt-in script protocol. An update mechanism may follow, and native macOS Spaces remains a research question. Third-party menu-extra mirroring and private system APIs are outside the initial scope.
 
 ## Get involved
 

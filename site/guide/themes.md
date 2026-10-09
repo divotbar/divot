@@ -2,9 +2,29 @@
 
 The visual direction is alpine: lake blue, pine green, and warm paper. The actual bar should feel at home in macOS and stay legible over a changing desktop.
 
+## Theme families (planned)
+
+Alongside the comfortable native default, Divot ships four curated hacker families: Gruvbox, Ayu, Dracula, and Tokyo Night. Family and appearance are separate settings, so switching between System, Light, and Dark keeps the chosen family. Where a family has no official light variant, Divot's adaptation is labeled as its own. Semantic color tokens carry foreground, background, accent, selected, occupied, and error roles, and color alone never identifies a selected workspace. No family is delivered until its native surfaces exist.
+
 ## Appearance
 
 Proposed `appearance.mode` values are `system`, `dark`, and `light`. `system` follows the Mac's appearance. An accent must be a six-digit hex color such as `#B7CEFF`; color is never the only way to identify a selected workspace.
+
+## Custom palette overrides (proposed)
+
+A family is a starting point, not a cage. Under the same v2 configuration contract, `appearance.palette` overrides individual semantic color tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex values merged over the chosen family and variant. Set only what you want to change. `palette.accent` takes precedence over the root `accent`.
+
+```json
+"appearance": {
+  "family": "gruvbox",
+  "mode": "dark",
+  "accent": "#D6F58A",
+  "material": "opaque",
+  "palette": { "selected": "#458588", "occupied": "#83A598", "error": "#FB4934" }
+}
+```
+
+The checker validates this shape today; the native loader does not apply palettes yet, so treat overrides as proposed. Complete examples live in the [configuration reference](../reference/configuration).
 
 ## Materials
 
@@ -14,11 +34,12 @@ Proposed `appearance.mode` values are `system`, `dark`, and `light`. `system` fo
 
 ```json
 {
-  "version": 1,
-  "appearance": { "mode": "dark", "accent": "#D6F58A", "material": "opaque" },
+  "version": 2,
+  "appearance": { "family": "gruvbox", "mode": "dark", "accent": "#D6F58A", "material": "opaque" },
   "layout": { "height": 28, "padding": 10, "notchGap": 12 },
-  "workspaces": { "enabled": true, "adapter": "aerospace", "showEmpty": false },
-  "status": ["clock"]
+  "left": ["workspaces"],
+  "right": ["clock"],
+  "widgets": { "workspaces": { "showEmpty": false }, "clock": { "weekday": false, "date": true } }
 }
 ```
 
@@ -30,7 +51,7 @@ These browser presets communicate the visual direction. They are not exported na
 
 ## Share a theme
 
-Contribute a configuration example with a description and screenshot once the parser exists. Keep credentials out of examples. Test text contrast, focused/occupied states, notch and notch-free displays, and both appearance modes.
+A shared theme is a configuration example using the same v2 contract as your own file—nothing theme-specific is added. Start from a family, add `appearance.palette` overrides for your tweaks, and contribute the example with a description and screenshot once the parser exists. Keep credentials out of examples. Test text contrast, focused/occupied states, notch and notch-free displays, and both appearance modes.
 
 ## Website appearance
 
