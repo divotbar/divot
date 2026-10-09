@@ -2,7 +2,7 @@
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T16:41:14Z"
+updated_at: "2026-10-09T17:20:38Z"
 ---
 ## Problem
 
@@ -33,3 +33,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:14Z · story, body
+- 2026-10-09T17:20:38Z · status inbox→ready
