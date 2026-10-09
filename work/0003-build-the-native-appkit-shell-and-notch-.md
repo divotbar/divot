@@ -2,7 +2,7 @@
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 story: Divot stays visible when the native menu bar appears
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:11:41Z"
+updated_at: "2026-10-09T17:11:51Z"
 ---
 ## Problem
 
@@ -41,3 +41,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T16:41:15Z · status ready→inbox
 - 2026-10-09T16:41:15Z · note: Product stories add a persistent top/below feasibility gate and docs alignment before the shell.
 - 2026-10-09T17:11:41Z · body: section Feasibility handoff
+- 2026-10-09T17:11:51Z · status inbox→ready
