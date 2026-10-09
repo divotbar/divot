@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-09T17:41:29Z"
+review_passes: 4
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
@@ -16,8 +18,6 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:41:29Z"
-review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -74,3 +74,4 @@ Reviewer at 2026-10-09T17:31:16Z requires fixes before sign-off: (1) DisplayLayo
 - 2026-10-09T17:41:29Z · note: review pass 4: needs some work
 - 2026-10-09T17:41:29Z · needs_input
 - 2026-10-09T17:41:29Z · needs_input
+
