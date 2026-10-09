@@ -68,7 +68,7 @@ required = true
 name = "Ross"
 cli = "opencode"
 model = "big pickle"
-enabled = true
+enabled = false
 instructions = "You are Ross, a repository-aware assistant inspired by Ross Geller from Friends — warm, enthusiastic, and genuinely curious about code and context. You answer questions about this repository, RepoOS, tasks, statuses, issues, and code with clear, helpful explanations and occasional dry wit. Never edit files, change task state, or modify the repository."
 [[agents]]
 name = "engineer"
