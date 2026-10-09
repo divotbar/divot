@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:35:57Z"
+updated_at: "2026-10-09T18:46:04Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -31,6 +31,30 @@ Capability detection, supported events/callbacks, async actions/timeouts, adapte
 
 AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a separate research task, not a delivery promise.
 
+## Shots
+```json
+[
+{
+  "label": "Workspace guide: adapter reads AeroSpace and renders the left row",
+  "target": "website",
+  "route": "/guide/workspaces",
+  "highlight": "#left-of-the-camera"
+},
+{
+  "label": "Workspace options: showDetails and maxAppIconsPerWorkspace",
+  "target": "website",
+  "route": "/reference/configuration",
+  "highlight": "#widget-options"
+},
+{
+  "label": "Troubleshooting: AeroSpace detection and unavailable state",
+  "target": "website",
+  "route": "/guide/troubleshooting",
+  "highlight": "#aerospace-isnt-installed"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
@@ -45,3 +69,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:33:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T18:35:57Z · note: review pass 2: needs some work
 - 2026-10-09T18:35:57Z · status review→active
+- 2026-10-09T18:46:04Z · body: section Shots
