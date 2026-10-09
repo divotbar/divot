@@ -86,6 +86,11 @@ public struct DivotSettingsView: View {
 
     private var workspacesSection: some View {
         Section("Workspaces") {
+            Picker("Window manager", selection: binding(\.widgets.workspaces.adapter)) {
+                ForEach(WorkspacesConfiguration.supportedAdapters, id: \.self) { kind in
+                    Text(kind.displayName).tag(kind)
+                }
+            }
             Toggle("Show empty workspaces",
                    isOn: binding(\.widgets.workspaces.showEmpty))
             Toggle("Show app icons",

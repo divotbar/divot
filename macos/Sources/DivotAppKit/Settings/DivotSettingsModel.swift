@@ -29,6 +29,13 @@ public final class DivotSettingsModel {
         self.errorMessage = controller.lastError?.description
         self.loginItemEnabled = loginItem.isEnabled
         self.loginItemStatus = loginItem.statusDescription
+        // Keep the window in step with external edits (the file watcher) and with
+        // the bar's own reloads. Values are equal after our own save, so this is
+        // idempotent; there is no second copy of the truth.
+        controller.addObserver { [weak self] configuration in
+            self?.configuration = configuration
+            self?.errorMessage = nil
+        }
     }
 
     /// The file the settings edit, shown so a power user can open it directly.

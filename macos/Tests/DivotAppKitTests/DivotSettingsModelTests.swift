@@ -93,3 +93,13 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
     model.setLaunchAtLogin(false)
     #expect(model.errorMessage != nil)
 }
+
+@MainActor
+@Test func modelFollowsChangesPublishedByTheSharedController() throws {
+    let (model, controller) = try makeModel()
+
+    // An external reload or a save elsewhere publishes through the controller;
+    // the open window follows it instead of holding a stale copy.
+    controller.update { $0.appearance.mode = .dark }
+    #expect(model.configuration.appearance.mode == .dark)
+}

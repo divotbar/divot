@@ -107,6 +107,55 @@ private func write(_ json: String, to url: URL) throws {
     #expect(second.load() == .loaded)
 }
 
+@Test func failedMigrationWriteKeepsTheLastGoodSnapshot() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    try write(#"{"version":1,"status":["battery","clock"]}"#, to: url)
+
+    // The backup succeeds, then the version 2 rewrite fails.
+    let store = ConfigurationStore(configURL: url,
+                                   fileManager: .default,
+                                   writeData: { _, _ in throw CocoaError(.fileWriteUnknown) })
+    let before = store.current
+
+    guard case .invalid(let error) = store.load() else {
+        Issue.record("expected the migration write to fail")
+        return
+    }
+    #expect(error.message.contains("migration could not be written"))
+    // The migrated document never becomes current on a failed write.
+    #expect(store.current == before)
+    #expect(store.lastOutcome == .invalid(error))
+
+    // The original version 1 document is untouched, so the next launch retries.
+    let original = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(original?["version"] as? Int == 1)
+}
+
+@Test func migrationWithoutABackupableOriginalKeepsTheLastGoodSnapshot() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    try write(#"{"version":1,"status":["clock"]}"#, to: url)
+    try FileManager.default.setAttributes([.posixPermissions: 0o500], ofItemAtPath: directory.path)
+    defer {
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path)
+    }
+
+    // A privileged runner can write through the permission bits; only assert
+    // when the directory is genuinely not writable.
+    let probe = directory.appendingPathComponent("probe.json")
+    let writable = (try? Data("x".utf8).write(to: probe)) != nil
+    try? FileManager.default.removeItem(at: probe)
+    guard !writable else { return }
+
+    let store = ConfigurationStore(configURL: url)
+    guard case .invalid = store.load() else {
+        Issue.record("expected the migration to fail")
+        return
+    }
+    #expect(store.current == .default)
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])

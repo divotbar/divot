@@ -48,12 +48,24 @@ public final class ConfigurationStore: @unchecked Sendable {
 
     private let backupURL: URL
     private let fileManager: FileManager
+    private let writeData: (Data, URL) throws -> Void
     private let lock = NSLock()
 
-    public init(configURL: URL = DivotConfigLocation.defaultURL(),
-                fileManager: FileManager = .default) {
+    public convenience init(configURL: URL = DivotConfigLocation.defaultURL(),
+                            fileManager: FileManager = .default) {
+        self.init(configURL: configURL,
+                  fileManager: fileManager,
+                  writeData: ConfigurationStore.atomicWrite)
+    }
+
+    /// Designated initializer. `writeData` is a seam so a test can force a disk
+    /// failure deterministically; production passes the atomic writer.
+    init(configURL: URL,
+         fileManager: FileManager,
+         writeData: @escaping (Data, URL) throws -> Void) {
         self.configURL = configURL
         self.fileManager = fileManager
+        self.writeData = writeData
         self.current = .default
         self.lastOutcome = .defaults
         let base = configURL.deletingPathExtension().lastPathComponent
@@ -62,8 +74,19 @@ public final class ConfigurationStore: @unchecked Sendable {
             .appendingPathComponent("\(base)-v1-backup.\(ext)")
     }
 
+    /// Foundation's atomic write stages a sibling temp file and renames it, so a
+    /// crash mid-write can never leave a half-written document.
+    static func atomicWrite(_ data: Data, to url: URL) throws {
+        try data.write(to: url, options: .atomic)
+    }
+
     /// Read the file and update the active snapshot. Never throws: the outcome
     /// carries either the new snapshot or the field error to explain.
+    ///
+    /// `current` only advances once a document is accepted *and* any required
+    /// migration has been durably written. A failed migration therefore leaves
+    /// the previous last-good snapshot active, so a later settings save can
+    /// never persist from a half-applied in-memory state.
     @discardableResult
     public func load() -> Outcome {
         lock.lock()
@@ -75,26 +98,9 @@ public final class ConfigurationStore: @unchecked Sendable {
             return lastOutcome
         }
 
+        let parsed: ParsedConfiguration
         do {
-            let data = try Data(contentsOf: configURL)
-            let parsed = try ConfigurationParser.parse(data)
-            if let fromVersion = parsed.migratedFromVersion {
-                let backup = backupOriginal()
-                current = parsed.configuration
-                do {
-                    try write(parsed.configuration)
-                } catch {
-                    let writeError = ConfigurationError(path: "root",
-                                                        message: "migrated but could not write: \(error)")
-                    lastOutcome = .invalid(writeError)
-                    return lastOutcome
-                }
-                lastOutcome = .migrated(fromVersion: fromVersion, backupURL: backup)
-                return lastOutcome
-            }
-            current = parsed.configuration
-            lastOutcome = .loaded
-            return lastOutcome
+            parsed = try ConfigurationParser.parse(Data(contentsOf: configURL))
         } catch let error as ConfigurationError {
             lastOutcome = .invalid(error)
             return lastOutcome
@@ -102,6 +108,27 @@ public final class ConfigurationStore: @unchecked Sendable {
             lastOutcome = .invalid(ConfigurationError(path: "root", message: "\(error)"))
             return lastOutcome
         }
+
+        if let fromVersion = parsed.migratedFromVersion {
+            // Back up the original before it is overwritten, then write the
+            // version 2 document. Only after both succeed does the migrated
+            // configuration become current; a failure keeps the last good
+            // snapshot and reports it.
+            do {
+                let backup = try backupOriginal()
+                try write(parsed.configuration)
+                current = parsed.configuration
+                lastOutcome = .migrated(fromVersion: fromVersion, backupURL: backup)
+            } catch {
+                lastOutcome = .invalid(ConfigurationError(path: "root",
+                                                          message: "migration could not be written: \(error)"))
+            }
+            return lastOutcome
+        }
+
+        current = parsed.configuration
+        lastOutcome = .loaded
+        return lastOutcome
     }
 
     /// Validate and atomically write `configuration`, then make it current.
@@ -134,7 +161,7 @@ public final class ConfigurationStore: @unchecked Sendable {
         try fileManager.createDirectory(at: configURL.deletingLastPathComponent(),
                                         withIntermediateDirectories: true)
         let data = try encode(configuration)
-        try data.write(to: configURL, options: .atomic)
+        try writeData(data, configURL)
     }
 
     private func encode(_ configuration: DivotConfiguration) throws -> Data {
@@ -142,10 +169,12 @@ public final class ConfigurationStore: @unchecked Sendable {
                                    options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
     }
 
-    /// Copy the current file to the backup path before it is overwritten.
-    private func backupOriginal() -> URL {
+    /// Copy the current file to the backup path before it is overwritten. Throws
+    /// when the original cannot be preserved, so a migration never destroys the
+    /// only recoverable copy.
+    private func backupOriginal() throws -> URL {
         try? fileManager.removeItem(at: backupURL)
-        try? fileManager.copyItem(at: configURL, to: backupURL)
+        try fileManager.copyItem(at: configURL, to: backupURL)
         return backupURL
     }
 }
