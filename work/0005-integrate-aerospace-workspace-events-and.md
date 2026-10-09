@@ -97,3 +97,4 @@ Independent review at 2026-10-09T19:02:25Z found two remaining blockers. Workspa
 - 2026-10-09T19:02:52Z · body: section Final focused review repair
 - 2026-10-09T19:02:54Z · status review→active
 - 2026-10-09T19:07:29Z · status active→review
+- 2026-10-09T19:07:29Z · note: shots: skipped — 3 handoff shots already captured for this exact plan (ace4c66) during finalization (#0734)
