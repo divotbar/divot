@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T18:48:39Z"
-review_passes: 4
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
@@ -12,10 +10,8 @@ depends_on: ["0003"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-native-provider-lifecycle-and-
-review_cli_override: cursor
-review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-review_rounds: 2
+updated_at: "2026-10-09T18:47:39Z"
 ---
 ## Problem
 
@@ -39,23 +35,6 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T16:41:13Z · story, body
 - 2026-10-09T17:20:38Z · status inbox→ready
 - 2026-10-09T18:02:46Z · status ready→active, branch
-- 2026-10-09T18:27:00Z · status active→review
-- 2026-10-09T18:27:00Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T18:29:05Z · note: review pass 1: needs some work
-- 2026-10-09T18:29:05Z · status review→active
-- 2026-10-09T18:36:45Z · status active→review
-- 2026-10-09T18:36:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T18:38:27Z · note: review pass 2: needs some work
-- 2026-10-09T18:38:27Z · status review→active
-- 2026-10-09T18:41:45Z · status active→review
-- 2026-10-09T18:41:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T18:43:05Z · note: review pass 3: needs some work
-- 2026-10-09T18:43:05Z · needs_input
-- 2026-10-09T18:43:22Z · review_cli_override
-- 2026-10-09T18:43:25Z · review_model_override
+- 2026-10-09T18:26:59Z · status active→review
 - 2026-10-09T18:44:11Z · status review→active
 - 2026-10-09T18:47:39Z · status active→review
-- 2026-10-09T18:47:39Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T18:48:39Z · note: review pass 4: good to go
-- 2026-10-09T18:48:39Z · needs_input
-
