@@ -26,19 +26,24 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     private var activationObserver: NSObjectProtocol?
     private var lastState: WorkspaceFeedState?
     private var lastWidth: CGFloat = -1
+    private let metrics: BarMetrics
 
-    private let horizontalInset: CGFloat = 8
-    private let chipSpacing: CGFloat = 6
+    private let horizontalInset: CGFloat
+    private let chipSpacing: CGFloat
     private let overflowControlWidth: CGFloat = 30
 
     public init(feed: WorkspaceFeed,
                 icons: WorkspaceIconProviding,
                 displayScreensID: Int?,
-                showsFrontApp: Bool = true) {
+                showsFrontApp: Bool = true,
+                metrics: BarMetrics = .default) {
         self.feed = feed
         self.icons = icons
         self.displayScreensID = displayScreensID
         self.showsFrontApp = showsFrontApp
+        self.metrics = metrics
+        self.horizontalInset = metrics.rowInset
+        self.chipSpacing = metrics.chipSpacing
         super.init(frame: .zero)
         setup()
     }
@@ -72,7 +77,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         }
 
         guard showsFrontApp else { return }
-        frontAppLabel.font = .systemFont(ofSize: 11)
+        frontAppLabel.font = .systemFont(ofSize: metrics.chipFontSize)
         frontAppLabel.textColor = .secondaryLabelColor
         frontAppLabel.lineBreakMode = .byTruncatingTail
         frontAppLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -186,7 +191,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         button.setAccessibilityValue(workspace.isFocused ? "selected" : "")
 
         let weight: NSFont.Weight = workspace.isFocused ? .semibold : .regular
-        let font = NSFont.systemFont(ofSize: 11, weight: weight)
+        let font = NSFont.systemFont(ofSize: metrics.chipFontSize, weight: weight)
         let tint: NSColor? = (occupancy == .empty || occupancy == .unknown) && !workspace.isFocused
             ? .secondaryLabelColor : nil
         button.attributedTitle = chipTitle(for: workspace,

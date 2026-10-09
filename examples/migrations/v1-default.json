@@ -7,8 +7,8 @@
     "material": "native"
   },
   "layout": {
-    "height": 32,
-    "padding": 12,
+    "height": 24,
+    "padding": 6,
     "notchGap": 10
   },
   "status": [
