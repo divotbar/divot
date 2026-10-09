@@ -2,15 +2,15 @@
 id: "0009"
 title: Prove always-visible native menu-bar coexistence on macOS 26
 type: feature
-status: ready
+status: active
 priority: p1
 area: macos
 story: Divot stays visible when the native menu bar appears
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/prove-always-visible-native-menu-bar-coe
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T16:41:15Z"
+updated_at: "2026-10-09T16:43:08Z"
 ---
 ## Problem
 
@@ -33,3 +33,4 @@ This is a feasibility gate before the full shell. Read the always-visible story;
 - 2026-10-09T16:41:12Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:15Z · status inbox→ready
 - 2026-10-09T16:41:15Z · note: User-approved defining behavior needs early proof before app shell work.
+- 2026-10-09T16:43:08Z · status ready→active, branch
