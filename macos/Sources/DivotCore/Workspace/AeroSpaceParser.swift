@@ -9,9 +9,10 @@ import Foundation
 public enum AeroSpaceCLI {
     public static let fieldSeparator: Character = "\t"
 
-    /// `workspace`, focused, visible, monitor id, monitor name.
+    /// `workspace`, focused, visible, monitor id, monitor name, and AeroSpace's
+    /// 1-based `NSScreen.screens` index for mapping a workspace to a display.
     public static let listWorkspacesFormat =
-        "%{workspace}%{tab}%{workspace-is-focused}%{tab}%{workspace-is-visible}%{tab}%{monitor-id}%{tab}%{monitor-name}"
+        "%{workspace}%{tab}%{workspace-is-focused}%{tab}%{workspace-is-visible}%{tab}%{monitor-id}%{tab}%{monitor-name}%{tab}%{monitor-appkit-nsscreen-screens-id}"
 
     /// `workspace`, bundle id, app name, pid, window id.
     public static let listWindowsFormat =
@@ -44,11 +45,12 @@ public enum AeroSpaceCLI {
                          timeout: timeout)
     }
 
-    /// Persistent event subscription. `--no-send-initial` suppresses the initial
-    /// state burst because the feed takes its own first snapshot.
+    /// Persistent event subscription. AeroSpace sends its current state on
+    /// connect, which the feed treats as an ordinary event: that closes the gap
+    /// between the initial snapshot and the subscription being established.
     public static func subscribe(executable: String) -> WorkspaceCommand {
         WorkspaceCommand(executable: executable,
-                         arguments: ["subscribe", "--all", "--no-send-initial"],
+                         arguments: ["subscribe", "--all"],
                          timeout: 0.1)
     }
 
@@ -80,7 +82,8 @@ public enum AeroSpaceParser {
             let monitor: WorkspaceMonitor? = {
                 guard fields.count > 3, let id = Int(fields[3].trimmingCharacters(in: .whitespaces)) else { return nil }
                 let monitorName = fields.count > 4 ? fields[4].trimmingCharacters(in: .whitespaces) : ""
-                return WorkspaceMonitor(id: id, name: monitorName)
+                let screensID = fields.count > 5 ? Int(fields[5].trimmingCharacters(in: .whitespaces)) : nil
+                return WorkspaceMonitor(id: id, name: monitorName, screensID: screensID)
             }()
 
             return Workspace(id: WorkspaceID(name), isFocused: focused, isVisible: visible, monitor: monitor)

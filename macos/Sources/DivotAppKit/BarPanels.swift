@@ -8,6 +8,12 @@ public protocol BarDisplaySurface: AnyObject {
     func close()
 }
 
+/// Panel content that must release observers when its panel is torn down.
+@MainActor
+public protocol BarContentLifecycle: AnyObject {
+    func barContentDidDetach()
+}
+
 /// Two borderless, nonactivating `NSPanel`s per display.
 ///
 /// The split around the camera housing is the whole reason there are two panels:
@@ -27,10 +33,12 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     private let right: NonActivatingPanel
     private var targets: [ObjectIdentifier: CGRect] = [:]
 
-    public init(id: DisplayBarID, on screen: CGRect) {
+    public init(id: DisplayBarID, on screen: CGRect,
+                leftContent: NSView? = nil,
+                rightContent: NSView? = nil) {
         self.id = id
-        self.left = Self.makePanel(on: screen)
-        self.right = Self.makePanel(on: screen)
+        self.left = Self.makePanel(on: screen, content: leftContent ?? BarSegmentView())
+        self.right = Self.makePanel(on: screen, content: rightContent ?? BarSegmentView())
         left.orderFrontRegardless()
         right.orderFrontRegardless()
     }
@@ -46,13 +54,15 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     }
 
     public func close() {
+        (left.contentView as? BarContentLifecycle)?.barContentDidDetach()
+        (right.contentView as? BarContentLifecycle)?.barContentDidDetach()
         left.orderOut(nil)
         right.orderOut(nil)
         left.close()
         right.close()
     }
 
-    private static func makePanel(on screen: CGRect) -> NonActivatingPanel {
+    private static func makePanel(on screen: CGRect, content: NSView) -> NonActivatingPanel {
         let panel = NonActivatingPanel(contentRect: CGRect(x: screen.minX, y: screen.maxY, width: 1, height: 1),
                                        styleMask: [.borderless, .nonactivatingPanel],
                                        backing: .buffered,
@@ -70,7 +80,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         panel.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue - 1)
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
         panel.animationBehavior = .none
-        panel.contentView = BarSegmentView()
+        panel.contentView = content
         return panel
     }
 

@@ -8,7 +8,7 @@ This page describes the native app requirements. The interactive website demonst
 
 Workspace indicators and the frontmost program belong on the left. The focused workspace has both a clear visual shape and an accessible selected state. Occupied and empty workspaces should be distinguishable without relying on color alone. Optional per-workspace app icons show what is running and can be turned off.
 
-AeroSpace is the initial adapter; yabai follows as a second adapter in its own milestone. Workspace activation is asynchronous; a slow command must never freeze the bar. Supported events/callbacks drive refreshes rather than continuous shell polling. The adapter layer reads real workspace names and focus/occupied/empty state from AeroSpace's documented CLI and subscribes to its documented events; the visible indicator row itself is not implemented yet.
+AeroSpace is the initial adapter; yabai follows as a second adapter in its own milestone. Workspace activation is asynchronous; a slow command must never freeze the bar. Supported events/callbacks drive refreshes rather than continuous shell polling. The adapter reads real workspace names and focus/occupied/empty state from AeroSpace's documented CLI, subscribes to its documented events, and draws the row in the left panel. On-device appearance and interaction are still being validated.
 
 ## Right of the camera
 

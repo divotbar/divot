@@ -18,7 +18,7 @@ Run `swift --version` and verify Xcode 26+ is selected. This foundation targets 
 
 ## AeroSpace isn't installed
 
-It is not needed to run the website or geometry tests. The bar runs without it and shows an honest unavailable state for workspaces rather than inventing numbered spaces. When AeroSpace is installed, the adapter detects the documented CLI and reads real workspaces; the visible indicator row is not implemented yet. yabai follows later. Do not grant Accessibility permission for website previews.
+It is not needed to run the website or geometry tests. The bar runs without it and shows an honest unavailable state for workspaces rather than inventing numbered spaces. When AeroSpace is installed, the adapter detects the documented CLI, reads real workspaces, and draws them in the left panel. yabai follows later. Do not grant Accessibility permission for website previews.
 
 ## A theme or side doesn't change anything
 

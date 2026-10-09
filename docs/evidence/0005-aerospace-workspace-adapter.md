@@ -60,15 +60,18 @@ classified as not requiring a snapshot refresh.
 
 ## Not observed (human/later verification)
 
-- **Rendering.** Workspace indicators are not drawn yet; the adapter and feed
-  publish state, and the visible widget lands in its own task.
+- **On-device rendering.** The left-panel workspace row is now implemented
+  (`WorkspaceBarView`) and exercised by view smoke tests, but its actual
+  appearance — fonts, chip spacing, the overflow control, and app-icon drawing —
+  was not observed on screen.
 - **Sustained subscription.** Only the raw documented event lines were captured
   for a few seconds. The app-owned `AeroSpaceSubscription` stream, its teardown,
-  and event-driven refresh over time were not measured.
+  and the feed's reconnect-and-refresh behavior over time were not measured on
+  hardware (reconnect is covered by fixture tests).
 - **Multi-monitor mapping.** This run had a single display; the per-monitor
-  grouping and overflow are covered by fixtures, not by two live monitors.
-- **Activation clicks, icon rendering, and performance.** Clicking an indicator
-  through the bar, app-icon drawing, and the workspace-burst performance budget
-  remain unmeasured on hardware.
+  filtering (by AeroSpace's `monitor-appkit-nsscreen-screens-id`) and overflow
+  are covered by fixtures, not by two live monitors.
+- **Activation clicks and performance.** Clicking a chip through the bar and the
+  workspace-burst performance budget remain unmeasured on hardware.
 
 No physical multi-display, VoiceOver, or performance claim is made from this run.

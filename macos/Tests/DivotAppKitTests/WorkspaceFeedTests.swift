@@ -51,6 +51,73 @@ private struct FakeAdapter: WorkspaceAdapting {
     func stop() async {}
 }
 
+/// Counts snapshot reads so a test can prove an event caused a refresh.
+private final class Counter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+
+    func increment() {
+        lock.lock()
+        value += 1
+        lock.unlock()
+    }
+
+    var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
+    }
+}
+
+private final class CountingAdapter: WorkspaceAdapting, @unchecked Sendable {
+    let kind: WorkspaceManagerKind = .aerospace
+    private let counter = Counter()
+    private let snapshotValue: WorkspaceSnapshot
+
+    init(snapshot: WorkspaceSnapshot) {
+        self.snapshotValue = snapshot
+    }
+
+    func capabilities() async -> WorkspaceAvailability { .available(.full) }
+
+    func snapshot() async throws -> WorkspaceSnapshot {
+        counter.increment()
+        return snapshotValue
+    }
+
+    func activate(_ workspace: WorkspaceID) async throws {}
+    func stop() async {}
+
+    var snapshotCount: Int { counter.count }
+}
+
+/// A one-shot event source backed by an `AsyncStream`.
+private final class FakeEventSource: WorkspaceEventSource, @unchecked Sendable {
+    private let continuation: AsyncStream<WorkspaceEvent>.Continuation
+    private let stream: AsyncStream<WorkspaceEvent>
+    private let lock = NSLock()
+    private var stopped = false
+
+    init() {
+        var captured: AsyncStream<WorkspaceEvent>.Continuation!
+        stream = AsyncStream { captured = $0 }
+        continuation = captured
+    }
+
+    func events() -> AsyncStream<WorkspaceEvent> { stream }
+
+    func stop() async { finish() }
+
+    func send(_ event: WorkspaceEvent) { continuation.yield(event) }
+    func finish() {
+        lock.lock()
+        let alreadyStopped = stopped
+        stopped = true
+        lock.unlock()
+        if !alreadyStopped { continuation.finish() }
+    }
+}
+
 // MARK: - Feed orchestration
 
 @MainActor
@@ -150,4 +217,75 @@ private struct FakeAdapter: WorkspaceAdapting {
 
     feed.stop()
     #expect(feed.state.snapshot == nil)
+}
+
+@MainActor
+@Test func subscriptionStartsBeforeTheInitialSnapshotSoAnEarlyEventIsNotMissed() async {
+    let adapter = CountingAdapter(snapshot: WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace("1")]))
+    let source = FakeEventSource()
+    // The event is buffered, so it is delivered as soon as the subscription is
+    // iterated — the window the review flagged as a missed change.
+    source.send(.focusChanged(workspace: WorkspaceID("2")))
+    source.finish()
+
+    var providerCalls = 0
+    let feed = WorkspaceFeed(debounce: .zero, reconnectDelay: { _ in .zero })
+    feed.start(adapter: adapter, eventSourceProvider: {
+        providerCalls += 1
+        return providerCalls == 1 ? source : nil
+    }, options: .default)
+    await feed.waitForEventProcessing()
+
+    // One read from start plus at least one more from the buffered event.
+    #expect(adapter.snapshotCount >= 2)
+}
+
+@MainActor
+@Test func feedReconnectsAfterASubscriptionEnds() async {
+    let adapter = CountingAdapter(snapshot: WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace("1")]))
+    let secondSource = FakeEventSource()
+    secondSource.send(.focusedWorkspaceChanged(workspace: WorkspaceID("2"), previous: WorkspaceID("1")))
+    secondSource.finish()
+
+    var providerCalls = 0
+    let feed = WorkspaceFeed(debounce: .zero, reconnectDelay: { _ in .zero })
+    feed.start(adapter: adapter, eventSourceProvider: {
+        providerCalls += 1
+        switch providerCalls {
+        case 1:
+            let dropped = FakeEventSource()
+            dropped.finish()  // simulate a subscription that ends immediately
+            return dropped
+        case 2:
+            return secondSource
+        default:
+            return nil
+        }
+    }, options: .default)
+    await feed.waitForEventProcessing()
+
+    #expect(providerCalls >= 2)
+    #expect(adapter.snapshotCount >= 2)
+}
+
+@MainActor
+@Test func feedDoesNotSubscribeWhenTheCapabilityIsMissing() async {
+    let adapter = FakeAdapter(availability: .available(WorkspaceCapabilities(
+        supportsListWorkspaces: true,
+        supportsListWindows: true,
+        supportsSubscription: false,
+        supportsCallbacks: true,
+        supportsMonitorAssignment: true)),
+        snapshotValue: WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace("1")]),
+        activation: nil)
+    let source = FakeEventSource()
+    source.finish()
+    var providerCalls = 0
+    let feed = WorkspaceFeed(debounce: .zero, reconnectDelay: { _ in .zero })
+    feed.start(adapter: adapter, eventSourceProvider: {
+        providerCalls += 1
+        return source
+    }, options: .default)
+    await feed.waitForPendingWork()
+    #expect(providerCalls == 0)
 }

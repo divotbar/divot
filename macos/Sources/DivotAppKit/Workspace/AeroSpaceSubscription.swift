@@ -31,8 +31,8 @@ public final class AeroSpaceSubscription: WorkspaceEventSource, @unchecked Senda
             let buffer = SubscriptionLineBuffer()
             handle.readabilityHandler = { fileHandle in
                 let data = fileHandle.availableData
-                guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
-                for line in buffer.consume(text) {
+                guard !data.isEmpty else { return }
+                for line in buffer.consume(data) {
                     if let event = AeroSpaceParser.event(fromLine: line) {
                         continuation.yield(event)
                     }
@@ -75,20 +75,31 @@ public final class AeroSpaceSubscription: WorkspaceEventSource, @unchecked Senda
     }
 }
 
-/// Buffers a byte stream into whole lines so a JSON event split across two pipe
-/// reads is not dropped. The readability handler can arrive on a background
-/// queue, so access is serialized.
+/// Buffers a byte stream into whole UTF-8 lines.
+///
+/// Splitting on the newline byte before decoding means a chunk that ends in the
+/// middle of a multibyte character is kept intact instead of being dropped. The
+/// readability handler can arrive on a background queue, so access is
+/// serialized.
 final class SubscriptionLineBuffer: @unchecked Sendable {
     private let lock = NSLock()
-    private var pending = ""
+    private var pending = Data()
 
-    func consume(_ chunk: String) -> [String] {
+    func consume(_ data: Data) -> [String] {
         lock.lock()
         defer { lock.unlock() }
-        pending += chunk
-        let parts = pending.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-        // The final fragment may be an incomplete line; keep it for next time.
-        pending = parts.last ?? ""
-        return parts.dropLast().filter { !$0.isEmpty }
+        pending.append(data)
+
+        var lines: [String] = []
+        while let newline = pending.firstIndex(of: 0x0A) {
+            let lineData = pending[pending.startIndex..<newline]
+            pending.removeSubrange(pending.startIndex...newline)
+            // A line that fails to decode is dropped rather than corrupting the
+            // next one; the bytes up to the newline are never split.
+            if let line = String(data: lineData, encoding: .utf8), !line.isEmpty {
+                lines.append(line)
+            }
+        }
+        return lines
     }
 }

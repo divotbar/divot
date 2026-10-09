@@ -33,6 +33,13 @@ public struct WorkspaceCapabilities: Equatable, Sendable {
                                                    supportsSubscription: false,
                                                    supportsCallbacks: false,
                                                    supportsMonitorAssignment: false)
+
+    /// Every capability the AeroSpace adapter can detect.
+    public static let full = WorkspaceCapabilities(supportsListWorkspaces: true,
+                                                   supportsListWindows: true,
+                                                   supportsSubscription: true,
+                                                   supportsCallbacks: true,
+                                                   supportsMonitorAssignment: true)
 }
 
 /// Why workspace navigation is not available. Every case is honest: Divot never

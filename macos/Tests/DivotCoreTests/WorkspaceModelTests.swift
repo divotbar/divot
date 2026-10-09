@@ -33,6 +33,13 @@ private func sampleSnapshot() -> WorkspaceSnapshot {
     #expect(workspaces[3].monitor == WorkspaceMonitor(id: 2, name: "DELL U2720Q"))
 }
 
+@Test func parsesTheNScreenIndexForMonitorMapping() {
+    let output = "1\tfalse\ttrue\t1\tBuilt-in Retina Display\t1\n2\tfalse\tfalse\t2\tDELL U2720Q\t2"
+    let workspaces = AeroSpaceParser.workspaces(from: output)
+    #expect(workspaces[0].monitor?.screensID == 1)
+    #expect(workspaces[1].monitor?.screensID == 2)
+}
+
 @Test func workspacesDeduplicateAppIconsByBundleIdentity() {
     // The parser reports one row per window; the workspace model collapses them
     // to one icon identity per app.
@@ -204,9 +211,61 @@ private func sampleSnapshot() -> WorkspaceSnapshot {
 @Test func fitNeverExceedsTheAvailableWidth() {
     let workspaces = ["1", "2", "3"].map { Workspace(id: WorkspaceID($0)) }
     let overflow = WorkspaceLayout.fit(workspaces, width: { _ in 100 }, availableWidth: 50, spacing: 8)
-    // The first item is always shown; the row never grows past one item.
-    #expect(overflow.visible.count == 1)
-    #expect(overflow.hidden.count == 2)
+    // A label wider than the whole row is hidden behind overflow rather than
+    // allowed to cross the camera housing.
+    #expect(overflow.visible.isEmpty)
+    #expect(overflow.hidden.count == 3)
+}
+
+@Test func fittedRowPlusOverflowControlNeverExceedsTheBudget() {
+    let workspaces = (1...6).map { Workspace(id: WorkspaceID("\($0)")) }
+    let widths: [CGFloat] = [40, 55, 30, 80, 25, 60]
+    let spacing: CGFloat = 8
+    let overflowWidth: CGFloat = 30
+
+    for available in stride(from: CGFloat(0), through: 400, by: 7) {
+        let overflow = WorkspaceLayout.fit(workspaces,
+                                           width: { widths[Int($0.id.rawValue)! - 1] },
+                                           availableWidth: available,
+                                           spacing: spacing,
+                                           overflowWidth: overflowWidth)
+        let visibleWidth = overflow.visible.reduce(CGFloat(0)) { $0 + widths[Int($1.id.rawValue)! - 1] }
+            + spacing * CGFloat(max(0, overflow.visible.count - 1))
+        // The visible chips never exceed the space they were given.
+        #expect(visibleWidth <= available + 0.001, "available=\(available)")
+        // The overflow control fits too whenever the row is at least that wide.
+        if !overflow.hidden.isEmpty && overflowWidth <= available {
+            #expect(visibleWidth + overflowWidth <= available + 0.001, "available=\(available)")
+        }
+    }
+}
+
+@Test func overflowReservesRoomForTheControlBeforeFilling() {
+    let workspaces = ["1", "2", "3", "4"].map { Workspace(id: WorkspaceID($0)) }
+    let overflow = WorkspaceLayout.fit(workspaces,
+                                       width: { _ in 30 },
+                                       availableWidth: 100,
+                                       spacing: 8,
+                                       overflowWidth: 40)
+    // Reserving the control's width costs a slot versus an unfitted row.
+    #expect(overflow.visible.map(\.id.rawValue) == ["1"])
+    #expect(!overflow.hidden.isEmpty)
+    #expect(30 + 40 <= 100)
+}
+
+@Test func workspacesFilterByScreenIDWithFallback() {
+    let snapshot = sampleSnapshot()
+    // Fixtures carry no screen index, so a requested filter falls back to all.
+    #expect(WorkspaceLayout.workspaces(forScreensID: 1, in: snapshot, options: .init()).count == 4)
+    #expect(WorkspaceLayout.workspaces(forScreensID: nil, in: snapshot, options: .init()).count == 4)
+
+    let monitors = [
+        Workspace(id: WorkspaceID("1"), monitor: WorkspaceMonitor(id: 1, name: "A", screensID: 1)),
+        Workspace(id: WorkspaceID("2"), monitor: WorkspaceMonitor(id: 2, name: "B", screensID: 2))
+    ]
+    let withScreens = WorkspaceSnapshot(manager: .aerospace, workspaces: monitors)
+    #expect(WorkspaceLayout.workspaces(forScreensID: 2, in: withScreens, options: .init()).map(\.id.rawValue) == ["2"])
+    #expect(WorkspaceLayout.workspaces(forScreensID: 9, in: withScreens, options: .init()).count == 2)
 }
 
 // MARK: - Feed state machine

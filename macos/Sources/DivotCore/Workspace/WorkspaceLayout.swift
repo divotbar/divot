@@ -70,42 +70,79 @@ public enum WorkspaceLayout {
         return apps
     }
 
+    /// Workspaces to draw on one display, in manager order.
+    ///
+    /// When the manager reported a screen index for a workspace and Divot knows
+    /// which screen it is drawing, only that monitor's workspaces are returned.
+    /// An unknown or absent mapping falls back to every workspace so the row is
+    /// never silently empty on a single-display setup.
+    public static func workspaces(forScreensID screensID: Int?,
+                                  in snapshot: WorkspaceSnapshot?,
+                                  options: WorkspaceDisplayOptions) -> [Workspace] {
+        let groups = groups(snapshot: snapshot, options: options)
+        guard let screensID else { return groups.flatMap(\.workspaces) }
+        let attributed = groups.filter { $0.monitor?.screensID == screensID }
+        guard !attributed.isEmpty else { return groups.flatMap(\.workspaces) }
+        return attributed.flatMap(\.workspaces)
+    }
+
     /// Keep a leading run of workspaces that fits `availableWidth`, measuring a
-    /// separator between them. The focused workspace is always kept visible: if
-    /// it would overflow, it trades places with the last non-focused visible
-    /// workspace so the row never exceeds the width it was given and never
-    /// crosses the camera housing.
+    /// separator between them. The focused workspace is always kept visible when
+    /// it can be: if it would overflow, it trades places with the last
+    /// non-focused visible workspace.
+    ///
+    /// The returned row never exceeds `availableWidth`. If an item is hidden the
+    /// caller must show an overflow control, so `overflowWidth` (the control's
+    /// own width) is reserved before fitting. A single label wider than the whole
+    /// row is hidden rather than allowed to cross the camera housing.
     public static func fit(_ workspaces: [Workspace],
                            width: (Workspace) -> CGFloat,
                            availableWidth: CGFloat,
-                           spacing: CGFloat) -> WorkspaceOverflow {
+                           spacing: CGFloat,
+                           overflowWidth: CGFloat = 0) -> WorkspaceOverflow {
         guard !workspaces.isEmpty else { return WorkspaceOverflow(visible: [], hidden: []) }
         let spacing = max(0, spacing)
         let availableWidth = max(0, availableWidth)
+        let widths = workspaces.map { max(0, width($0)) }
 
-        var visible: [Workspace] = []
-        var used: CGFloat = 0
-        for workspace in workspaces {
-            let itemWidth = max(0, width(workspace))
-            let needed = visible.isEmpty ? itemWidth : itemWidth + spacing
-            // Always keep the first item; from then on a row must fit entirely.
-            if visible.isEmpty || used + needed <= availableWidth {
-                visible.append(workspace)
-                used += needed
-            } else {
-                break
-            }
+        let totalAll = widths.reduce(0, +) + spacing * CGFloat(max(0, widths.count - 1))
+        if totalAll <= availableWidth {
+            return WorkspaceOverflow(visible: workspaces, hidden: [])
         }
 
-        var hidden = Array(workspaces.dropFirst(visible.count))
+        // Something will overflow, so reserve the overflow control's width first.
+        let budget = max(0, availableWidth - max(0, overflowWidth))
+        var visibleCount = 0
+        var used: CGFloat = 0
+        for itemWidth in widths {
+            let needed = visibleCount == 0 ? itemWidth : itemWidth + spacing
+            guard used + needed <= budget else { break }
+            used += needed
+            visibleCount += 1
+        }
 
+        var visible = Array(workspaces.prefix(visibleCount))
+        var hidden = Array(workspaces.dropFirst(visibleCount))
+
+        // Pin focus only when the swap still fits: workspace labels differ in
+        // width, so a wider focused item could otherwise exceed the budget.
+        var widthByID: [WorkspaceID: CGFloat] = [:]
+        for (index, workspace) in workspaces.enumerated() { widthByID[workspace.id] = widths[index] }
         if let focused = workspaces.first(where: \.isFocused),
            !visible.contains(where: { $0.id == focused.id }),
-           let replaceIndex = visible.lastIndex(where: { !$0.isFocused }) {
-            let displaced = visible[replaceIndex]
-            visible[replaceIndex] = focused
-            hidden.removeAll { $0.id == focused.id }
-            hidden.insert(displaced, at: 0)
+           let focusedWidth = widthByID[focused.id] {
+            let currentWidth = visible.reduce(CGFloat(0)) { $0 + (widthByID[$1.id] ?? 0) }
+                + spacing * CGFloat(max(0, visible.count - 1))
+            for replaceIndex in visible.indices.reversed() where !visible[replaceIndex].isFocused {
+                let candidate = visible[replaceIndex]
+                let candidateWidth = widthByID[candidate.id] ?? 0
+                if currentWidth - candidateWidth + focusedWidth <= budget + 0.0001 {
+                    visible[replaceIndex] = focused
+                    hidden.removeAll { $0.id == focused.id }
+                    hidden.insert(candidate, at: 0)
+                    break
+                }
+            }
         }
 
         return WorkspaceOverflow(visible: visible, hidden: hidden)

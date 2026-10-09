@@ -18,10 +18,22 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
+        // The workspace feed exists before the surfaces so each display's left
+        // panel can subscribe to it as it is created.
+        let workspaceFeed = WorkspaceFeed()
+        self.workspaceFeed = workspaceFeed
+        let icons = WorkspaceIconInventory()
+
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
-        let coordinator = DisplayCoordinator(adapter: adapter) { id, screen in
-            NSPanelBarSurface(id: id, on: screen)
+        let coordinator = DisplayCoordinator(adapter: adapter) { [weak workspaceFeed] id, screen in
+            let screensID = NSScreen.screens
+                .firstIndex { NSScreenGeometryProvider.displayID(of: $0) == id }
+                .map { $0 + 1 }
+            let left: NSView? = workspaceFeed.map {
+                WorkspaceBarView(feed: $0, icons: icons, displayScreensID: screensID)
+            }
+            return NSPanelBarSurface(id: id, on: screen, leftContent: left)
         }
         coordinator.start()
         self.coordinator = coordinator
@@ -36,11 +48,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         startWorkspaceFeed()
     }
 
-    /// Start the workspace provider. Workspace indicators render in their own
-    /// milestone; today this establishes the event-driven state and reports an
-    /// honest unavailable reason when no supported manager is present.
+    /// Start the workspace provider. The workspace indicators render in each
+    /// display's left panel; this also reports an honest unavailable reason when
+    /// no supported manager is present.
     private func startWorkspaceFeed() {
-        let feed = WorkspaceFeed()
+        guard let feed = workspaceFeed else { return }
         feed.onChange = { [weak self] state in
             guard let self, !self.reportedWorkspaceAvailability else { return }
             self.reportedWorkspaceAvailability = true
@@ -49,11 +61,17 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                     Data("divot: workspaces: \(reason.summary).\n".utf8))
             }
         }
-        let resolved = WorkspaceAdapterFactory.resolve(preferred: nil)
-        feed.start(adapter: resolved.adapter,
-                   eventSource: resolved.eventSource,
+
+        let selection = WorkspaceManagerSelector.select(preferred: nil,
+                                                        installed: WorkspaceAdapterFactory.installedManagers())
+        guard let selection else {
+            feed.start(adapter: nil, eventSourceProvider: nil, options: .default)
+            return
+        }
+        let kind = selection.kind
+        feed.start(adapter: WorkspaceAdapterFactory.makeAdapter(for: kind),
+                   eventSourceProvider: { WorkspaceAdapterFactory.makeEventSource(for: kind) },
                    options: .default)
-        workspaceFeed = feed
     }
 
     public func applicationWillTerminate(_ notification: Notification) {

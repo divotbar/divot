@@ -45,14 +45,18 @@ public struct WorkspaceID: Hashable, Sendable, Comparable, Codable, CustomString
 }
 
 /// A monitor as the manager attributes it. `id` is the manager's own stable
-/// number; `name` is cosmetic and may be empty.
+/// number; `name` is cosmetic and may be empty. `screensID` is AeroSpace's
+/// 1-based `NSScreen.screens` index when reported, used to map a manager
+/// workspace to the display Divot is drawing it on.
 public struct WorkspaceMonitor: Hashable, Sendable, Comparable, Codable {
     public let id: Int
     public let name: String
+    public let screensID: Int?
 
-    public init(id: Int, name: String = "") {
+    public init(id: Int, name: String = "", screensID: Int? = nil) {
         self.id = id
         self.name = name
+        self.screensID = screensID
     }
 
     public static func < (lhs: WorkspaceMonitor, rhs: WorkspaceMonitor) -> Bool {
@@ -184,13 +188,18 @@ public struct WorkspaceDisplayOptions: Equatable, Sendable {
     public var showAppIcons: Bool
     /// Optional cap on app icons per workspace; `nil` shows all.
     public var maxAppIconsPerWorkspace: Int?
+    /// Show secondary detail (app count and the current-program label). When
+    /// off the row is just workspace names and focus/occupancy shape.
+    public var showDetails: Bool
 
     public init(showEmpty: Bool = true,
                 showAppIcons: Bool = false,
-                maxAppIconsPerWorkspace: Int? = nil) {
+                maxAppIconsPerWorkspace: Int? = nil,
+                showDetails: Bool = true) {
         self.showEmpty = showEmpty
         self.showAppIcons = showAppIcons
         self.maxAppIconsPerWorkspace = maxAppIconsPerWorkspace
+        self.showDetails = showDetails
     }
 
     public static let `default` = WorkspaceDisplayOptions()

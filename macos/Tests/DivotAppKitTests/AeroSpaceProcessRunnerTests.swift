@@ -33,18 +33,28 @@ import DivotCore
 
 @Test func lineBufferReassemblesALineSplitAcrossChunks() {
     let buffer = SubscriptionLineBuffer()
-    #expect(buffer.consume("{\"_event\":\"focus").isEmpty)
-    let lines = buffer.consume("-changed\",\"workspace\":\"1\"}\n{\"_event\":\"mode")
-    #expect(lines == ["{\"_event\":\"focus-changed\",\"workspace\":\"1\"}"])
-    let remaining = buffer.consume("-changed\",\"mode\":\"main\"}\n")
-    #expect(remaining == ["{\"_event\":\"mode-changed\",\"mode\":\"main\"}"])
+    #expect(buffer.consume(Data("{\"_event\":\"focus".utf8)).isEmpty)
+    let first = buffer.consume(Data("-changed\",\"workspace\":\"1\"}\n{\"_event\":\"mode".utf8))
+    #expect(first == ["{\"_event\":\"focus-changed\",\"workspace\":\"1\"}"])
+    let second = buffer.consume(Data("-changed\",\"mode\":\"main\"}\n".utf8))
+    #expect(second == ["{\"_event\":\"mode-changed\",\"mode\":\"main\"}"])
 }
 
 @Test func lineBufferKeepsOnlyCompleteLines() {
     let buffer = SubscriptionLineBuffer()
-    let lines = buffer.consume("a\nb\npartial")
-    #expect(lines == ["a", "b"])
-    #expect(buffer.consume(" rest\n") == ["partial rest"])
+    #expect(buffer.consume(Data("a\nb\npartial".utf8)) == ["a", "b"])
+    #expect(buffer.consume(Data(" rest\n".utf8)) == ["partial rest"])
+}
+
+@Test func lineBufferSurvivesAMultibyteCharacterSplitAcrossChunks() {
+    let line = "{\"_event\":\"window-detected\",\"appName\":\"Términál\",\"workspace\":\"1\"}\n"
+    let bytes = Array(line.utf8)
+    // Split inside the two-byte é (0xC3 0xA9).
+    let splitIndex = try! #require(bytes.firstIndex(of: 0xC3)).advanced(by: 1)
+    let buffer = SubscriptionLineBuffer()
+    #expect(buffer.consume(Data(bytes[..<splitIndex])).isEmpty)
+    let lines = buffer.consume(Data(bytes[splitIndex...]))
+    #expect(lines == [String(line.dropLast())])
 }
 
 // MARK: - Process runner

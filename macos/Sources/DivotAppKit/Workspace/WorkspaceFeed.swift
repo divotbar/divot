@@ -15,31 +15,72 @@ public final class WorkspaceFeed {
     /// Called on the main actor whenever the state changes.
     public var onChange: ((WorkspaceFeedState) -> Void)?
 
+    private var observers: [UUID: (WorkspaceFeedState) -> Void] = [:]
+
     /// The current immutable view state.
     public var state: WorkspaceFeedState { machine.state }
 
     private var adapter: WorkspaceAdapting?
-    private var eventSource: WorkspaceEventSource?
+    /// Produces a fresh event source per subscription attempt so a dropped
+    /// connection can be re-established.
+    private var eventSourceProvider: (@MainActor () -> WorkspaceEventSource?)?
     private var probeTask: Task<Void, Never>?
     private var watchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var pendingRefresh = false
     private let debounce: Duration
+    private let reconnectDelay: @MainActor (Int) -> Duration
 
     public init(state: WorkspaceFeedState = WorkspaceFeedState(),
-                debounce: Duration = .milliseconds(40)) {
+                debounce: Duration = .milliseconds(40),
+                reconnectDelay: @escaping @MainActor (Int) -> Duration = { attempt in
+                    .milliseconds(min(attempt, 10) * 500)
+                }) {
         self.machine = WorkspaceFeedStateMachine(state: state)
         self.debounce = debounce
+        self.reconnectDelay = reconnectDelay
     }
 
-    /// Begin (or restart) reading from an adapter. Pass `nil` when no supported
-    /// manager exists; the state becomes the honest unavailable state.
+    // MARK: Observation
+
+    /// Register a state observer. The current state is delivered immediately.
+    @discardableResult
+    public func addObserver(_ observer: @escaping @MainActor (WorkspaceFeedState) -> Void) -> UUID {
+        let id = UUID()
+        observers[id] = observer
+        observer(machine.state)
+        return id
+    }
+
+    public func removeObserver(_ id: UUID) {
+        observers[id] = nil
+    }
+
+    // MARK: Lifecycle
+
+    /// Begin (or restart) reading from an adapter with a one-shot event source.
+    /// Pass `nil` for both when no supported manager exists; the state becomes
+    /// the honest unavailable state.
     public func start(adapter: WorkspaceAdapting?,
                       eventSource: WorkspaceEventSource?,
                       options: WorkspaceDisplayOptions) {
+        var remaining = eventSource
+        start(adapter: adapter,
+              eventSourceProvider: {
+                  defer { remaining = nil }
+                  return remaining
+              },
+              options: options)
+    }
+
+    /// Begin (or restart) reading, reconnecting through `eventSourceProvider`
+    /// when a subscription drops.
+    public func start(adapter: WorkspaceAdapting?,
+                      eventSourceProvider: (@MainActor () -> WorkspaceEventSource?)?,
+                      options: WorkspaceDisplayOptions) {
         cancelWork()
         self.adapter = adapter
-        self.eventSource = eventSource
+        self.eventSourceProvider = eventSourceProvider
         machine.setOptions(options)
         let generation = machine.begin()
 
@@ -55,8 +96,12 @@ public final class WorkspaceFeed {
             self.machine.accept(availability: availability, generation: generation)
             self.announce()
             guard availability.isAvailable else { return }
+            // Subscribe *before* the first read so a change during that read is
+            // captured and triggers a coalesced refresh instead of being missed.
+            if availability.capabilities?.supportsSubscription == true {
+                self.watch(at: generation)
+            }
             await self.refresh(at: generation)
-            if let eventSource { self.watch(eventSource, at: generation) }
         }
     }
 
@@ -93,11 +138,19 @@ public final class WorkspaceFeed {
         await refreshTask?.value
     }
 
+    /// Await event processing until the event stream ends. Only meaningful when
+    /// the provider is finite (tests); a long-lived subscription never returns.
+    public func waitForEventProcessing() async {
+        await probeTask?.value
+        await watchTask?.value
+        await refreshTask?.value
+    }
+
     /// Stop reading and release the subscription. Idempotent.
     public func stop() {
         cancelWork()
         adapter = nil
-        eventSource = nil
+        eventSourceProvider = nil
         machine.clearSnapshot()
         announce()
     }
@@ -117,13 +170,36 @@ public final class WorkspaceFeed {
         announce()
     }
 
-    private func watch(_ source: WorkspaceEventSource, at generation: UInt64) {
+    /// Consume events for the current generation, reconnecting with a backoff
+    /// when a subscription ends. The provider returning `nil` ends the loop.
+    private func watch(at generation: UInt64) {
         watchTask?.cancel()
         watchTask = Task { [weak self] in
-            for await event in source.events() {
-                guard let self, !Task.isCancelled, self.machine.isCurrent(generation) else { return }
-                guard event.requiresSnapshotRefresh else { continue }
-                self.scheduleRefresh(at: generation)
+            guard let self else { return }
+            var attempt = 0
+            while true {
+                guard !Task.isCancelled, self.machine.isCurrent(generation) else { return }
+                guard let source = self.eventSourceProvider?() else { return }
+
+                for await event in source.events() {
+                    guard !Task.isCancelled, self.machine.isCurrent(generation) else {
+                        await source.stop()
+                        return
+                    }
+                    if event.requiresSnapshotRefresh {
+                        self.scheduleRefresh(at: generation)
+                    }
+                }
+                await source.stop()
+
+                guard !Task.isCancelled, self.machine.isCurrent(generation) else { return }
+                // The stream ended while the feed is still live: surface it and
+                // retry so later workspace changes are not silently unobserved.
+                attempt += 1
+                self.machine.accept(error: .malformedOutput(detail: "workspace event subscription ended; reconnecting"),
+                                    generation: generation)
+                self.announce()
+                try? await Task.sleep(for: self.reconnectDelay(attempt))
             }
         }
     }
@@ -154,6 +230,7 @@ public final class WorkspaceFeed {
 
     private func announce() {
         onChange?(machine.state)
+        for observer in observers.values { observer(machine.state) }
     }
 
     private static func adapterError(from error: Error) -> WorkspaceAdapterError {
