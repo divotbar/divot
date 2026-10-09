@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:47:17Z"
+updated_at: "2026-10-09T18:49:43Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -73,3 +73,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:47:16Z · status active→review
 - 2026-10-09T18:47:16Z · note: shots: skipped — 3 handoff shots already captured for this exact plan (a0a7368) during finalization (#0734)
 - 2026-10-09T18:47:17Z · note: shots: skipped — 3 handoff shots already captured for this exact plan (a0a7368) during finalization (#0734)
+- 2026-10-09T18:49:43Z · note: review pass 3: needs some work
