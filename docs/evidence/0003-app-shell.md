@@ -45,7 +45,7 @@ network access or any physical hardware.
 
 ## Honest status by claim
 
-**Implemented and covered by tests (`swift test --package-path macos`, 53 tests):**
+**Implemented and covered by tests (`swift test --package-path macos`, 196 tests):**
 
 - Top-edge vs below-bar geometry, notched split around the housing, notch gap
   dropped below the bar, screen clamping, and segment non-overlap.
@@ -67,6 +67,12 @@ network access or any physical hardware.
   placement through the follow-up settled `advance()`: the queued settle may
   reposition, but it never falls back to the stale top edge.
 - Undecidable input returns `.indeterminate` and holds position.
+- A camera housing is detected from either public signal (`safeAreaInsets.top` or
+  the auxiliary top areas beside the notch). A notched display whose inset reads
+  zero — for example with a third-party bar (a-bar/AeroSpace) occupying the band
+  — is therefore never misread as a revealed native menu bar: it stays
+  `.indeterminate(notchedHousingMasksMenuBar)` and holds the top edge instead of
+  stacking below the bar (task 0015).
 - The observation adapter never turns an untrusted probe into a visibility
   claim, never hands the single system-wide sample to more than one display, and
   never lets it override a display whose own `visibleFrame` decides.

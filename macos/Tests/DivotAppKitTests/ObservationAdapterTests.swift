@@ -44,6 +44,17 @@ private func flatReading(id: UInt32, menuBarShown: Bool) -> ScreenGeometryReadin
                                                    safeAreaTop: 0))
 }
 
+/// A notched display whose top band is shared with a third-party bar (a-bar):
+/// the public inset reads zero while the housing's auxiliary regions remain.
+private func aBarReading() -> ScreenGeometryReading {
+    ScreenGeometryReading(id: DisplayBarID(1),
+                          geometry: ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                                                   visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1041),
+                                                   safeAreaTop: 0,
+                                                   auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                                                   auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33)))
+}
+
 @MainActor
 @Test func untrustedProbeNeverBecomesAVisibilityClaim() {
     let adapter = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [notchedReading()]),
@@ -150,4 +161,21 @@ private func flatReading(id: UInt32, menuBarShown: Bool) -> ScreenGeometryReadin
     #expect(observation.readings.first?.signal.accessibilityVisible == nil)
     // Trusted but unusable: still not a claim of visibility.
     #expect(observation.accessibilityPermissionGranted)
+}
+
+@MainActor
+@Test func thirdPartyTopBandStaysIndeterminateThroughTheAdapter() {
+    // Regression (task 0015): with no decisive probe, the a-bar-occupied top
+    // band on a notched display must not become a `.visible(inset:)`. The
+    // housing is detected from the auxiliary regions even though the public
+    // inset reads zero, so the adapter leaves it indeterminate and Divot holds
+    // the top edge instead of stacking under a-bar.
+    let adapter = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [aBarReading()]),
+                                            probe: MockMenuBarProbe(state: .notTrusted))
+    let observation = adapter.observe()
+    #expect(observation.readings.first?.signal.accessibilityVisible == nil)
+    let detected = NativeMenuBarDetector.detect(
+        geometry: observation.readings[0].geometry,
+        signal: observation.readings[0].signal)
+    #expect(detected == .indeterminate(.notchedHousingMasksMenuBar))
 }

@@ -26,8 +26,19 @@ public struct ScreenGeometry: Equatable, Sendable {
 
     /// Camera-housing band at the top of the display. On notched Macs this is
     /// the notch height and is a physical property, not a menu-bar signal.
+    ///
+    /// Two public readings indicate the housing: `safeAreaInsets.top` and the
+    /// auxiliary top areas beside the notch. They can disagree — under a
+    /// third-party bar (a-bar/AeroSpace) the inset can read zero while the
+    /// housing and its auxiliary regions remain — so either one counts and the
+    /// auxiliary area height is the fallback for the band.
     public var housingTop: CGFloat {
-        let value = safeAreaTop.isFinite ? safeAreaTop : 0
+        let inset = safeAreaTop.isFinite ? safeAreaTop : 0
+        let auxiliary = [auxiliaryTopLeft?.height, auxiliaryTopRight?.height]
+            .compactMap { $0 }
+            .filter { $0.isFinite }
+            .max() ?? 0
+        let value = max(inset, auxiliary)
         return max(0, min(value, max(0, frame.height)))
     }
 
@@ -38,19 +49,27 @@ public struct ScreenGeometry: Equatable, Sendable {
         return max(0, min(value.isFinite ? value : 0, max(0, frame.height)))
     }
 
-    /// The menu-bar-only part of the top band.
+    /// The part of the top band beyond the camera housing.
     ///
     /// On a notched display the housing already excludes the entire top band,
     /// even while the native bar is hidden, so this reads zero and cannot
     /// distinguish a hidden bar from a revealed one. That is the central
     /// finding of task 0009, not a bug in the arithmetic.
+    ///
+    /// It is also not proof of a native bar: when a third-party bar occupies
+    /// the band beyond the housing, this is a non-native inset. `isNotched`
+    /// gates on the housing; a masked display is never read as a native bar.
     public var menuBarInset: CGFloat {
         max(0, topBand - housingTop)
     }
 
-    /// True when `safeAreaInsets.top` reports a camera housing.
+    /// True when a public reading reports a camera housing: `safeAreaInsets.top`
+    /// or the auxiliary top areas beside the notch. Either one counts, because
+    /// the inset can read zero while the housing is still present (and a
+    /// third-party bar occupies the same band). A masked display can never have
+    /// its top band read as a visible native menu bar.
     public var isNotched: Bool {
-        housingTop > 0.5
+        housingTop > 0.5 || auxiliaryTopLeft != nil || auxiliaryTopRight != nil
     }
 }
 
@@ -90,7 +109,9 @@ public enum NativeMenuBarVisibility: Equatable, Sendable, CustomStringConvertibl
 
 /// Why visibility could not be decided with public APIs alone.
 public enum NativeMenuBarAmbiguity: String, Equatable, Sendable {
-    /// Notched hardware: `safeAreaInsets.top` masks the menu-bar band.
+    /// Camera housing (or a third-party bar sharing housing band) masks the
+    /// menu-bar band: on-screen occupancy is not attribution, so geometry alone
+    /// cannot say whether the native bar is visible.
     case notchedHousingMasksMenuBar
     /// Resolving this case needs Accessibility permission for the AX probe.
     case accessibilityPermissionRequired
@@ -129,14 +150,18 @@ public enum NativeMenuBarDetector {
         // Notched hardware: the camera housing excludes the whole top band, so
         // geometry cannot distinguish a hidden from a revealed bar. Only the
         // Accessibility probe resolves it; absent that, stay indeterminate.
+        // The housing is detected from either public signal, so a top band
+        // shared with a third-party bar (a-bar) is never read as the native bar.
         if geometry.isNotched {
             if let visible = signal.accessibilityVisible {
                 return visible ? .visible(inset: visibleInset(geometry, signal)) : .hidden
             }
             return .indeterminate(.notchedHousingMasksMenuBar)
         }
-        // Notch-free: visibleFrame is the deciding geometry signal. A
-        // system-wide Accessibility sample is deliberately ignored here so it
+        // Notch-free: visibleFrame is the deciding geometry signal. A non-zero
+        // top band there is the native bar, because a third-party bar cannot
+        // shrink a display's `visibleFrame` and there is no housing to mask it.
+        // A system-wide Accessibility sample is deliberately ignored here so it
         // can never override this display's own reading.
         return geometry.menuBarInset > 0.5
             ? .visible(inset: geometry.menuBarInset)
