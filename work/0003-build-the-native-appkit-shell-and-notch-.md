@@ -16,7 +16,7 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:53:26Z"
+updated_at: "2026-10-09T17:53:35Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -81,3 +81,4 @@ Latest independent review at 2026-10-09T17:41:29Z reports no bugs in the focused
 - 2026-10-09T17:42:49Z · status review→active
 - 2026-10-09T17:53:25Z · status active→review
 - 2026-10-09T17:53:26Z · note: handoff requested (cli)
+- 2026-10-09T17:53:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
