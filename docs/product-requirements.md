@@ -22,7 +22,7 @@ Use system-reported screen geometry, never a fixed notch width. On notched displ
 
 Each display has independent geometry and workspace assignment. Observe display configuration changes, backing-scale changes, sleep/wake, and workspace changes. Preserve customization when displays disappear. Stable display identifiers must be derived from system identity; transient array indices are not persistent IDs.
 
-The system menu bar remains accessible. MVP asks the user to enable system auto-hide if they want to use its top region; it does not force-hide system UI. Provide an inset mode below the menu bar. Fullscreen default is to hide the custom bar; showing over fullscreen is opt-in and requires device validation. Reserving tiling space belongs to the window-manager adapter, not a claim that AppKit changes every app's work area.
+The system menu bar remains accessible. MVP asks the user to enable system auto-hide if they want to use its top region; it does not force-hide system UI. Divot moves below the native bar when it is visible and returns to the top edge when it hides, staying continuously visible. Detecting native bar visibility, and the fullscreen/Spaces and multi-display behavior, are still under feasibility validation; the starter's earlier fullscreen-hide default is superseded pending that decision (see [the menu-bar evidence](evidence/0009-native-menu-bar-coexistence.md)). Reserving tiling space belongs to the window-manager adapter, not a claim that AppKit changes every app's work area.
 
 ## MVP interaction
 

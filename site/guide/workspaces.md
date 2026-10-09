@@ -24,4 +24,4 @@ Each display has its own geometry and workspace mapping. Disconnecting a screen 
 
 ## The macOS menu bar
 
-The planned top-edge mode works with macOS menu-bar auto-hide. An inset mode leaves the system bar in place. Divot does not recreate other applications' menus or force-hide the system menu bar. Fullscreen defaults to hiding Divot; any opt-in overlay behavior needs device validation.
+The planned top-edge mode works with macOS menu-bar auto-hide. An inset mode leaves the system bar in place. Divot does not recreate other applications' menus or force-hide the system menu bar. Persistent visibility is the goal: Divot should move below the native bar and return to the top edge instead of disappearing. Native-bar visibility detection and fullscreen behavior are still being validated and are not implemented yet.
