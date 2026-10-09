@@ -1,21 +1,22 @@
 ---
-last_close_out_gate_ms: 28079
-last_close_out_gate_at: "2026-10-09T20:04:24.125Z"
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
 depends_on: ["0003"]
+merged_commit: fd02f37e1f5f0feb0280bdb379270715ce694db5
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T20:04:24Z"
+updated_at: "2026-10-09T20:04:26Z"
+last_close_out_gate_ms: 28079
+last_close_out_gate_at: "2026-10-09T20:04:24.125Z"
 review_passes: 6
 close_out_repair_count: 1
 last_check_failure: "repoos check at 2026-10-09T18:59:35.328Z: repoos check failed: ui verification failed (3 issue(s)): [route] Workspace guide: adapter reads AeroSpace and renders the left row: declared route /guide/workspaces#left-of-the-camera but the browser landed on /guide/workspaces (login or redirect?) (captured http://127.0.0.1:65493/guide/workspaces#left-of-the-camera) (http://127.0.0.1:65493/guide/workspaces#left-of-the-camera); [route] Workspace options: showDetails and maxAppIconsPerWorkspace: declared route /reference/configuration#widget-opt… (truncated)"
@@ -105,4 +106,4 @@ Independent review at 2026-10-09T19:02:25Z found two remaining blockers. Workspa
 - 2026-10-09T19:40:36Z · status active→review
 - 2026-10-09T19:41:36Z · note: review pass 6: good to go
 - 2026-10-09T20:04:24Z · close-out gate completed in 28s
-
+- 2026-10-09T20:04:26Z · status review→done, release:success
