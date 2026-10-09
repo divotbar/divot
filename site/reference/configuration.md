@@ -44,10 +44,10 @@ Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `clo
 
 ```json
 "left": ["workspaces", "front-app"],
-"right": ["battery", "network", "volume", "clock"]
+"right": ["battery", "clock", "network", "volume"]
 ```
 
-Default left is `workspaces`, `front-app`; default right is `battery`, `network`, `volume`, `clock`. Both groups are configurable and items can move between them.
+Default left is `workspaces`, `front-app`; default right is `battery`, `clock`, `network`, `volume`. Both groups are configurable and items can move between them.
 
 ## Widget options
 

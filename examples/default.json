@@ -17,8 +17,8 @@
   ],
   "right": [
     "battery",
+    "clock",
     "network",
-    "volume",
-    "clock"
+    "volume"
   ]
 }

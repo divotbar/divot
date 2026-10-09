@@ -8,7 +8,7 @@ Swift and AppKit, a shallow view hierarchy, cached text/icons, and targeted upda
 
 ## The targets
 
-The initial engineering budgets are below 0.5% of one CPU core at idle, below 50 MiB physical footprint for the default setup, and below 16 ms p95 from event receipt to committed view update. The reference default is the first-launch bar: workspaces and the active app on the left; battery, network, volume, and a clock with weekday and date on the right. These are **targets, not achieved measurements**. A committed update is not the same as a visible frame.
+The initial engineering budgets are below 0.5% of one CPU core at idle, below 50 MiB physical footprint for the default setup, and below 16 ms p95 from event receipt to committed view update. The reference default is the first-launch bar: workspaces and the active app on the left; battery, a clock with weekday and date, network, and volume on the right. These are **targets, not achieved measurements**. A committed update is not the same as a visible frame.
 
 ## How we will measure
 

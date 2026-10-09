@@ -7,7 +7,7 @@ RepoOS initialization, requirements, architecture ADR, performance protocol, sta
 ## 0.1 · useful native bar
 
 1. AppKit app target and display adapter: left/right panels with persistent top/below placement, focus, multiple displays, notch-free fallback, overflow.
-2. Provider pipeline: workspaces, frontmost app, battery, network, volume, and a minute clock with weekday/date; notifications and cancellation.
+2. Provider pipeline: workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume; notifications and cancellation.
 3. Workspace adapter: AeroSpace capabilities/events, workspace indicators and async actions.
 4. Versioned configuration (left/right item groups, namespaced options), atomic reload, settings, launch at login.
 5. Appearance: native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night families with light/dark variants; accessibility.

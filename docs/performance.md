@@ -4,7 +4,7 @@ These are **provisional engineering targets**, not measurements or marketing cla
 
 ## Default workload
 
-The reference workload is the first-launch bar: workspaces and the frontmost app on the left; battery percentage, network, volume, and a minute clock with weekday and date on the right, with the native theme and system appearance. Other configurations are measured against this baseline.
+The reference workload is the first-launch bar: workspaces and the frontmost app on the left; battery percentage, a minute clock with weekday and date, network, and volume on the right, with the native theme and system appearance. Other configurations are measured against this baseline.
 
 ## Targets
 

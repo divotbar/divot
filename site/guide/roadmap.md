@@ -9,7 +9,7 @@
 
 ## First native release
 
-AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, network, volume, and a minute clock with weekday/date) → AeroSpace workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release.
+AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume) → AeroSpace workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release.
 
 There is no promised release date. Each step has its own acceptance criteria and review. A downloadable build appears only after the release gates pass.
 

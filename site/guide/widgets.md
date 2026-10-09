@@ -9,9 +9,9 @@ A widget pairs a small native view with a provider that knows when its data chan
 | `workspaces` | left | Window-manager workspaces | Manager events or bounded refresh |
 | `front-app` | left | Frontmost application | Workspace/application notifications |
 | `battery` | right | Charge and power state | System power notifications |
+| `clock` | right | Local time with weekday and date | Next minute boundary by default |
 | `network` | right | Wi-Fi/network status | Network path notifications |
 | `volume` | right | Output volume | Audio notifications |
-| `clock` | right | Local time with weekday and date | Next minute boundary by default |
 
 Both sides are ordered item groups and every supported item can move between them. Workspace app icons and empty-state visibility are optional settings on `workspaces`. The preview's values are static samples.
 
