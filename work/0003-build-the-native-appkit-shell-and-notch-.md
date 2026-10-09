@@ -2,7 +2,7 @@
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
-status: ready
+status: inbox
 priority: p1
 area: macos
 story: Divot stays visible when the native menu bar appears
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T16:41:13Z"
+updated_at: "2026-10-09T16:41:15Z"
 ---
 ## Problem
 
@@ -35,3 +35,5 @@ User-approved story supersedes starter hide-on-fullscreen assumption. Read the f
 - 2026-10-09T16:20:19Z · status inbox→ready
 - 2026-10-09T16:20:19Z · note: Bootstrap docs, site, core geometry tests, and RepoOS gate are complete; first native implementation slice is ready for kickoff.
 - 2026-10-09T16:41:13Z · story, depends_on, body
+- 2026-10-09T16:41:15Z · status ready→inbox
+- 2026-10-09T16:41:15Z · note: Product stories add a persistent top/below feasibility gate and docs alignment before the shell.
