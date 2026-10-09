@@ -16,7 +16,7 @@ There is no promised release date. Each step has its own acceptance criteria and
 
 ## After that
 
-The yabai and AeroSpace workspace adapter layers are implemented with fixtures; more native widgets, per-display customization, and an opt-in script protocol follow, and live yabai/AeroSpace validation remains. An update mechanism may follow, and native macOS Spaces remains a research question. Third-party menu-extra mirroring and private system APIs are outside the initial scope.
+The yabai and AeroSpace workspace adapter layers are implemented with fixtures; more native widgets, per-display customization, and an opt-in script protocol follow, and live yabai/AeroSpace validation remains. An update mechanism may follow. Native macOS Spaces has been researched and is not planned: public APIs cannot list, switch, or map Spaces without private system APIs, which stay outside the initial scope.
 
 ## Get involved
 

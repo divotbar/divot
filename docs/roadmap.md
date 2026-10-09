@@ -20,6 +20,6 @@ The yabai adapter layer (task 0012) is implemented and fixture-tested; per-displ
 
 ## Later
 
-Native macOS Spaces research outcome, an optional update mechanism, and configuration editor improvements. Private APIs, mirrored menu extras, and a marketplace are not baseline commitments.
+Native macOS Spaces research is complete: public APIs cannot list, switch, or attribute Spaces without private symbols, so there is no native adapter to schedule ([feasibility evidence](evidence/0013-native-spaces-feasibility.md)). An optional update mechanism and configuration editor improvements remain. Private APIs, mirrored menu extras, and a marketplace are not baseline commitments.
 
 Create execution tasks through `repoos new` when the control-plane project is live. The initial inbox vision/setup tasks are suggestions; do not mark them complete because this document exists.
