@@ -10,9 +10,10 @@ import ApplicationServices
 public enum SystemMenuBarState: Equatable, Sendable {
     /// Accessibility is not granted for this process. The probe has no signal.
     case notTrusted
-    /// Trusted, but no usable menu-bar element/attributes were returned.
+    /// Trusted, but the sample is missing, malformed, or has no measurable
+    /// geometry. Undecidable — never coerced into a visible/hidden claim.
     case unavailable(String)
-    /// Trusted and sampled. `visible` is derived from position/size/hidden.
+    /// Trusted and fully sampled. `visible` is derived from position/size/hidden.
     case sampled(visible: Bool, description: String)
 
     /// The visibility the detector may use, or `nil` when undecidable.
@@ -33,12 +34,34 @@ public protocol SystemMenuBarProbing: Sendable {
     func sample() -> SystemMenuBarState
 }
 
+/// Pure decision for the Accessibility menu-bar heuristic.
+///
+/// Every input is optional and represents an attribute that may be missing or
+/// malformed. If any required attribute is absent, or the element has no
+/// measurable area, the result is `.unavailable` (indeterminate) rather than a
+/// zero-sized point or an assumed `hidden == false`.
+public enum SystemMenuBarProbe {
+    public static func state(position: CGPoint?,
+                             size: CGSize?,
+                             hidden: Bool?) -> SystemMenuBarState {
+        guard let position, let size, let hidden else {
+            return .unavailable("incomplete AX menu-bar attributes (position/size/hidden)")
+        }
+        guard size.width > 0, size.height > 0 else {
+            return .unavailable("AX menu-bar element has no measurable area")
+        }
+        return .sampled(visible: !hidden,
+                        description: "position=\(position) size=\(size) hidden=\(hidden)")
+    }
+}
+
 /// Accessibility (`AXUIElementCreateSystemWide`) implementation.
 ///
 /// This is the public-API probe behind product decision (a) in the feasibility
 /// report. It is gated on Accessibility permission and never fabricates a
-/// signal when untrusted. Turning an off-screen/`hidden` heuristic into "the
-/// bar is actually visible" is a claim that still needs physical validation.
+/// signal when untrusted or when an attribute is missing. Turning its
+/// off-screen/`hidden` heuristic into "the bar is actually visible" is a claim
+/// that still needs physical validation.
 public struct AXSystemMenuBarProbe: SystemMenuBarProbing {
     public init() {}
 
@@ -58,24 +81,26 @@ public struct AXSystemMenuBarProbe: SystemMenuBarProbing {
             return AXUIElementCopyAttributeValue(bar, attribute, &result) == .success ? result : nil
         }
 
-        var position = CGPoint.zero
-        var size = CGSize.zero
-        if let raw = value(kAXPositionAttribute as CFString) {
-            AXValueGetValue(raw as! AXValue, .cgPoint, &position)
+        // Extract each attribute defensively. A missing attribute, a wrong
+        // type, or a failed value decode becomes `nil` (undecidable), never a
+        // default zero/`false`.
+        var position: CGPoint?
+        if let raw = value(kAXPositionAttribute as CFString), CFGetTypeID(raw) == AXValueGetTypeID() {
+            var decoded = CGPoint.zero
+            if AXValueGetValue(raw as! AXValue, .cgPoint, &decoded) { position = decoded }
         }
-        if let raw = value(kAXSizeAttribute as CFString) {
-            AXValueGetValue(raw as! AXValue, .cgSize, &size)
+
+        var size: CGSize?
+        if let raw = value(kAXSizeAttribute as CFString), CFGetTypeID(raw) == AXValueGetTypeID() {
+            var decoded = CGSize.zero
+            if AXValueGetValue(raw as! AXValue, .cgSize, &decoded) { size = decoded }
         }
-        var hidden = false
+
+        var hidden: Bool?
         if let raw = value(kAXHiddenAttribute as CFString), CFGetTypeID(raw) == CFBooleanGetTypeID() {
             hidden = CFBooleanGetValue((raw as! CFBoolean))
         }
 
-        // Conservative heuristic: only a non-hidden element with a real size
-        // counts as visible. It is deliberately not wired in as trusted input
-        // until it is validated against a real reveal/hide on hardware.
-        let visible = !hidden && size.width > 0 && size.height > 0
-        return .sampled(visible: visible,
-                        description: "position=\(position) size=\(size) hidden=\(hidden)")
+        return SystemMenuBarProbe.state(position: position, size: size, hidden: hidden)
     }
 }

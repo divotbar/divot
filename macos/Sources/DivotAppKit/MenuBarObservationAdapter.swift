@@ -27,8 +27,8 @@ public final class MenuBarObservationAdapter {
     private let provider: ScreenGeometryProviding
     private let probe: SystemMenuBarProbing
 
-    /// Nominal macOS menu-bar height used when geometry is clamped away. Only
-    /// consulted for notch-free displays whose top band reads zero.
+    /// Minimum inset assumed for a visible notch-free native bar, used only
+    /// when the reported top band is smaller than a standard bar.
     public var nominalMenuBarHeight: CGFloat
 
     public init(provider: ScreenGeometryProviding,
@@ -42,13 +42,29 @@ public final class MenuBarObservationAdapter {
     public func observe() -> MenuBarObservation {
         let screens = provider.screens()
         let accessibility = probe.sample()
-        let signal = NativeMenuBarSignal(accessibilityVisible: accessibility.accessibilityVisible,
-                                         configuredAlwaysVisible: nil,
-                                         nominalMenuBarHeight: nominalMenuBarHeight)
-        let readings = screens.map {
-            DisplayReading(id: $0.id, geometry: $0.geometry, signal: signal)
+        let sample = accessibility.accessibilityVisible
+
+        // The AX menu bar is one system-wide object; public APIs do not
+        // attribute it to a display, and it reflects whichever display is
+        // active. Only hand it to a display whose own geometry cannot decide,
+        // and only when there is exactly one display, so it can neither
+        // override a display's `visibleFrame` nor be misattributed across
+        // displays. Multiple masked displays stay indeterminate.
+        let maskedIDs = screens.filter { Self.isMasked($0.geometry) }.map(\.id)
+        let attributedID: DisplayBarID? = (screens.count == 1 && sample != nil) ? maskedIDs.first : nil
+
+        let readings = screens.map { screen in
+            let signal = NativeMenuBarSignal(accessibilityVisible: screen.id == attributedID ? sample : nil,
+                                             configuredAlwaysVisible: nil,
+                                             nominalMenuBarHeight: nominalMenuBarHeight)
+            return DisplayReading(id: screen.id, geometry: screen.geometry, signal: signal)
         }
         return MenuBarObservation(readings: readings, accessibility: accessibility)
+    }
+
+    /// True when pure geometry cannot decide the bar state (notched hardware).
+    private static func isMasked(_ geometry: ScreenGeometry) -> Bool {
+        NativeMenuBarDetector.detect(geometry: geometry).isIndeterminate
     }
 }
 

@@ -121,15 +121,23 @@ public struct NativeMenuBarSignal: Equatable, Sendable {
 public enum NativeMenuBarDetector {
     public static func detect(geometry: ScreenGeometry,
                               signal: NativeMenuBarSignal = .init()) -> NativeMenuBarVisibility {
-        if let visible = signal.accessibilityVisible {
-            return visible ? .visible(inset: visibleInset(geometry, signal)) : .hidden
-        }
+        // An explicit "always visible" choice is authoritative and does not
+        // depend on any probe.
         if signal.configuredAlwaysVisible == true {
             return .visible(inset: visibleInset(geometry, signal))
         }
+        // Notched hardware: the camera housing excludes the whole top band, so
+        // geometry cannot distinguish a hidden from a revealed bar. Only the
+        // Accessibility probe resolves it; absent that, stay indeterminate.
         if geometry.isNotched {
+            if let visible = signal.accessibilityVisible {
+                return visible ? .visible(inset: visibleInset(geometry, signal)) : .hidden
+            }
             return .indeterminate(.notchedHousingMasksMenuBar)
         }
+        // Notch-free: visibleFrame is the deciding geometry signal. A
+        // system-wide Accessibility sample is deliberately ignored here so it
+        // can never override this display's own reading.
         return geometry.menuBarInset > 0.5
             ? .visible(inset: geometry.menuBarInset)
             : .hidden
