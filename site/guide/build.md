@@ -1,6 +1,6 @@
 # Build from source
 
-The repository contains a working website and a Swift library foundation. It does not yet contain an executable native app target.
+The repository contains a working website and a Swift foundation: the pure `DivotCore` library and a buildable AppKit app shell (`divot`). There is no signed `.app` bundle or downloadable release yet.
 
 ## Website
 
@@ -27,9 +27,10 @@ Use a Mac with macOS 26+ and Xcode 26+ / Swift 6.2+. Select the compatible Xcode
 ```sh
 swift --version
 swift test --package-path macos
+swift build --package-path macos --product divot
 ```
 
-This builds `DivotCore` and tests its notch-aware geometry. It does not launch a bar. The AppKit app target, configuration loader, and providers are still planned.
+This builds `DivotCore` and `DivotAppKit`, tests the notch-aware geometry and placement state machine, and builds the executable app shell. `macos/.build/debug/divot --report` prints one honest observation pass without moving any panel. The shell is not physically validated, the configuration loader and providers are still planned, and there is no signed app bundle.
 
 ## Repository hosting
 

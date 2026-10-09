@@ -167,3 +167,11 @@ run and must be filled in by a person on real hardware:
 - Menu-bar reveal timing, overlap, flashing, focus, and system-menu interaction.
 - Multiple displays, mixed scales, notch-free hardware, fullscreen/Spaces,
   sleep/wake, and hot-plug.
+
+## Follow-up
+
+Task 0003 built the app shell and display coordinator on top of these findings.
+The Accessibility probe moved into the reusable `DivotAppKit`
+`AXSystemMenuBarProbe`; the app reports an untrusted probe honestly instead of
+guessing. Physical validation of the items above still has not been performed;
+see [0003 app shell evidence](0003-app-shell.md).

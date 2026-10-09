@@ -8,18 +8,21 @@ import CoreGraphics
 ///   on notched displays, splits around the camera housing using the auxiliary
 ///   top areas so no hit region crosses the notch.
 /// - **Below the native bar** (`nativeMenuBarInset > 0`): the bar moves down by
-///   the inset and spans the full width. The notch gap is deliberately *not*
-///   carried into the inset row, because the housing is now above the bar and a
-///   middle gap there would be an unusable hole.
+///   the inset and spans the width minus `edgeMargin`. The notch gap is
+///   deliberately *not* carried into the inset row, because the housing is now
+///   above the bar and a middle gap there would be an unusable hole. `edgeMargin`
+///   is the explicit window-manager gap policy knob for that row.
 public struct BarGeometry: Equatable, Sendable {
     public let left: CGRect
     public let right: CGRect
 
     public init(screen: CGRect, topLeft: CGRect? = nil, topRight: CGRect? = nil,
-                height: CGFloat = 32, gap: CGFloat = 10, nativeMenuBarInset: CGFloat = 0) {
+                height: CGFloat = 32, gap: CGFloat = 10, nativeMenuBarInset: CGFloat = 0,
+                edgeMargin: CGFloat = 0) {
         let requestedHeight = max(0, height.isFinite ? height : 32)
         let clearance = max(0, gap.isFinite ? gap : 10)
         let requestedInset = max(0, nativeMenuBarInset.isFinite ? nativeMenuBarInset : 0)
+        let requestedMargin = max(0, edgeMargin.isFinite ? edgeMargin : 0)
         // Never push the bar off the bottom of the display.
         let inset = min(requestedInset, max(0, screen.height))
         let h = min(requestedHeight, max(0, screen.height - inset))
@@ -43,10 +46,16 @@ public struct BarGeometry: Equatable, Sendable {
                            width: max(0, r.width - rg), height: rh)
         } else {
             let width = max(0, screen.width)
-            let middleGap = min(clearance * 2, width)
-            let half = (width - middleGap) / 2
-            left = CGRect(x: screen.minX, y: top - h, width: half, height: h)
-            right = CGRect(x: screen.maxX - half, y: top - h, width: half, height: h)
+            // `edgeMargin` is the explicit window-manager gap policy knob for the
+            // below-bar row: zero overlays edge to edge, a positive value insets
+            // both segments from the physical screen edges. It never applies to
+            // the notch-aware top-edge split, which hugs the auxiliary regions.
+            let margin = min(requestedMargin, width / 2)
+            let usableWidth = max(0, width - margin * 2)
+            let middleGap = min(clearance * 2, usableWidth)
+            let half = (usableWidth - middleGap) / 2
+            left = CGRect(x: screen.minX + margin, y: top - h, width: half, height: h)
+            right = CGRect(x: screen.maxX - margin - half, y: top - h, width: half, height: h)
         }
     }
 }

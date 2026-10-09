@@ -5,7 +5,7 @@
 - Product, architecture, infrastructure, and performance specifications.
 - This Vue/VitePress landing page and documentation site.
 - Proposed JSON configurations and a structural validator.
-- A Swift geometry library with notch and multi-display tests.
+- A Swift foundation: `DivotCore` geometry/placement tests, `DivotAppKit` platform adapter, and a buildable AppKit shell (not physically validated).
 
 ## First native release
 

@@ -53,6 +53,11 @@ name = "native-core"
 command = "swift test --package-path macos"
 required = true
 
+[[check.steps]]
+name = "native-app"
+command = "swift build --package-path macos --product divot"
+required = true
+
 [[preview.targets]]
 name = "website"
 areas = ["web", "docs"]
