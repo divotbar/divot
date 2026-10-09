@@ -2,7 +2,7 @@
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
-status: review
+status: active
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -16,7 +16,7 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:32:27Z"
+updated_at: "2026-10-09T17:32:33Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -64,3 +64,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:31:16Z · needs_input
 - 2026-10-09T17:32:25Z · review_cli_override
 - 2026-10-09T17:32:27Z · review_model_override
+- 2026-10-09T17:32:33Z · status review→active
