@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 9081
-last_close_out_gate_at: "2026-10-09T17:11:27.010Z"
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
-status: review
+status: done
 priority: p1
 area: [docs, web]
 story: Make either side of the bar my own
+merged_commit: "080381399da3bf44757e749153ef3b7615a51132"
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T17:11:27Z"
+updated_at: "2026-10-09T17:11:29Z"
+last_close_out_gate_ms: 9081
+last_close_out_gate_at: "2026-10-09T17:11:27.010Z"
 review_passes: 6
 review_rounds: 2
 ---
@@ -75,4 +76,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:11:01Z · note: review pass 6: good to go
 - 2026-10-09T17:11:01Z · needs_input
 - 2026-10-09T17:11:27Z · close-out gate completed in 9s
-
+- 2026-10-09T17:11:29Z · status review→done, release:success
