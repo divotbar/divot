@@ -49,3 +49,4 @@ Close-out after approved task 0009 landed failed with conflicts in docs/product-
 - 2026-10-09T16:54:55Z · body: section Integration follow-up
 - 2026-10-09T16:54:58Z · status review→active
 - 2026-10-09T16:58:24Z · status active→review
+- 2026-10-09T16:58:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
