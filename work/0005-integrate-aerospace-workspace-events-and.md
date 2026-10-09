@@ -2,7 +2,7 @@
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -16,7 +16,7 @@ branch: feat/integrate-aerospace-workspace-events-and
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T19:02:54Z"
+updated_at: "2026-10-09T19:07:29Z"
 review_passes: 4
 last_check_failure: "repoos check at 2026-10-09T18:59:35.328Z: repoos check failed: ui verification failed (3 issue(s)): [route] Workspace guide: adapter reads AeroSpace and renders the left row: declared route /guide/workspaces#left-of-the-camera but the browser landed on /guide/workspaces (login or redirect?) (captured http://127.0.0.1:65493/guide/workspaces#left-of-the-camera) (http://127.0.0.1:65493/guide/workspaces#left-of-the-camera); [route] Workspace options: showDetails and maxAppIconsPerWorkspace: declared route /reference/configuration#widget-opt… (truncated)"
 review_rounds: 2
@@ -96,3 +96,4 @@ Independent review at 2026-10-09T19:02:25Z found two remaining blockers. Workspa
 - 2026-10-09T19:02:51Z · review_model_override
 - 2026-10-09T19:02:52Z · body: section Final focused review repair
 - 2026-10-09T19:02:54Z · status review→active
+- 2026-10-09T19:07:29Z · status active→review
