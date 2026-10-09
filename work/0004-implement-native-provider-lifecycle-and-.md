@@ -3,9 +3,6 @@ id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 story: A beautiful bar from the first launch
@@ -60,3 +57,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:47:39Z · status active→review
 - 2026-10-09T18:47:39Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T18:48:39Z · note: review pass 4: good to go
+- 2026-10-09T18:48:39Z · needs_input
