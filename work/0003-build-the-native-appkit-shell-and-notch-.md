@@ -70,3 +70,4 @@ Reviewer at 2026-10-09T17:31:16Z requires fixes before sign-off: (1) DisplayLayo
 - 2026-10-09T17:32:33Z · status review→active
 - 2026-10-09T17:32:42Z · body: section Focused review repair
 - 2026-10-09T17:40:37Z · status active→review
+- 2026-10-09T17:40:37Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
