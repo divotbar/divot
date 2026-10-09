@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-the-second-workspace-adapter-yabai
 created_at: "2026-10-09T16:41:13Z"
-updated_at: "2026-10-09T20:33:16Z"
+updated_at: "2026-10-09T21:11:27Z"
 ---
 ## Problem
 
@@ -29,8 +29,27 @@ Fixture tests for yabai query/events and actions, async timeouts/cancellation, c
 
 Second integration milestone; AeroSpace first. No blocker to an AeroSpace-first release. Update setup/troubleshooting docs.
 
+## Shots
+```json
+[
+{
+  "label": "Troubleshooting: yabai detection, adapter override, and no scripting addition",
+  "target": "website",
+  "route": "/guide/troubleshooting",
+  "highlight": "#yabai-isn-t-detected-or-shows-the-wrong-workspaces"
+},
+{
+  "label": "Configuration: workspaces adapter accepts aerospace or yabai",
+  "target": "website",
+  "route": "/reference/configuration",
+  "highlight": "#widget-options"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-09T16:41:13Z · created · njachowski@gmail.com
 - 2026-10-09T17:20:41Z · status inbox→ready
 - 2026-10-09T20:33:16Z · status ready→active, branch
+- 2026-10-09T21:11:27Z · body: section Shots
