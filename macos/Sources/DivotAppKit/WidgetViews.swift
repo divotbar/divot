@@ -106,21 +106,39 @@ final class BarItemView: NSView {
 /// right edge and reads left-to-right, matching the configured order. Only
 /// changed items are re-rendered.
 @MainActor
-final class BarContentView: NSView {
+final class BarContentView: NSView, BarContentLifecycle {
     let side: BarSide
     private let items: [BarItemID]
     private var itemViews: [BarItemID: BarItemView] = [:]
+    /// The `workspaces` item is a live, clickable row rather than a single
+    /// value, so it renders through `WorkspaceBarView` and is not driven by the
+    /// widget pipeline.
+    private var workspaceViews: [BarItemID: WorkspaceBarView] = [:]
     var onActivate: ((WidgetAction) -> Void)?
 
     private let spacing: CGFloat = 12
 
-    init(side: BarSide, items: [BarItemID], onActivate: ((WidgetAction) -> Void)? = nil) {
+    init(side: BarSide,
+         items: [BarItemID],
+         workspaceFeed: WorkspaceFeed? = nil,
+         workspaceIcons: WorkspaceIconProviding? = nil,
+         displayScreensID: Int? = nil,
+         onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
         for id in items {
+            if id == .workspaces, let workspaceFeed, let workspaceIcons {
+                let view = WorkspaceBarView(feed: workspaceFeed,
+                                            icons: workspaceIcons,
+                                            displayScreensID: displayScreensID,
+                                            showsFrontApp: !items.contains(.frontApp))
+                workspaceViews[id] = view
+                addSubview(view)
+                continue
+            }
             let view = BarItemView()
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
             itemViews[id] = view
@@ -130,6 +148,11 @@ final class BarContentView: NSView {
 
     required init?(coder: NSCoder) {
         fatalError("BarContentView does not support NSCoding")
+    }
+
+    /// Release the workspace row's feed observer when the panel is torn down.
+    func barContentDidDetach() {
+        for view in workspaceViews.values { view.barContentDidDetach() }
     }
 
     /// Apply a batch of changes. Items not on this side are ignored, so both
@@ -161,20 +184,31 @@ final class BarContentView: NSView {
 
     override func layout() {
         super.layout()
-        var widths: [BarItemID: CGFloat] = [:]
-        var total: CGFloat = 0
-        for id in items {
-            let width = itemViews[id]?.intrinsicContentSize.width ?? 0
-            widths[id] = width
-            total += width
+
+        var fixedTotal: CGFloat = 0
+        var fixedCount = 0
+        for id in items where itemViews[id] != nil {
+            fixedTotal += itemViews[id]?.intrinsicContentSize.width ?? 0
+            fixedCount += 1
         }
-        if items.count > 1 {
-            total += spacing * CGFloat(items.count - 1)
-        }
-        var x = side == .left ? 0 : max(0, bounds.width - total)
+        let workspaceCount = items.filter { workspaceViews[$0] != nil }.count
+        let totalCount = fixedCount + workspaceCount
+        let spacingTotal = totalCount > 1 ? spacing * CGFloat(totalCount - 1) : 0
+        // The workspace row is elastic: it takes the width the fixed items leave.
+        let elasticWidth = workspaceCount > 0 ? max(0, bounds.width - fixedTotal - spacingTotal) : 0
+        let perWorkspace = workspaceCount > 0 ? elasticWidth / CGFloat(workspaceCount) : 0
+
+        var x = side == .left
+            ? 0
+            : max(0, bounds.width - (fixedTotal + elasticWidth + spacingTotal))
         for id in items {
+            if let workspace = workspaceViews[id] {
+                workspace.frame = CGRect(x: x, y: 0, width: perWorkspace, height: bounds.height)
+                x += perWorkspace + spacing
+                continue
+            }
             guard let view = itemViews[id] else { continue }
-            let width = widths[id] ?? 0
+            let width = view.intrinsicContentSize.width
             let height = min(bounds.height, view.intrinsicContentSize.height)
             view.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
             x += width + spacing
