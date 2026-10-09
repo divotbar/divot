@@ -1,0 +1,298 @@
+import Foundation
+
+// MARK: - Item identity
+
+/// Identity of a built-in bar item.
+///
+/// The raw values are the identifiers used by the versioned configuration
+/// contract (`workspaces`, `front-app`, `battery`, `network`, `volume`,
+/// `clock`), so the shared model, the renderer, and the provider registry all
+/// agree on one spelling. `workspaces` is delivered by the workspace adapter
+/// milestone; its content is deliberately not modelled here so this file does
+/// not pre-empt that task.
+public enum BarItemID: String, CaseIterable, Codable, Sendable {
+    case workspaces
+    case frontApp = "front-app"
+    case battery
+    case network
+    case volume
+    case clock
+
+    /// Human label for settings and placeholder/accessible text.
+    public var displayName: String {
+        switch self {
+        case .workspaces: return "Workspaces"
+        case .frontApp: return "Front app"
+        case .battery: return "Battery"
+        case .network: return "Network"
+        case .volume: return "Volume"
+        case .clock: return "Clock"
+        }
+    }
+}
+
+// MARK: - Unavailable states
+
+/// Why a widget has no usable data right now.
+///
+/// Every case is a *contextual* state the bar renders honestly instead of the
+/// whole bar failing: a missing permission, hardware without that feature, a
+/// manager that is not running, or a provider error. `noData` is the transient
+/// state before the first snapshot arrives.
+public struct WidgetUnavailable: Equatable, Sendable {
+    public enum Kind: String, Equatable, Sendable {
+        /// Nothing has been produced yet (before the first snapshot).
+        case noData
+        /// The hardware/platform has no such feature (not an error).
+        case notSupported
+        /// A permission the feature genuinely needs was denied.
+        case permissionDenied
+        /// An external manager (e.g. a window manager) is not available.
+        case managerUnavailable
+        /// The provider itself failed.
+        case failed
+    }
+
+    public let kind: Kind
+    public let message: String
+
+    public init(kind: Kind, message: String) {
+        self.kind = kind
+        self.message = message
+    }
+
+    /// Short, non-alarming text for the bar/overflow. Accessible text and the
+    /// full message are exposed where there is room.
+    public var shortText: String {
+        switch kind {
+        case .noData: return "…"
+        case .notSupported: return "—"
+        case .permissionDenied: return "!"
+        case .managerUnavailable: return "—"
+        case .failed: return "!"
+        }
+    }
+}
+
+// MARK: - Snapshots
+
+/// The frontmost application. Emitted on activation changes.
+public struct FrontAppSnapshot: Equatable, Sendable {
+    public let name: String
+    public let bundleIdentifier: String?
+    public let processIdentifier: Int32?
+
+    public init(name: String, bundleIdentifier: String? = nil, processIdentifier: Int32? = nil) {
+        self.name = name
+        self.bundleIdentifier = bundleIdentifier
+        self.processIdentifier = processIdentifier
+    }
+}
+
+/// Whether the machine has an internal battery at all.
+public enum BatteryPresence: Equatable, Sendable {
+    /// A battery is present (laptops).
+    case internalBattery
+    /// No battery (desktop Macs). A sensible resting state, not an error.
+    case none
+}
+
+/// Power state. `percentage` is `nil` when no battery exists or the value is
+/// momentarily unknown.
+public struct BatterySnapshot: Equatable, Sendable {
+    public let presence: BatteryPresence
+    public let percentage: Int?
+    public let isCharging: Bool
+    public let isPluggedIn: Bool
+    public let isFullyCharged: Bool
+
+    public init(presence: BatteryPresence,
+                percentage: Int?,
+                isCharging: Bool = false,
+                isPluggedIn: Bool = false,
+                isFullyCharged: Bool = false) {
+        self.presence = presence
+        self.percentage = percentage.map { max(0, min(100, $0)) }
+        self.isCharging = isCharging
+        self.isPluggedIn = isPluggedIn
+        self.isFullyCharged = isFullyCharged
+    }
+
+    /// Desktop Mac: no battery, so the bar shows a settled no-battery state.
+    public static let noBattery = BatterySnapshot(presence: .none, percentage: nil)
+}
+
+/// Best-effort transport kind for the active network path.
+public enum NetworkKind: String, Equatable, Sendable {
+    case wifi
+    case ethernet
+    case cellular
+    case other
+}
+
+/// Connectivity and transport state.
+///
+/// It deliberately carries no SSID or other location-gated detail: those need
+/// an extra permission and are not required for a useful indicator. Network
+/// details must not force unnecessary permissions.
+public struct NetworkSnapshot: Equatable, Sendable {
+    public let isConnected: Bool
+    public let kind: NetworkKind
+    public let interfaceName: String?
+    /// The path is metered (e.g. a personal hotspot).
+    public let isExpensive: Bool
+    /// The path is in a low-data mode.
+    public let isConstrained: Bool
+
+    public init(isConnected: Bool,
+                kind: NetworkKind = .other,
+                interfaceName: String? = nil,
+                isExpensive: Bool = false,
+                isConstrained: Bool = false) {
+        self.isConnected = isConnected
+        self.kind = kind
+        self.interfaceName = interfaceName
+        self.isExpensive = isExpensive
+        self.isConstrained = isConstrained
+    }
+}
+
+/// Output audio state.
+public struct VolumeSnapshot: Equatable, Sendable {
+    public let hasOutputDevice: Bool
+    public let outputDeviceName: String?
+    /// Normalized 0...1 output level.
+    public let level: Double
+    public let isMuted: Bool
+
+    public init(hasOutputDevice: Bool, outputDeviceName: String? = nil,
+                level: Double, isMuted: Bool = false) {
+        self.hasOutputDevice = hasOutputDevice
+        self.outputDeviceName = outputDeviceName
+        self.level = max(0, min(1, level))
+        self.isMuted = isMuted
+    }
+
+    /// No output device (e.g. everything unplugged).
+    public static let noOutput = VolumeSnapshot(hasOutputDevice: false, level: 0)
+}
+
+/// A local instant for the clock.
+public struct ClockSnapshot: Equatable, Sendable {
+    public let date: Date
+
+    public init(date: Date) {
+        self.date = date
+    }
+}
+
+// MARK: - Content
+
+/// The payload kind a content case carries.
+public enum WidgetContentKind: String, Equatable, Sendable {
+    case frontApp
+    case battery
+    case network
+    case volume
+    case clock
+    case unavailable
+}
+
+/// One widget's current content. Small and immutable, emitted by a provider.
+public enum WidgetContent: Equatable, Sendable {
+    case frontApp(FrontAppSnapshot)
+    case battery(BatterySnapshot)
+    case network(NetworkSnapshot)
+    case volume(VolumeSnapshot)
+    case clock(ClockSnapshot)
+    case unavailable(WidgetUnavailable)
+
+    public var kind: WidgetContentKind {
+        switch self {
+        case .frontApp: return .frontApp
+        case .battery: return .battery
+        case .network: return .network
+        case .volume: return .volume
+        case .clock: return .clock
+        case .unavailable: return .unavailable
+        }
+    }
+
+    public var isUnavailable: Bool {
+        if case .unavailable = self { return true }
+        return false
+    }
+
+    /// Whether this content is a valid payload for `id`. A battery provider may
+    /// emit battery data or an unavailable state, never clock data; the pipeline
+    /// rejects a mismatched emission instead of rendering nonsense.
+    public func isCompatible(with id: BarItemID) -> Bool {
+        if isUnavailable { return true }
+        switch (id, self) {
+        case (.frontApp, .frontApp), (.battery, .battery), (.network, .network),
+             (.volume, .volume), (.clock, .clock):
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+/// A rendered value: the content plus the identity and monotonic revision the
+/// bar uses to tell "changed" from "same".
+public struct WidgetState: Equatable, Sendable {
+    public let id: BarItemID
+    public let revision: UInt64
+    public let content: WidgetContent
+
+    public init(id: BarItemID, revision: UInt64, content: WidgetContent) {
+        self.id = id
+        self.revision = revision
+        self.content = content
+    }
+}
+
+// MARK: - Layout
+
+/// Which half of the bar an item lives on.
+public enum BarSide: String, Equatable, Sendable, CaseIterable {
+    case left
+    case right
+}
+
+/// The ordered left/right item groups for one display.
+///
+/// This is the shared default the first-launch bar uses; the versioned
+/// configuration model (its own milestone) loads into the same shape.
+public struct BarLayout: Equatable, Sendable {
+    public var left: [BarItemID]
+    public var right: [BarItemID]
+
+    public init(left: [BarItemID], right: [BarItemID]) {
+        self.left = left
+        self.right = right
+    }
+
+    /// Default left/right groups from the first-launch story.
+    public static let `default` = BarLayout(left: [.workspaces, .frontApp],
+                                            right: [.battery, .clock, .network, .volume])
+
+    public func items(on side: BarSide) -> [BarItemID] {
+        switch side {
+        case .left: return left
+        case .right: return right
+        }
+    }
+
+    /// The side an item is placed on, or `nil` when it is not placed at all.
+    public func side(of id: BarItemID) -> BarSide? {
+        if left.contains(id) { return .left }
+        if right.contains(id) { return .right }
+        return nil
+    }
+
+    /// Every placed item, with its side, in left-then-right order.
+    public var placement: [(id: BarItemID, side: BarSide)] {
+        left.map { ($0, .left) } + right.map { ($0, .right) }
+    }
+}

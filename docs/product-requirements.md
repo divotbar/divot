@@ -49,7 +49,7 @@ Third-party menu-extra mirroring, recreation of another application's menu tree,
 
 ## Current implementation
 
-Static Vue/VitePress website, public guides, proposed JSON examples, and a Swift foundation with an executable AppKit shell that builds and places panels from the tested geometry/state machine. The shell is not physically validated: on notched displays it reports the native-bar state as indeterminate without Accessibility permission and never hides. The left/right item model and the four theme families are proposed, not implemented. Every app behavior above is a requirement, not a delivered capability.
+Static Vue/VitePress website, public guides, proposed JSON examples, and a Swift foundation with an executable AppKit shell that builds and places panels from the tested geometry/state machine. A native provider pipeline now feeds the default bar's clock, battery/power, network, volume, and frontmost-app items with real local data behind small, tested reading protocols; it is unit-tested but not physically validated. The shell is not physically validated: on notched displays it reports the native-bar state as indeterminate without Accessibility permission and never hides. Physical rendering, click behavior, and the settings-pane links are unverified, and the workspaces item is not implemented (it is the workspace-adapter milestone). The full configuration model and the four theme families are proposed, not implemented. Every remaining app behavior above is a requirement, not a delivered capability.
 
 ## Appearance and themes
 

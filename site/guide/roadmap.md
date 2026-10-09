@@ -6,10 +6,11 @@
 - This Vue/VitePress landing page and documentation site.
 - Proposed JSON configurations and a structural validator.
 - A Swift foundation: `DivotCore` geometry/placement tests, `DivotAppKit` platform adapter, and a buildable AppKit shell (not physically validated).
+- Built-in status providers (frontmost app, battery/power, a minute clock, network, and volume) wired into the bar with lifecycle, cancellation, and unavailable states (unit-tested, not physically validated).
 
 ## First native release
 
-AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume) → AeroSpace workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release.
+AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume) → AeroSpace workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release. The status providers (all but `workspaces`) are implemented and unit-tested; the remaining steps are still planned.
 
 There is no promised release date. Each step has its own acceptance criteria and review. A downloadable build appears only after the release gates pass.
 
