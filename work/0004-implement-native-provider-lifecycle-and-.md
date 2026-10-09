@@ -2,7 +2,7 @@
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 story: A beautiful bar from the first launch
@@ -35,4 +35,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T16:41:13Z · story, body
 - 2026-10-09T17:20:38Z · status inbox→ready
 - 2026-10-09T18:02:46Z · status ready→active, branch
-- 2026-10-09T18:27:00Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T18:27:00Z · status active→review
