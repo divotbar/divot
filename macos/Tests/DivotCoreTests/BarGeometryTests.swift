@@ -43,3 +43,31 @@ import Testing
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800), height: .nan, gap: .infinity)
     #expect(g.left.height == 32 && g.left.width == 490)
 }
+
+@Test func belowNativeBarSpansWidthWithoutNotchGap() {
+    // Same notched display as the top-edge case, but the native bar is revealed,
+    // so the bar moves below the 33pt band and closes the notch gap.
+    let screen = CGRect(x: 0, y: 0, width: 1710, height: 1107)
+    let g = BarGeometry(screen: screen,
+        topLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+        topRight: CGRect(x: 948, y: 1074, width: 762, height: 33),
+        height: 32, gap: 10, nativeMenuBarInset: 33)
+    #expect(g.left == CGRect(x: 0, y: 1042, width: 845, height: 32))
+    #expect(g.right == CGRect(x: 865, y: 1042, width: 845, height: 32))
+    // 20pt seam, not the 185pt housing gap.
+    #expect(g.right.minX - g.left.maxX == 20)
+}
+
+@Test func belowNativeBarDoesNotFallOffScreen() {
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 100, height: 40),
+        height: 32, gap: 10, nativeMenuBarInset: 1000)
+    #expect(g.left.minY == 0 && g.left.height == 0)
+    #expect(g.right.minY == 0)
+}
+
+@Test func nonfiniteInsetFallsBackToTopEdge() {
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800), height: 32,
+        gap: 10, nativeMenuBarInset: .nan)
+    #expect(g.left.maxY == 800)
+}
+
