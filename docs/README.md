@@ -13,5 +13,6 @@ Read in this order:
 9. [App shell evidence](evidence/0003-app-shell.md): what the AppKit shell and display coordinator actually do, and what still needs physical proof.
 10. [Native providers evidence](evidence/0004-native-providers.md): what the provider pipeline and status widgets do, and what still needs physical proof.
 11. [AeroSpace workspace adapter evidence](evidence/0005-aerospace-workspace-adapter.md): the live read-only observation and what remains unverified.
+12. [Native macOS Spaces feasibility](evidence/0013-native-spaces-feasibility.md): why public APIs cannot drive a native Spaces adapter, and the scope that is honestly supportable.
 
 `docs/` is engineering context. `site/` is public documentation and marketing. Keep implementation status consistent across both. The app is not shipping yet.
