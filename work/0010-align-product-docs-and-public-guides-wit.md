@@ -2,7 +2,7 @@
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
-status: active
+status: review
 priority: p1
 area: [docs, web]
 story: Make either side of the bar my own
@@ -40,4 +40,4 @@ This is planning/docs alignment, not a native implementation claim or landing re
 - 2026-10-09T16:50:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T16:51:17Z · note: review pass 1: needs some work
 - 2026-10-09T16:51:17Z · status review→active
-- 2026-10-09T16:52:02Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T16:52:02Z · status active→review
