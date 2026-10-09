@@ -11,19 +11,22 @@ final class BarItemView: NSView {
     private let textField = NSTextField(labelWithString: "")
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
+    private let metrics: BarMetrics
 
-    private let iconSize: CGFloat = 14
-    private let spacing: CGFloat = 5
-
-    init() {
+    init(metrics: BarMetrics = .default) {
+        self.metrics = metrics
         super.init(frame: .zero)
         wantsLayer = true
         iconView.imageScaling = .scaleProportionallyDown
         iconView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(iconView)
-        textField.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        textField.font = .monospacedDigitSystemFont(ofSize: metrics.textFontSize, weight: .medium)
+        // Truncation is a safety net for genuinely constrained layouts, never the
+        // normal case: the item is sized to the measured text so nothing clips at
+        // the default width.
         textField.lineBreakMode = .byTruncatingTail
         textField.maximumNumberOfLines = 1
+        textField.setContentCompressionResistancePriority(.required, for: .horizontal)
         textField.translatesAutoresizingMaskIntoConstraints = true
         addSubview(textField)
     }
@@ -59,23 +62,33 @@ final class BarItemView: NSView {
     }
 
     override var intrinsicContentSize: NSSize {
-        let iconWidth = iconView.isHidden ? 0 : iconSize + spacing
-        let textWidth = textField.isHidden ? 0 : textField.intrinsicContentSize.width
-        return NSSize(width: iconWidth + textWidth, height: max(iconSize, textField.intrinsicContentSize.height))
+        let iconWidth = iconView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
+        let textWidth = measuredTextWidth
+        return NSSize(width: iconWidth + textWidth,
+                      height: max(metrics.iconSize, textField.fittingSize.height))
+    }
+
+    /// The width the label cell actually draws. `NSTextField.intrinsicContentSize`
+    /// omits the cell's own padding, so sizing a field to it ellipsizes the tail
+    /// ("Muted" → "Mut…"); `fittingSize` includes that padding, so a field sized
+    /// to it is never truncated.
+    private var measuredTextWidth: CGFloat {
+        guard !textField.isHidden else { return 0 }
+        return ceil(max(textField.fittingSize.width, textField.intrinsicContentSize.width))
     }
 
     override func layout() {
         super.layout()
         var x: CGFloat = 0
         if !iconView.isHidden {
-            iconView.frame = CGRect(x: 0, y: (bounds.height - iconSize) / 2,
-                                    width: iconSize, height: iconSize)
-            x = iconSize + spacing
+            iconView.frame = CGRect(x: 0, y: (bounds.height - metrics.iconSize) / 2,
+                                    width: metrics.iconSize, height: metrics.iconSize)
+            x = metrics.iconSize + metrics.iconSpacing
         }
         if !textField.isHidden {
-            let size = textField.intrinsicContentSize
+            let size = textField.fittingSize
             textField.frame = CGRect(x: x, y: (bounds.height - size.height) / 2,
-                                     width: max(0, bounds.width - x), height: size.height)
+                                     width: size.width, height: size.height)
         }
     }
 
@@ -116,16 +129,18 @@ final class BarContentView: NSView, BarContentLifecycle {
     private var workspaceViews: [BarItemID: WorkspaceBarView] = [:]
     var onActivate: ((WidgetAction) -> Void)?
 
-    private let spacing: CGFloat = 12
+    private let metrics: BarMetrics
 
     init(side: BarSide,
          items: [BarItemID],
          workspaceFeed: WorkspaceFeed? = nil,
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
+         metrics: BarMetrics = .default,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
+        self.metrics = metrics
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -134,12 +149,13 @@ final class BarContentView: NSView, BarContentLifecycle {
                 let view = WorkspaceBarView(feed: workspaceFeed,
                                             icons: workspaceIcons,
                                             displayScreensID: displayScreensID,
-                                            showsFrontApp: !items.contains(.frontApp))
+                                            showsFrontApp: !items.contains(.frontApp),
+                                            metrics: metrics)
                 workspaceViews[id] = view
                 addSubview(view)
                 continue
             }
-            let view = BarItemView()
+            let view = BarItemView(metrics: metrics)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
             itemViews[id] = view
             addSubview(view)
@@ -185,6 +201,11 @@ final class BarContentView: NSView, BarContentLifecycle {
     override func layout() {
         super.layout()
 
+        // Keep the group inside the panel's padding so it never runs edge-to-edge
+        // and the left/right groups share one rhythm.
+        let inset = metrics.rowInset
+        let usableWidth = max(0, bounds.width - inset * 2)
+
         var fixedTotal: CGFloat = 0
         var fixedCount = 0
         for id in items where itemViews[id] != nil {
@@ -193,25 +214,25 @@ final class BarContentView: NSView, BarContentLifecycle {
         }
         let workspaceCount = items.filter { workspaceViews[$0] != nil }.count
         let totalCount = fixedCount + workspaceCount
-        let spacingTotal = totalCount > 1 ? spacing * CGFloat(totalCount - 1) : 0
+        let spacingTotal = totalCount > 1 ? metrics.itemSpacing * CGFloat(totalCount - 1) : 0
         // The workspace row is elastic: it takes the width the fixed items leave.
-        let elasticWidth = workspaceCount > 0 ? max(0, bounds.width - fixedTotal - spacingTotal) : 0
+        let elasticWidth = workspaceCount > 0 ? max(0, usableWidth - fixedTotal - spacingTotal) : 0
         let perWorkspace = workspaceCount > 0 ? elasticWidth / CGFloat(workspaceCount) : 0
 
         var x = side == .left
-            ? 0
-            : max(0, bounds.width - (fixedTotal + elasticWidth + spacingTotal))
+            ? inset
+            : bounds.width - inset - (fixedTotal + elasticWidth + spacingTotal)
         for id in items {
             if let workspace = workspaceViews[id] {
                 workspace.frame = CGRect(x: x, y: 0, width: perWorkspace, height: bounds.height)
-                x += perWorkspace + spacing
+                x += perWorkspace + metrics.itemSpacing
                 continue
             }
             guard let view = itemViews[id] else { continue }
             let width = view.intrinsicContentSize.width
             let height = min(bounds.height, view.intrinsicContentSize.height)
             view.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
-            x += width + spacing
+            x += width + metrics.itemSpacing
         }
     }
 

@@ -33,6 +33,8 @@ Detecting the native bar, not drawing below it, is the feasibility risk. `NSScre
 
 Use a shallow `NSView` hierarchy with cached layer-backed contents. Dirty widgets invalidate their own content. Geometry changes trigger layout; a numeric value changing within a stable slot does not. Cache glyph measurements and images keyed by family, variant, scale, appearance, and content. Prefer native text and controls where they offer correct accessibility and interaction; custom drawing must implement equivalent accessibility elements/actions.
 
+`DivotCore.BarMetrics` is the single source for the bar's compact rhythm: the default row height (24 pt), the gap between items (8 pt), the row inset (6 pt), the icon size, and the font sizes. `BarGeometry` and `BarContentPolicy` read their default height from it, and the AppKit item views read the rest, so no widget hard-codes its own height, padding, or font. The same type owns the pure width measurement (`itemWidth`/`groupWidth`/`fits`) that guarantees a label is never truncated. Each item is sized to the label cell's own measured width (`fittingSize`), not `intrinsicContentSize`, because the latter omits the cell padding and ellipsizes the tail.
+
 Semantic tokens carry foreground, background, accent, selected, occupied, and error roles so the native default and the four theme families share one drawing path. Changing family or appearance invalidates appearance-dependent caches only.
 
 Core Animation handles brief transitions. No display link when idle. Avoid many translucent overlapping layers. Native material and opaque modes share the same geometry; honor reduce-transparency and reduce-motion preferences. Compare compositor costs before choosing the default material.
