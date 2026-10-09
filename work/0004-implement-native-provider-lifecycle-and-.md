@@ -58,3 +58,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:43:25Z · review_model_override
 - 2026-10-09T18:44:11Z · status review→active
 - 2026-10-09T18:47:39Z · status active→review
+- 2026-10-09T18:47:39Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
