@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T16:50:13Z"
+updated_at: "2026-10-09T16:51:17Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ This is planning/docs alignment, not a native implementation claim or landing re
 - 2026-10-09T16:43:24Z · status ready→active, branch
 - 2026-10-09T16:50:13Z · status active→review
 - 2026-10-09T16:50:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T16:51:17Z · note: review pass 1: needs some work
