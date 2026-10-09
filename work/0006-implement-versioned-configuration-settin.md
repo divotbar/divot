@@ -2,7 +2,7 @@
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 story: Make either side of the bar my own
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-versioned-configuration-settin
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T21:21:44Z"
+updated_at: "2026-10-09T21:22:15Z"
 ---
 ## Problem
 
@@ -33,10 +33,10 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 ```json
 [
 {
-  "label": "Configuration reference: implemented model and v1 migration",
-  "target": "website",
-  "route": "/reference/configuration",
-  "highlight": "#migration-from-version-1"
+"label": "Configuration reference: implemented model and v1 migration",
+"target": "website",
+"route": "/reference/configuration",
+"highlight": "#migration-from-version-1"
 }
 ]
 ```
@@ -48,3 +48,4 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 - 2026-10-09T17:20:39Z · status inbox→ready
 - 2026-10-09T20:33:26Z · status ready→active, branch
 - 2026-10-09T21:21:44Z · body: section Shots
+- 2026-10-09T21:22:15Z · status active→review
