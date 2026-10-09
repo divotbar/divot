@@ -2,7 +2,7 @@
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
-status: review
+status: active
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -13,7 +13,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T17:04:34Z"
+updated_at: "2026-10-09T17:04:46Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -63,3 +63,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:04:16Z · note: review pass 4: needs some work
 - 2026-10-09T17:04:17Z · needs_input
 - 2026-10-09T17:04:34Z · body: section Review repair requirements
+- 2026-10-09T17:04:46Z · status review→active
