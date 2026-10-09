@@ -3,6 +3,9 @@ id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
@@ -82,4 +85,5 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T19:00:01Z · body: section Shots
 - 2026-10-09T19:00:41Z · status active→review
 - 2026-10-09T19:02:25Z · note: review pass 4: needs some work
+- 2026-10-09T19:02:25Z · needs_input
 - 2026-10-09T19:02:25Z · needs_input
