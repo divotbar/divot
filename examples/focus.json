@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "appearance": {
+    "mode": "dark",
+    "accent": "#D6F58A",
+    "material": "opaque"
+  },
+  "layout": {
+    "height": 28,
+    "padding": 10,
+    "notchGap": 12
+  },
+  "workspaces": {
+    "enabled": true,
+    "adapter": "aerospace",
+    "showEmpty": false
+  },
+  "status": [
+    "clock"
+  ]
+}

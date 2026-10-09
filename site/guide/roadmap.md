@@ -1,0 +1,22 @@
+# The trail ahead
+
+## Here today
+
+- Product, architecture, infrastructure, and performance specifications.
+- This Vue/VitePress landing page and documentation site.
+- Proposed JSON configurations and a structural validator.
+- A Swift geometry library with notch and multi-display tests.
+
+## First native release
+
+AppKit panel shell → native providers → AeroSpace workspaces → configuration/settings → accessibility/device QA → measured performance → signed and notarized release.
+
+There is no promised release date. Each step has its own acceptance criteria and review. A downloadable build appears only after the release gates pass.
+
+## After that
+
+More native widgets, per-display customization, and an opt-in script protocol. Yabai and an update mechanism may follow. Third-party menu-extra mirroring and private system APIs are outside the initial scope.
+
+## Get involved
+
+[Build with us](../contributing/). Contributions to the docs, tests, native shell, and measurement harness are welcome.

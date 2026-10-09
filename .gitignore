@@ -1,0 +1,29 @@
+# RepoOS derived index cache
+.repoos/*
+
+# RepoOS canary flow-test counter (tracked)
+!.repoos/canary.txt
+
+# Local secrets — see .env.example
+.env
+
+# Local env overrides
+.env*.local
+
+# Installed dependencies
+node_modules/
+
+# Task screenshot attachments (binary uploads — never committed)
+work/.attachments/
+
+# Input screenshot attachments (binary uploads — never committed)
+inputs/.attachments/
+
+# macOS Finder metadata
+.DS_Store
+
+# Build outputs
+site/.vitepress/dist/
+site/.vitepress/cache/
+macos/.build/
+macos/.swiftpm/

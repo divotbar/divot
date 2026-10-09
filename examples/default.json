@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "appearance": {
+    "mode": "system",
+    "accent": "#D6F58A",
+    "material": "native"
+  },
+  "layout": {
+    "height": 32,
+    "padding": 12,
+    "notchGap": 10
+  },
+  "workspaces": {
+    "enabled": true,
+    "adapter": "aerospace",
+    "showEmpty": true
+  },
+  "status": [
+    "front-app",
+    "battery",
+    "clock"
+  ]
+}
