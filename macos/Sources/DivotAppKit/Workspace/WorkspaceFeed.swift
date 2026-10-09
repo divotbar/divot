@@ -156,7 +156,13 @@ public final class WorkspaceFeed {
     }
 
     /// Stop reading and release the subscription and the adapter. Idempotent.
+    ///
+    /// The generation is invalidated *before* cancellation and resetting, so a
+    /// snapshot already in flight when `stop()` is called fails its `isCurrent`
+    /// check and is dropped: it can neither repopulate the cleared state nor
+    /// notify observers with stale data.
     public func stop() {
+        _ = machine.begin()
         cancelWork()
         let previous = adapter
         adapter = nil

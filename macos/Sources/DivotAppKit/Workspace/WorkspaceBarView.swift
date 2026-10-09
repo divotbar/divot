@@ -194,14 +194,32 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         let font = NSFont.systemFont(ofSize: 11, weight: weight)
         let tint: NSColor? = (occupancy == .empty || occupancy == .unknown) && !workspace.isFocused
             ? .secondaryLabelColor : nil
-        button.attributedTitle = chipTitle(for: workspace, options: options, font: font, tint: tint)
+        button.attributedTitle = chipTitle(for: workspace,
+                                           options: options,
+                                           occupancy: occupancy,
+                                           font: font,
+                                           tint: tint)
         return button
     }
 
+    /// Compact non-color occupancy cue: a filled dot for occupied, a hollow ring
+    /// for empty and a dotted ring for unknown. Shape alone separates the three,
+    /// so occupancy is never conveyed by text tint alone — especially when app
+    /// icons are disabled. Focused chips use the control's selected state.
+    static func occupancyMarker(for occupancy: WorkspaceOccupancy) -> String {
+        switch occupancy {
+        case .occupied: return "●"
+        case .empty: return "○"
+        case .unknown: return "◌"
+        }
+    }
+
     /// The chip title: the workspace name plus one attachment per deduplicated
-    /// app icon, so enabling icons shows every app rather than only the first.
+    /// app icon, so enabling icons shows every app rather than only the first,
+    /// then a non-color occupancy marker for every non-focused workspace.
     private func chipTitle(for workspace: Workspace,
                            options: WorkspaceDisplayOptions,
+                           occupancy: WorkspaceOccupancy,
                            font: NSFont,
                            tint: NSColor?) -> NSAttributedString {
         var attributes: [NSAttributedString.Key: Any] = [.font: font]
@@ -215,6 +233,11 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
             attachment.bounds = CGRect(x: 0, y: -1.5, width: 12, height: 12)
             title.append(NSAttributedString(string: " ", attributes: attributes))
             title.append(NSAttributedString(attachment: attachment))
+        }
+        if !workspace.isFocused {
+            title.append(NSAttributedString(string: " ", attributes: attributes))
+            title.append(NSAttributedString(string: Self.occupancyMarker(for: occupancy),
+                                            attributes: attributes))
         }
         return title
     }

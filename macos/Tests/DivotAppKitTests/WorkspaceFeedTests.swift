@@ -135,6 +135,116 @@ private final class FakeEventSource: WorkspaceEventSource, @unchecked Sendable {
     }
 }
 
+/// A one-shot gate that lets a test hold a snapshot read open across `stop()`.
+private final class SnapshotGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var started = false
+    private var released = false
+    private var startedContinuation: CheckedContinuation<Void, Never>?
+    private var releaseContinuation: CheckedContinuation<Void, Never>?
+
+    func markStarted() {
+        lock.lock()
+        started = true
+        let continuation = startedContinuation
+        startedContinuation = nil
+        lock.unlock()
+        continuation?.resume()
+    }
+
+    func waitForStart() async {
+        await withCheckedContinuation { continuation in
+            lock.lock()
+            if started {
+                lock.unlock()
+                continuation.resume()
+            } else {
+                startedContinuation = continuation
+                lock.unlock()
+            }
+        }
+    }
+
+    func release() {
+        lock.lock()
+        released = true
+        let continuation = releaseContinuation
+        releaseContinuation = nil
+        lock.unlock()
+        continuation?.resume()
+    }
+
+    func waitForRelease() async {
+        await withCheckedContinuation { continuation in
+            lock.lock()
+            if released {
+                lock.unlock()
+                continuation.resume()
+            } else {
+                releaseContinuation = continuation
+                lock.unlock()
+            }
+        }
+    }
+}
+
+/// A snapshot read that stays open until the test releases the gate, so a
+/// completion can be made to land deterministically after `stop()`. The first
+/// `immediateReads` reads (the feed's own startup read) return at once.
+private final class GatedSnapshotAdapter: WorkspaceAdapting, @unchecked Sendable {
+    let kind: WorkspaceManagerKind = .aerospace
+    private let snapshotValue: WorkspaceSnapshot
+    private let gate: SnapshotGate
+    private let lock = NSLock()
+    private var remainingImmediateReads: Int
+
+    init(snapshot: WorkspaceSnapshot, gate: SnapshotGate, immediateReads: Int = 0) {
+        self.snapshotValue = snapshot
+        self.gate = gate
+        self.remainingImmediateReads = immediateReads
+    }
+
+    func capabilities() async -> WorkspaceAvailability { .available(WorkspaceCapabilities.none) }
+
+    func snapshot() async throws -> WorkspaceSnapshot {
+        if claimImmediateRead() { return snapshotValue }
+        gate.markStarted()
+        await gate.waitForRelease()
+        return snapshotValue
+    }
+
+    /// Synchronous so the lock is never held across an `await`.
+    private func claimImmediateRead() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard remainingImmediateReads > 0 else { return false }
+        remainingImmediateReads -= 1
+        return true
+    }
+
+    func activate(_ workspace: WorkspaceID) async throws {}
+    func stop() async {}
+}
+
+/// Records announced states so a test can prove a stale completion did not
+/// notify observers.
+private final class StateRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var states: [WorkspaceFeedState] = []
+
+    func record(_ state: WorkspaceFeedState) {
+        lock.lock()
+        states.append(state)
+        lock.unlock()
+    }
+
+    var last: WorkspaceFeedState? {
+        lock.lock()
+        defer { lock.unlock() }
+        return states.last
+    }
+}
+
 // MARK: - Feed orchestration
 
 @MainActor
@@ -333,4 +443,37 @@ private final class FakeEventSource: WorkspaceEventSource, @unchecked Sendable {
     }, options: .default)
     await feed.waitForPendingWork()
     #expect(providerCalls == 0)
+}
+
+/// Regression: a snapshot already in flight when `stop()` is called must be
+/// dropped, even though the read completes afterwards. Without invalidating the
+/// generation in `stop()`, the delayed completion passes `isCurrent` and
+/// repopulates the cleared state.
+@MainActor
+@Test func stopDropsASnapshotThatCompletesAfterwards() async {
+    let gate = SnapshotGate()
+    let adapter = GatedSnapshotAdapter(
+        snapshot: WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace("1")]),
+        gate: gate,
+        immediateReads: 1)  // the feed's own startup read returns at once
+
+    let recorder = StateRecorder()
+    let feed = WorkspaceFeed(debounce: .zero)
+    feed.onChange = { recorder.record($0) }
+
+    feed.start(adapter: adapter, eventSource: nil, options: .default)
+    await feed.waitForPendingWork()
+    #expect(feed.state.snapshot != nil)
+
+    // Begin a read and hold it open; then stop while it is still in flight.
+    let inFlight = Task { await feed.refresh() }
+    await gate.waitForStart()
+    feed.stop()
+    #expect(feed.state.snapshot == nil)
+
+    // Release the delayed read. It must not repopulate state or re-notify.
+    gate.release()
+    await inFlight.value
+    #expect(feed.state.snapshot == nil)
+    #expect(recorder.last?.snapshot == nil)
 }

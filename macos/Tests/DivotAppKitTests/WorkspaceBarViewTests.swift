@@ -50,6 +50,15 @@ private func attachmentCount(in string: NSAttributedString) -> Int {
     return count
 }
 
+private func app(_ name: String) -> WorkspaceApp {
+    WorkspaceApp(identity: .init(bundleID: "com.example.\(name)", name: name), pid: 1, windowID: 1)
+}
+
+@MainActor
+private func firstChip(_ id: String, in view: NSView) -> NSButton? {
+    allSubviews(of: NSButton.self, in: view).first { $0.identifier?.rawValue == id }
+}
+
 @MainActor
 @Test func workspaceBarViewBuildsWithoutAManager() {
     let feed = WorkspaceFeed()
@@ -173,5 +182,107 @@ private func uniqueColors(in image: NSImage) -> Int {
     let label = try! #require(allSubviews(of: NSTextField.self, in: view).first)
     #expect(!label.stringValue.isEmpty)
     #expect(label.frame.width > 0)
+}
+
+@MainActor
+@Test func nonFocusedChipsDistinguishOccupancyWithoutColorOrIcons() async {
+    let workspaces = [
+        Workspace(id: WorkspaceID("1"), isFocused: true, apps: [app("Safari")]),
+        Workspace(id: WorkspaceID("2"), apps: [app("Safari")]),  // occupied
+        Workspace(id: WorkspaceID("3"))                          // empty
+    ]
+    let snapshot = WorkspaceSnapshot(manager: .aerospace, workspaces: workspaces)
+
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showAppIcons: false))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let focused = try! #require(firstChip("1", in: view))
+    let occupied = try! #require(firstChip("2", in: view))
+    let empty = try! #require(firstChip("3", in: view))
+
+    // Focused state is the control's selected state, not a marker.
+    #expect(focused.state == .on)
+    #expect(focused.attributedTitle.string == "1")
+
+    // Occupied and empty differ by a shape marker, never by text tint alone.
+    #expect(occupied.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .occupied)))
+    #expect(empty.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .empty)))
+    #expect(occupied.attributedTitle.string != empty.attributedTitle.string)
+
+    // The three occupancy markers are visually distinct from one another.
+    let markers = [WorkspaceOccupancy.occupied, .empty, .unknown].map(WorkspaceBarView.occupancyMarker(for:))
+    #expect(Set(markers).count == 3)
+}
+
+@MainActor
+@Test func unknownOccupancyChipsGetTheirOwnMarkerAndDescription() async {
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), apps: [app("Safari")])],
+                                     appsAvailable: false)
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showAppIcons: false))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let chip = try! #require(firstChip("1", in: view))
+    #expect(chip.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .unknown)))
+    #expect(chip.accessibilityLabel()?.contains("unknown") == true)
+}
+
+@MainActor
+@Test func chipAccessibilityDescribesFocusAndOccupancy() async {
+    let workspaces = [
+        Workspace(id: WorkspaceID("1"), isFocused: true, apps: [app("Safari")]),
+        Workspace(id: WorkspaceID("2"), apps: [app("Safari")]),  // occupied
+        Workspace(id: WorkspaceID("3"))                          // empty
+    ]
+    let snapshot = WorkspaceSnapshot(manager: .aerospace, workspaces: workspaces)
+
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showAppIcons: false))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    #expect(try! #require(firstChip("1", in: view)).accessibilityLabel()?.contains("focused") == true)
+    #expect(try! #require(firstChip("2", in: view)).accessibilityLabel()?.contains("occupied") == true)
+    #expect(try! #require(firstChip("3", in: view)).accessibilityLabel()?.contains("empty") == true)
+}
+
+@MainActor
+@Test func occupancyMarkersKeepTheRowWithinItsWidth() async {
+    let workspaces = (1...12).map { index in
+        Workspace(id: WorkspaceID("\(index)"),
+                  apps: index.isMultiple(of: 2) ? [app("Safari")] : [])
+    }
+    let snapshot = WorkspaceSnapshot(manager: .aerospace, workspaces: workspaces)
+
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 220, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showAppIcons: false, showDetails: false))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let stack = try! #require(allSubviews(of: NSStackView.self, in: view).first)
+    // Marker glyphs are measured into each chip, so a marked row still fits and
+    // never crosses the notch; crowded rows spill into the overflow menu.
+    #expect(stack.frame.maxX <= view.bounds.width + 0.5)
+    #expect(allSubviews(of: NSPopUpButton.self, in: view).count == 1)
 }
 
