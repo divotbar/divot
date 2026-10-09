@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/fix-divot-bar-sizing-and-truncation-on-t
 created_at: "2026-10-09T20:18:47Z"
-updated_at: "2026-10-09T21:09:36Z"
+updated_at: "2026-10-09T21:10:23Z"
 ---
 ## Problem
 
@@ -39,3 +39,4 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 - 2026-10-09T20:28:35Z · status ready→active, branch
 - 2026-10-09T21:09:36Z · status active→review
 - 2026-10-09T21:09:36Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-09T21:10:23Z · note: review pass 1: good to go
