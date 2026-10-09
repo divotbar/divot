@@ -1,0 +1,34 @@
+---
+id: "0011"
+title: "Implement Gruvbox, Ayu, Dracula and Tokyo Night theme families"
+type: feature
+status: inbox
+priority: p1
+area: [macos, docs]
+story: Choose a hacker theme in light or dark
+depends_on: ["0006"]
+assigned_to: ""
+created_by: njachowski@gmail.com
+branch: ""
+created_at: "2026-10-09T16:41:12Z"
+updated_at: "2026-10-09T16:41:12Z"
+---
+## Problem
+
+Theme families and paired light/dark variants are central product requirements.
+
+## Desired UX
+
+The four requested hacker families plus a native default apply across all product surfaces; family survives appearance changes.
+
+## Acceptance criteria
+
+Semantic tokens, live persisted switching, verified upstream palette attribution, honest light adaptations, contrast/state fixtures, accessible settings and config overrides. Opaque and native materials respect system preferences. Switching only invalidates appearance caches.
+
+## Notes for AI
+
+Depends on shared settings/config and provider views. Do not label unofficial light adaptations official. Update public theme guides with delivered state.
+
+## Activity
+
+- 2026-10-09T16:41:12Z · created · njachowski@gmail.com
