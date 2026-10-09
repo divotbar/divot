@@ -14,8 +14,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-native-provider-lifecycle-and-
 review_cli_override: cursor
+review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:43:22Z"
+updated_at: "2026-10-09T18:43:25Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -54,3 +55,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:43:05Z · note: review pass 3: needs some work
 - 2026-10-09T18:43:05Z · needs_input
 - 2026-10-09T18:43:22Z · review_cli_override
+- 2026-10-09T18:43:25Z · review_model_override
