@@ -7,13 +7,19 @@ import Testing
 /// completion arriving after the item was disabled.
 private final class TestProvider: WidgetProvider, @unchecked Sendable {
     let id: BarItemID
+    /// Lets a test simulate a changed configuration (or dependency) for the
+    /// same item id.
+    let activationKey: String
     private let lock = NSLock()
     private var emitClosure: (@Sendable (WidgetContent) -> Void)?
     private var _startedOnMain = false
     private var _cancelCount = 0
     private var _startCount = 0
 
-    init(id: BarItemID) { self.id = id }
+    init(id: BarItemID, key: String = "default") {
+        self.id = id
+        self.activationKey = key
+    }
 
     func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
         lock.lock()
@@ -214,6 +220,41 @@ private final class DeliverySpy {
     #expect(battery.startCount == 1)
     #expect(battery.cancelCount == 0)
     let running = await pipeline.isRunning(.battery)
+    #expect(running)
+}
+
+@MainActor
+@Test func configureReplacesAProviderWhoseActivationChanged() async {
+    let original = TestProvider(id: .clock, key: "clock(seconds: false)")
+    let pipeline = WidgetPipeline(sink: { _ in }, autoDrain: false)
+    await pipeline.register(original)
+    await pipeline.start()
+    let originalGeneration = await pipeline.generation(of: .clock)!
+
+    let replacement = TestProvider(id: .clock, key: "clock(seconds: true)")
+    await pipeline.configure([replacement])
+
+    #expect(original.cancelCount == 1)
+    #expect(replacement.startCount == 1)
+    let replacementGeneration = await pipeline.generation(of: .clock)!
+    #expect(replacementGeneration > originalGeneration)
+}
+
+@MainActor
+@Test func configureKeepsAnEquivalentProviderInstanceRunning() async {
+    let original = TestProvider(id: .network, key: "network")
+    let pipeline = WidgetPipeline(sink: { _ in }, autoDrain: false)
+    await pipeline.register(original)
+    await pipeline.start()
+
+    // A different instance with the same activation is the same activation and
+    // must not be torn down and restarted.
+    let equivalent = TestProvider(id: .network, key: "network")
+    await pipeline.configure([equivalent])
+
+    #expect(original.cancelCount == 0)
+    #expect(equivalent.startCount == 0)
+    let running = await pipeline.isRunning(.network)
     #expect(running)
 }
 

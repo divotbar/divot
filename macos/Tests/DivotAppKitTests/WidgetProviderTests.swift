@@ -152,6 +152,23 @@ private final class MockFrontAppReading: FrontAppReading {
     }
 }
 
+@Test func clockProviderActivationKeyReflectsItsOptions() {
+    // A changed clock option must be a changed activation so reconfigure
+    // restarts the ticker instead of keeping the old resolution.
+    #expect(ClockProvider(seconds: true).activationKey != ClockProvider(seconds: false).activationKey)
+    #expect(ClockProvider(seconds: true).activationKey == ClockProvider(seconds: true).activationKey)
+    #expect(ClockProvider().activationKey == ClockProvider(seconds: false).activationKey)
+}
+
+@MainActor
+@Test func defaultProviderActivationsAreStableAcrossCalls() {
+    // A fresh default set must compare equal to the running one, so a reconfigure
+    // does not needlessly restart every provider.
+    let first = DefaultWidgetProviders.make()
+    let second = DefaultWidgetProviders.make()
+    #expect(first.map(\.activationKey) == second.map(\.activationKey))
+}
+
 @Test func batteryProviderEmitsInitialValueChangeAndCancels() {
     let reading = MockBatteryReading()
     reading.snapshotValue = .init(presence: .internalBattery, percentage: 42)

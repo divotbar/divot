@@ -80,6 +80,19 @@ public enum WidgetChange: Equatable, Sendable {
 public protocol WidgetProvider: Sendable {
     var id: BarItemID { get }
     func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription
+    /// A fingerprint of this provider's activation-relevant configuration.
+    ///
+    /// Two providers with the same `id` and the same key are the same running
+    /// activation and are left alone across a reconfigure; a different key
+    /// replaces (stops and restarts) the provider. The default reflects the
+    /// provider's own value, so value-type options are captured automatically;
+    /// a provider whose behavior depends on the *identity* of an injected
+    /// reference dependency must include that identity here.
+    var activationKey: String { get }
+}
+
+public extension WidgetProvider {
+    var activationKey: String { String(reflecting: self) }
 }
 
 // MARK: - Store
@@ -248,8 +261,9 @@ public actor WidgetPipeline {
         scheduleDrain()
     }
 
-    /// Replace the whole provider set. Providers that are gone are stopped;
-    /// new ones are registered and started; unchanged ones keep running.
+    /// Replace the whole provider set. Providers that are gone are stopped; a
+    /// provider whose activation key changed is replaced (stopped and started);
+    /// an equivalent activation is left running.
     public func configure(_ newProviders: [any WidgetProvider]) {
         let wanted = Set(newProviders.map(\.id))
         for id in Array(providers.keys) where !wanted.contains(id) {
@@ -257,10 +271,14 @@ public actor WidgetPipeline {
             providers.removeValue(forKey: id)
         }
         for provider in newProviders {
-            if providers[provider.id] == nil {
-                providers[provider.id] = provider
-                start(provider.id)
+            if let existing = providers[provider.id] {
+                // Same item and same activation: leave it running untouched.
+                if existing.activationKey == provider.activationKey { continue }
+                // Changed options or dependencies: replace the activation.
+                stop(provider.id)
             }
+            providers[provider.id] = provider
+            start(provider.id)
         }
     }
 

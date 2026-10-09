@@ -46,7 +46,14 @@ is ignored. Changed items are coalesced and delivered to a `@MainActor` sink in
 one batch. Stopping a provider (or reconfiguring it away) delivers a removal for
 that item, so a widget that stays in the layout clears instead of showing a value
 that is no longer kept current; a provider stopped and restarted before the
-batch drains delivers its fresh value instead of a removal.
+batch drains delivers its fresh value instead of a removal. `configure` compares
+each provider's activation key (its item plus a fingerprint of its options): a
+changed key replaces the activation, an equivalent one is left running.
+
+The `workspaces` item stays in the default left group but has no provider yet, so
+that slot renders its honest unavailable state until the workspace-adapter
+milestone lands. It is intentionally absent rather than faked with numbered
+spaces.
 
 ## Click controls and settings links
 
@@ -70,7 +77,8 @@ asserted, by category:
   and does not fire the handler (and `stop` is idempotent).
 - **Stale completions**: a completion from before a disable/reconfigure is
   ignored, whether it arrives through the pipeline or through a captured emit
-  closure; `configure` keeps unchanged providers running.
+  closure; `configure` keeps an unchanged activation running and replaces one
+  whose activation key changed.
 - **Removal delivery**: stopping a provider delivers a `.removed` change so the
   bar clears the item; stopping and restarting before the drain delivers the
   fresh value, not a removal; the display coordinator forwards the removal to
@@ -111,6 +119,10 @@ helpers.
 - Real battery/network/volume/front-app values under sleep/wake, hot-plug,
   external displays, and audio-device changes.
 - Whether any provider's callback fires on main on real hardware for a long run.
+
+No visual shots are declared for this change: the managed preview serves the
+website, and the native bar has no browser route, so on-screen rendering stays a
+device-QA item rather than something a capture here could prove.
 
 A local, non-device run of `divot --widgets` (a 0.6s window) printed live values
 from the built-in providers on the authoring machine. That is a smoke check that

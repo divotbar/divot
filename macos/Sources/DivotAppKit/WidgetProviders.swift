@@ -34,6 +34,10 @@ public struct ClockProvider: WidgetProvider {
         self.source = source
     }
 
+    /// The clock's only configuration is its resolution, so a changed `seconds`
+    /// option must restart the provider rather than keep the old minute ticker.
+    public var activationKey: String { "clock(seconds: \(seconds))" }
+
     public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
         let source = self.source
         let seconds = self.seconds
