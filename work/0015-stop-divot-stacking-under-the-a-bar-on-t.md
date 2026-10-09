@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/stop-divot-stacking-under-the-a-bar-on-t
 created_at: "2026-10-09T20:18:47Z"
-updated_at: "2026-10-09T20:18:50Z"
+updated_at: "2026-10-09T20:21:58Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Product reading taken by the PM: the user expects Divot in the top band, not ben
 - 2026-10-09T20:18:47Z · created · njachowski@gmail.com
 - 2026-10-09T20:18:50Z · status inbox→ready
 - 2026-10-09T20:18:50Z · status ready→active, branch
+- 2026-10-09T20:21:58Z · note: PM: repoos shots cover web routes only, so they will not capture the native Divot bar (shots: skipped). Verify placement with geometry/state unit tests; screen capture from the terminal fails here until Screen Recording is granted, so do not depend on screencapture.
