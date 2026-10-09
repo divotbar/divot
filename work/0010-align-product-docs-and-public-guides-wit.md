@@ -13,7 +13,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T17:08:15Z"
+updated_at: "2026-10-09T17:09:22Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -66,3 +66,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:04:46Z · status review→active
 - 2026-10-09T17:08:13Z · status active→review
 - 2026-10-09T17:08:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T17:09:22Z · note: review pass 5: needs some work
