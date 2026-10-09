@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0012"
 title: "Add the second workspace adapter: yabai"
 type: feature
@@ -58,3 +59,4 @@ Second integration milestone; AeroSpace first. No blocker to an AeroSpace-first 
 - 2026-10-09T21:14:30Z · note: review pass 1: good to go
 - 2026-10-09T23:50:23Z · status review→active
 - 2026-10-09T23:50:23Z · note: close-out repair: merge-conflict
+
