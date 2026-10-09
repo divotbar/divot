@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "appearance": {
+    "family": "native",
+    "mode": "dark",
+    "accent": "#D6F58A",
+    "material": "opaque"
+  },
+  "layout": {
+    "height": 28,
+    "padding": 10,
+    "notchGap": 12
+  },
+  "workspaces": {
+    "adapter": "aerospace",
+    "showEmpty": false,
+    "showAppIcons": false
+  },
+  "status": [
+    "clock"
+  ]
+}

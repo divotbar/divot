@@ -10,7 +10,7 @@ Alongside the comfortable native default, Divot ships four curated hacker famili
 
 Proposed `appearance.mode` values are `system`, `dark`, and `light`. `system` follows the Mac's appearance. An accent must be a six-digit hex color such as `#B7CEFF`; color is never the only way to identify a selected workspace.
 
-## Custom palette overrides (proposed)
+## Custom palette overrides
 
 A family is a starting point, not a cage. Under the same v2 configuration contract, `appearance.palette` overrides individual semantic color tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex values merged over the chosen family and variant. Set only what you want to change. `palette.accent` takes precedence over the root `accent`.
 
@@ -24,7 +24,7 @@ A family is a starting point, not a cage. Under the same v2 configuration contra
 }
 ```
 
-The checker validates this shape today; the native loader does not apply palettes yet, so treat overrides as proposed. Complete examples live in the [configuration reference](../reference/configuration).
+The checker and the native parser validate this shape today; the theme milestone applies family and palette colors to the bar, so treat the visual result as pending and the data as real. Complete examples live in the [configuration reference](../reference/configuration).
 
 ## Materials
 

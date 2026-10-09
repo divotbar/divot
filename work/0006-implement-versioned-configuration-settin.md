@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T21:27:50Z"
-review_passes: 2
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
@@ -13,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-versioned-configuration-settin
 created_at: "2026-10-09T16:18:39Z"
-review_rounds: 1
+updated_at: "2026-10-09T21:22:14Z"
 ---
 ## Problem
 
@@ -31,30 +29,10 @@ Versioned left/right item groups and per-widget options; atomic reload/writes; l
 
 SwiftUI is permitted for settings only. Theme families implemented in the separate theme task. Scripts/marketplace are not needed to deliver built-in customization.
 
-## Shots
-```json
-[
-{
-"label": "Configuration reference: implemented model and v1 migration",
-"target": "website",
-"route": "/reference/configuration",
-"highlight": "#migration-from-version-1"
-}
-]
-```
-
 ## Activity
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:14Z · story, body
 - 2026-10-09T17:20:39Z · status inbox→ready
 - 2026-10-09T20:33:26Z · status ready→active, branch
-- 2026-10-09T21:21:44Z · body: section Shots
-- 2026-10-09T21:22:15Z · status active→review
-- 2026-10-09T21:23:11Z · note: review pass 1: needs some work
-- 2026-10-09T21:23:11Z · status review→active
-- 2026-10-09T21:27:00Z · status active→review
-- 2026-10-09T21:27:00Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (9a7758b) during finalization (#0734)
-- 2026-10-09T21:27:00Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (9a7758b) during finalization (#0734)
-- 2026-10-09T21:27:49Z · note: review pass 2: good to go
-
+- 2026-10-09T21:22:14Z · status active→review

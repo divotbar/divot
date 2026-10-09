@@ -41,20 +41,25 @@ public final class NSPanelBarSurface: BarDisplaySurface {
 
     public init(id: DisplayBarID,
                 on screen: CGRect,
-                layout: BarLayout = .default,
+                configuration: DivotConfiguration = .default,
                 workspaceFeed: WorkspaceFeed? = nil,
                 workspaceIcons: WorkspaceIconProviding? = nil,
                 displayScreensID: Int? = nil,
                 onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
+        let layout = configuration.barLayout
         self.leftContent = BarContentView(side: .left,
                                           items: layout.left,
                                           workspaceFeed: workspaceFeed,
                                           workspaceIcons: workspaceIcons,
                                           displayScreensID: displayScreensID,
+                                          presentationOptions: configuration.presentationOptions,
+                                          padding: configuration.layout.padding,
                                           onActivate: onWidgetAction)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
+                                           presentationOptions: configuration.presentationOptions,
+                                           padding: configuration.layout.padding,
                                            onActivate: onWidgetAction)
         self.left = Self.makePanel(on: screen, content: leftContent)
         self.right = Self.makePanel(on: screen, content: rightContent)
