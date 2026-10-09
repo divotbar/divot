@@ -91,6 +91,11 @@ Readings that matter:
 
 - Pure, platform-free detection and placement math: top-band/housing separation,
   notch masking, inset resolution, and full-width below-bar geometry.
+- Housing detection accepts either public notch signal (`safeAreaInsets.top` or
+  the auxiliary top areas beside the notch). A notched display whose inset reads
+  zero — for example while a third-party bar (a-bar/AeroSpace) occupies the band
+  — is not read as a revealed native bar; it stays indeterminate and holds the
+  top edge (task 0015 code fix; still wants physical confirmation).
 - An event-driven coalescing controller that converges on the latest observation,
   cancels in-flight transitions, repositions immediately under Reduced Motion,
   and **never emits a hide**. Undecidable input returns `.indeterminate` and
