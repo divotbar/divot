@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T17:04:17Z"
-review_passes: 4
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
@@ -15,6 +13,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
+updated_at: "2026-10-09T17:04:34Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -35,6 +35,9 @@ This is planning/docs alignment, not a native implementation claim or landing re
 
 ## Integration follow-up
 Close-out after approved task 0009 landed failed with conflicts in docs/product-requirements.md and site/guide/workspaces.md. In this task existing worktree, merge current main into the branch and resolve the two overlapping product-doc edits semantically. Preserve both the approved story alignment and task 0009 honest feasibility limits: notched-display actual menu-bar visibility remains unresolved without validated Accessibility observation; no claim of proven always-visible behavior. Run repoos check --changed main and request a fresh independent review through the normal handoff. Do not hand-land or edit main. The human has revoked the USD 2/hour cap provided configured roles/agents/models remain unchanged; preserve that configuration. Their Mac runs AeroSpace and a-bar; the local preview comparison must temporarily stop only a-bar and preserve a restore path.
+
+## Review repair requirements
+Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The committed main...HEAD diff must not revert work/0009 or delete work/0014. Restoring them only as dirty worktree files is insufficient. Use RepoOS-supported synchronization/recovery to match current main task records and include the corrective changes in the branch commit before handoff; do not edit metadata by hand or erase task state. Verify git diff main...HEAD -- work/0009* work/0014* is empty and the handoff tree is clean. (2) The agreed theme story promises custom palette overrides under the same configuration contract. Add that proposal consistently to configuration docs, theme guide, examples/schema validator as applicable, preserving proposed-vs-implemented labels. Run meaningful negative configuration validation coverage where the checker is changed. Run the declared check and request fresh review. Do not land the branch yourself.
 
 ## Activity
 
@@ -59,4 +62,4 @@ Close-out after approved task 0009 landed failed with conflicts in docs/product-
 - 2026-10-09T17:02:12Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T17:04:16Z · note: review pass 4: needs some work
 - 2026-10-09T17:04:17Z · needs_input
-
+- 2026-10-09T17:04:34Z · body: section Review repair requirements
