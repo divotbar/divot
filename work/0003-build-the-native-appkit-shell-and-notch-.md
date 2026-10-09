@@ -16,7 +16,7 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:42:49Z"
+updated_at: "2026-10-09T17:42:58Z"
 review_passes: 4
 review_rounds: 2
 ---
