@@ -1,15 +1,31 @@
 import Foundation
 
+/// Whether the frontmost-application item shows its icon and/or its name.
+public struct FrontAppFormatOptions: Equatable, Sendable {
+    public var showIcon: Bool
+    public var showName: Bool
+
+    public init(showIcon: Bool = true, showName: Bool = true) {
+        self.showIcon = showIcon
+        self.showName = showName
+    }
+
+    public static let `default` = FrontAppFormatOptions()
+}
+
 /// Options the presenter needs beyond the snapshot itself.
 public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
+    public var frontApp: FrontAppFormatOptions
     public var locale: Locale
     public var timeZone: TimeZone
 
     public init(clock: ClockFormatOptions = .default,
+                frontApp: FrontAppFormatOptions = .default,
                 locale: Locale = .current,
                 timeZone: TimeZone = .current) {
         self.clock = clock
+        self.frontApp = frontApp
         self.locale = locale
         self.timeZone = timeZone
     }
@@ -21,16 +37,25 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
 /// accessible description. Kept pure so it is testable without a window server
 /// and so every widget shares one presentation path.
 public struct WidgetPresentation: Equatable, Sendable {
-    /// SF Symbol name, when the item shows an icon. A view that cannot resolve
+    /// SF Symbol name, when the item shows a symbol. A view that cannot resolve
     /// the symbol falls back to text rather than drawing nothing.
     public let symbolName: String?
+    /// Bundle identifier of an application whose real icon the view should
+    /// resolve (front-app with `showIcon`). The presenter stays pure: it names
+    /// the bundle, the AppKit view loads the image.
+    public let iconBundleIdentifier: String?
     public let text: String
     public let accessibilityLabel: String
     /// Render with the error role (color plus a distinct glyph, never color only).
     public let isError: Bool
 
-    public init(symbolName: String?, text: String, accessibilityLabel: String, isError: Bool = false) {
+    public init(symbolName: String?,
+                iconBundleIdentifier: String? = nil,
+                text: String,
+                accessibilityLabel: String,
+                isError: Bool = false) {
         self.symbolName = symbolName
+        self.iconBundleIdentifier = iconBundleIdentifier
         self.text = text
         self.accessibilityLabel = accessibilityLabel
         self.isError = isError
@@ -47,9 +72,7 @@ public enum WidgetPresenter {
         }
         switch state.content {
         case .frontApp(let snapshot):
-            return WidgetPresentation(symbolName: nil,
-                                      text: snapshot.name,
-                                      accessibilityLabel: "Frontmost application: \(snapshot.name)")
+            return frontAppPresentation(snapshot, options: options.frontApp)
         case .battery(let snapshot):
             return batteryPresentation(snapshot)
         case .network(let snapshot):
@@ -63,6 +86,14 @@ public enum WidgetPresenter {
         case .unavailable(let unavailable):
             return unavailablePresentation(unavailable)
         }
+    }
+
+    private static func frontAppPresentation(_ snapshot: FrontAppSnapshot,
+                                             options: FrontAppFormatOptions) -> WidgetPresentation {
+        WidgetPresentation(symbolName: nil,
+                           iconBundleIdentifier: options.showIcon ? snapshot.bundleIdentifier : nil,
+                           text: options.showName ? snapshot.name : "",
+                           accessibilityLabel: "Frontmost application: \(snapshot.name)")
     }
 
     private static func missingPresentation(for id: BarItemID) -> WidgetPresentation {
