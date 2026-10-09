@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:44:33Z"
-updated_at: "2026-10-09T16:44:33Z"
+updated_at: "2026-10-09T16:47:36Z"
 ---
 ## Problem
 
@@ -35,6 +35,10 @@ A reproducible local Divot.app bundle, built from the reviewed and landed source
 
 The user authorized driving the board toward a usable build/release on 2026-10-10. Use normal RepoOS engineer, independent review, checks and close-out. Depends on the performance/app readiness milestone #0007; yabai/native Spaces are later integrations and need not block the AeroSpace-first local preview. Version this preview honestly, e.g. 0.1.0-preview.1, when packaging exists.
 
+## Local rollout context
+The maintainer Mac runs AeroSpace with a-bar. The reference bar has compact numbered workspaces with app icons left and volume, network, date, time and battery right. Divot should offer a calmer and more cohesive visual result while retaining optional workspace app icons. Once a checked preview is ready, inspect the actual a-bar launch mechanism, temporarily stop only a-bar for comparison, preserve its configuration and record an exact restoration command. Keep AeroSpace running. The user authorizes a reversible local switch; do not uninstall a-bar or permanently modify login startup without a separate request. Operational agent budget: under USD 2 per rolling hour; preserve configured agents/models. Unknown cost telemetry is not zero and must be reported before additional paid starts.
+
 ## Activity
 
 - 2026-10-09T16:44:33Z · created · njachowski@gmail.com
+- 2026-10-09T16:47:36Z · body: section Local rollout context
