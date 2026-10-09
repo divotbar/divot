@@ -50,3 +50,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:23:52Z · note: review pass 1: needs some work
 - 2026-10-09T17:23:53Z · status review→active
 - 2026-10-09T17:26:33Z · status active→review
+- 2026-10-09T17:26:33Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
