@@ -6,13 +6,13 @@ This page describes the native app requirements. The interactive website demonst
 
 ## Left of the camera
 
-Workspace indicators belong on the left. The focused workspace has both a clear visual shape and an accessible selected state. Occupied and empty workspaces should be distinguishable without relying on color alone.
+Workspace indicators and the frontmost program belong on the left. The focused workspace has both a clear visual shape and an accessible selected state. Occupied and empty workspaces should be distinguishable without relying on color alone. Optional per-workspace app icons show what is running and can be turned off.
 
-AeroSpace is the initial adapter. Workspace activation is asynchronous; a slow command must never freeze the bar. Supported events/callbacks drive refreshes rather than continuous shell polling. The exact integration setup will be documented with the first working adapter.
+AeroSpace is the initial adapter; yabai follows as a second adapter in its own milestone. Workspace activation is asynchronous; a slow command must never freeze the bar. Supported events/callbacks drive refreshes rather than continuous shell polling. The exact integration setup will be documented with the first working adapter.
 
 ## Right of the camera
 
-The initial status group is frontmost app, battery, and clock. You choose their order. The website's Wi-Fi glyph is illustrative and does not promise a Wi-Fi provider in the first release.
+The default status group is battery percentage, a minute clock with weekday and date, network status, and volume. Both sides are configurable, so you can reorder items or move them between groups. The website's Wi-Fi glyph is illustrative of the planned network item.
 
 ## A real gap
 
@@ -24,4 +24,4 @@ Each display has its own geometry and workspace mapping. Disconnecting a screen 
 
 ## The macOS menu bar
 
-The planned top-edge mode works with macOS menu-bar auto-hide. An inset mode leaves the system bar in place. Divot does not recreate other applications' menus or force-hide the system menu bar. Fullscreen defaults to hiding Divot; any opt-in overlay behavior needs device validation.
+Divot stays visible. When the native menu bar is hidden it takes the top edge; when the bar appears it shifts below it, and it returns to the top when the bar hides. If the system bar is configured always visible, Divot stays below it. The earlier fullscreen-hide default is retired; fullscreen and Spaces limits are being validated and will be documented honestly.

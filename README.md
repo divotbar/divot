@@ -1,6 +1,6 @@
 # Divot
 
-A quieter edge for your Mac. An open-source, performance-first status bar designed around the camera notch: workspaces on the left, status on the right.
+A quieter edge for your Mac. An open-source, performance-first status bar designed around the camera notch: workspaces and the active app on the left, everyday status on the right.
 
 **Status: foundation / pre-alpha.** This repository contains the product and engineering specifications, a working static landing/docs site, a proposed configuration contract, and a tested Swift layout core. The native application is not yet implemented; there is no installable release or measured performance claim.
 
