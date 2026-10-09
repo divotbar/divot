@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T17:41:29Z"
-review_passes: 4
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
@@ -18,6 +16,8 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T17:42:47Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -41,6 +41,9 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 
 ## Focused review repair
 Reviewer at 2026-10-09T17:31:16Z requires fixes before sign-off: (1) DisplayLayout.swift screenChanged path reapplies committed stale menu-bar state after queuing a visibility update. Apply latest placement immediately when geometry and visibility change together, with regression coverage for reveal and hide. (2) SystemMenuBarProbe.swift must not treat unvalidated AX hidden/position sample as decisive. Preserve indeterminate until a justified tested visibility policy exists, documenting physical validation needed on notched hardware and lack of a proven pointer-only reveal trigger. Do not substitute silent hiding or pretend feasibility solved. (3) Add meaningful negative-test evidence that the changed native-app build guard rejects a broken app input at branch HEAD without corrupting the working project. Run declared scoped check once after repairs, and obtain a fresh independent review. Preserve configured roles/agents/models. These are targeted fixes to this task, not authorization to land it or change product scope.
+
+## Remaining review repair
+Latest independent review at 2026-10-09T17:41:29Z reports no bugs in the focused geometry/AX repairs, but requests meaningful native-app negative-test evidence. Replace or extend the TOML-shape-only test with a subprocess build of an isolated temporary Swift package fixture containing a deliberately broken divot executable target. Execute the same swift build --package-path <fixture> --product divot command shape as the declared gate and assert nonzero exit and appropriate failure output. Keep the real macos tree untouched, no symlink writes into project files, clean temporary artifacts. Preserve the positive production app build check. Add the optional advance-after-immediate-reposition regression if it demonstrates a real pending-state concern; no unrelated expansion. Run the scoped check, obtain a new independent review, and leave all configured roles/agents/models unchanged. Notched visibility and always-visible setting observation remain documented unresolved physical/API work; do not misrepresent them as delivered.
 
 ## Activity
 
@@ -74,4 +77,4 @@ Reviewer at 2026-10-09T17:31:16Z requires fixes before sign-off: (1) DisplayLayo
 - 2026-10-09T17:41:29Z · note: review pass 4: needs some work
 - 2026-10-09T17:41:29Z · needs_input
 - 2026-10-09T17:41:29Z · needs_input
-
+- 2026-10-09T17:42:47Z · body: section Remaining review repair
