@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-09T21:27:50Z"
-review_passes: 2
+last_close_out_gate_ms: 23133
+last_close_out_gate_at: "2026-10-09T23:50:16.553Z"
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
@@ -13,6 +13,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-versioned-configuration-settin
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T23:50:16Z"
+review_passes: 2
 review_rounds: 1
 ---
 ## Problem
@@ -57,4 +59,5 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 - 2026-10-09T21:27:00Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (9a7758b) during finalization (#0734)
 - 2026-10-09T21:27:00Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (9a7758b) during finalization (#0734)
 - 2026-10-09T21:27:49Z · note: review pass 2: good to go
+- 2026-10-09T23:50:16Z · close-out gate completed in 23s
 
