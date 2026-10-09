@@ -2,7 +2,7 @@
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:46:04Z"
+updated_at: "2026-10-09T18:47:16Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -35,22 +35,22 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 ```json
 [
 {
-  "label": "Workspace guide: adapter reads AeroSpace and renders the left row",
-  "target": "website",
-  "route": "/guide/workspaces",
-  "highlight": "#left-of-the-camera"
+"label": "Workspace guide: adapter reads AeroSpace and renders the left row",
+"target": "website",
+"route": "/guide/workspaces",
+"highlight": "#left-of-the-camera"
 },
 {
-  "label": "Workspace options: showDetails and maxAppIconsPerWorkspace",
-  "target": "website",
-  "route": "/reference/configuration",
-  "highlight": "#widget-options"
+"label": "Workspace options: showDetails and maxAppIconsPerWorkspace",
+"target": "website",
+"route": "/reference/configuration",
+"highlight": "#widget-options"
 },
 {
-  "label": "Troubleshooting: AeroSpace detection and unavailable state",
-  "target": "website",
-  "route": "/guide/troubleshooting",
-  "highlight": "#aerospace-isnt-installed"
+"label": "Troubleshooting: AeroSpace detection and unavailable state",
+"target": "website",
+"route": "/guide/troubleshooting",
+"highlight": "#aerospace-isnt-installed"
 }
 ]
 ```
@@ -70,3 +70,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:35:57Z · note: review pass 2: needs some work
 - 2026-10-09T18:35:57Z · status review→active
 - 2026-10-09T18:46:04Z · body: section Shots
+- 2026-10-09T18:47:16Z · status active→review
