@@ -2,16 +2,16 @@
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
-status: ready
+status: active
 priority: p1
 area: macos
 story: Make either side of the bar my own
 depends_on: ["0004", "0005"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/implement-versioned-configuration-settin
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:20:39Z"
+updated_at: "2026-10-09T20:33:26Z"
 ---
 ## Problem
 
@@ -34,3 +34,4 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:14Z · story, body
 - 2026-10-09T17:20:39Z · status inbox→ready
+- 2026-10-09T20:33:26Z · status ready→active, branch
