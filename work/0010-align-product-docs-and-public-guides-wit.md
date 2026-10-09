@@ -2,15 +2,15 @@
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
-status: ready
+status: active
 priority: p1
 area: [docs, web]
 story: Make either side of the bar my own
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T16:41:16Z"
+updated_at: "2026-10-09T16:43:24Z"
 ---
 ## Problem
 
@@ -33,3 +33,4 @@ This is planning/docs alignment, not a native implementation claim or landing re
 - 2026-10-09T16:41:12Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:16Z · status inbox→ready
 - 2026-10-09T16:41:16Z · note: Align stale bootstrap docs with the approved product stories before implementation.
+- 2026-10-09T16:43:24Z · status ready→active, branch
