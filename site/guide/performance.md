@@ -18,4 +18,4 @@ Physical validation also covers 60/120 Hz displays, sleep/wake, and multiple dis
 
 ## What helps
 
-Use a minute clock, avoid constant graphs when unnecessary, choose opaque material when you prefer it, and enable only useful integrations. As providers land, their expected costs will be documented here.
+Use a minute clock, avoid constant graphs when unnecessary, choose opaque material when you prefer it, and enable only useful integrations. The built-in status providers update from system notifications (power, network path, audio, and app activation) and the clock wakes at the next minute boundary, so there is no polling loop; their measured cost is not yet documented and needs the physical performance run.

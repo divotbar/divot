@@ -18,6 +18,9 @@ public final class DisplayCoordinator {
     private var surfaces: [DisplayBarID: BarDisplaySurface] = [:]
     private var tokens: [NSObjectProtocol] = []
     private var settleTimer: Timer?
+    /// Latest widget state per item, replayed to a panel created after the batch
+    /// that produced it (hot-plug, or a restart that rebuilds panels).
+    private var widgetStates: [BarItemID: WidgetState] = [:]
 
     /// The most recent observation, for diagnostics and permission reporting.
     public private(set) var lastObservation: MenuBarObservation?
@@ -74,6 +77,14 @@ public final class DisplayCoordinator {
         scheduleSettle()
     }
 
+    /// Apply a batch of changed widget states to every display. This comes from
+    /// the provider pipeline's main-actor sink.
+    public func applyWidgetStates(_ states: [WidgetState]) {
+        guard !states.isEmpty else { return }
+        for state in states { widgetStates[state.id] = state }
+        for surface in surfaces.values { surface.apply(widgetStates: states) }
+    }
+
     private var reduceMotion: Bool {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
@@ -87,7 +98,11 @@ public final class DisplayCoordinator {
         }
         for id in live where surfaces[id] == nil {
             guard let reading = core.reading(for: id) else { continue }
-            surfaces[id] = makeSurface(id, reading.geometry.frame)
+            let surface = makeSurface(id, reading.geometry.frame)
+            // Replay the latest widget state so a panel created after the batch
+            // that produced it is not stuck on its loading presentation.
+            surface.apply(widgetStates: Array(widgetStates.values))
+            surfaces[id] = surface
         }
     }
 
