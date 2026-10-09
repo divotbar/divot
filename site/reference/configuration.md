@@ -70,14 +70,16 @@ Default left is `workspaces`, `front-app`; default right is `battery`, `clock`, 
 | --- | --- | --- | --- |
 | `workspaces` | `adapter` | `aerospace` | Window-manager adapter; `yabai` is a later milestone |
 | `workspaces` | `showEmpty` | Boolean | Show workspaces with no windows |
-| `workspaces` | `showAppIcons` | Boolean | Show optional per-workspace app icons |
+| `workspaces` | `showAppIcons` | Boolean | Show optional per-workspace app icons (each deduplicated app, not just the first) |
+| `workspaces` | `showDetails` | Boolean | Show workspace detail: app count and the current-program label |
+| `workspaces` | `maxAppIconsPerWorkspace` | Integer 0–32 | Cap app icons per workspace; unset shows all |
 | `front-app` | `showIcon` | Boolean | Show the application icon |
 | `front-app` | `showName` | Boolean | Show the application name |
 | `clock` | `weekday` | Boolean | Include the day of week |
 | `clock` | `date` | Boolean | Include the date |
 | `clock` | `seconds` | Boolean | Use second resolution instead of the default minute |
 
-An options object may set any subset of its options. Built-in defaults: `workspaces` shows empty workspaces (`showEmpty: true`) and hides app icons (`showAppIcons: false`); `front-app` shows both icon and name; `clock` shows weekday and date at minute resolution (`seconds: false`).
+An options object may set any subset of its options. Built-in defaults: `workspaces` shows empty workspaces (`showEmpty: true`), hides app icons (`showAppIcons: false`), shows details (`showDetails: true`), and shows every icon when enabled (`maxAppIconsPerWorkspace` unset); `front-app` shows both icon and name; `clock` shows weekday and date at minute resolution (`seconds: false`). The native app reads only the `widgets.workspaces` options at launch today (task 0005); the rest is not yet applied.
 
 ## Invalid reloads
 

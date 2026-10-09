@@ -6,7 +6,7 @@ There isn't one yet. Divot is pre-alpha. [Build the website and core tests](./bu
 
 ## The configuration doesn't change my menu bar
 
-The native app/parser has not been implemented. Current examples and the browser preview are design artifacts. They do not modify macOS.
+The native app exists, but only the `widgets.workspaces` options are applied at launch today (task 0005). Other config sections and the settings surface are not implemented yet, so most examples and the browser preview remain design artifacts. They do not modify macOS.
 
 ## Website build fails on a link
 
@@ -18,11 +18,11 @@ Run `swift --version` and verify Xcode 26+ is selected. This foundation targets 
 
 ## AeroSpace isn't installed
 
-It is not needed to run the website or geometry tests. The future bar can run without it; workspace controls need a working adapter. AeroSpace is the first adapter and yabai follows later. Do not grant Accessibility permission for website previews.
+It is not needed to run the website or geometry tests. The bar runs without it and shows an honest unavailable state for workspaces rather than inventing numbered spaces. When AeroSpace is installed, the adapter detects the documented CLI, reads real workspaces, and draws them in the left panel. yabai follows later. Do not grant Accessibility permission for website previews.
 
 ## A theme or side doesn't change anything
 
-Theme families, both configurable sides, and every item are proposed only. The native parser and settings are not implemented, so current examples and the browser preview are design artifacts.
+Theme families, both configurable sides, and most items are proposed only. The native app reads only `widgets.workspaces` today; the theme and settings surface is not implemented, so current examples and the browser preview are design artifacts.
 
 ## Report a problem
 

@@ -11,6 +11,12 @@ public protocol BarDisplaySurface: AnyObject {
     func close()
 }
 
+/// Panel content that must release observers when its panel is torn down.
+@MainActor
+public protocol BarContentLifecycle: AnyObject {
+    func barContentDidDetach()
+}
+
 /// Two borderless, nonactivating `NSPanel`s per display.
 ///
 /// The split around the camera housing is the whole reason there are two panels:
@@ -36,10 +42,20 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     public init(id: DisplayBarID,
                 on screen: CGRect,
                 layout: BarLayout = .default,
+                workspaceFeed: WorkspaceFeed? = nil,
+                workspaceIcons: WorkspaceIconProviding? = nil,
+                displayScreensID: Int? = nil,
                 onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
-        self.leftContent = BarContentView(side: .left, items: layout.left, onActivate: onWidgetAction)
-        self.rightContent = BarContentView(side: .right, items: layout.right, onActivate: onWidgetAction)
+        self.leftContent = BarContentView(side: .left,
+                                          items: layout.left,
+                                          workspaceFeed: workspaceFeed,
+                                          workspaceIcons: workspaceIcons,
+                                          displayScreensID: displayScreensID,
+                                          onActivate: onWidgetAction)
+        self.rightContent = BarContentView(side: .right,
+                                           items: layout.right,
+                                           onActivate: onWidgetAction)
         self.left = Self.makePanel(on: screen, content: leftContent)
         self.right = Self.makePanel(on: screen, content: rightContent)
         leftContent.applyInitialState()
@@ -64,6 +80,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     }
 
     public func close() {
+        (left.contentView as? BarContentLifecycle)?.barContentDidDetach()
+        (right.contentView as? BarContentLifecycle)?.barContentDidDetach()
         left.orderOut(nil)
         right.orderOut(nil)
         left.close()
