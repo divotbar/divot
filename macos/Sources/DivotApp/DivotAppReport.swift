@@ -32,7 +32,10 @@ enum DivotAppReport {
         switch state {
         case .notTrusted: return "not trusted (permission required)"
         case .unavailable(let reason): return "unavailable (\(reason))"
-        case .sampled(let visible, let description): return "sampled visible=\(visible) \(description)"
+        case .provisional(let visible, let description):
+            return "provisional visible=\(visible) (unvalidated; not used for placement) \(description)"
+        case .sampled(let visible, let description):
+            return "validated visible=\(visible) \(description)"
         }
     }
 }

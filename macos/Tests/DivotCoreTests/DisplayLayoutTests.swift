@@ -149,6 +149,34 @@ private func flatScreen(menuBarShown: Bool) -> ScreenGeometry {
     #expect(update.visibility == .hidden)
 }
 
+@Test func revealWithGeometryChangeAppliesImmediately() {
+    var coordinator = DisplayBarCoordinator()  // default settle delay
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0)
+
+    // A notch-free reveal changes both `visibleFrame` and the detected
+    // visibility in one reading. The new placement must be applied now, not the
+    // stale committed top-edge state, or the panels overlap the bar until settle.
+    let revealed = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0.01)
+    let update = try! #require(revealed.first { $0.id == flatID })
+    #expect(update.animated == false)
+    #expect(update.cancelAnimations == true)
+    #expect(update.visibility == .visible(inset: 24))
+    #expect(update.placement?.mode == .belowNativeBar(inset: 24))
+}
+
+@Test func hideWithGeometryChangeReturnsToTopEdgeImmediately() {
+    var coordinator = DisplayBarCoordinator()  // default settle delay
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+
+    // The matching hide also changes `visibleFrame`; it must return to the top
+    // edge now rather than staying below a bar that has gone away.
+    let hidden = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0.01)
+    let update = try! #require(hidden.first { $0.id == flatID })
+    #expect(update.animated == false)
+    #expect(update.visibility == .hidden)
+    #expect(update.placement?.mode == .topEdge)
+}
+
 @Test func displayGeometryChangeRepositionsImmediately() {
     var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
     _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)

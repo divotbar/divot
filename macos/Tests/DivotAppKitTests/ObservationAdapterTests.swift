@@ -16,6 +16,19 @@ private struct MockMenuBarProbe: SystemMenuBarProbing {
     func sample() -> SystemMenuBarState { state }
 }
 
+/// Counts samples so a test can prove the adapter never caches a probe result.
+private final class ProbeCallCounter: @unchecked Sendable {
+    var calls = 0
+}
+
+private struct CountingMenuBarProbe: SystemMenuBarProbing {
+    let counter: ProbeCallCounter
+    func sample() -> SystemMenuBarState {
+        counter.calls += 1
+        return .unavailable("counting")
+    }
+}
+
 private func notchedReading() -> ScreenGeometryReading {
     ScreenGeometryReading(id: DisplayBarID(1),
                           geometry: ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
@@ -47,15 +60,47 @@ private func flatReading(id: UInt32, menuBarShown: Bool) -> ScreenGeometryReadin
 }
 
 @MainActor
-@Test func singleMaskedDisplayUsesTheAccessibilitySample() {
+@Test func singleMaskedDisplayUsesAValidatedAccessibilitySample() {
     for visible in [true, false] {
         let adapter = MenuBarObservationAdapter(
             provider: MockScreenProvider(readings: [notchedReading()]),
-            probe: MockMenuBarProbe(state: .sampled(visible: visible, description: "test")))
+            probe: MockMenuBarProbe(state: .sampled(visible: visible, description: "validated test")))
         let observation = adapter.observe()
         #expect(observation.readings.first?.signal.accessibilityVisible == visible)
         #expect(observation.accessibilityPermissionGranted)
     }
+}
+
+@MainActor
+@Test func everyObservationTakesAFreshProbeSample() {
+    // A pointer-only reveal has no proven event trigger (see the 0009 evidence),
+    // but whatever does trigger a refresh must re-read the AX menu bar rather
+    // than reuse a cached sample, or a reveal could never be picked up.
+    let counter = ProbeCallCounter()
+    let probe = CountingMenuBarProbe(counter: counter)
+    let adapter = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [notchedReading()]),
+                                            probe: probe)
+    _ = adapter.observe()
+    _ = adapter.observe()
+    #expect(counter.calls == 2)
+}
+
+@MainActor
+@Test func provisionalAccessibilitySampleNeverDrivesPlacement() {
+    // The real AX probe returns a provisional sample by default. Even with the
+    // permission granted, an unvalidated heuristic must not move a panel.
+    let adapter = MenuBarObservationAdapter(
+        provider: MockScreenProvider(readings: [notchedReading()]),
+        probe: MockMenuBarProbe(state: .provisional(visible: true, description: "unvalidated test")))
+    let observation = adapter.observe()
+
+    #expect(observation.readings.first?.signal.accessibilityVisible == nil)
+    #expect(observation.accessibility.permissionGranted)
+    #expect(observation.accessibility.isProvisional)
+    let detected = NativeMenuBarDetector.detect(
+        geometry: observation.readings[0].geometry,
+        signal: observation.readings[0].signal)
+    #expect(detected == .indeterminate(.notchedHousingMasksMenuBar))
 }
 
 @MainActor

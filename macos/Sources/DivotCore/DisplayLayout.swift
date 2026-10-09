@@ -261,10 +261,16 @@ public struct DisplayBarCoordinator: Sendable {
             controllers[id] = controller
 
             if screenChanged {
-                // Recompute at the new geometry without waiting for the settle,
-                // and cancel whatever was mid-flight. The pending observation
-                // (if any) still commits later via `advance`.
-                updates.append(restingUpdate(for: reading, visibility: controller.committed))
+                // A geometry change can itself be the visibility signal: on a
+                // notch-free display `visibleFrame` shrinks the moment the
+                // native bar appears, so the new reading carries both. Apply
+                // the freshly detected placement now — never the stale
+                // committed one — so a reveal cannot leave the panels
+                // overlapping the bar while the settle timer runs, and a hide
+                // returns to the top edge immediately. The observation queued
+                // above still commits via `advance`; when it matches what we
+                // applied it is a no-op reposition.
+                updates.append(restingUpdate(for: reading, visibility: visibility))
                 continue
             }
 

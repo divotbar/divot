@@ -28,13 +28,17 @@ macos/.build/debug/divot --report
 
 ## Honest status by claim
 
-**Implemented and covered by tests (`swift test --package-path macos`, 47 tests):**
+**Implemented and covered by tests (`swift test --package-path macos`, 52 tests):**
 
 - Top-edge vs below-bar geometry, notched split around the housing, notch gap
   dropped below the bar, screen clamping, and segment non-overlap.
 - Per-display placement state: rapid toggles converge on the last observation,
   superseded transitions cancel, Reduced Motion repositions immediately, a
   hidden bar returns to the top edge, and no code path emits a hide.
+- A visibility change that arrives together with a geometry change (a notch-free
+  display's `visibleFrame` shrinks on reveal) applies the *new* placement at once
+  rather than re-applying the committed state, so a reveal never leaves the
+  panels overlapping the bar while the settle timer runs.
 - Reduced Motion changed while running is propagated to every existing
   per-display controller, so the next change repositions without the settle delay.
 - Multi-display coordination: displays resolve independently, a display add/remove
@@ -46,6 +50,9 @@ macos/.build/debug/divot --report
 - The observation adapter never turns an untrusted probe into a visibility
   claim, never hands the single system-wide sample to more than one display, and
   never lets it override a display whose own `visibleFrame` decides.
+- The AX menu-bar sample is **provisional** by default: a complete sample stays
+  `.provisional` and carries no decisive visibility, so an unvalidated heuristic
+  cannot move a panel. Only a sample explicitly marked `validated` is decisive.
 - Missing or zero-area AX attributes stay `.unavailable` instead of being coerced
   into a visible/hidden claim.
 
@@ -63,12 +70,19 @@ macos/.build/debug/divot --report
 - Whether the bar actually appears/is ordered correctly on-screen on a real
   display, and the fullscreen/Spaces/multi-display behaviors above.
 - Whether native-bar reveal/hide is observable on notched hardware. The
-  Accessibility probe is the candidate detector; it is gated and untested.
+  Accessibility probe is the candidate detector; it is gated, and its
+  position/size/`hidden` heuristic is returned as provisional, not decisive,
+  until a person validates it.
 - Whether a single system-wide AX sample can be attributed to the right display
   in a multi-display setup. Until then it is only used for a single masked
   display.
 - Animation smoothness, no flashing/overlap, and no focus theft under rapid
   toggles; sleep/wake and hot-plug with real displays.
+- Whether a **pointer-only reveal** on a notched display fires any event that
+  causes a refresh. Every `observe()` takes a fresh AX sample (asserted by test),
+  so if an event does fire, the new state is read; but no event was observed to
+  fire on hover in the 0009 run, so placement may not update for a reveal that is
+  driven by pointer movement alone. This remains unproven.
 
 ## Permissions
 
@@ -79,9 +93,18 @@ permission at launch and every notched display is reported as
 converts pointer proximity into a visibility claim. On notch-free displays
 `visibleFrame` remains the signal and no permission is needed.
 
-The sample is applied conservatively: it is only used for a display whose own
-geometry is masked by the camera housing, and only when there is a single
-display, because the AX menu bar is one system-wide object that public APIs do
+Permission alone is not enough: the probe reports a complete sample as
+`.provisional`, which carries no decisive visibility, because the
+position/size/`hidden` heuristic has not been physically validated. A sample only
+becomes decisive (`.sampled`) when `AXSystemMenuBarProbe(validated: true)` is
+passed, and that flag must only be set after the hardware validation recorded in
+the 0009 report. The app keeps the default (provisional), so the notched case
+stays indeterminate on the current build.
+
+When a validated sample is used, it is applied conservatively: it is only used
+for a display whose own geometry is masked by the camera housing, and only when
+there is a single display, because the AX menu bar is one system-wide object that
+public APIs do
 not attribute to a screen. A system-wide sample therefore never overrides a
 notch-free display's `visibleFrame`, and multiple masked displays stay
 indeterminate rather than sharing one guess. Missing or zero-area AX attributes

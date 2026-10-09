@@ -72,8 +72,10 @@ final class Probe {
             print("axMenuBar=unavailable (Accessibility permission not granted)")
         case .unavailable(let reason):
             print("axMenuBar=\(reason)")
+        case .provisional(let visible, let description):
+            print("axMenuBar=provisional visible=\(visible) (unvalidated heuristic; not used for placement) \(description)")
         case .sampled(_, let description):
-            print("axMenuBar=\(description)")
+            print("axMenuBar=validated \(description)")
         }
     }
 

@@ -4,18 +4,41 @@ import Testing
 
 // MARK: - Missing / invalid AX attributes
 
-@Test func completeSampleDecidesVisibility() {
+@Test func completeSampleIsProvisionalUntilValidated() {
+    let description = "position=(0.0, 0.0) size=(1710.0, 33.0) hidden=false"
     let shown = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
                                          size: CGSize(width: 1710, height: 33),
                                          hidden: false)
-    #expect(shown == .sampled(visible: true, description: "position=(0.0, 0.0) size=(1710.0, 33.0) hidden=false"))
-    #expect(shown.accessibilityVisible == true)
+    #expect(shown == .provisional(visible: true, description: description))
+    // A complete but unvalidated sample must never be decisive: it would move
+    // panels on a false visibility claim.
+    #expect(shown.accessibilityVisible == nil)
+    #expect(shown.rawDerivedVisible == true)
+    #expect(shown.isProvisional)
+    #expect(shown.permissionGranted)
 
+    // Only an explicitly validated sample is a decisive visibility.
+    let validated = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
+                                             size: CGSize(width: 1710, height: 33),
+                                             hidden: false,
+                                             validated: true)
+    #expect(validated == .sampled(visible: true, description: description))
+    #expect(validated.accessibilityVisible == true)
+    #expect(!validated.isProvisional)
+}
+
+@Test func provisionalHiddenSampleStaysIndeterminate() {
     let hidden = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
                                           size: CGSize(width: 1710, height: 33),
                                           hidden: true)
-    #expect(hidden == .sampled(visible: false, description: "position=(0.0, 0.0) size=(1710.0, 33.0) hidden=true"))
-    #expect(hidden.accessibilityVisible == false)
+    #expect(hidden.accessibilityVisible == nil)
+    #expect(hidden.rawDerivedVisible == false)
+
+    let validated = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
+                                             size: CGSize(width: 1710, height: 33),
+                                             hidden: true,
+                                             validated: true)
+    #expect(validated.accessibilityVisible == false)
 }
 
 @Test func missingAttributesStayIndeterminate() {

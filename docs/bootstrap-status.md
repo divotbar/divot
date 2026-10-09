@@ -17,7 +17,7 @@ Bootstrap had no executable native app; task 0003 added one (see below). Physica
 
 ## Native shell (task 0003)
 
-- `swift build --package-path macos --product divot` builds an accessory app shell and `swift test --package-path macos` passes 47 tests (placement state machine, notch/no-notch geometry, per-display coordination, cancellable and reduced-motion transitions, honest observation adapter).
+- `swift build --package-path macos --product divot` builds an accessory app shell and `swift test --package-path macos` passes 52 tests (placement state machine, notch/no-notch geometry, per-display coordination, cancellable and reduced-motion transitions, honest observation adapter).
 - `divot --report` prints one honest observation pass; on the maintainer's notched display it reports `indeterminate(notchedHousingMasksMenuBar)` without Accessibility permission.
 - Not verified: physical on-screen ordering, focus, fullscreen/Spaces, multi-display, animation, sleep/wake. There is no signed `.app` bundle. Details in [evidence/0003-app-shell.md](evidence/0003-app-shell.md).
 
