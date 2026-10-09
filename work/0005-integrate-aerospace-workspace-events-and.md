@@ -16,7 +16,7 @@ branch: feat/integrate-aerospace-workspace-events-and
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T19:02:51Z"
+updated_at: "2026-10-09T19:02:52Z"
 review_passes: 4
 last_check_failure: "repoos check at 2026-10-09T18:59:35.328Z: repoos check failed: ui verification failed (3 issue(s)): [route] Workspace guide: adapter reads AeroSpace and renders the left row: declared route /guide/workspaces#left-of-the-camera but the browser landed on /guide/workspaces (login or redirect?) (captured http://127.0.0.1:65493/guide/workspaces#left-of-the-camera) (http://127.0.0.1:65493/guide/workspaces#left-of-the-camera); [route] Workspace options: showDetails and maxAppIconsPerWorkspace: declared route /reference/configuration#widget-opt… (truncated)"
 review_rounds: 2
@@ -61,6 +61,9 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 ]
 ```
 
+## Final focused review repair
+Independent review at 2026-10-09T19:02:25Z found two remaining blockers. WorkspaceFeed.stop() must invalidate generation before cancellation/reset so a delayed snapshot cannot repopulate stopped state; add a deterministic delayed-completion-after-stop regression and stale callback protection. WorkspaceBarView must visibly distinguish nonfocused occupied, empty and unknown occupancy without relying only on tint, including when app icons are disabled; add a compact noncolor marker or shape cue and accessible descriptions with fixture coverage. Preserve the overflow width guarantee when adding the marker. Do not expand scope, fabricate native UI evidence, or change configured roles/agents/models. Run scoped checks and hand off for fresh review. Docs screenshots are now accepted and need no unrelated recapture.
+
 ## Activity
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
@@ -91,3 +94,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T19:02:25Z · needs_input
 - 2026-10-09T19:02:49Z · review_cli_override
 - 2026-10-09T19:02:51Z · review_model_override
+- 2026-10-09T19:02:52Z · body: section Final focused review repair
