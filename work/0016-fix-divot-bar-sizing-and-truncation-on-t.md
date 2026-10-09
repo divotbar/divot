@@ -38,3 +38,4 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 - 2026-10-09T20:28:34Z · status inbox→ready
 - 2026-10-09T20:28:35Z · status ready→active, branch
 - 2026-10-09T21:09:36Z · status active→review
+- 2026-10-09T21:09:36Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
