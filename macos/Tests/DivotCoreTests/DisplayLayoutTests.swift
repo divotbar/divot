@@ -25,6 +25,17 @@ private func flatScreen(menuBarShown: Bool) -> ScreenGeometry {
                           safeAreaTop: 0)
 }
 
+/// Notched display whose top band is shared with a third-party bar (a-bar on
+/// AeroSpace). `safeAreaInsets.top` reads zero while the housing's auxiliary
+/// regions remain, so the band must not be read as a visible native menu bar.
+private func aBarNotchedScreen() -> ScreenGeometry {
+    ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                   visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1041),
+                   safeAreaTop: 0,
+                   auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                   auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
+}
+
 // MARK: - Content gap policy
 
 @Test func belowBarPolicyDropsNotchGapAndHonorsEdgeMargin() {
@@ -233,6 +244,33 @@ private func flatScreen(menuBarShown: Bool) -> ScreenGeometry {
     let update = try! #require(updates.first)
     #expect(update.visibility == .visible(inset: 33))
     #expect(update.placement?.mode == .belowNativeBar(inset: 33))
+}
+
+@Test func thirdPartyTopBandKeepsDivotAtTheTopEdge() {
+    // Regression (task 0015): the a-bar-occupied top band on a notched display
+    // must not resolve to `belowNativeBar`. Detection stays indeterminate and
+    // Divot rests at the top edge instead of stacking as a second row.
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: aBarNotchedScreen())
+    ], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(update.ambiguity == .notchedHousingMasksMenuBar)
+    #expect(update.placement?.mode == .topEdge)
+    #expect(update.animated == false)
+}
+
+@Test func genuinelyRevealedNativeBarStillResolvesBelow() {
+    // 0009 behavior preserved: a notch-free display with no camera housing and a
+    // non-zero top band is a revealed native bar, so Divot still moves below it.
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))
+    ], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.visibility == .visible(inset: 24))
+    #expect(update.placement?.mode == .belowNativeBar(inset: 24))
 }
 
 @Test func repeatedIdenticalReadingIsQuiet() {

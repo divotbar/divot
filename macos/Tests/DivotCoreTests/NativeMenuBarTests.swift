@@ -47,6 +47,24 @@ import Testing
     #expect(NativeMenuBarDetector.detect(geometry: g) == .indeterminate(.notchedHousingMasksMenuBar))
 }
 
+@Test func thirdPartyBarSharedHousingBandIsNotAVisibleNativeBar() {
+    // a-bar (AeroSpace) occupies the top band on a notched display. The public
+    // inset can read zero while the housing's auxiliary regions remain, so the
+    // larger top band is NOT a revealed native menu bar. Before the housing
+    // fallback this read as `.visible(inset: 66)` and stacked Divot below a-bar.
+    let g = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                           visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1041),
+                           safeAreaTop: 0,
+                           auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                           auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
+    #expect(g.isNotched)
+    #expect(g.housingTop == 33)
+    #expect(g.topBand == 66)
+    #expect(g.menuBarInset == 33)
+    #expect(NativeMenuBarDetector.detect(geometry: g)
+        == .indeterminate(.notchedHousingMasksMenuBar))
+}
+
 @Test func notchedConfiguredAlwaysVisibleClearsWholeBand() {
     let g = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
                            visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1074),
