@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T17:31:16Z"
-review_passes: 3
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
@@ -15,7 +13,10 @@ depends_on: ["0009", "0010"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-the-native-appkit-shell-and-notch-
+review_cli_override: cursor
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T17:32:25Z"
+review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -60,4 +61,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:29:28Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T17:31:16Z · note: review pass 3: needs some work
 - 2026-10-09T17:31:16Z · needs_input
-
+- 2026-10-09T17:32:25Z · review_cli_override
