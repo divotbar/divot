@@ -14,7 +14,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:57:33Z"
+updated_at: "2026-10-09T18:59:32Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -38,22 +38,22 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 ```json
 [
 {
-  "label": "Workspace guide: adapter reads AeroSpace and renders the left row",
-  "target": "website",
-  "route": "/guide/workspaces#left-of-the-camera",
-  "highlight": "#left-of-the-camera"
+"label": "Workspace guide: adapter reads AeroSpace and renders the left row",
+"target": "website",
+"route": "/guide/workspaces#left-of-the-camera",
+"highlight": "#left-of-the-camera"
 },
 {
-  "label": "Workspace options: showDetails and maxAppIconsPerWorkspace",
-  "target": "website",
-  "route": "/reference/configuration#widget-options",
-  "highlight": "#widget-options"
+"label": "Workspace options: showDetails and maxAppIconsPerWorkspace",
+"target": "website",
+"route": "/reference/configuration#widget-options",
+"highlight": "#widget-options"
 },
 {
-  "label": "Troubleshooting: AeroSpace detection and unavailable state",
-  "target": "website",
-  "route": "/guide/troubleshooting#aerospace-isn-t-installed",
-  "highlight": "#aerospace-isn-t-installed"
+"label": "Troubleshooting: AeroSpace detection and unavailable state",
+"target": "website",
+"route": "/guide/troubleshooting#aerospace-isn-t-installed",
+"highlight": "#aerospace-isn-t-installed"
 }
 ]
 ```
@@ -80,3 +80,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:49:44Z · needs_input
 - 2026-10-09T18:51:01Z · status review→active
 - 2026-10-09T18:57:33Z · body: section Shots
+- 2026-10-09T18:59:32Z · note: ui verification failed (3 issue(s)): [route] Workspace guide: adapter reads AeroSpace and renders the left row: declared route /guide/workspaces#left-of-the-camera but the browser landed on /guide/workspaces (login or redirect?) (captured http://127.0.0.1:65493/guide/workspaces#left-of-the-camera) (http://127.0.0.1:65493/guide/workspaces#left-of-the-camera); [route] Workspace options: showDetails and maxAppIconsPerWorkspace: declared route /reference/configuration#widget-options but the browser
