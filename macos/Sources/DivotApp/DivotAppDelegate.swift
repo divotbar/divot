@@ -32,8 +32,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         coordinator.start()
         self.coordinator = coordinator
 
-        let pipeline = WidgetPipeline { states in
-            coordinator.applyWidgetStates(states)
+        let pipeline = WidgetPipeline { changes in
+            coordinator.applyWidgetChanges(changes)
         }
         let providers = DefaultWidgetProviders.make()
         pipelineTask = Task { await pipeline.configure(providers) }

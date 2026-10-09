@@ -1,4 +1,5 @@
 import Foundation
+import CoreAudio
 import Testing
 import DivotCore
 @testable import DivotAppKit
@@ -264,4 +265,101 @@ private final class MockFrontAppReading: FrontAppReading {
     await waitUntil { !collector.contents.isEmpty }
     #expect(collector.contents.first?.isUnavailable == true)
     subscription.cancel()
+}
+
+// MARK: - Volume watcher cancellation
+
+/// Records Core Audio listener registrations and can replay a callback that was
+/// queued before cancellation.
+private final class MockAudioBackend: AudioPropertyListening, @unchecked Sendable {
+    private let lock = NSLock()
+    private var deviceValue: AudioDeviceID? = 101
+    private var registrations: [(object: AudioObjectID, token: AudioListenerToken)] = []
+    private var everHandlers: [(object: AudioObjectID, handler: @Sendable () -> Void)] = []
+    private var adds = 0
+    private var removes = 0
+
+    var addCount: Int { lock.lock(); defer { lock.unlock() }; return adds }
+    var removeCount: Int { lock.lock(); defer { lock.unlock() }; return removes }
+
+    var device: AudioDeviceID? {
+        get { lock.lock(); defer { lock.unlock() }; return deviceValue }
+        set { lock.lock(); deviceValue = newValue; lock.unlock() }
+    }
+
+    func defaultOutputDevice() -> AudioDeviceID? { device }
+
+    func addListener(on object: AudioObjectID,
+                     address: AudioObjectPropertyAddress,
+                     queue: DispatchQueue,
+                     handler: @escaping @Sendable () -> Void) -> AudioListenerToken {
+        lock.lock()
+        adds += 1
+        let token = AudioListenerToken(address: address, block: { _, _ in })
+        registrations.append((object, token))
+        everHandlers.append((object, handler))
+        lock.unlock()
+        return token
+    }
+
+    func removeListener(_ token: AudioListenerToken, on object: AudioObjectID, queue: DispatchQueue) {
+        lock.lock()
+        removes += 1
+        registrations.removeAll { $0.token === token }
+        lock.unlock()
+    }
+
+    func fireSystemHandlersEver() { fire { $0 == AudioObjectID(kAudioObjectSystemObject) } }
+    func fireDeviceHandlersEver() { fire { $0 != AudioObjectID(kAudioObjectSystemObject) } }
+
+    private func fire(_ matches: (AudioObjectID) -> Bool) {
+        lock.lock()
+        let handlers = everHandlers.filter { matches($0.object) }.map(\.handler)
+        lock.unlock()
+        for handler in handlers { handler() }
+    }
+}
+
+private final class Counter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+    func increment() { lock.lock(); value += 1; lock.unlock() }
+    var count: Int { lock.lock(); defer { lock.unlock() }; return value }
+}
+
+@Test func volumeWatcherReinstallsOnDeviceSwitchButNotAfterStop() {
+    let backend = MockAudioBackend()
+    let fires = Counter()
+    let watcher = CoreAudioVolumeWatcher(backend: backend) { fires.increment() }
+    watcher.start()
+    // System listener + volume + mute on the current default device.
+    #expect(backend.addCount == 3)
+
+    // A live default-device switch replaces the two device listeners.
+    backend.fireSystemHandlersEver()
+    #expect(backend.addCount == 5)
+    #expect(backend.removeCount == 2)
+    #expect(fires.count == 1)
+
+    watcher.stop()
+    let removesAtStop = backend.removeCount
+    #expect(removesAtStop == 5)
+
+    // Callbacks already queued at cancellation must be ignored and must not
+    // install new listeners or fire the handler.
+    backend.fireSystemHandlersEver()
+    backend.fireDeviceHandlersEver()
+    #expect(fires.count == 1)
+    #expect(backend.addCount == 5)
+    #expect(backend.removeCount == removesAtStop)
+
+    // Cancellation is idempotent.
+    watcher.stop()
+    #expect(backend.removeCount == removesAtStop)
+}
+
+@Test func volumeReadingReportsNoOutputWhenThereIsNoDevice() {
+    let backend = MockAudioBackend()
+    backend.device = nil
+    #expect(CoreAudioVolumeReading(backend: backend).snapshot() == .noOutput)
 }

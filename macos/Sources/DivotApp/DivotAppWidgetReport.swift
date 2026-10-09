@@ -10,8 +10,13 @@ import DivotCore
 enum DivotAppWidgetReport {
     static func run(duration: TimeInterval = 0.6) {
         var collected: [BarItemID: WidgetState] = [:]
-        let pipeline = WidgetPipeline { states in
-            for state in states { collected[state.id] = state }
+        let pipeline = WidgetPipeline { changes in
+            for change in changes {
+                switch change {
+                case .update(let state): collected[state.id] = state
+                case .removed(let id): collected.removeValue(forKey: id)
+                }
+            }
         }
         let task = Task { await pipeline.configure(DefaultWidgetProviders.make()) }
 

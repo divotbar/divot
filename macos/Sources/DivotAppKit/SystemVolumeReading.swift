@@ -2,28 +2,33 @@ import Foundation
 import CoreAudio
 import DivotCore
 
-/// Live output volume and mute state from Core Audio.
+/// A registered Core Audio property listener.
+final class AudioListenerToken: @unchecked Sendable {
+    let address: AudioObjectPropertyAddress
+    let block: AudioObjectPropertyListenerBlock
+
+    init(address: AudioObjectPropertyAddress, block: @escaping AudioObjectPropertyListenerBlock) {
+        self.address = address
+        self.block = block
+    }
+}
+
+/// The Core Audio property operations the volume watcher needs.
 ///
-/// Reads are cheap property copies. Changes arrive through Core Audio property
-/// listeners on a utility queue: volume/mute on the current default output
-/// device and default-device switches on the system object. No polling, no main
-/// thread, and no permission.
-public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
-    public init() {}
+/// Injected so the watcher's start/stop ordering — and the "callback after
+/// cancel" guard — are testable without touching a real audio device.
+protocol AudioPropertyListening: Sendable {
+    func defaultOutputDevice() -> AudioDeviceID?
+    func addListener(on object: AudioObjectID,
+                     address: AudioObjectPropertyAddress,
+                     queue: DispatchQueue,
+                     handler: @escaping @Sendable () -> Void) -> AudioListenerToken
+    func removeListener(_ token: AudioListenerToken, on object: AudioObjectID, queue: DispatchQueue)
+}
 
-    public func snapshot() -> VolumeSnapshot? {
-        CoreAudioVolumeReading.read()
-    }
-
-    public func observeChanges(_ handler: @escaping @Sendable () -> Void) -> any ProviderSubscription {
-        let watcher = CoreAudioVolumeWatcher(handler: handler)
-        watcher.start()
-        return CallbackSubscription { watcher.stop() }
-    }
-
-    // MARK: Property reads
-
-    static func defaultOutputDevice() -> AudioDeviceID? {
+/// Live Core Audio implementation.
+struct CoreAudioPropertyListening: AudioPropertyListening {
+    func defaultOutputDevice() -> AudioDeviceID? {
         var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
                                                  mScope: kAudioObjectPropertyScopeGlobal,
                                                  mElement: kAudioObjectPropertyElementMain)
@@ -34,6 +39,51 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
         guard status == noErr, device != kAudioObjectUnknown else { return nil }
         return device
     }
+
+    func addListener(on object: AudioObjectID,
+                     address: AudioObjectPropertyAddress,
+                     queue: DispatchQueue,
+                     handler: @escaping @Sendable () -> Void) -> AudioListenerToken {
+        let block: AudioObjectPropertyListenerBlock = { _, _ in handler() }
+        var mutable = address
+        AudioObjectAddPropertyListenerBlock(object, &mutable, queue, block)
+        return AudioListenerToken(address: address, block: block)
+    }
+
+    func removeListener(_ token: AudioListenerToken, on object: AudioObjectID, queue: DispatchQueue) {
+        var mutable = token.address
+        AudioObjectRemovePropertyListenerBlock(object, &mutable, queue, token.block)
+    }
+}
+
+/// Live output volume and mute state from Core Audio.
+///
+/// Reads are cheap property copies. Changes arrive through Core Audio property
+/// listeners on a utility queue: volume/mute on the current default output
+/// device and default-device switches on the system object. No polling, no main
+/// thread, and no permission.
+public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
+    private let backend: any AudioPropertyListening
+
+    public init() {
+        self.backend = CoreAudioPropertyListening()
+    }
+
+    init(backend: any AudioPropertyListening) {
+        self.backend = backend
+    }
+
+    public func snapshot() -> VolumeSnapshot? {
+        CoreAudioVolumeReading.read(backend: backend)
+    }
+
+    public func observeChanges(_ handler: @escaping @Sendable () -> Void) -> any ProviderSubscription {
+        let watcher = CoreAudioVolumeWatcher(backend: backend, handler: handler)
+        watcher.start()
+        return CallbackSubscription { watcher.stop() }
+    }
+
+    // MARK: Property reads
 
     private static func float(_ device: AudioDeviceID,
                               _ selector: AudioObjectPropertySelector,
@@ -92,8 +142,8 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
         return name.takeRetainedValue() as String
     }
 
-    static func read() -> VolumeSnapshot? {
-        guard let device = defaultOutputDevice() else { return .noOutput }
+    static func read(backend: any AudioPropertyListening = CoreAudioPropertyListening()) -> VolumeSnapshot? {
+        guard let device = backend.defaultOutputDevice() else { return .noOutput }
         let muted = isMuted(device) ?? false
         let level = level(device)
         return VolumeSnapshot(hasOutputDevice: true,
@@ -106,92 +156,122 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
 }
 
 /// Installs and removes the Core Audio property listeners.
-private final class CoreAudioVolumeWatcher: @unchecked Sendable {
+///
+/// `stop()` marks the watcher permanently stopped before removing anything, so a
+/// default-device callback that was already queued cannot re-install listeners
+/// or fire after cancellation.
+final class CoreAudioVolumeWatcher: @unchecked Sendable {
+    private let backend: any AudioPropertyListening
     private let handler: @Sendable () -> Void
     private let queue = DispatchQueue(label: "divot.audio", qos: .utility)
     private let lock = NSLock()
+    private var stopped = false
     private var device: AudioDeviceID?
-    private var deviceListeners: [(AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)] = []
-    private var systemListener: (AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)?
+    private var deviceListeners: [AudioListenerToken] = []
+    private var systemToken: AudioListenerToken?
 
-    init(handler: @escaping @Sendable () -> Void) {
+    init(backend: any AudioPropertyListening, handler: @escaping @Sendable () -> Void) {
+        self.backend = backend
         self.handler = handler
     }
 
     func start() {
-        let systemBlock: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+        lock.lock()
+        if stopped { lock.unlock(); return }
+        lock.unlock()
+        systemToken = backend.addListener(on: AudioObjectID(kAudioObjectSystemObject),
+                                          address: Self.systemAddress,
+                                          queue: queue) { [weak self] in
             self?.defaultDeviceChanged()
         }
-        var systemAddress = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultOutputDevice,
-                                                       mScope: kAudioObjectPropertyScopeGlobal,
-                                                       mElement: kAudioObjectPropertyElementMain)
-        AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject),
-                                            &systemAddress, queue, systemBlock)
-        systemListener = (systemAddress, systemBlock)
         installDeviceListeners()
     }
 
     func stop() {
         lock.lock()
+        if stopped {
+            lock.unlock()
+            return
+        }
+        stopped = true
         let listeners = deviceListeners
         let device = self.device
-        let system = systemListener
+        let system = systemToken
         deviceListeners = []
         self.device = nil
-        systemListener = nil
+        systemToken = nil
         lock.unlock()
 
         if let device {
-            for (address, block) in listeners {
-                var mutable = address
-                AudioObjectRemovePropertyListenerBlock(device, &mutable, queue, block)
+            for token in listeners {
+                backend.removeListener(token, on: device, queue: queue)
             }
         }
         if let system {
-            var mutable = system.0
-            AudioObjectRemovePropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject),
-                                                   &mutable, queue, system.1)
+            backend.removeListener(system, on: AudioObjectID(kAudioObjectSystemObject), queue: queue)
         }
     }
 
     private func installDeviceListeners() {
-        guard let device = CoreAudioVolumeReading.defaultOutputDevice() else { return }
+        guard let device = backend.defaultOutputDevice() else { return }
         lock.lock()
+        if stopped {
+            lock.unlock()
+            return
+        }
         self.device = device
-        lock.unlock()
-
-        let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in self?.deviceChanged() }
-        var volume = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyVolumeScalar,
-                                                mScope: kAudioDevicePropertyScopeOutput,
-                                                mElement: kAudioObjectPropertyElementMain)
-        var mute = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyMute,
-                                              mScope: kAudioDevicePropertyScopeOutput,
-                                              mElement: kAudioObjectPropertyElementMain)
-        AudioObjectAddPropertyListenerBlock(device, &volume, queue, block)
-        AudioObjectAddPropertyListenerBlock(device, &mute, queue, block)
-        lock.lock()
-        deviceListeners = [(volume, block), (mute, block)]
+        let volume = backend.addListener(on: device, address: Self.volumeAddress, queue: queue) { [weak self] in
+            self?.deviceChanged()
+        }
+        let mute = backend.addListener(on: device, address: Self.muteAddress, queue: queue) { [weak self] in
+            self?.deviceChanged()
+        }
+        deviceListeners = [volume, mute]
         lock.unlock()
     }
 
     private func defaultDeviceChanged() {
         lock.lock()
+        if stopped {
+            lock.unlock()
+            return
+        }
         let oldDevice = device
         let oldListeners = deviceListeners
         deviceListeners = []
         device = nil
         lock.unlock()
+
         if let oldDevice {
-            for (address, block) in oldListeners {
-                var mutable = address
-                AudioObjectRemovePropertyListenerBlock(oldDevice, &mutable, queue, block)
+            for token in oldListeners {
+                backend.removeListener(token, on: oldDevice, queue: queue)
             }
         }
         installDeviceListeners()
-        handler()
+
+        lock.lock()
+        let stillRunning = !stopped
+        lock.unlock()
+        if stillRunning { handler() }
     }
 
     private func deviceChanged() {
-        handler()
+        lock.lock()
+        let stillRunning = !stopped
+        lock.unlock()
+        if stillRunning { handler() }
     }
+
+    private static let systemAddress = AudioObjectPropertyAddress(
+        mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+        mScope: kAudioObjectPropertyScopeGlobal,
+        mElement: kAudioObjectPropertyElementMain)
+    private static let volumeAddress = AudioObjectPropertyAddress(
+        mSelector: kAudioDevicePropertyVolumeScalar,
+        mScope: kAudioDevicePropertyScopeOutput,
+        mElement: kAudioObjectPropertyElementMain)
+    private static let muteAddress = AudioObjectPropertyAddress(
+        mSelector: kAudioDevicePropertyMute,
+        mScope: kAudioDevicePropertyScopeOutput,
+        mElement: kAudioObjectPropertyElementMain)
 }

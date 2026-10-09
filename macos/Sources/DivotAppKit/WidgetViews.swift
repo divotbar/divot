@@ -132,13 +132,19 @@ final class BarContentView: NSView {
         fatalError("BarContentView does not support NSCoding")
     }
 
-    /// Apply a batch of changed states. Items not on this side are ignored, so
-    /// both panels can be handed the same batch.
-    func apply(_ states: [WidgetState]) {
-        for state in states {
-            guard let view = itemViews[state.id] else { continue }
-            view.update(WidgetPresenter.present(id: state.id, state: state),
-                        action: WidgetActions.defaultAction(for: state.id, content: state.content))
+    /// Apply a batch of changes. Items not on this side are ignored, so both
+    /// panels can be handed the same batch. A removal clears the item.
+    func apply(_ changes: [WidgetChange]) {
+        for change in changes {
+            guard let view = itemViews[change.id] else { continue }
+            switch change {
+            case .update(let state):
+                view.update(WidgetPresenter.present(id: state.id, state: state),
+                            action: WidgetActions.defaultAction(for: state.id, content: state.content))
+            case .removed(let id):
+                view.update(WidgetPresenter.present(id: id, state: nil),
+                            action: WidgetActions.defaultAction(for: id))
+            }
         }
         needsLayout = true
     }

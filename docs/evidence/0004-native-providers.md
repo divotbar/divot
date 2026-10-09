@@ -43,7 +43,10 @@ providers emit small immutable snapshots tagged with a generation. The store
 accepts an emission only for the item's current generation and only when the
 content fits the item, so a late result from a disabled or reconfigured provider
 is ignored. Changed items are coalesced and delivered to a `@MainActor` sink in
-one batch.
+one batch. Stopping a provider (or reconfiguring it away) delivers a removal for
+that item, so a widget that stays in the layout clears instead of showing a value
+that is no longer kept current; a provider stopped and restarted before the
+batch drains delivers its fresh value instead of a removal.
 
 ## Click controls and settings links
 
@@ -61,10 +64,17 @@ may replace the volume/network links with a native control popover.
 asserted, by category:
 
 - **Cancellation**: stopping a provider cancels its subscription and drops its
-  slot; the subscription bag cancels a late-registered observation immediately.
+  slot; the subscription bag cancels a late-registered observation immediately;
+  the volume watcher marks itself stopped before removing listeners, so a
+  default-device callback queued at cancellation is ignored, installs nothing,
+  and does not fire the handler (and `stop` is idempotent).
 - **Stale completions**: a completion from before a disable/reconfigure is
   ignored, whether it arrives through the pipeline or through a captured emit
   closure; `configure` keeps unchanged providers running.
+- **Removal delivery**: stopping a provider delivers a `.removed` change so the
+  bar clears the item; stopping and restarting before the drain delivers the
+  fresh value, not a removal; the display coordinator forwards the removal to
+  its surfaces instead of retaining the last value.
 - **Independent failures**: one item reporting an unavailable state does not stop
   the others; a battery provider painting clock content is rejected.
 - **No main-thread I/O**: providers are started on the actor's executor, never

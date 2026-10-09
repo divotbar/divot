@@ -40,12 +40,12 @@ private final class TestProvider: WidgetProvider, @unchecked Sendable {
 /// actor.
 @MainActor
 private final class DeliverySpy {
-    private(set) var batches: [[WidgetState]] = []
+    private(set) var batches: [[WidgetChange]] = []
     private(set) var allOnMain = true
 
-    func record(_ states: [WidgetState]) {
+    func record(_ changes: [WidgetChange]) {
         allOnMain = allOnMain && Thread.isMainThread
-        batches.append(states)
+        batches.append(changes)
     }
 }
 
@@ -99,7 +99,10 @@ private final class DeliverySpy {
 
     let states = await pipeline.states
     #expect(states.isEmpty)
-    #expect(spy.batches.isEmpty)
+    // Only the removal from the stop is delivered; the stale completion never
+    // becomes an update.
+    let updates = spy.batches.flatMap { $0 }.filter { if case .update = $0 { return true } else { return false } }
+    #expect(updates.isEmpty)
 }
 
 @MainActor
@@ -122,7 +125,8 @@ private final class DeliverySpy {
 
     let states = await pipeline.states
     #expect(states.isEmpty)
-    #expect(spy.batches.isEmpty)
+    let updates = spy.batches.flatMap { $0 }.filter { if case .update = $0 { return true } else { return false } }
+    #expect(updates.isEmpty)
 }
 
 @MainActor
@@ -168,7 +172,11 @@ private final class DeliverySpy {
 
     #expect(spy.batches.count == 1)
     #expect(spy.allOnMain)
-    let state = try! #require(spy.batches.first?.first)
+    let change = try! #require(spy.batches.first?.first)
+    guard case .update(let state) = change else {
+        Issue.record("expected an update, got \(change)")
+        return
+    }
     guard case .volume(let snapshot) = state.content else {
         Issue.record("expected volume content, got \(state.content)")
         return
@@ -207,6 +215,61 @@ private final class DeliverySpy {
     #expect(battery.cancelCount == 0)
     let running = await pipeline.isRunning(.battery)
     #expect(running)
+}
+
+@MainActor
+@Test func stoppingAProviderTellsTheSinkToClearTheItem() async {
+    let spy = DeliverySpy()
+    let provider = TestProvider(id: .battery)
+    let pipeline = WidgetPipeline(sink: { changes in spy.record(changes) }, autoDrain: false)
+    await pipeline.register(provider)
+    await pipeline.start()
+    let generation = await pipeline.generation(of: .battery)!
+    await pipeline.ingest(.battery(.init(presence: .internalBattery, percentage: 60)),
+                          for: .battery, generation: generation)
+    await pipeline.drain()
+    #expect(spy.batches.count == 1)
+
+    await pipeline.stop(.battery)
+    await pipeline.drain()
+
+    // A removal is delivered, so a widget that stays in the layout cannot keep
+    // showing a value that is no longer being kept current.
+    let change = try! #require(spy.batches.last?.first)
+    #expect(change == .removed(.battery))
+    let states = await pipeline.states
+    #expect(states.isEmpty)
+}
+
+@MainActor
+@Test func restartingBeforeTheDrainDeliversTheFreshValueNotARemoval() async {
+    let spy = DeliverySpy()
+    let provider = TestProvider(id: .battery)
+    let pipeline = WidgetPipeline(sink: { changes in spy.record(changes) }, autoDrain: false)
+    await pipeline.register(provider)
+    await pipeline.start()
+    let first = await pipeline.generation(of: .battery)!
+    await pipeline.ingest(.battery(.init(presence: .internalBattery, percentage: 10)),
+                          for: .battery, generation: first)
+
+    // Stop and restart before any drain: the item is still in the layout.
+    await pipeline.stop(.battery)
+    await pipeline.start(.battery)
+    let second = await pipeline.generation(of: .battery)!
+    await pipeline.ingest(.battery(.init(presence: .internalBattery, percentage: 90)),
+                          for: .battery, generation: second)
+    await pipeline.drain()
+
+    let change = try! #require(spy.batches.last?.first)
+    guard case .update(let state) = change else {
+        Issue.record("expected the fresh value, got \(change)")
+        return
+    }
+    guard case .battery(let snapshot) = state.content else {
+        Issue.record("expected battery content, got \(state.content)")
+        return
+    }
+    #expect(snapshot.percentage == 90)
 }
 
 @Test func subscriptionBagCancelsLateAdditionsImmediately() {

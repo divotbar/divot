@@ -118,14 +118,6 @@ import Testing
     #expect(again.isEmpty)
 }
 
-@Test func coalescerCanForgetAStoppedItem() {
-    var coalescer = WidgetUpdateCoalescer()
-    coalescer.mark(.volume)
-    coalescer.remove(.volume)
-    let drained = coalescer.drain()
-    #expect(drained.isEmpty)
-}
-
 // MARK: - Content compatibility
 
 @Test func contentCompatibilityMatchesItem() {

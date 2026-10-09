@@ -5,9 +5,9 @@ import DivotCore
 @MainActor
 public protocol BarDisplaySurface: AnyObject {
     func apply(_ update: DisplayBarUpdate, reduceMotion: Bool)
-    /// Apply a batch of changed widget states to whichever items this surface
-    /// renders. Items not on this display are ignored.
-    func apply(widgetStates: [WidgetState])
+    /// Apply a batch of widget changes to whichever items this surface renders.
+    /// Items not on this display are ignored.
+    func apply(widgetChanges: [WidgetChange])
     func close()
 }
 
@@ -58,9 +58,9 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         move(right, to: placement.geometry.right, animated: animate)
     }
 
-    public func apply(widgetStates: [WidgetState]) {
-        leftContent.apply(widgetStates)
-        rightContent.apply(widgetStates)
+    public func apply(widgetChanges: [WidgetChange]) {
+        leftContent.apply(widgetChanges)
+        rightContent.apply(widgetChanges)
     }
 
     public func close() {

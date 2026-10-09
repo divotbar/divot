@@ -77,12 +77,18 @@ public final class DisplayCoordinator {
         scheduleSettle()
     }
 
-    /// Apply a batch of changed widget states to every display. This comes from
-    /// the provider pipeline's main-actor sink.
-    public func applyWidgetStates(_ states: [WidgetState]) {
-        guard !states.isEmpty else { return }
-        for state in states { widgetStates[state.id] = state }
-        for surface in surfaces.values { surface.apply(widgetStates: states) }
+    /// Apply a batch of widget changes to every display. This comes from the
+    /// provider pipeline's main-actor sink. A removal clears the item so a
+    /// still-visible widget cannot show a value that is no longer kept current.
+    public func applyWidgetChanges(_ changes: [WidgetChange]) {
+        guard !changes.isEmpty else { return }
+        for change in changes {
+            switch change {
+            case .update(let state): widgetStates[state.id] = state
+            case .removed(let id): widgetStates.removeValue(forKey: id)
+            }
+        }
+        for surface in surfaces.values { surface.apply(widgetChanges: changes) }
     }
 
     private var reduceMotion: Bool {
@@ -101,7 +107,7 @@ public final class DisplayCoordinator {
             let surface = makeSurface(id, reading.geometry.frame)
             // Replay the latest widget state so a panel created after the batch
             // that produced it is not stuck on its loading presentation.
-            surface.apply(widgetStates: Array(widgetStates.values))
+            surface.apply(widgetChanges: widgetStates.values.map(WidgetChange.update))
             surfaces[id] = surface
         }
     }

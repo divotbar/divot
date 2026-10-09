@@ -56,6 +56,21 @@ public final class SubscriptionBag: ProviderSubscription, @unchecked Sendable {
     }
 }
 
+/// One delivered change: a fresh value, or a removal because the item's
+/// provider was stopped or reconfigured away. The removal is what tells the bar
+/// to stop showing a value that is no longer being kept current.
+public enum WidgetChange: Equatable, Sendable {
+    case update(WidgetState)
+    case removed(BarItemID)
+
+    public var id: BarItemID {
+        switch self {
+        case .update(let state): return state.id
+        case .removed(let id): return id
+        }
+    }
+}
+
 /// A provider that knows when one widget's data changes.
 ///
 /// `start` is invoked away from the main thread and must do its collection on
@@ -145,8 +160,6 @@ public struct WidgetUpdateCoalescer: Equatable, Sendable {
 
     public mutating func mark(_ id: BarItemID) { pending.insert(id) }
 
-    public mutating func remove(_ id: BarItemID) { pending.remove(id) }
-
     /// Return and clear the pending set, in stable identifier order.
     public mutating func drain() -> [BarItemID] {
         let ids = pending.sorted { $0.rawValue < $1.rawValue }
@@ -165,8 +178,9 @@ public struct WidgetUpdateCoalescer: Equatable, Sendable {
 /// the main thread and one slow provider cannot block the others. The sink is
 /// `@MainActor`: the bar's views are only ever touched there.
 public actor WidgetPipeline {
-    /// Delivered on the main actor with the changed states, batched.
-    public typealias UpdateSink = @MainActor @Sendable ([WidgetState]) -> Void
+    /// Delivered on the main actor with the changed items, batched. A removal
+    /// means the item's provider is gone and the bar must clear its value.
+    public typealias UpdateSink = @MainActor @Sendable ([WidgetChange]) -> Void
 
     private var providers: [BarItemID: any WidgetProvider] = [:]
     private var subscriptions: [BarItemID: any ProviderSubscription] = [:]
@@ -223,12 +237,15 @@ public actor WidgetPipeline {
         for id in Array(subscriptions.keys) { stop(id) }
     }
 
-    /// Stop one provider: cancel its subscription and drop its slot so any
-    /// in-flight completion is stale.
+    /// Stop one provider: cancel its subscription, drop its slot so any
+    /// in-flight completion is stale, and tell the bar to clear the value.
     public func stop(_ id: BarItemID) {
+        let wasActive = store.isActive(id)
         subscriptions.removeValue(forKey: id)?.cancel()
         store.deactivate(id)
-        coalescer.remove(id)
+        guard wasActive else { return }
+        coalescer.mark(id)
+        scheduleDrain()
     }
 
     /// Replace the whole provider set. Providers that are gone are stopped;
@@ -268,7 +285,13 @@ public actor WidgetPipeline {
         drainScheduled = false
         let ids = coalescer.drain()
         guard !ids.isEmpty else { return }
-        let batch = ids.compactMap { store.state(for: $0) }
-        await sink(batch)
+        let changes = ids.map { id -> WidgetChange in
+            // A live value wins over a pending removal: a provider that was
+            // stopped and restarted before the drain must show its new value,
+            // not a cleared item.
+            if let state = store.state(for: id) { return .update(state) }
+            return .removed(id)
+        }
+        await sink(changes)
     }
 }
