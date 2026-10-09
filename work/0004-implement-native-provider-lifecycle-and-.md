@@ -2,7 +2,7 @@
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -57,4 +57,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:43:22Z · review_cli_override
 - 2026-10-09T18:43:25Z · review_model_override
 - 2026-10-09T18:44:11Z · status review→active
-- 2026-10-09T18:47:39Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T18:47:39Z · status active→review
