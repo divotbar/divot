@@ -65,6 +65,31 @@ import Testing
         == .hidden)
 }
 
+@Test func accessibilityNeverOverridesNotchFreeGeometry() {
+    // Notch-free display whose own visibleFrame already decides. A system-wide
+    // AX sample must not flip the result either way.
+    let shown = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                               visibleFrame: CGRect(x: 0, y: 0, width: 1600, height: 976),
+                               safeAreaTop: 0)
+    let hidden = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                                visibleFrame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                                safeAreaTop: 0)
+    #expect(NativeMenuBarDetector.detect(geometry: shown, signal: .init(accessibilityVisible: false))
+        == .visible(inset: 24))
+    #expect(NativeMenuBarDetector.detect(geometry: hidden, signal: .init(accessibilityVisible: true))
+        == .hidden)
+}
+
+@Test func configuredAlwaysVisibleWinsOnNotchedGeometry() {
+    let g = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                           visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1074),
+                           safeAreaTop: 33)
+    // Explicit configuration is authoritative even if a probe says hidden.
+    #expect(NativeMenuBarDetector.detect(geometry: g, signal: .init(accessibilityVisible: false,
+                                                                     configuredAlwaysVisible: true))
+        == .visible(inset: 33))
+}
+
 // MARK: - Coalescing controller
 
 @Test func hiddenBarReturnsToTopEdgeInsteadOfHiding() {

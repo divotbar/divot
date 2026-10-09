@@ -17,13 +17,17 @@ App coordinator (main thread)
 
 ## Panels and geometry
 
-Borderless nonactivating `NSPanel`s own placement and click behavior. A display gets two segment panels so the notch remains outside every hit region. Panels use global screen coordinates, including negative origins; align rendering to the current backing scale. Geometry comes from `NSScreen`, including its auxiliary top areas. `DivotCore.BarGeometry` is the tested, pure layout boundary; platform reads stay in the later display adapter.
+Borderless nonactivating `NSPanel`s own placement and click behavior. A display gets two segment panels so the notch remains outside every hit region. Panels use global screen coordinates, including negative origins; align rendering to the current backing scale. Geometry comes from `NSScreen`, including its auxiliary top areas. `DivotCore.BarGeometry` is the tested, pure layout boundary; platform reads live in the `DivotAppKit` display adapter.
 
 Choose and validate public window levels and collection behaviors on target OS versions. Panels follow a persistent placement state: the top edge when the native menu bar is hidden, below it when the bar appears, returning to the top when it hides. Fullscreen, other Spaces, system menus, and focus cannot be assumed from a style-mask setting. Never adopt private APIs just to match a competitor's feature. Display transitions are coordinated as a batch to avoid intermediate positions.
 
 ## Native menu-bar coexistence
 
 Detecting the native bar, not drawing below it, is the feasibility risk. `NSScreen.visibleFrame` exposes the bar on notch-free displays, but the camera housing masks the same band on notched displays, so geometry alone cannot distinguish a hidden from a revealed bar there. The supported detector reports that case as indeterminate and holds position; it never hides and never polls. A resolved placement feeds `DivotCore.BarGeometry`, which moves the panels below the native bar and drops the notch gap in that row. See the [feasibility evidence](evidence/0009-native-menu-bar-coexistence.md) for what is proven, what is permission-gated, and the open product decision.
+
+## App shell and display coordinator
+
+`DivotAppKit` holds the platform half. `NSScreenGeometryProvider` reads each display into a pure `ScreenGeometryReading`, `AXSystemMenuBarProbe` is the permission-gated optional signal, and `MenuBarObservationAdapter` joins them into `DisplayReading`s. The adapter is deliberately conservative: the single system-wide AX sample is only consulted for a masked (notched) display when there is one display, so it can never override a notch-free display's `visibleFrame` or be shared across displays, and missing/zero-area attributes are surfaced as indeterminate. `DisplayCoordinator` feeds those to the pure, per-display `DivotCore.DisplayBarCoordinator` and applies the resulting placement to one pair of panels per display. The executable `divot` target is an accessory app: it has no Dock tile or app menu, and its borderless nonactivating panels refuse key/main status, so it cannot steal focus. It never polls — it re-evaluates on the shared OS notification set plus a single settle timer. `divot --report` prints one observation pass and exits without moving anything. Physical fullscreen/Spaces/display behavior is not claimed here; see the [app shell evidence](evidence/0003-app-shell.md).
 
 ## Rendering
 
