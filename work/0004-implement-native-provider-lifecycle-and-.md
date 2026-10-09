@@ -5,29 +5,31 @@ type: feature
 status: inbox
 priority: p1
 area: macos
+story: A beautiful bar from the first launch
 depends_on: ["0003"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T16:41:13Z"
 ---
 ## Problem
 
-The bar has no real status providers yet.
+The useful default bar needs actual status and active-app data, not illustrative placeholders.
 
 ## Desired UX
 
-Native notifications, immutable snapshots, bounded off-main work; minute clock, battery, front-app.
+Left active/frontmost app next to workspaces. Right battery percentage, local clock with weekday/date, Wi-Fi/network and volume. Built-in defaults require no setup questionnaire.
 
 ## Acceptance criteria
 
-Lifecycle/cancellation tests; stale snapshots ignored; provider failure leaves others responsive; no main-thread I/O; disabled providers release observers.
+Native provider lifecycle and notifications where supported; minute clock; power/network/volume data and contextual unavailable states. Tests cover cancellation, stale completions, independent failures and no main-thread I/O. Explicitly design native click controls/settings links without assuming mirroring of system menu extras. Denied access degrades gracefully; network details do not force unnecessary permissions.
 
 ## Notes for AI
 
-Depends on the panel shell. Use docs/performance.md; no shell polling for built-ins.
+Default positions are configurable through the shared model; no continuous shell polling. Read first-launch and customization stories. All listed providers are required for the first useful release.
 
 ## Activity
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
+- 2026-10-09T16:41:13Z · story, body
