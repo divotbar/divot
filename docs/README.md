@@ -9,5 +9,6 @@ Read in this order:
 5. [Configuration](configuration.md): proposed v2 contract and migration rules.
 6. [Roadmap](roadmap.md): delivery order and release gates.
 7. [Native architecture ADR](adr/0001-native-appkit.md).
+8. [Native menu-bar feasibility evidence](evidence/0009-native-menu-bar-coexistence.md): what public APIs were observed to do, and the open decision.
 
 `docs/` is engineering context. `site/` is public documentation and marketing. Keep implementation status consistent across both. The app is not shipping yet.

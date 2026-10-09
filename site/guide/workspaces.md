@@ -24,4 +24,6 @@ Each display has its own geometry and workspace mapping. Disconnecting a screen 
 
 ## The macOS menu bar
 
-Divot stays visible. When the native menu bar is hidden it takes the top edge; when the bar appears it shifts below it, and it returns to the top when the bar hides. If the system bar is configured always visible, Divot stays below it. The earlier fullscreen-hide default is retired; fullscreen and Spaces limits are being validated and will be documented honestly.
+The planned behavior is persistent top/below placement, which replaces the earlier fullscreen-hide default. Divot stays visible: when the native menu bar is hidden it takes the top edge; when the bar appears it shifts below it, and it returns to the top when the bar hides. If the system bar is configured always visible, Divot stays below it.
+
+This is a requirement, not a shipped capability. Detecting the native bar is still being validated; on notched displays the camera housing masks the same band, so actual menu-bar visibility remains unresolved without a validated Accessibility observation — no run yet proves always-visible behavior. Fullscreen and Spaces limits are not implemented yet and will be documented honestly. Divot does not recreate other applications' menus or force-hide the system menu bar.

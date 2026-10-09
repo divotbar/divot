@@ -21,6 +21,10 @@ Borderless nonactivating `NSPanel`s own placement and click behavior. A display 
 
 Choose and validate public window levels and collection behaviors on target OS versions. Panels follow a persistent placement state: the top edge when the native menu bar is hidden, below it when the bar appears, returning to the top when it hides. Fullscreen, other Spaces, system menus, and focus cannot be assumed from a style-mask setting. Never adopt private APIs just to match a competitor's feature. Display transitions are coordinated as a batch to avoid intermediate positions.
 
+## Native menu-bar coexistence
+
+Detecting the native bar, not drawing below it, is the feasibility risk. `NSScreen.visibleFrame` exposes the bar on notch-free displays, but the camera housing masks the same band on notched displays, so geometry alone cannot distinguish a hidden from a revealed bar there. The supported detector reports that case as indeterminate and holds position; it never hides and never polls. A resolved placement feeds `DivotCore.BarGeometry`, which moves the panels below the native bar and drops the notch gap in that row. See the [feasibility evidence](evidence/0009-native-menu-bar-coexistence.md) for what is proven, what is permission-gated, and the open product decision.
+
 ## Rendering
 
 Use a shallow `NSView` hierarchy with cached layer-backed contents. Dirty widgets invalidate their own content. Geometry changes trigger layout; a numeric value changing within a stable slot does not. Cache glyph measurements and images keyed by family, variant, scale, appearance, and content. Prefer native text and controls where they offer correct accessibility and interaction; custom drawing must implement equivalent accessibility elements/actions.
