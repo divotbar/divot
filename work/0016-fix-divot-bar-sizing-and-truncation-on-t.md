@@ -45,3 +45,4 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 - 2026-10-09T23:50:22Z · status review→active
 - 2026-10-09T23:50:22Z · note: close-out repair: merge-conflict
 - 2026-10-09T23:56:18Z · status active→review
+- 2026-10-09T23:56:18Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
