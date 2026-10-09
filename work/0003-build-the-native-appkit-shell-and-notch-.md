@@ -2,7 +2,7 @@
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -16,7 +16,7 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:40:36Z"
+updated_at: "2026-10-09T17:40:37Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -69,4 +69,4 @@ Reviewer at 2026-10-09T17:31:16Z requires fixes before sign-off: (1) DisplayLayo
 - 2026-10-09T17:32:27Z · review_model_override
 - 2026-10-09T17:32:33Z · status review→active
 - 2026-10-09T17:32:42Z · body: section Focused review repair
-- 2026-10-09T17:40:36Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T17:40:37Z · status active→review
