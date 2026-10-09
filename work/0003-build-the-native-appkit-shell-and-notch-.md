@@ -2,14 +2,14 @@
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T16:20:19Z"
 ---
 ## Problem
 
@@ -30,3 +30,5 @@ Read docs/product-requirements.md, docs/architecture.md and ADR 0001. This is th
 ## Activity
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
+- 2026-10-09T16:20:19Z · status inbox→ready
+- 2026-10-09T16:20:19Z · note: Bootstrap docs, site, core geometry tests, and RepoOS gate are complete; first native implementation slice is ready for kickoff.
