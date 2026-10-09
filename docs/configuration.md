@@ -8,7 +8,9 @@ Two ordered groups, `left` and `right`, hold the bar's items, and an item appear
 
 Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `clock`. Default left is `workspaces`, `front-app`; default right is `battery`, `clock`, `network`, `volume`. Clock resolution stays minutes unless `widgets.clock.seconds` is enabled. Appearance `family` is `native` (default), `gruvbox`, `ayu`, `dracula`, or `tokyo-night`; `mode` is `system`, `dark`, or `light`. Layout height is 24–40 points, padding 0–24, notch gap 0–32.
 
-See `examples/default.json`, `examples/focus.json`, `examples/opaque.json` and the public reference for complete examples. They use the same shape and are validated during web checks. The starter checker rejects unknown fields/types/ranges and unknown or misplaced items; later replace duplication with generated schema or cross-language contract fixtures.
+Custom palette overrides are proposed under the same contract: an optional `appearance.palette` object overrides individual semantic color tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, merged over the selected family and variant. `palette.accent` takes precedence over the root `accent`. Like the rest of v2 this is proposed: the website preview and checker understand the shape, but no native loader applies it yet.
+
+See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, `examples/custom-palette.json` and the public reference for complete examples. They use the same shape and are validated during web checks; the checker also runs negative cases for unknown tokens, misplaced items, and unknown options. The starter checker rejects unknown fields/types/ranges and unknown or misplaced items; later replace duplication with generated schema or cross-language contract fixtures.
 
 ## Migration and extension
 

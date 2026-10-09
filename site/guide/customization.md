@@ -35,6 +35,10 @@ The bar has two ordered groups, `left` and `right`. Each lists supported items, 
 
 For a distraction-free setup, use `examples/focus.json`: a 28-point opaque bar with occupied workspaces only and a minute clock without the day of week. For an opaque themed layout, use `examples/opaque.json`.
 
+## Your own palette
+
+Themes share the one configuration model, so you are not limited to a family's stock colors. Add `appearance.palette` to override individual semantic tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, and `examples/custom-palette.json` shows a Gruvbox base with overrides. This is proposed until the native loader applies palettes.
+
 ## Ordering
 
 The `left` and `right` arrays determine order on each side. Remove an identifier to disable that item, or move it to the other group. Duplicates, unknown identifiers, and an item on both sides are errors. The first contract supports `workspaces`, `front-app`, `battery`, `network`, `volume`, and `clock`.
