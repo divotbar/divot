@@ -14,8 +14,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
+review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:32:25Z"
+updated_at: "2026-10-09T17:32:27Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -62,3 +63,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:31:16Z · note: review pass 3: needs some work
 - 2026-10-09T17:31:16Z · needs_input
 - 2026-10-09T17:32:25Z · review_cli_override
+- 2026-10-09T17:32:27Z · review_model_override
