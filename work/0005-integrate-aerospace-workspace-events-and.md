@@ -71,3 +71,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:35:57Z · status review→active
 - 2026-10-09T18:46:04Z · body: section Shots
 - 2026-10-09T18:47:16Z · status active→review
+- 2026-10-09T18:47:16Z · note: shots: skipped — 3 handoff shots already captured for this exact plan (a0a7368) during finalization (#0734)
