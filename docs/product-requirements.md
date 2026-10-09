@@ -6,7 +6,7 @@ An open-source macOS bar that makes workspaces immediately legible and everyday 
 
 ## Audience and platform
 
-Primary: Apple-silicon Mac users with AeroSpace, multiple workspaces, and a strong preference for native responsiveness. Initial minimum OS is macOS 26; Intel and older macOS are outside v1. Notched and notch-free displays, mixed scaling, and multi-monitor setups are required. AeroSpace is optional for the bar itself and is the first workspace adapter; yabai follows as a second adapter in its own milestone. Native macOS Spaces is a research question, not a committed adapter.
+Primary: Apple-silicon Mac users with AeroSpace, multiple workspaces, and a strong preference for native responsiveness. Initial minimum OS is macOS 26; Intel and older macOS are outside v1. Notched and notch-free displays, mixed scaling, and multi-monitor setups are required. AeroSpace is optional for the bar itself and is the first workspace adapter; yabai follows as a second adapter in its own milestone. Native macOS Spaces is not a committed adapter and, per the [task 0013 feasibility report](evidence/0013-native-spaces-feasibility.md), is not achievable from public APIs.
 
 ## Product principles
 

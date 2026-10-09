@@ -10,6 +10,8 @@ Workspace indicators and the frontmost program belong on the left. The focused w
 
 AeroSpace is the initial adapter; yabai follows as a second adapter in its own milestone. Workspace activation is asynchronous; a slow command must never freeze the bar. Supported events/callbacks drive refreshes rather than continuous shell polling. The adapter reads real workspace names and focus/occupied/empty state from AeroSpace's documented CLI, subscribes to its documented events, and draws the row in the left panel. On-device appearance and interaction are still being validated.
 
+Native macOS Spaces is researched, not planned. Public APIs expose displays and the active Space's on-screen windows, and a notification that a Space changed, but no Space identity — so Spaces cannot be listed, switched, or mapped to apps without private APIs. Divot therefore treats "no window manager" as an honest unavailable state rather than presenting Spaces as a workspace source.
+
 ## Right of the camera
 
 The default status group is battery percentage, a minute clock with weekday and date, network status, and volume. Both sides are configurable, so you can reorder items or move them between groups. The website's Wi-Fi glyph is illustrative of the planned network item.
