@@ -2,7 +2,7 @@
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
@@ -41,4 +41,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:14:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T18:15:42Z · note: review pass 1: needs some work
 - 2026-10-09T18:15:42Z · status review→active
-- 2026-10-09T18:33:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T18:33:45Z · status active→review
