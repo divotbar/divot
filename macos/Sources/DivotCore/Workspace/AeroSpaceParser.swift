@@ -120,10 +120,12 @@ public enum AeroSpaceParser {
 
     /// Join the two read-only queries into one snapshot. Workspace order comes
     /// from `list-workspaces` (the manager's own order) and each workspace keeps
-    /// its deduplicated app list.
+    /// its deduplicated app list. `appsAvailable` is `false` when the window
+    /// listing was not read, so occupancy is `unknown` rather than `empty`.
     public static func snapshot(workspacesOutput: String,
                                 windowsOutput: String,
-                                manager: WorkspaceManagerKind = .aerospace) -> WorkspaceSnapshot {
+                                manager: WorkspaceManagerKind = .aerospace,
+                                appsAvailable: Bool = true) -> WorkspaceSnapshot {
         let appsByWorkspace = workspaceApps(from: windowsOutput)
         let workspaces = workspaces(from: workspacesOutput).map { workspace in
             Workspace(id: workspace.id,
@@ -132,7 +134,7 @@ public enum AeroSpaceParser {
                       monitor: workspace.monitor,
                       apps: appsByWorkspace[workspace.id] ?? [])
         }
-        return WorkspaceSnapshot(manager: manager, workspaces: workspaces)
+        return WorkspaceSnapshot(manager: manager, workspaces: workspaces, appsAvailable: appsAvailable)
     }
 
     // MARK: Events

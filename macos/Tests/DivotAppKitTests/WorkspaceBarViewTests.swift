@@ -8,6 +8,21 @@ private final class NoIconProvider: WorkspaceIconProviding {
     func icon(for bundleID: String, pointSize: CGFloat) -> NSImage? { nil }
 }
 
+/// Returns a real, non-empty image for any bundle id so attachment rendering can
+/// be exercised without a live app.
+@MainActor
+private final class SolidIconProvider: WorkspaceIconProviding {
+    func icon(for bundleID: String, pointSize: CGFloat) -> NSImage? {
+        let size = NSSize(width: pointSize, height: pointSize)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSColor.systemBlue.setFill()
+        NSRect(origin: .zero, size: size).fill()
+        image.unlockFocus()
+        return image
+    }
+}
+
 private struct StubAdapter: WorkspaceAdapting {
     let kind: WorkspaceManagerKind = .aerospace
     let availability: WorkspaceAvailability
@@ -20,11 +35,19 @@ private struct StubAdapter: WorkspaceAdapting {
 }
 
 @MainActor
-private func allButtons(in view: NSView) -> [NSButton] {
-    view.subviews.flatMap { subview -> [NSButton] in
-        let nested = allButtons(in: subview)
-        return (subview as? NSButton).map { [$0] + nested } ?? nested
+private func allSubviews<T: NSView>(of type: T.Type, in view: NSView) -> [T] {
+    view.subviews.flatMap { subview -> [T] in
+        let nested = allSubviews(of: type, in: subview)
+        return (subview as? T).map { [$0] + nested } ?? nested
     }
+}
+
+private func attachmentCount(in string: NSAttributedString) -> Int {
+    var count = 0
+    string.enumerateAttribute(.attachment, in: NSRange(location: 0, length: string.length)) { value, _, _ in
+        if value != nil { count += 1 }
+    }
+    return count
 }
 
 @MainActor
@@ -35,7 +58,7 @@ private func allButtons(in view: NSView) -> [NSButton] {
     feed.start(adapter: nil, eventSourceProvider: nil, options: .default)
     view.layoutSubtreeIfNeeded()
     // Nothing is fabricated: an unavailable manager draws no workspace chips.
-    #expect(allButtons(in: view).isEmpty)
+    #expect(allSubviews(of: NSButton.self, in: view).isEmpty)
 }
 
 @MainActor
@@ -56,12 +79,77 @@ private func allButtons(in view: NSView) -> [NSButton] {
     await feed.waitForPendingWork()
     view.layoutSubtreeIfNeeded()
 
-    let titles = allButtons(in: view).compactMap(\.title)
+    let titles = allSubviews(of: NSButton.self, in: view).compactMap { $0.identifier?.rawValue }
     #expect(titles.contains("1"))
     #expect(titles.contains("2"))
     #expect(titles.contains("3"))
     // The focused workspace is selected, not just colored.
-    #expect(allButtons(in: view).first { $0.title == "1" }?.state == .on)
-    // Workspace filtering by screen index is respected.
-    #expect(allButtons(in: view).allSatisfy { $0.title != "M" })
+    #expect(allSubviews(of: NSButton.self, in: view).first { $0.identifier?.rawValue == "1" }?.state == .on)
 }
+
+@MainActor
+@Test func workspaceBarViewDrawsEveryDeduplicatedAppIcon() async {
+    let apps = [
+        WorkspaceApp(identity: .init(bundleID: "com.apple.Safari", name: "Safari"), pid: 1, windowID: 1),
+        WorkspaceApp(identity: .init(bundleID: "com.apple.Terminal", name: "Terminal"), pid: 2, windowID: 2),
+        WorkspaceApp(identity: .init(bundleID: "com.apple.Safari", name: "Safari"), pid: 3, windowID: 3)
+    ]
+    let workspace = Workspace(id: WorkspaceID("1"), apps: apps)
+    #expect(workspace.apps.count == 2)  // Safari is deduplicated
+
+    let snapshot = WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace])
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: SolidIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showAppIcons: true))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let chip = try! #require(allSubviews(of: NSButton.self, in: view).first { $0.identifier?.rawValue == "1" })
+    // One attachment per deduplicated app (two), not just the first.
+    #expect(attachmentCount(in: chip.attributedTitle) == 2)
+}
+
+@MainActor
+private func uniqueColors(in image: NSImage) -> Int {
+    guard let tiff = image.tiffRepresentation, let representation = NSBitmapImageRep(data: tiff) else { return 0 }
+    var colors = Set<String>()
+    for x in stride(from: 0, to: representation.pixelsWide, by: 2) {
+        for y in stride(from: 0, to: representation.pixelsHigh, by: 2) {
+            if let color = representation.colorAt(x: x, y: y), color.alphaComponent > 0.05 {
+                colors.insert("\(color.redComponent),\(color.greenComponent),\(color.blueComponent)")
+            }
+        }
+    }
+    return colors.count
+}
+
+@MainActor
+@Test func workspaceBarViewDrawsContentBeyondTheChrome() async {
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    view.wantsLayer = true
+
+    // Unavailable: only the segment chrome is drawn.
+    feed.start(adapter: nil, eventSourceProvider: nil, options: .default)
+    view.layoutSubtreeIfNeeded()
+    let emptyImage = try! #require(view.renderPreviewImage())
+    let emptyColors = uniqueColors(in: emptyImage)
+
+    // Populated: each workspace chip adds its own drawing.
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
+                                                  Workspace(id: WorkspaceID("2"))])
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .default)
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+    let populatedImage = try! #require(view.renderPreviewImage())
+
+    #expect(uniqueColors(in: populatedImage) > emptyColors)
+}
+

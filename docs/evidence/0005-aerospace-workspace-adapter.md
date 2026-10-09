@@ -60,10 +60,17 @@ classified as not requiring a snapshot refresh.
 
 ## Not observed (human/later verification)
 
-- **On-device rendering.** The left-panel workspace row is now implemented
-  (`WorkspaceBarView`) and exercised by view smoke tests, but its actual
-  appearance — fonts, chip spacing, the overflow control, and app-icon drawing —
-  was not observed on screen.
+- **On-device rendering.** The left-panel workspace row is implemented and
+  covered by an offscreen render test that proves the view draws workspace chips
+  (a populated row has more distinct pixels than an empty one) and that enabling
+  icons attaches every deduplicated app, not just the first. Its on-screen
+  appearance with the live app — fonts, spacing, the overflow control, and the
+  current-program label — still needs a human look.
+- **Options path.** The row's options (`showEmpty`, `showAppIcons`,
+  `showDetails`, `maxAppIconsPerWorkspace`) are read at launch from
+  `widgets.workspaces` in `~/.config/divot/config.json`, with environment
+  overrides; changing them today needs a relaunch, and the full settings surface
+  and hot reload remain task 0006.
 - **Sustained subscription.** Only the raw documented event lines were captured
   for a few seconds. The app-owned `AeroSpaceSubscription` stream, its teardown,
   and the feed's reconnect-and-refresh behavior over time were not measured on

@@ -131,8 +131,11 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         let workspaces = WorkspaceLayout.workspaces(forScreensID: displayScreensID,
                                                      in: state.snapshot,
                                                      options: options)
+        let occupancy: (Workspace) -> WorkspaceOccupancy = { workspace in
+            state.snapshot?.occupancy(of: workspace) ?? workspace.occupancy
+        }
         let chips = workspaces.map { workspace in
-            (workspace: workspace, button: makeChip(for: workspace, options: options))
+            (workspace: workspace, button: makeChip(for: workspace, options: options, occupancy: occupancy(workspace)))
         }
         let byID = Dictionary(chips.map { ($0.workspace.id, $0.button) },
                               uniquingKeysWith: { first, _ in first })
@@ -148,41 +151,64 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
             stack.addArrangedSubview(button)
         }
         if !overflow.hidden.isEmpty {
-            stack.addArrangedSubview(makeOverflowButton(hidden: overflow.hidden, options: options))
+            stack.addArrangedSubview(makeOverflowButton(hidden: overflow.hidden,
+                                                        options: options,
+                                                        occupancy: occupancy))
         }
         if options.showDetails {
             stack.addArrangedSubview(frontAppLabel)
         }
     }
 
-    private func makeChip(for workspace: Workspace, options: WorkspaceDisplayOptions) -> NSButton {
+    private func makeChip(for workspace: Workspace,
+                          options: WorkspaceDisplayOptions,
+                          occupancy: WorkspaceOccupancy) -> NSButton {
         let button = ChipButton(title: workspace.id.rawValue, target: self, action: #selector(chipClicked(_:)))
         button.bezelStyle = .recessed
         button.setButtonType(.pushOnPushOff)
         button.state = workspace.isFocused ? .on : .off
-        button.font = .systemFont(ofSize: 11, weight: workspace.isFocused ? .semibold : .regular)
         button.controlSize = .small
         button.refusesFirstResponder = false
+        button.alignment = .center
         button.identifier = NSUserInterfaceItemIdentifier(workspace.id.rawValue)
-        button.toolTip = accessibilityDescription(for: workspace, options: options)
-        button.setAccessibilityLabel(accessibilityDescription(for: workspace, options: options))
+
+        let label = accessibilityDescription(for: workspace, options: options, occupancy: occupancy)
+        button.toolTip = label
+        button.setAccessibilityLabel(label)
         button.setAccessibilityValue(workspace.isFocused ? "selected" : "")
 
-        if options.showAppIcons,
-           let app = workspace.apps.first,
-           let icon = icons.icon(for: app.identity.bundleID, pointSize: 13) {
-            button.image = icon
-            button.imageScaling = .scaleProportionallyDown
-            button.imagePosition = .imageLeading
-        }
-        // Empty and occupied differ by weight and accessibility, not color alone.
-        if !workspace.isOccupied && !workspace.isFocused {
-            button.contentTintColor = .secondaryLabelColor
-        }
+        let weight: NSFont.Weight = workspace.isFocused ? .semibold : .regular
+        let font = NSFont.systemFont(ofSize: 11, weight: weight)
+        let tint: NSColor? = (occupancy == .empty || occupancy == .unknown) && !workspace.isFocused
+            ? .secondaryLabelColor : nil
+        button.attributedTitle = chipTitle(for: workspace, options: options, font: font, tint: tint)
         return button
     }
 
-    private func makeOverflowButton(hidden: [Workspace], options: WorkspaceDisplayOptions) -> NSPopUpButton {
+    /// The chip title: the workspace name plus one attachment per deduplicated
+    /// app icon, so enabling icons shows every app rather than only the first.
+    private func chipTitle(for workspace: Workspace,
+                           options: WorkspaceDisplayOptions,
+                           font: NSFont,
+                           tint: NSColor?) -> NSAttributedString {
+        var attributes: [NSAttributedString.Key: Any] = [.font: font]
+        if let tint { attributes[.foregroundColor] = tint }
+
+        let title = NSMutableAttributedString(string: workspace.id.rawValue, attributes: attributes)
+        for identity in WorkspaceLayout.displayApps(for: workspace, options: options) {
+            guard let icon = icons.icon(for: identity.bundleID, pointSize: 12) else { continue }
+            let attachment = NSTextAttachment()
+            attachment.image = icon
+            attachment.bounds = CGRect(x: 0, y: -1.5, width: 12, height: 12)
+            title.append(NSAttributedString(string: " ", attributes: attributes))
+            title.append(NSAttributedString(attachment: attachment))
+        }
+        return title
+    }
+
+    private func makeOverflowButton(hidden: [Workspace],
+                                    options: WorkspaceDisplayOptions,
+                                    occupancy: (Workspace) -> WorkspaceOccupancy) -> NSPopUpButton {
         let popup = NSPopUpButton(frame: .zero, pullsDown: false)
         popup.bezelStyle = .recessed
         popup.controlSize = .small
@@ -196,16 +222,28 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
             item.target = self
             item.representedObject = workspace.id.rawValue
             item.state = workspace.isFocused ? .on : .off
-            item.toolTip = accessibilityDescription(for: workspace, options: options)
+            item.toolTip = accessibilityDescription(for: workspace,
+                                                    options: options,
+                                                    occupancy: occupancy(workspace))
             popup.menu?.addItem(item)
         }
         return popup
     }
 
     private func accessibilityDescription(for workspace: Workspace,
-                                          options: WorkspaceDisplayOptions) -> String {
-        let state = workspace.isFocused ? "focused" : (workspace.isOccupied ? "occupied" : "empty")
-        guard options.showDetails, workspace.isOccupied else {
+                                          options: WorkspaceDisplayOptions,
+                                          occupancy: WorkspaceOccupancy) -> String {
+        let state: String
+        if workspace.isFocused {
+            state = "focused"
+        } else {
+            switch occupancy {
+            case .occupied: state = "occupied"
+            case .empty: state = "empty"
+            case .unknown: state = "occupancy unknown"
+            }
+        }
+        guard options.showDetails, occupancy == .occupied else {
             return "Workspace \(workspace.id), \(state)"
         }
         let count = workspace.apps.count
@@ -232,6 +270,17 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         let name = NSWorkspace.shared.frontmostApplication?.localizedName ?? "—"
         frontAppLabel.stringValue = name
         frontAppLabel.setAccessibilityLabel("Frontmost app: \(name)")
+    }
+
+    /// Render the current row offscreen to an image. Used by tests and headless
+    /// checks to verify the view actually draws; it creates no window.
+    public func renderPreviewImage() -> NSImage? {
+        guard bounds.width > 0, bounds.height > 0,
+              let representation = bitmapImageRepForCachingDisplay(in: bounds) else { return nil }
+        cacheDisplay(in: bounds, to: representation)
+        let image = NSImage(size: bounds.size)
+        image.addRepresentation(representation)
+        return image
     }
 }
 

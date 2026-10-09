@@ -253,7 +253,7 @@ private func sampleSnapshot() -> WorkspaceSnapshot {
     #expect(30 + 40 <= 100)
 }
 
-@Test func workspacesFilterByScreenIDWithFallback() {
+@Test func workspacesFilterStrictlyByScreenIDAndFallBackOnlyWithoutMapping() {
     let snapshot = sampleSnapshot()
     // Fixtures carry no screen index, so a requested filter falls back to all.
     #expect(WorkspaceLayout.workspaces(forScreensID: 1, in: snapshot, options: .init()).count == 4)
@@ -265,7 +265,28 @@ private func sampleSnapshot() -> WorkspaceSnapshot {
     ]
     let withScreens = WorkspaceSnapshot(manager: .aerospace, workspaces: monitors)
     #expect(WorkspaceLayout.workspaces(forScreensID: 2, in: withScreens, options: .init()).map(\.id.rawValue) == ["2"])
-    #expect(WorkspaceLayout.workspaces(forScreensID: 9, in: withScreens, options: .init()).count == 2)
+    // A display with no mapping shows nothing rather than duplicating monitor 1.
+    #expect(WorkspaceLayout.workspaces(forScreensID: 9, in: withScreens, options: .init()).isEmpty)
+}
+
+@Test func unknownOccupancyIsNeverMislabeledAsEmpty() {
+    let occupiedApp = WorkspaceApp(identity: .init(bundleID: "com.apple.Safari", name: "Safari"), pid: 1, windowID: 1)
+    let workspaces = [
+        Workspace(id: WorkspaceID("1")),
+        Workspace(id: WorkspaceID("2"), apps: [occupiedApp])
+    ]
+    let snapshot = WorkspaceSnapshot(manager: .aerospace, workspaces: workspaces, appsAvailable: false)
+    #expect(snapshot.occupancy(of: workspaces[0]) == .unknown)
+    #expect(snapshot.occupancy(of: workspaces[1]) == .unknown)
+
+    // With windows unread, an empty-workspace filter must not drop a workspace
+    // it cannot judge.
+    let groups = WorkspaceLayout.groups(snapshot: snapshot, options: .init(showEmpty: false))
+    #expect(groups.flatMap(\.workspaces).count == 2)
+
+    let known = WorkspaceSnapshot(manager: .aerospace, workspaces: workspaces, appsAvailable: true)
+    #expect(known.occupancy(of: workspaces[0]) == .empty)
+    #expect(known.occupancy(of: workspaces[1]) == .occupied)
 }
 
 // MARK: - Feed state machine

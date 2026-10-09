@@ -42,7 +42,10 @@ public enum WorkspaceLayout {
     public static func groups(snapshot: WorkspaceSnapshot?,
                               options: WorkspaceDisplayOptions) -> [WorkspaceGrouping] {
         guard let snapshot else { return [] }
-        let filtered = snapshot.workspaces.filter { options.showEmpty || $0.isOccupied }
+        // When windows were not inspected, occupancy is unknown, so an
+        // empty-workspace filter must not drop workspaces it cannot judge.
+        let appsAvailable = snapshot.appsAvailable
+        let filtered = snapshot.workspaces.filter { options.showEmpty || !appsAvailable || $0.isOccupied }
 
         var order: [WorkspaceMonitor?] = []
         var byMonitor: [WorkspaceMonitor?: [Workspace]] = [:]
@@ -72,18 +75,19 @@ public enum WorkspaceLayout {
 
     /// Workspaces to draw on one display, in manager order.
     ///
-    /// When the manager reported a screen index for a workspace and Divot knows
-    /// which screen it is drawing, only that monitor's workspaces are returned.
-    /// An unknown or absent mapping falls back to every workspace so the row is
-    /// never silently empty on a single-display setup.
+    /// When the manager reported a screen index for any workspace, the row is
+    /// strictly filtered to this display's screen: a display with no mapping
+    /// shows *nothing* rather than duplicating another monitor's workspaces.
+    /// Only when no mapping exists at all (an older manager, or a single
+    /// display) does it fall back to every workspace.
     public static func workspaces(forScreensID screensID: Int?,
                                   in snapshot: WorkspaceSnapshot?,
                                   options: WorkspaceDisplayOptions) -> [Workspace] {
         let groups = groups(snapshot: snapshot, options: options)
         guard let screensID else { return groups.flatMap(\.workspaces) }
-        let attributed = groups.filter { $0.monitor?.screensID == screensID }
-        guard !attributed.isEmpty else { return groups.flatMap(\.workspaces) }
-        return attributed.flatMap(\.workspaces)
+        let hasMapping = groups.contains { $0.monitor?.screensID != nil }
+        guard hasMapping else { return groups.flatMap(\.workspaces) }
+        return groups.filter { $0.monitor?.screensID == screensID }.flatMap(\.workspaces)
     }
 
     /// Keep a leading run of workspaces that fits `availableWidth`, measuring a

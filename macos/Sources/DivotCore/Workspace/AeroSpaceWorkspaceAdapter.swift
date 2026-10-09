@@ -86,14 +86,16 @@ public struct AeroSpaceWorkspaceAdapter: WorkspaceAdapting {
         }
 
         // App icons are optional detail. If `list-windows` is unsupported or
-        // transiently fails, show the real workspaces without icons rather than
-        // failing the whole read and blanking the bar.
+        // transiently fails, report the real workspaces with `appsAvailable:
+        // false` so occupancy is `unknown`, never mislabeled as empty.
         let windows = try? await runner.run(AeroSpaceCLI.listWindows(executable: executablePath,
                                                                     timeout: commandTimeout))
+        let windowsSucceeded = windows?.succeeded == true
 
         return AeroSpaceParser.snapshot(workspacesOutput: workspaces.stdout,
-                                        windowsOutput: windows?.succeeded == true ? windows?.stdout ?? "" : "",
-                                        manager: kind)
+                                        windowsOutput: windowsSucceeded ? windows?.stdout ?? "" : "",
+                                        manager: kind,
+                                        appsAvailable: windowsSucceeded)
     }
 
     // MARK: Actions

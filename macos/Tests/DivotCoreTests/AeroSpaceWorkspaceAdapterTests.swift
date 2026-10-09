@@ -165,8 +165,10 @@ private func healthyRunner(workspaces: String = workspacesOutput,
                                             runner: healthyRunner(windowsHelpSucceeds: false))
     let snapshot = try await adapter.snapshot()
     #expect(snapshot.workspaces.count == 3)
-    // Icons are optional detail; absent window data must not blank the bar.
-    #expect(snapshot.workspaces.allSatisfy { $0.isEmpty })
+    // Icons are optional detail; absent window data must not blank the bar, and
+    // occupancy must read as unknown rather than empty.
+    #expect(!snapshot.appsAvailable)
+    #expect(snapshot.occupancy(of: snapshot.workspaces[0]) == .unknown)
 }
 
 @Test func snapshotFailureSurfacesTheDocumentedCommand() async {

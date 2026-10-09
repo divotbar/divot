@@ -64,14 +64,15 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
 
         let selection = WorkspaceManagerSelector.select(preferred: nil,
                                                         installed: WorkspaceAdapterFactory.installedManagers())
+        let options = WorkspaceOptionsStore.load()
         guard let selection else {
-            feed.start(adapter: nil, eventSourceProvider: nil, options: .default)
+            feed.start(adapter: nil, eventSourceProvider: nil, options: options)
             return
         }
         let kind = selection.kind
         feed.start(adapter: WorkspaceAdapterFactory.makeAdapter(for: kind),
                    eventSourceProvider: { WorkspaceAdapterFactory.makeEventSource(for: kind) },
-                   options: .default)
+                   options: options)
     }
 
     public func applicationWillTerminate(_ notification: Notification) {

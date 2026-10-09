@@ -79,3 +79,15 @@ import DivotCore
             WorkspaceCommand(executable: "/bin/sleep", arguments: ["5"], timeout: 0.3))
     }
 }
+
+@Test func runnerTerminatesAHangingCommandWhenTheTaskIsCancelled() async {
+    let task = Task {
+        try await ProcessWorkspaceRunner().run(
+            WorkspaceCommand(executable: "/bin/sleep", arguments: ["10"], timeout: 30))
+    }
+    try? await Task.sleep(for: .milliseconds(200))
+    task.cancel()
+    await #expect(throws: WorkspaceAdapterError.self) {
+        _ = try await task.value
+    }
+}

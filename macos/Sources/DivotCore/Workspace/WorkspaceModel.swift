@@ -100,10 +100,12 @@ public struct WorkspaceApp: Hashable, Sendable, Codable {
 
 // MARK: - State
 
-/// Focused, occupied and empty are three distinct states a workspace can be in.
+/// Focused, occupied, empty, or — when window data was unavailable — unknown.
+/// Divot never reports "empty" for a workspace it could not inspect.
 public enum WorkspaceOccupancy: String, Equatable, Sendable, Codable {
     case empty
     case occupied
+    case unknown
 }
 
 /// One workspace with the state the manager reports.
@@ -148,13 +150,19 @@ public struct Workspace: Hashable, Sendable, Identifiable {
 
 /// One immutable manager reading. The feed stamps generations; the snapshot
 /// itself carries no clock so it stays easy to compare in tests.
+///
+/// `appsAvailable` is `false` when the window listing could not be read. In that
+/// case occupancy is `unknown` rather than `empty`, so a workspace is never
+/// mislabeled just because the detail query failed.
 public struct WorkspaceSnapshot: Equatable, Sendable {
     public let manager: WorkspaceManagerKind
     public let workspaces: [Workspace]
+    public let appsAvailable: Bool
 
-    public init(manager: WorkspaceManagerKind, workspaces: [Workspace]) {
+    public init(manager: WorkspaceManagerKind, workspaces: [Workspace], appsAvailable: Bool = true) {
         self.manager = manager
         self.workspaces = workspaces
+        self.appsAvailable = appsAvailable
     }
 
     public var focused: Workspace? { workspaces.first(where: \.isFocused) }
@@ -162,6 +170,13 @@ public struct WorkspaceSnapshot: Equatable, Sendable {
 
     public func workspace(_ id: WorkspaceID) -> Workspace? {
         workspaces.first { $0.id == id }
+    }
+
+    /// A workspace's occupancy, downgraded to `unknown` when windows were not
+    /// inspected. Focus is still known from the workspace listing alone.
+    public func occupancy(of workspace: Workspace) -> WorkspaceOccupancy {
+        guard appsAvailable else { return .unknown }
+        return workspace.occupancy
     }
 
     /// Monitors that at least one workspace is attributed to, stable order.
