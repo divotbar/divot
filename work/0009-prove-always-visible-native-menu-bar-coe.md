@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/prove-always-visible-native-menu-bar-coe
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T16:51:03Z"
+updated_at: "2026-10-09T16:51:59Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ This is a feasibility gate before the full shell. Read the always-visible story;
 - 2026-10-09T16:43:08Z · status ready→active, branch
 - 2026-10-09T16:51:03Z · status active→review
 - 2026-10-09T16:51:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T16:51:59Z · note: review pass 1: good to go
