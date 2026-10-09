@@ -16,7 +16,7 @@ branch: feat/integrate-aerospace-workspace-events-and
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T19:07:29Z"
+updated_at: "2026-10-09T19:07:48Z"
 review_passes: 4
 last_check_failure: "repoos check at 2026-10-09T18:59:35.328Z: repoos check failed: ui verification failed (3 issue(s)): [route] Workspace guide: adapter reads AeroSpace and renders the left row: declared route /guide/workspaces#left-of-the-camera but the browser landed on /guide/workspaces (login or redirect?) (captured http://127.0.0.1:65493/guide/workspaces#left-of-the-camera) (http://127.0.0.1:65493/guide/workspaces#left-of-the-camera); [route] Workspace options: showDetails and maxAppIconsPerWorkspace: declared route /reference/configuration#widget-opt… (truncated)"
 review_rounds: 2
