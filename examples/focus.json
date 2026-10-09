@@ -1,6 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "appearance": {
+    "family": "native",
     "mode": "dark",
     "accent": "#D6F58A",
     "material": "opaque"
@@ -10,12 +11,22 @@
     "padding": 10,
     "notchGap": 12
   },
-  "workspaces": {
-    "enabled": true,
-    "adapter": "aerospace",
-    "showEmpty": false
-  },
-  "status": [
+  "left": [
+    "workspaces"
+  ],
+  "right": [
     "clock"
-  ]
+  ],
+  "widgets": {
+    "workspaces": {
+      "adapter": "aerospace",
+      "showEmpty": false,
+      "showAppIcons": false
+    },
+    "clock": {
+      "weekday": false,
+      "date": true,
+      "seconds": false
+    }
+  }
 }

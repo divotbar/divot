@@ -6,7 +6,7 @@
     "dev": "vitepress dev site --host 127.0.0.1",
     "build": "vitepress build site",
     "preview": "vitepress preview site --host 127.0.0.1",
-    "check": "bun run scripts/check-config.ts && bun run build",
+    "check": "bun run scripts/check-config.ts && bun test scripts/config-schema.test.ts && bun run build",
     "test:core": "swift test --package-path macos"
   },
   "devDependencies": {

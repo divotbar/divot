@@ -10,9 +10,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T17:11:15Z"
-review_passes: 6
-review_rounds: 2
+updated_at: "2026-10-09T16:58:24Z"
+review_passes: 2
+review_rounds: 1
 ---
 ## Problem
 
@@ -33,9 +33,6 @@ This is planning/docs alignment, not a native implementation claim or landing re
 ## Integration follow-up
 Close-out after approved task 0009 landed failed with conflicts in docs/product-requirements.md and site/guide/workspaces.md. In this task existing worktree, merge current main into the branch and resolve the two overlapping product-doc edits semantically. Preserve both the approved story alignment and task 0009 honest feasibility limits: notched-display actual menu-bar visibility remains unresolved without validated Accessibility observation; no claim of proven always-visible behavior. Run repoos check --changed main and request a fresh independent review through the normal handoff. Do not hand-land or edit main. The human has revoked the USD 2/hour cap provided configured roles/agents/models remain unchanged; preserve that configuration. Their Mac runs AeroSpace and a-bar; the local preview comparison must temporarily stop only a-bar and preserve a restore path.
 
-## Review repair requirements
-Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The committed main...HEAD diff must not revert work/0009 or delete work/0014. Restoring them only as dirty worktree files is insufficient. Use RepoOS-supported synchronization/recovery to match current main task records and include the corrective changes in the branch commit before handoff; do not edit metadata by hand or erase task state. Verify git diff main...HEAD -- work/0009* work/0014* is empty and the handoff tree is clean. (2) The agreed theme story promises custom palette overrides under the same configuration contract. Add that proposal consistently to configuration docs, theme guide, examples/schema validator as applicable, preserving proposed-vs-implemented labels. Run meaningful negative configuration validation coverage where the checker is changed. Run the declared check and request fresh review. Do not land the branch yourself.
-
 ## Activity
 
 - 2026-10-09T16:41:12Z · created · njachowski@gmail.com
@@ -52,24 +49,3 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T16:54:55Z · body: section Integration follow-up
 - 2026-10-09T16:54:58Z · status review→active
 - 2026-10-09T16:58:24Z · status active→review
-- 2026-10-09T16:58:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T16:59:48Z · note: review pass 3: needs some work
-- 2026-10-09T16:59:49Z · status review→active
-- 2026-10-09T17:02:12Z · status active→review
-- 2026-10-09T17:02:12Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T17:04:16Z · note: review pass 4: needs some work
-- 2026-10-09T17:04:17Z · needs_input
-- 2026-10-09T17:04:34Z · body: section Review repair requirements
-- 2026-10-09T17:04:46Z · status review→active
-- 2026-10-09T17:08:13Z · status active→review
-- 2026-10-09T17:08:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T17:09:22Z · note: review pass 5: needs some work
-- 2026-10-09T17:09:22Z · needs_input
-- 2026-10-09T17:09:22Z · needs_input
-- 2026-10-09T17:09:56Z · status review→active
-- 2026-10-09T17:10:01Z · note: handoff requested (ui-review)
-- 2026-10-09T17:10:03Z · status active→review
-- 2026-10-09T17:10:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-09T17:11:01Z · note: review pass 6: good to go
-- 2026-10-09T17:11:01Z · needs_input
-

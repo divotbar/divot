@@ -18,7 +18,11 @@ Run `swift --version` and verify Xcode 26+ is selected. This foundation targets 
 
 ## AeroSpace isn't installed
 
-It is not needed to run the website or geometry tests. The future bar can run without it; workspace controls need a working adapter. Do not grant Accessibility permission for website previews.
+It is not needed to run the website or geometry tests. The future bar can run without it; workspace controls need a working adapter. AeroSpace is the first adapter and yabai follows later. Do not grant Accessibility permission for website previews.
+
+## A theme or side doesn't change anything
+
+Theme families, both configurable sides, and every item are proposed only. The native parser and settings are not implemented, so current examples and the browser preview are design artifacts.
 
 ## Report a problem
 

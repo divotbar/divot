@@ -1,6 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "appearance": {
+    "family": "native",
     "mode": "system",
     "accent": "#D6F58A",
     "material": "native"
@@ -10,14 +11,14 @@
     "padding": 12,
     "notchGap": 10
   },
-  "workspaces": {
-    "enabled": true,
-    "adapter": "aerospace",
-    "showEmpty": true
-  },
-  "status": [
-    "front-app",
+  "left": [
+    "workspaces",
+    "front-app"
+  ],
+  "right": [
     "battery",
-    "clock"
+    "clock",
+    "network",
+    "volume"
   ]
 }
