@@ -2,7 +2,7 @@
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
-status: review
+status: active
 priority: p1
 area: macos
 story: A beautiful bar from the first launch
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-native-provider-lifecycle-and-
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:26:59Z"
+updated_at: "2026-10-09T18:44:11Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T17:20:38Z · status inbox→ready
 - 2026-10-09T18:02:46Z · status ready→active, branch
 - 2026-10-09T18:26:59Z · status active→review
+- 2026-10-09T18:44:11Z · status review→active
