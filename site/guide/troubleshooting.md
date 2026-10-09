@@ -6,7 +6,7 @@ There isn't one yet. Divot is pre-alpha. [Build the website and core tests](./bu
 
 ## The configuration doesn't change my menu bar
 
-The native app/parser has not been implemented. Current examples and the browser preview are design artifacts. They do not modify macOS.
+The native app exists, but only the `widgets.workspaces` options are applied at launch today (task 0005). Other config sections and the settings surface are not implemented yet, so most examples and the browser preview remain design artifacts. They do not modify macOS.
 
 ## Website build fails on a link
 
@@ -22,7 +22,7 @@ It is not needed to run the website or geometry tests. The bar runs without it a
 
 ## A theme or side doesn't change anything
 
-Theme families, both configurable sides, and every item are proposed only. The native parser and settings are not implemented, so current examples and the browser preview are design artifacts.
+Theme families, both configurable sides, and most items are proposed only. The native app reads only `widgets.workspaces` today; the theme and settings surface is not implemented, so current examples and the browser preview are design artifacts.
 
 ## Report a problem
 

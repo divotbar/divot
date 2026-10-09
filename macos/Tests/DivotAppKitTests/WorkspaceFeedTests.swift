@@ -91,6 +91,23 @@ private final class CountingAdapter: WorkspaceAdapting, @unchecked Sendable {
     var snapshotCount: Int { counter.count }
 }
 
+/// Records `stop()` so lifecycle tests can prove the feed releases adapters.
+private final class StoppableAdapter: WorkspaceAdapting, @unchecked Sendable {
+    let kind: WorkspaceManagerKind = .aerospace
+    private let counter = Counter()
+
+    func capabilities() async -> WorkspaceAvailability { .available(.full) }
+
+    func snapshot() async throws -> WorkspaceSnapshot {
+        WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace("1")])
+    }
+
+    func activate(_ workspace: WorkspaceID) async throws {}
+    func stop() async { counter.increment() }
+
+    var stopCount: Int { counter.count }
+}
+
 /// A one-shot event source backed by an `AsyncStream`.
 private final class FakeEventSource: WorkspaceEventSource, @unchecked Sendable {
     private let continuation: AsyncStream<WorkspaceEvent>.Continuation
@@ -168,6 +185,34 @@ private final class FakeEventSource: WorkspaceEventSource, @unchecked Sendable {
     await feed.waitForPendingWork()
     #expect(!feed.state.isAvailable)
     #expect(feed.state.snapshot == nil)
+}
+
+@MainActor
+@Test func reconfigureStopsTheSupersededAdapter() async {
+    let feed = WorkspaceFeed(debounce: .zero)
+    let first = StoppableAdapter()
+    feed.start(adapter: first, eventSource: nil, options: .default)
+    await feed.waitForPendingWork()
+    #expect(first.stopCount == 0)
+
+    let second = StoppableAdapter()
+    feed.start(adapter: second, eventSource: nil, options: .default)
+    await feed.waitForPendingWork()
+    // The replaced adapter is released; the current one is not.
+    #expect(first.stopCount == 1)
+    #expect(second.stopCount == 0)
+}
+
+@MainActor
+@Test func stopStopsTheCurrentAdapter() async {
+    let feed = WorkspaceFeed(debounce: .zero)
+    let adapter = StoppableAdapter()
+    feed.start(adapter: adapter, eventSource: nil, options: .default)
+    await feed.waitForPendingWork()
+
+    feed.stop()
+    await feed.waitForPendingWork()
+    #expect(adapter.stopCount == 1)
 }
 
 @MainActor

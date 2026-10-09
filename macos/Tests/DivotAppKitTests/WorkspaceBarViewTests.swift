@@ -153,3 +153,25 @@ private func uniqueColors(in image: NSImage) -> Int {
     #expect(uniqueColors(in: populatedImage) > emptyColors)
 }
 
+@MainActor
+@Test func workspaceBarViewKeepsTheFrontProgramWhenChipsOverflow() async {
+    let workspaces = (1...12).map { Workspace(id: WorkspaceID("\($0)"), isFocused: $0 == 1) }
+    let snapshot = WorkspaceSnapshot(manager: .aerospace, workspaces: workspaces)
+
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 240, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showDetails: true))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    // A crowded row spills workspaces into the overflow control instead of
+    // dropping the current-program label.
+    #expect(allSubviews(of: NSPopUpButton.self, in: view).count == 1)
+    let label = try! #require(allSubviews(of: NSTextField.self, in: view).first)
+    #expect(!label.stringValue.isEmpty)
+    #expect(label.frame.width > 0)
+}
+

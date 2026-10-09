@@ -73,6 +73,17 @@ import DivotCore
     #expect(result.exitCode == 3)
 }
 
+@Test func runnerDrainsOutputLargerThanThePipeBufferWithoutHanging() async throws {
+    // 512 KiB — well beyond a pipe buffer. A runner that only reads after the
+    // process exits would let the child block on write and time out here.
+    let result = try await ProcessWorkspaceRunner().run(
+        WorkspaceCommand(executable: "/bin/sh",
+                         arguments: ["-c", "yes x | head -c 524288"],
+                         timeout: 10))
+    #expect(result.succeeded)
+    #expect(result.stdout.count == 524288)
+}
+
 @Test func runnerTimesOutAHangingCommand() async {
     await #expect(throws: WorkspaceAdapterError.self) {
         _ = try await ProcessWorkspaceRunner().run(

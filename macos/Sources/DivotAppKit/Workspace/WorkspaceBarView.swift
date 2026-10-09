@@ -140,11 +140,15 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         let byID = Dictionary(chips.map { ($0.workspace.id, $0.button) },
                               uniquingKeysWith: { first, _ in first })
 
+        let availableWidth = max(0, bounds.width - horizontalInset * 2)
         let overflow = WorkspaceLayout.fit(workspaces,
                                            width: { byID[$0.id]?.fittingSize.width ?? 44 },
-                                           availableWidth: max(0, bounds.width - horizontalInset * 2),
+                                           availableWidth: availableWidth,
                                            spacing: chipSpacing,
-                                           overflowWidth: overflowControlWidth)
+                                           overflowWidth: overflowControlWidth,
+                                           trailingReserve: options.showDetails
+                                               ? frontAppReserve(within: availableWidth)
+                                               : 0)
 
         for workspace in overflow.visible {
             guard let button = byID[workspace.id] else { continue }
@@ -158,6 +162,15 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         if options.showDetails {
             stack.addArrangedSubview(frontAppLabel)
         }
+    }
+
+    /// Width to keep free for the current-program label so a crowded row spills
+    /// workspaces into the overflow menu instead of clipping the program name.
+    /// The label is capped so it can never crowd out the workspace chips.
+    private func frontAppReserve(within availableWidth: CGFloat) -> CGFloat {
+        let measured = max(0, frontAppLabel.fittingSize.width)
+        let cap = max(60, availableWidth * 0.4)
+        return min(measured, cap) + chipSpacing
     }
 
     private func makeChip(for workspace: Workspace,

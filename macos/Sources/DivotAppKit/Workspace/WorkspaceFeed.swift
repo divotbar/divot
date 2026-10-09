@@ -27,6 +27,9 @@ public final class WorkspaceFeed {
     private var probeTask: Task<Void, Never>?
     private var watchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
+    /// Serializes `adapter.stop()` calls so a superseded stateful adapter is
+    /// always released, in order, when the feed reconfigures or stops.
+    private var teardownTask: Task<Void, Never>?
     private var pendingRefresh = false
     private let debounce: Duration
     private let reconnectDelay: @MainActor (Int) -> Duration
@@ -79,8 +82,12 @@ public final class WorkspaceFeed {
                       eventSourceProvider: (@MainActor () -> WorkspaceEventSource?)?,
                       options: WorkspaceDisplayOptions) {
         cancelWork()
+        // Release the superseded adapter's resources; its in-flight work is
+        // already cancelled and generation checks drop any stale completion.
+        let superseded = self.adapter
         self.adapter = adapter
         self.eventSourceProvider = eventSourceProvider
+        teardown(superseded)
         machine.setOptions(options)
         let generation = machine.begin()
 
@@ -134,6 +141,7 @@ public final class WorkspaceFeed {
     /// Await the in-flight probe and refresh work. Used by the first snapshot
     /// path and by tests that want a deterministic point to assert on.
     public func waitForPendingWork() async {
+        await teardownTask?.value
         await probeTask?.value
         await refreshTask?.value
     }
@@ -141,18 +149,21 @@ public final class WorkspaceFeed {
     /// Await event processing until the event stream ends. Only meaningful when
     /// the provider is finite (tests); a long-lived subscription never returns.
     public func waitForEventProcessing() async {
+        await teardownTask?.value
         await probeTask?.value
         await watchTask?.value
         await refreshTask?.value
     }
 
-    /// Stop reading and release the subscription. Idempotent.
+    /// Stop reading and release the subscription and the adapter. Idempotent.
     public func stop() {
         cancelWork()
+        let previous = adapter
         adapter = nil
         eventSourceProvider = nil
         machine.clearSnapshot()
         announce()
+        teardown(previous)
     }
 
     // MARK: - Private
@@ -226,6 +237,18 @@ public final class WorkspaceFeed {
         refreshTask?.cancel()
         refreshTask = nil
         pendingRefresh = false
+    }
+
+    /// Release an adapter that is no longer the feed's current one. Calls are
+    /// chained so an earlier stop always completes before a later one begins,
+    /// and so a rapid reconfigure cannot drop a stateful adapter's cleanup.
+    private func teardown(_ adapter: WorkspaceAdapting?) {
+        guard let adapter else { return }
+        let previous = teardownTask
+        teardownTask = Task {
+            await previous?.value
+            await adapter.stop()
+        }
     }
 
     private func announce() {

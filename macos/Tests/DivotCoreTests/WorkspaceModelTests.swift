@@ -233,11 +233,46 @@ private func sampleSnapshot() -> WorkspaceSnapshot {
             + spacing * CGFloat(max(0, overflow.visible.count - 1))
         // The visible chips never exceed the space they were given.
         #expect(visibleWidth <= available + 0.001, "available=\(available)")
-        // The overflow control fits too whenever the row is at least that wide.
+        // The overflow control and the gap before it fit too whenever the row is
+        // at least that wide.
         if !overflow.hidden.isEmpty && overflowWidth <= available {
-            #expect(visibleWidth + overflowWidth <= available + 0.001, "available=\(available)")
+            let gapBeforeControl: CGFloat = overflow.visible.isEmpty ? 0 : spacing
+            #expect(visibleWidth + gapBeforeControl + overflowWidth <= available + 0.001,
+                    "available=\(available)")
         }
     }
+}
+
+@Test func fitReservesTrailingContentBeforeFilling() {
+    let workspaces = ["1", "2", "3", "4"].map { Workspace(id: WorkspaceID($0)) }
+    let spacing: CGFloat = 8
+    let trailing: CGFloat = 50
+    let overflow = WorkspaceLayout.fit(workspaces,
+                                       width: { _ in 30 },
+                                       availableWidth: 160,
+                                       spacing: spacing,
+                                       overflowWidth: 30,
+                                       trailingReserve: trailing)
+    // Reserving the current-program label costs a chip versus an unreserved row.
+    #expect(overflow.visible.count == 2)
+    #expect(!overflow.hidden.isEmpty)
+    let visibleWidth = CGFloat(overflow.visible.count) * 30
+        + spacing * CGFloat(max(0, overflow.visible.count - 1))
+    let gapBeforeControl: CGFloat = overflow.visible.isEmpty ? 0 : spacing
+    // The chips, the overflow control, and the trailing label all fit.
+    #expect(visibleWidth + gapBeforeControl + 30 + trailing <= 160 + 0.001)
+}
+
+@Test func fitReturnsEverythingWhenTrailingContentAlsoFits() {
+    let workspaces = ["1", "2"].map { Workspace(id: WorkspaceID($0)) }
+    let overflow = WorkspaceLayout.fit(workspaces,
+                                       width: { _ in 30 },
+                                       availableWidth: 30 + 30 + 8 + 50,
+                                       spacing: 8,
+                                       overflowWidth: 30,
+                                       trailingReserve: 50)
+    #expect(overflow.visible.count == 2)
+    #expect(overflow.hidden.isEmpty)
 }
 
 @Test func overflowReservesRoomForTheControlBeforeFilling() {

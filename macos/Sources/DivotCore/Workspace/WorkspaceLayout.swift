@@ -97,25 +97,32 @@ public enum WorkspaceLayout {
     ///
     /// The returned row never exceeds `availableWidth`. If an item is hidden the
     /// caller must show an overflow control, so `overflowWidth` (the control's
-    /// own width) is reserved before fitting. A single label wider than the whole
+    /// own width plus the stack spacing before it) is reserved before fitting.
+    /// `trailingReserve` keeps room for trailing content — the current-program
+    /// label and the gap separating it from the workspaces — so that content is
+    /// never squeezed out by a crowded row. A single label wider than the whole
     /// row is hidden rather than allowed to cross the camera housing.
     public static func fit(_ workspaces: [Workspace],
                            width: (Workspace) -> CGFloat,
                            availableWidth: CGFloat,
                            spacing: CGFloat,
-                           overflowWidth: CGFloat = 0) -> WorkspaceOverflow {
+                           overflowWidth: CGFloat = 0,
+                           trailingReserve: CGFloat = 0) -> WorkspaceOverflow {
         guard !workspaces.isEmpty else { return WorkspaceOverflow(visible: [], hidden: []) }
         let spacing = max(0, spacing)
         let availableWidth = max(0, availableWidth)
+        let trailingReserve = max(0, trailingReserve)
         let widths = workspaces.map { max(0, width($0)) }
 
         let totalAll = widths.reduce(0, +) + spacing * CGFloat(max(0, widths.count - 1))
-        if totalAll <= availableWidth {
+        if totalAll + trailingReserve <= availableWidth {
             return WorkspaceOverflow(visible: workspaces, hidden: [])
         }
 
-        // Something will overflow, so reserve the overflow control's width first.
-        let budget = max(0, availableWidth - max(0, overflowWidth))
+        // Something will overflow, so reserve the overflow control's width and
+        // its stack spacing, plus any trailing content and its gap.
+        let controlReserve = overflowWidth > 0 ? max(0, overflowWidth) + spacing : 0
+        let budget = max(0, availableWidth - controlReserve - trailingReserve)
         var visibleCount = 0
         var used: CGFloat = 0
         for itemWidth in widths {
