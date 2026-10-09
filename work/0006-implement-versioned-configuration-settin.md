@@ -2,7 +2,7 @@
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 story: Make either side of the bar my own
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T16:41:14Z"
+updated_at: "2026-10-09T17:20:39Z"
 ---
 ## Problem
 
@@ -33,3 +33,4 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:14Z · story, body
+- 2026-10-09T17:20:39Z · status inbox→ready
