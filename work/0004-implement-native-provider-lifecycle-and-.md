@@ -2,7 +2,7 @@
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
-status: review
+status: active
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -16,7 +16,7 @@ branch: feat/implement-native-provider-lifecycle-and-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T18:43:25Z"
+updated_at: "2026-10-09T18:44:11Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -56,3 +56,4 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:43:05Z · needs_input
 - 2026-10-09T18:43:22Z · review_cli_override
 - 2026-10-09T18:43:25Z · review_model_override
+- 2026-10-09T18:44:11Z · status review→active
