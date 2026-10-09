@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-09T17:54:13Z"
-review_passes: 5
+last_close_out_gate_ms: 20256
+last_close_out_gate_at: "2026-10-09T17:59:36.244Z"
 id: "0003"
 title: Build the native AppKit shell and notch-aware display coordinator
 type: feature
@@ -15,6 +15,8 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T17:59:36Z"
+review_passes: 5
 review_rounds: 2
 ---
 ## Problem
@@ -82,4 +84,5 @@ Latest independent review at 2026-10-09T17:41:29Z reports no bugs in the focused
 - 2026-10-09T17:53:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T17:54:13Z · note: review pass 5: good to go
 - 2026-10-09T17:54:13Z · needs_input
+- 2026-10-09T17:59:36Z · close-out gate completed in 20s
 
