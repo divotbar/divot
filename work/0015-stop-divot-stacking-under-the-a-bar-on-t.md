@@ -2,7 +2,7 @@
 id: "0015"
 title: Stop Divot stacking under the a-bar on top of the notch
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -39,4 +39,4 @@ Product reading taken by the PM: the user expects Divot in the top band, not ben
 - 2026-10-09T20:18:50Z · status inbox→ready
 - 2026-10-09T20:18:50Z · status ready→active, branch
 - 2026-10-09T20:21:58Z · note: PM: repoos shots cover web routes only, so they will not capture the native Divot bar (shots: skipped). Verify placement with geometry/state unit tests; screen capture from the terminal fails here until Screen Recording is granted, so do not depend on screencapture.
-- 2026-10-09T20:25:47Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T20:25:47Z · status active→review
