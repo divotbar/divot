@@ -8,7 +8,7 @@ RepoOS initialization, requirements, architecture ADR, performance protocol, sta
 
 1. AppKit app target and display adapter: executable shell and per-display left/right panels with persistent top/below placement are in place (task 0003); item rendering, overflow, and physical validation remain.
 2. Provider pipeline: workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume; notifications and cancellation.
-3. Workspace adapter: AeroSpace capabilities/events, workspace indicators and async actions.
+3. Workspace adapter: the AeroSpace adapter layer — capability detection, documented-CLI reads, event-driven refresh, async actions, deduplicated app identities, per-monitor/overflow rules — is implemented (task 0005); the visible workspace indicator row and app-icon rendering remain.
 4. Versioned configuration (left/right item groups, namespaced options), atomic reload, settings, launch at login.
 5. Appearance: native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night families with light/dark variants; accessibility.
 6. Physical device QA and performance evidence.

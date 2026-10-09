@@ -49,7 +49,7 @@ Third-party menu-extra mirroring, recreation of another application's menu tree,
 
 ## Current implementation
 
-Static Vue/VitePress website, public guides, proposed JSON examples, and a Swift foundation with an executable AppKit shell that builds and places panels from the tested geometry/state machine. The shell is not physically validated: on notched displays it reports the native-bar state as indeterminate without Accessibility permission and never hides. The left/right item model and the four theme families are proposed, not implemented. Every app behavior above is a requirement, not a delivered capability.
+Static Vue/VitePress website, public guides, proposed JSON examples, and a Swift foundation with an executable AppKit shell that builds and places panels from the tested geometry/state machine. The shell is not physically validated: on notched displays it reports the native-bar state as indeterminate without Accessibility permission and never hides. The AeroSpace workspace adapter layer is implemented: capability detection, documented-CLI reads, event-driven refresh, async activation with timeouts, deduplicated app identities, per-monitor grouping/overflow, and an honest unavailable state when no manager is present. The observable workspace indicator row is not drawn yet, so that UX remains a requirement rather than a delivered capability. The left/right item model and the four theme families are proposed, not implemented. Every app behavior above remains a requirement, not a delivered capability.
 
 ## Appearance and themes
 

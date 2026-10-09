@@ -26,6 +26,43 @@ enum DivotAppReport {
                 print("  mode=indeterminate (holds current placement; never hides)")
             }
         }
+
+        printWorkspaceReport()
+    }
+
+    /// One read-only AeroSpace pass. Blocks the (idle) main thread on a
+    /// short-lived subprocess so the whole report stays a single synchronous
+    /// command; it never subscribes or mutates manager state.
+    private static func printWorkspaceReport() {
+        print("# workspaces")
+        guard let executable = AeroSpaceBinaryLocator.locate() else {
+            print("adapter=aerospace")
+            print("availability=unavailable (\(WorkspaceUnavailabilityReason.managerNotInstalled.summary))")
+            return
+        }
+
+        let adapter = AeroSpaceWorkspaceAdapter(executablePath: executable, runner: ProcessWorkspaceRunner())
+        let semaphore = DispatchSemaphore(value: 0)
+        Task.detached {
+            let availability = await adapter.capabilities()
+            print("adapter=\(adapter.kind.rawValue)")
+            print("availability=\(availability.summary)")
+            if availability.isAvailable {
+                do {
+                    let snapshot = try await adapter.snapshot()
+                    for workspace in snapshot.workspaces {
+                        let state = workspace.isFocused ? "focused" : (workspace.isOccupied ? "occupied" : "empty")
+                        let apps = workspace.apps.map(\.identity.name).joined(separator: ",")
+                        print("  \(workspace.id) monitor=\(workspace.monitor?.id ?? 0) state=\(state) apps=[\(apps)]")
+                    }
+                } catch {
+                    print("snapshot=error \(error)")
+                }
+            }
+            await adapter.stop()
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 
     private static func describe(_ state: SystemMenuBarState) -> String {
