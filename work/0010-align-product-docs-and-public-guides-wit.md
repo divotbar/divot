@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-09T17:09:22Z"
+review_passes: 5
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
@@ -13,8 +15,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T17:09:22Z"
-review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -69,3 +69,4 @@ Independent review 4 still blocks close-out. Resolve BOTH findings: (1) The comm
 - 2026-10-09T17:09:22Z · note: review pass 5: needs some work
 - 2026-10-09T17:09:22Z · needs_input
 - 2026-10-09T17:09:22Z · needs_input
+
