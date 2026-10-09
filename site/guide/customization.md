@@ -1,9 +1,9 @@
 # Make it yours
 
-Start with a comfortable default, then remove whatever you don't need. The proposed configuration is deliberately small and readable.
+Start with a comfortable default, then remove whatever you don't need. The configuration is deliberately small and readable.
 
-::: warning Configuration proposal
-The native parser and file watcher are not implemented yet. The examples are checked structurally by this repository; placing a file on your Mac will not launch or configure a Divot app today.
+::: info Configuration is implemented in the source app
+The versioned parser, atomic store, file watcher, and settings window are implemented and validated by this repository. A packaged release is still pending, so there is no downloaded app to drop a file into yet; the examples describe the model the app already reads.
 :::
 
 <BarPreview />
@@ -21,7 +21,7 @@ The intended location is `~/.config/divot/config.json`. Settings and file custom
     "accent": "#D6F58A",
     "material": "native"
   },
-  "layout": { "height": 32, "padding": 12, "notchGap": 10 },
+  "layout": { "height": 24, "padding": 6, "notchGap": 10 },
   "left": ["workspaces", "front-app"],
   "right": ["battery", "clock", "network", "volume"]
 }
@@ -37,7 +37,7 @@ For a distraction-free setup, use `examples/focus.json`: a 28-point opaque bar w
 
 ## Your own palette
 
-Themes share the one configuration model, so you are not limited to a family's stock colors. Add `appearance.palette` to override individual semantic tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, and `examples/custom-palette.json` shows a Gruvbox base with overrides. This is proposed until the native loader applies palettes.
+Themes share the one configuration model, so you are not limited to a family's stock colors. Add `appearance.palette` to override individual semantic tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, and `examples/custom-palette.json` shows a Gruvbox base with overrides. The parser and store keep these overrides; the theme milestone applies them to the bar.
 
 ## Ordering
 

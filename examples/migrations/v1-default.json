@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "appearance": {
+    "family": "native",
+    "mode": "system",
+    "accent": "#D6F58A",
+    "material": "native"
+  },
+  "layout": {
+    "height": 24,
+    "padding": 6,
+    "notchGap": 10
+  },
+  "status": [
+    "battery",
+    "clock",
+    "network",
+    "volume"
+  ]
+}

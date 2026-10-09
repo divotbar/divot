@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { validate } from './config-schema'
+import { validate, validateVersion1 } from './config-schema'
 
 const base = (): any => ({
   version: 2,
@@ -73,5 +73,47 @@ describe('validate', () => {
     config.left = ['workspaces']
     config.widgets = { 'front-app': { showIcon: false } }
     expect(() => validate(config)).toThrow('widgets.front-app: not placed on left or right')
+  })
+
+  test('rejects a version 1 document as a version 2 example', () => {
+    expect(() => validate({ ...base(), version: 1 })).toThrow('version: expected 2')
+  })
+})
+
+const v1 = (): any => ({
+  version: 1,
+  appearance: { family: 'native', mode: 'system', accent: '#D6F58A', material: 'native' },
+  layout: { height: 32, padding: 12, notchGap: 10 },
+  status: ['battery', 'clock', 'network', 'volume'],
+})
+
+describe('validateVersion1', () => {
+  test('accepts the documented pre-release shape', () => {
+    expect(() => validateVersion1(v1())).not.toThrow()
+  })
+
+  test('accepts the version 1 starter fixtures', async () => {
+    for (const name of ['v1-default.json', 'v1-focus.json']) {
+      const fixture = await Bun.file(new URL(`../examples/migrations/${name}`, import.meta.url)).json()
+      expect(() => validateVersion1(fixture)).not.toThrow()
+    }
+  })
+
+  test('rejects a document that is not version 1', () => {
+    expect(() => validateVersion1({ ...v1(), version: 2 })).toThrow('version: expected 1')
+  })
+
+  test('rejects an unknown root field', () => {
+    expect(() => validateVersion1({ ...v1(), mystery: true })).toThrow('root: unknown field mystery')
+  })
+
+  test('rejects a status array that repeats the left workspaces item', () => {
+    expect(() => validateVersion1({ ...v1(), status: ['workspaces', 'clock'] }))
+      .toThrow('left/right: an item may appear in only one group')
+  })
+
+  test('rejects unknown workspace options at the root', () => {
+    expect(() => validateVersion1({ ...v1(), workspaces: { mystery: true } }))
+      .toThrow('workspaces: unknown field mystery')
   })
 })

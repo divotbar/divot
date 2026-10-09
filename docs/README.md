@@ -6,7 +6,7 @@ Read in this order:
 2. [Architecture](architecture.md): panels, rendering, providers, and ownership.
 3. [Infrastructure](infrastructure.md): tooling, repository, checks, distribution.
 4. [Performance](performance.md): provisional budgets and measurement protocol.
-5. [Configuration](configuration.md): proposed v2 contract and migration rules.
+5. [Configuration](configuration.md): versioned configuration contract and migration rules.
 6. [Roadmap](roadmap.md): delivery order and release gates.
 7. [Native architecture ADR](adr/0001-native-appkit.md).
 8. [Native menu-bar feasibility evidence](evidence/0009-native-menu-bar-coexistence.md): what public APIs were observed to do, and the open decision.

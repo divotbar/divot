@@ -9,11 +9,15 @@ import DivotCore
 /// set plus one settle timer) and never polls.
 @MainActor
 public final class DisplayCoordinator {
-    public typealias SurfaceFactory = (DisplayBarID, CGRect) -> BarDisplaySurface
+    public typealias SurfaceFactory = (DisplayBarID, CGRect, DivotConfiguration) -> BarDisplaySurface
 
     private let adapter: MenuBarObservationAdapter
     private var core: DisplayBarCoordinator
     private let makeSurface: SurfaceFactory
+
+    /// The active validated configuration. Surfaces are rebuilt when it changes
+    /// so a reordered group, a moved item, or a new option takes effect.
+    public private(set) var configuration: DivotConfiguration
 
     private var surfaces: [DisplayBarID: BarDisplaySurface] = [:]
     private var tokens: [NSObjectProtocol] = []
@@ -31,12 +35,28 @@ public final class DisplayCoordinator {
     public var isRunning: Bool { !tokens.isEmpty }
 
     public init(adapter: MenuBarObservationAdapter,
+                configuration: DivotConfiguration = .default,
                 menuBarPolicy: MenuBarInsetPolicy = .init(),
-                contentPolicy: BarContentPolicy = .init(),
                 surfaceFactory: @escaping SurfaceFactory) {
         self.adapter = adapter
-        self.core = DisplayBarCoordinator(menuBarPolicy: menuBarPolicy, contentPolicy: contentPolicy)
+        self.configuration = configuration
+        self.core = DisplayBarCoordinator(menuBarPolicy: menuBarPolicy,
+                                          contentPolicy: configuration.layout.contentPolicy)
         self.makeSurface = surfaceFactory
+    }
+
+    /// Adopt a new validated configuration: update the placement policy and
+    /// rebuild every surface so the bar's item groups, options, padding, and
+    /// height reflect the document. Panels are recreated rather than mutated so
+    /// a moved item never draws at an intermediate position.
+    public func apply(configuration newValue: DivotConfiguration) {
+        guard newValue != configuration else { return }
+        configuration = newValue
+        core.contentPolicy = newValue.layout.contentPolicy
+        guard isRunning else { return }
+        for surface in surfaces.values { surface.close() }
+        surfaces.removeAll()
+        refresh()
     }
 
     /// Begin observing. Idempotent.
@@ -104,7 +124,7 @@ public final class DisplayCoordinator {
         }
         for id in live where surfaces[id] == nil {
             guard let reading = core.reading(for: id) else { continue }
-            let surface = makeSurface(id, reading.geometry.frame)
+            let surface = makeSurface(id, reading.geometry.frame, configuration)
             // Replay the latest widget state so a panel created after the batch
             // that produced it is not stuck on its loading presentation.
             surface.apply(widgetChanges: widgetStates.values.map(WidgetChange.update))

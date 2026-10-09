@@ -2,18 +2,37 @@ import DivotCore
 
 /// The built-in provider set for the first-launch bar.
 ///
-/// Every listed provider is required for the first useful release: battery,
-/// clock, network, volume, and the frontmost app. Workspaces are added by the
-/// workspace-adapter milestone behind the same `WidgetProvider` interface.
+/// `make(for:)` builds only the providers a configuration actually places, so
+/// removing an item from both groups stops that provider instead of leaving it
+/// collecting. `workspaces` is not a `WidgetProvider`: it renders through
+/// `WorkspaceFeed`, so the app starts and stops that feed alongside this set.
 @MainActor
 public enum DefaultWidgetProviders {
+    /// Every built-in provider, for the default configuration and diagnostics.
     public static func make() -> [any WidgetProvider] {
-        [
-            BatteryProvider(reading: IOKitBatteryReading()),
-            ClockProvider(),
-            NetworkProvider(reading: NWPathNetworkReading()),
-            VolumeProvider(reading: CoreAudioVolumeReading()),
-            FrontAppProvider(reading: NSWorkspaceFrontAppReading())
-        ]
+        make(for: .default)
+    }
+
+    /// The providers enabled by `configuration`, in a stable order.
+    public static func make(for configuration: DivotConfiguration) -> [any WidgetProvider] {
+        var providers: [any WidgetProvider] = []
+        for id in placedProviderIDs(in: configuration) {
+            switch id {
+            case .battery: providers.append(BatteryProvider(reading: IOKitBatteryReading()))
+            case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
+            case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading()))
+            case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
+            case .frontApp: providers.append(FrontAppProvider(reading: NSWorkspaceFrontAppReading()))
+            case .workspaces: break
+            }
+        }
+        return providers
+    }
+
+    /// The built-in provider identifiers a configuration enables. Pure, so the
+    /// "disabled providers stop" rule is testable without constructing readers.
+    public static func placedProviderIDs(in configuration: DivotConfiguration) -> [BarItemID] {
+        let order: [BarItemID] = [.battery, .clock, .network, .volume, .frontApp]
+        return order.filter { configuration.isPlaced($0) }
     }
 }

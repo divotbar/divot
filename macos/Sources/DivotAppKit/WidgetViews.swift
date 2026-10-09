@@ -12,6 +12,7 @@ final class BarItemView: NSView {
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
     private let metrics: BarMetrics
+    private var lastIconBundleIdentifier: String?
 
     init(metrics: BarMetrics = .default) {
         self.metrics = metrics
@@ -39,8 +40,8 @@ final class BarItemView: NSView {
     func update(_ presentation: WidgetPresentation, action: WidgetAction) {
         self.action = action
 
-        if let symbol = presentation.symbolName,
-           let image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) {
+        let image = resolveIcon(presentation)
+        if let image {
             iconView.image = image
             iconView.contentTintColor = presentation.isError ? .systemRed : .labelColor
             iconView.isHidden = false
@@ -75,6 +76,21 @@ final class BarItemView: NSView {
     private var measuredTextWidth: CGFloat {
         guard !textField.isHidden else { return 0 }
         return ceil(max(textField.fittingSize.width, textField.intrinsicContentSize.width))
+    }
+
+    /// A front-app item names its bundle; the view resolves the real
+    /// application icon. Other items use their SF Symbol. The cached image is
+    /// reused while the bundle identifier is unchanged.
+    private func resolveIcon(_ presentation: WidgetPresentation) -> NSImage? {
+        if let bundle = presentation.iconBundleIdentifier {
+            if bundle == lastIconBundleIdentifier, let cached = iconView.image { return cached }
+            lastIconBundleIdentifier = bundle
+            guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) else { return nil }
+            return NSWorkspace.shared.icon(forFile: url.path)
+        }
+        lastIconBundleIdentifier = nil
+        guard let symbol = presentation.symbolName else { return nil }
+        return NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
     }
 
     override func layout() {
@@ -122,6 +138,7 @@ final class BarItemView: NSView {
 final class BarContentView: NSView, BarContentLifecycle {
     let side: BarSide
     private let items: [BarItemID]
+    private let presentationOptions: WidgetPresentationOptions
     private var itemViews: [BarItemID: BarItemView] = [:]
     /// The `workspaces` item is a live, clickable row rather than a single
     /// value, so it renders through `WorkspaceBarView` and is not driven by the
@@ -137,10 +154,12 @@ final class BarContentView: NSView, BarContentLifecycle {
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
          metrics: BarMetrics = .default,
+         presentationOptions: WidgetPresentationOptions = .default,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
         self.metrics = metrics
+        self.presentationOptions = presentationOptions
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -178,10 +197,10 @@ final class BarContentView: NSView, BarContentLifecycle {
             guard let view = itemViews[change.id] else { continue }
             switch change {
             case .update(let state):
-                view.update(WidgetPresenter.present(id: state.id, state: state),
+                view.update(WidgetPresenter.present(id: state.id, state: state, options: presentationOptions),
                             action: WidgetActions.defaultAction(for: state.id, content: state.content))
             case .removed(let id):
-                view.update(WidgetPresenter.present(id: id, state: nil),
+                view.update(WidgetPresenter.present(id: id, state: nil, options: presentationOptions),
                             action: WidgetActions.defaultAction(for: id))
             }
         }
@@ -192,7 +211,7 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// bar is complete (and honest about loading) from the first frame.
     func applyInitialState() {
         for id in items {
-            itemViews[id]?.update(WidgetPresenter.present(id: id, state: nil),
+            itemViews[id]?.update(WidgetPresenter.present(id: id, state: nil, options: presentationOptions),
                                   action: WidgetActions.defaultAction(for: id))
         }
         needsLayout = true
@@ -221,7 +240,7 @@ final class BarContentView: NSView, BarContentLifecycle {
 
         var x = side == .left
             ? inset
-            : bounds.width - inset - (fixedTotal + elasticWidth + spacingTotal)
+            : max(inset, bounds.width - inset - (fixedTotal + elasticWidth + spacingTotal))
         for id in items {
             if let workspace = workspaceViews[id] {
                 workspace.frame = CGRect(x: x, y: 0, width: perWorkspace, height: bounds.height)
