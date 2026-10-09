@@ -2,7 +2,7 @@
 id: "0013"
 title: Investigate native macOS Spaces adapter feasibility
 type: feature
-status: active
+status: review
 hold: true
 priority: p2
 area: [macos, docs]
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/investigate-native-macos-spaces-adapter-
 created_at: "2026-10-09T16:41:13Z"
-updated_at: "2026-10-09T20:33:26Z"
+updated_at: "2026-10-09T21:08:44Z"
 ---
 ## Problem
 
@@ -34,3 +34,4 @@ This is research, not a committed first-release adapter. Do not block AeroSpace 
 - 2026-10-09T16:41:13Z · created · njachowski@gmail.com
 - 2026-10-09T20:33:25Z · status inbox→ready
 - 2026-10-09T20:33:26Z · status ready→active, branch
+- 2026-10-09T21:08:44Z · status active→review
