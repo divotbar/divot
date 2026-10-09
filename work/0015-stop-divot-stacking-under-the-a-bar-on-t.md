@@ -2,14 +2,14 @@
 id: "0015"
 title: Stop Divot stacking under the a-bar on top of the notch
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/stop-divot-stacking-under-the-a-bar-on-t
 created_at: "2026-10-09T20:18:47Z"
-updated_at: "2026-10-09T20:18:50Z"
+updated_at: "2026-10-09T20:25:47Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Product reading taken by the PM: the user expects Divot in the top band, not ben
 - 2026-10-09T20:18:47Z · created · njachowski@gmail.com
 - 2026-10-09T20:18:50Z · status inbox→ready
 - 2026-10-09T20:18:50Z · status ready→active, branch
+- 2026-10-09T20:25:47Z · status active→review
