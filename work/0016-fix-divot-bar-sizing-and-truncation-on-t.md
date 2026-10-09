@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/fix-divot-bar-sizing-and-truncation-on-t
 created_at: "2026-10-09T20:18:47Z"
-updated_at: "2026-10-09T23:56:18Z"
+updated_at: "2026-10-09T23:56:56Z"
 close_out_repair_count: 1
 review_passes: 1
 ---
@@ -46,3 +46,4 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 - 2026-10-09T23:50:22Z · note: close-out repair: merge-conflict
 - 2026-10-09T23:56:18Z · status active→review
 - 2026-10-09T23:56:18Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T23:56:56Z · note: review pass 2: good to go
