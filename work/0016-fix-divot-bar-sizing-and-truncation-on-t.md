@@ -2,14 +2,14 @@
 id: "0016"
 title: Fix Divot bar sizing and truncation on the menu-bar row
 type: bug
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T20:18:47Z"
-updated_at: "2026-10-09T20:21:59Z"
+updated_at: "2026-10-09T20:28:34Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 
 - 2026-10-09T20:18:47Z · created · njachowski@gmail.com
 - 2026-10-09T20:21:59Z · note: PM: repoos shots cover web routes only, so they will not capture the native Divot bar. Verify sizing with DivotCore measurement tests; include a screenshot only if one can be captured, and do not claim it looks right without a human check.
+- 2026-10-09T20:28:34Z · status inbox→ready
