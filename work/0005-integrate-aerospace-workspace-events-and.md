@@ -1,10 +1,8 @@
 ---
-updated_at: "2026-10-09T18:15:42Z"
-review_passes: 1
 id: "0005"
 title: Integrate AeroSpace workspace events and actions
 type: feature
-status: review
+status: active
 priority: p1
 area: macos
 story: Navigate the workspaces and apps I actually use
@@ -13,6 +11,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/integrate-aerospace-workspace-events-and
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T18:15:42Z"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 
@@ -39,4 +40,4 @@ AeroSpace first, shared interfaces for subsequent yabai. Native Spaces is a sepa
 - 2026-10-09T18:14:13Z · status active→review
 - 2026-10-09T18:14:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T18:15:42Z · note: review pass 1: needs some work
-
+- 2026-10-09T18:15:42Z · status review→active
