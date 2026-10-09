@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0016"
 title: Fix Divot bar sizing and truncation on the menu-bar row
 type: bug
@@ -43,3 +44,4 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 - 2026-10-09T21:10:23Z · note: review pass 1: good to go
 - 2026-10-09T23:50:22Z · status review→active
 - 2026-10-09T23:50:22Z · note: close-out repair: merge-conflict
+
