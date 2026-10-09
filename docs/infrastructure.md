@@ -4,7 +4,7 @@
 
 | Path | Responsibility |
 | --- | --- |
-| `macos/` | Swift package foundation; future native app sources |
+| `macos/` | Swift package: pure core, `DivotAppKit` platform adapter, `divot` app shell, and the menu-bar probe |
 | `site/` | Landing page, public guides, reference, contributor docs |
 | `docs/` | Product/engineering requirements and ADRs |
 | `examples/` | Proposed versioned configuration examples |
@@ -16,7 +16,7 @@ MIT licensed. The hosting repository URL, bundle identifier, Apple developer tea
 
 ## Toolchain
 
-Bun for web dependencies/scripts; pin dependencies in `bun.lock`. VitePress generates a static site and fails on dead internal links. Swift Package Manager provides a dependency-free core; Xcode 26+ will own the later signed `.app` target. macOS 26+ / Apple silicon is the initial product target. Swift package tools minimum: 6.2.
+Bun for web dependencies/scripts; pin dependencies in `bun.lock`. VitePress generates a static site and fails on dead internal links. Swift Package Manager provides a dependency-free core plus an executable app shell (`divot`) and the `divot-menu-bar-probe` diagnostic; Xcode 26+ will own the later signed `.app` bundle. macOS 26+ / Apple silicon is the initial product target. Swift package tools minimum: 6.2.
 
 ## Local commands
 
@@ -24,10 +24,11 @@ Bun for web dependencies/scripts; pin dependencies in `bun.lock`. VitePress gene
 bun install --frozen-lockfile
 bun run check
 swift test --package-path macos
+swift build --package-path macos --product divot
 repoos check
 ```
 
-The RepoOS plan declares web configuration validation/static build and native core tests. Native tests require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver or physical notch behavior.
+The RepoOS plan declares web configuration validation/static build, native core tests, and an app build gate (`native-app`). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior.
 
 ## Continuous integration
 

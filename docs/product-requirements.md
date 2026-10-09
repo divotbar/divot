@@ -49,7 +49,7 @@ Third-party menu-extra mirroring, recreation of another application's menu tree,
 
 ## Current implementation
 
-Static Vue/VitePress website, public guides, proposed JSON examples, and Swift geometry foundation only. The left/right item model and the four theme families are proposed, not implemented. Every app behavior above is a requirement, not a delivered capability.
+Static Vue/VitePress website, public guides, proposed JSON examples, and a Swift foundation with an executable AppKit shell that builds and places panels from the tested geometry/state machine. The shell is not physically validated: on notched displays it reports the native-bar state as indeterminate without Accessibility permission and never hides. The left/right item model and the four theme families are proposed, not implemented. Every app behavior above is a requirement, not a delivered capability.
 
 ## Appearance and themes
 

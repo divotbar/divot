@@ -30,10 +30,15 @@ preview:
 build:
     bun run build
 
-# Build the Swift library foundation; there is no app bundle yet.
+# Build the Swift library foundation.
 [group('build')]
 macos-build:
     swift build --package-path macos
+
+# Build the executable app shell (no signed .app bundle yet).
+[group('build')]
+macos-app:
+    swift build --package-path macos --product divot
 
 # Run the declared RepoOS gate.
 [group('quality')]

@@ -1,0 +1,196 @@
+import Foundation
+import CoreGraphics
+import Testing
+@testable import DivotCore
+
+// MARK: - Fixtures
+
+private let notchedID = DisplayBarID(1)
+private let flatID = DisplayBarID(2)
+
+private func notchedScreen(hidden: Bool = true) -> ScreenGeometry {
+    // Built-in notched display observed in task 0009: the camera housing
+    // excludes the whole top band whether or not the native bar shows.
+    ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                   visibleFrame: CGRect(x: 60, y: 0, width: 1650, height: 1074),
+                   safeAreaTop: 33,
+                   auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                   auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
+}
+
+private func flatScreen(menuBarShown: Bool) -> ScreenGeometry {
+    let height: CGFloat = menuBarShown ? 976 : 1000
+    return ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                          visibleFrame: CGRect(x: 0, y: 0, width: 1600, height: height),
+                          safeAreaTop: 0)
+}
+
+// MARK: - Content gap policy
+
+@Test func belowBarPolicyDropsNotchGapAndHonorsEdgeMargin() {
+    let policy = BarContentPolicy(height: 32, clearance: 10, edgeMargin: 8)
+    let screen = notchedScreen()
+    let placement = BarPlacementResolver.placement(screen: screen,
+                                                   visibility: .visible(inset: 33),
+                                                   policy: policy)
+    let g = try! #require(placement?.geometry)
+    // Inset below the native bar, not off the top of the screen.
+    #expect(g.left.maxY == 1074)
+    // Deliberately no 185pt housing hole in this row: a 20pt center seam.
+    #expect(g.right.minX - g.left.maxX == 20)
+    #expect(g.left.minX == 8)
+    #expect(g.right.maxX == 1702)
+}
+
+@Test func topEdgePolicyStillSplitsAroundTheNotch() {
+    let screen = notchedScreen()
+    let placement = BarPlacementResolver.placement(screen: screen, visibility: .hidden)
+    #expect(placement?.mode == .topEdge)
+    let g = try! #require(placement?.geometry)
+    // The two auxiliary regions with the housing left open between them.
+    #expect(g.left.maxX == 753)
+    #expect(g.right.minX == 958)
+    #expect(g.left.maxY == 1107)
+}
+
+@Test func indeterminateVisibilityHasNoResolvedGeometry() {
+    let placement = BarPlacementResolver.placement(screen: notchedScreen(),
+                                                   visibility: .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(placement == nil)
+}
+
+@Test func segmentsNeverOverlapAndStayOnScreen() {
+    for visibility: NativeMenuBarVisibility in [.hidden, .visible(inset: 33)] {
+        let screen = notchedScreen()
+        let g = try! #require(BarPlacementResolver.placement(screen: screen, visibility: visibility)?.geometry)
+        #expect(g.left.maxX <= g.right.minX)
+        #expect(g.left.minX >= screen.frame.minX)
+        #expect(g.right.maxX <= screen.frame.maxX)
+        #expect(g.left.minY >= screen.frame.minY)
+        #expect(g.right.minY >= screen.frame.minY)
+        if case .visible(let inset) = visibility {
+            // No vertical overlap with the native bar band.
+            #expect(g.left.maxY <= screen.frame.maxY - inset)
+        }
+    }
+}
+
+// MARK: - Multi-display coordination
+
+@Test func multipleDisplaysResolveIndependently() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen()),
+        DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))
+    ], at: 0)
+
+    #expect(coordinator.displayIDs == [notchedID, flatID])
+    let notched = try! #require(updates.first { $0.id == notchedID })
+    #expect(notched.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    // Never hidden: an unresolved notched display still gets a top-edge placement.
+    #expect(notched.placement?.mode == .topEdge)
+
+    let flat = try! #require(updates.first { $0.id == flatID })
+    #expect(flat.visibility == .visible(inset: 24))
+    #expect(flat.placement?.mode == .belowNativeBar(inset: 24))
+}
+
+@Test func newUndecidableDisplayRestsAtTopEdgeWithNoAnimation() {
+    var coordinator = DisplayBarCoordinator()
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen())
+    ], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.animated == false)
+    #expect(update.cancelAnimations == true)
+    #expect(update.placement?.mode == .topEdge)
+    #expect(update.ambiguity == .notchedHousingMasksMenuBar)
+}
+
+@Test func rapidTogglesConvergePerDisplayWithoutDraggingOthers() {
+    var coordinator = DisplayBarCoordinator()  // default settle delay
+    _ = coordinator.update(readings: [
+        DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))
+    ], at: 0)
+
+    // The flat display is in the top-edge state; oscillate it rapidly.
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0.01)
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0.03)
+    let pending = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0.05)
+    #expect(pending.contains { $0.cancelAnimations })
+    #expect(coordinator.isSettling(flatID))
+
+    // Nothing commits before the deadline.
+    #expect(coordinator.advance(at: 0.10).isEmpty)
+    let settled = coordinator.advance(at: 0.30)
+    let update = try! #require(settled.first { $0.id == flatID })
+    #expect(update.placement?.mode == .belowNativeBar(inset: 24))
+    #expect(update.animated == true)
+    #expect(!coordinator.isSettling(flatID))
+}
+
+@Test func reducedMotionRepositionsImmediatelyPerDisplay() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0)
+    let updates = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.animated == false)
+    #expect(update.placement?.mode == .belowNativeBar(inset: 24))
+    #expect(!coordinator.isSettling(flatID))
+}
+
+@Test func hiddenBarAlwaysReturnsToTheTopEdge() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+    let updates = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.placement?.mode == .topEdge)
+    // There is no hide action: the only resting positions are top and below-bar.
+    #expect(update.visibility == .hidden)
+}
+
+@Test func displayGeometryChangeRepositionsImmediately() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+
+    // Same visibility, different resolution: recompute without animation.
+    let resized = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 2560, height: 1440),
+                                 visibleFrame: CGRect(x: 0, y: 0, width: 2560, height: 1416),
+                                 safeAreaTop: 0)
+    let updates = coordinator.update(readings: [DisplayReading(id: flatID, geometry: resized)], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.animated == false)
+    #expect(update.cancelAnimations == true)
+    let g = try! #require(update.placement?.geometry)
+    #expect(g.right.maxX == 2560)
+    #expect(g.left.maxY == 1416)
+}
+
+@Test func hotUnplugDropsTheDisplay() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    _ = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen()),
+        DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))
+    ], at: 0)
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+    #expect(coordinator.displayIDs == [flatID])
+    #expect(coordinator.reading(for: notchedID) == nil)
+}
+
+@Test func accessibilitySignalOverridesNotchedAmbiguity() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    let signal = NativeMenuBarSignal(accessibilityVisible: true)
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen(), signal: signal)
+    ], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.visibility == .visible(inset: 33))
+    #expect(update.placement?.mode == .belowNativeBar(inset: 33))
+}
+
+@Test func repeatedIdenticalReadingIsQuiet() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+    let updates = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 1)
+    #expect(updates.isEmpty)
+}

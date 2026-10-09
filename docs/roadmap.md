@@ -2,11 +2,11 @@
 
 ## Foundation · present
 
-RepoOS initialization, requirements, architecture ADR, performance protocol, static landing/docs website, proposed JSON configurations, and tested native geometry library. Documentation is aligned with the six user stories; no downloadable app.
+RepoOS initialization, requirements, architecture ADR, performance protocol, static landing/docs website, proposed JSON configurations, and a tested native core. An executable AppKit app shell and notch-aware display coordinator now build (task 0003); it is not physically validated and there is no downloadable, signed app.
 
 ## 0.1 · useful native bar
 
-1. AppKit app target and display adapter: left/right panels with persistent top/below placement, focus, multiple displays, notch-free fallback, overflow.
+1. AppKit app target and display adapter: executable shell and per-display left/right panels with persistent top/below placement are in place (task 0003); item rendering, overflow, and physical validation remain.
 2. Provider pipeline: workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume; notifications and cancellation.
 3. Workspace adapter: AeroSpace capabilities/events, workspace indicators and async actions.
 4. Versioned configuration (left/right item groups, namespaced options), atomic reload, settings, launch at login.
