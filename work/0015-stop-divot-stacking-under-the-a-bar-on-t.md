@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-09T20:26:39Z"
-review_passes: 1
+last_close_out_gate_ms: 21868
+last_close_out_gate_at: "2026-10-09T20:28:29.755Z"
 id: "0015"
 title: Stop Divot stacking under the a-bar on top of the notch
 type: bug
@@ -11,6 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/stop-divot-stacking-under-the-a-bar-on-t
 created_at: "2026-10-09T20:18:47Z"
+updated_at: "2026-10-09T20:28:29Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -43,4 +45,5 @@ Product reading taken by the PM: the user expects Divot in the top band, not ben
 - 2026-10-09T20:25:47Z · status active→review
 - 2026-10-09T20:25:48Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T20:26:39Z · note: review pass 1: good to go
+- 2026-10-09T20:28:29Z · close-out gate completed in 22s
 
