@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-09T18:48:39Z"
-review_passes: 4
+last_close_out_gate_ms: 19552
+last_close_out_gate_at: "2026-10-09T18:49:44.439Z"
 id: "0004"
 title: "Implement native provider lifecycle and clock, power, front-app widgets"
 type: feature
@@ -15,6 +15,8 @@ branch: feat/implement-native-provider-lifecycle-and-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
+updated_at: "2026-10-09T18:49:44Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -58,4 +60,5 @@ Default positions are configurable through the shared model; no continuous shell
 - 2026-10-09T18:47:39Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T18:48:39Z · note: review pass 4: good to go
 - 2026-10-09T18:48:39Z · needs_input
+- 2026-10-09T18:49:44Z · close-out gate completed in 20s
 
