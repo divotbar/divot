@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-09T17:04:17Z"
+review_passes: 4
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
@@ -13,9 +15,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T17:04:17Z"
 review_rounds: 2
-review_passes: 3
 ---
 ## Problem
 
@@ -59,3 +59,4 @@ Close-out after approved task 0009 landed failed with conflicts in docs/product-
 - 2026-10-09T17:02:12Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T17:04:16Z · note: review pass 4: needs some work
 - 2026-10-09T17:04:17Z · needs_input
+
