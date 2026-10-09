@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-the-native-appkit-shell-and-notch-
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:21:15Z"
+updated_at: "2026-10-09T17:23:52Z"
 ---
 ## Problem
 
@@ -45,3 +45,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:11:52Z · status ready→active, branch
 - 2026-10-09T17:21:15Z · status active→review
 - 2026-10-09T17:21:15Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-09T17:23:52Z · note: review pass 1: needs some work
