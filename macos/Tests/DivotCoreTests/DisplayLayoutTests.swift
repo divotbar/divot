@@ -194,3 +194,38 @@ private func flatScreen(menuBarShown: Bool) -> ScreenGeometry {
     let updates = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 1)
     #expect(updates.isEmpty)
 }
+
+@Test func enablingReducedMotionUpdatesExistingControllers() {
+    var coordinator = DisplayBarCoordinator()  // default settle delay
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0)
+    // A normal change would settle rather than commit immediately.
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0.01)
+    #expect(coordinator.isSettling(flatID))
+
+    // Turning on Reduced Motion mid-run must reach the existing controller, so
+    // the next visibility change repositions immediately.
+    coordinator.setReducedMotion(true)
+    let updates = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0.02)
+    let update = try! #require(updates.first { $0.id == flatID })
+    #expect(update.animated == false)
+    #expect(update.placement?.mode == .topEdge)
+    #expect(!coordinator.isSettling(flatID))
+}
+
+@Test func resetReemitsPlacementForEveryDisplay() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    let first = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
+    #expect(!first.isEmpty)
+    // Retained state makes an identical reading a no-op.
+    #expect(coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 1).isEmpty)
+
+    // After a teardown the same reading must re-emit a placement, otherwise
+    // recreated panels would stay at their initial frame.
+    coordinator.reset()
+    #expect(coordinator.displayIDs.isEmpty)
+    let restarted = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 2)
+    let update = try! #require(restarted.first)
+    #expect(update.placement?.mode == .belowNativeBar(inset: 24))
+    #expect(update.cancelAnimations == true)
+    #expect(update.animated == false)
+}

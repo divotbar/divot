@@ -183,6 +183,31 @@ public struct DisplayBarCoordinator: Sendable {
         readings[id]
     }
 
+    /// True when pure geometry cannot decide the bar state (notched hardware).
+    public static func isMasked(_ geometry: ScreenGeometry) -> Bool {
+        NativeMenuBarDetector.detect(geometry: geometry).isIndeterminate
+    }
+
+    /// Propagate the Reduced Motion setting to every tracked display.
+    ///
+    /// Each display owns its own controller, so changing only `menuBarPolicy`
+    /// would leave existing controllers settling after the delay. This updates
+    /// them in place so the next observation commits immediately.
+    public mutating func setReducedMotion(_ reducedMotion: Bool) {
+        menuBarPolicy.reducedMotion = reducedMotion
+        for id in Array(controllers.keys) {
+            controllers[id]?.policy.reducedMotion = reducedMotion
+        }
+    }
+
+    /// Drop all per-display state. Panels torn down on `stop()` are rebuilt on a
+    /// later start; without this the retained readings would suppress the
+    /// placement updates and leave recreated panels at their initial size.
+    public mutating func reset() {
+        controllers.removeAll()
+        readings.removeAll()
+    }
+
     public func isSettling(_ id: DisplayBarID) -> Bool {
         controllers[id]?.isSettling ?? false
     }

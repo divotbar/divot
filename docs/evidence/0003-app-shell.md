@@ -28,16 +28,20 @@ macos/.build/debug/divot --report
 
 ## Honest status by claim
 
-**Implemented and covered by tests (`swift test --package-path macos`, 45 tests):**
+**Implemented and covered by tests (`swift test --package-path macos`, 47 tests):**
 
 - Top-edge vs below-bar geometry, notched split around the housing, notch gap
   dropped below the bar, screen clamping, and segment non-overlap.
 - Per-display placement state: rapid toggles converge on the last observation,
   superseded transitions cancel, Reduced Motion repositions immediately, a
   hidden bar returns to the top edge, and no code path emits a hide.
+- Reduced Motion changed while running is propagated to every existing
+  per-display controller, so the next change repositions without the settle delay.
 - Multi-display coordination: displays resolve independently, a display add/remove
   or geometry change is applied immediately (never animated through an
   intermediate position), and hot-unplug drops the display cleanly.
+- A reset/restart re-emits a placement for every display, so panels rebuilt after
+  a stop do not stay at their initial size.
 - Undecidable input returns `.indeterminate` and holds position.
 - The observation adapter never turns an untrusted probe into a visibility
   claim, never hands the single system-wide sample to more than one display, and

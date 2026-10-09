@@ -39,6 +39,10 @@ public final class DisplayCoordinator {
     /// Begin observing. Idempotent.
     public func start() {
         guard tokens.isEmpty else { return }
+        // A previous `stop()` closed the panels but retained the core's
+        // readings. Clear them so this start re-emits a placement for every
+        // display instead of leaving recreated panels at their initial size.
+        core.reset()
         for name in MenuBarEventNotifications.all {
             let token = NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated { self?.refresh() }
@@ -61,7 +65,9 @@ public final class DisplayCoordinator {
     public func refresh() {
         let observation = adapter.observe()
         lastObservation = observation
-        core.menuBarPolicy.reducedMotion = reduceMotion
+        // Propagate Reduced Motion to every existing per-display controller, not
+        // just the coordinator default, so the next change repositions now.
+        core.setReducedMotion(reduceMotion)
         let updates = core.update(readings: observation.readings, at: ProcessInfo.processInfo.systemUptime)
         reconcileSurfaces()
         apply(updates)

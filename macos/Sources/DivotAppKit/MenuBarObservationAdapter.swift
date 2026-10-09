@@ -50,7 +50,7 @@ public final class MenuBarObservationAdapter {
         // and only when there is exactly one display, so it can neither
         // override a display's `visibleFrame` nor be misattributed across
         // displays. Multiple masked displays stay indeterminate.
-        let maskedIDs = screens.filter { Self.isMasked($0.geometry) }.map(\.id)
+        let maskedIDs = screens.filter { DisplayBarCoordinator.isMasked($0.geometry) }.map(\.id)
         let attributedID: DisplayBarID? = (screens.count == 1 && sample != nil) ? maskedIDs.first : nil
 
         let readings = screens.map { screen in
@@ -60,11 +60,6 @@ public final class MenuBarObservationAdapter {
             return DisplayReading(id: screen.id, geometry: screen.geometry, signal: signal)
         }
         return MenuBarObservation(readings: readings, accessibility: accessibility)
-    }
-
-    /// True when pure geometry cannot decide the bar state (notched hardware).
-    private static func isMasked(_ geometry: ScreenGeometry) -> Bool {
-        NativeMenuBarDetector.detect(geometry: geometry).isIndeterminate
     }
 }
 
