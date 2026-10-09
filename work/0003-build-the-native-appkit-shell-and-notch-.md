@@ -16,7 +16,7 @@ branch: feat/build-the-native-appkit-shell-and-notch-
 review_cli_override: cursor
 review_model_override: composer-2.5
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:32:34Z"
+updated_at: "2026-10-09T17:32:42Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -38,6 +38,9 @@ User-approved story supersedes starter hide-on-fullscreen assumption. Read the f
 
 ## Feasibility handoff
 Tasks 0009 and 0010 are landed after independent review and validated close-out. Read docs/evidence/0009-native-menu-bar-coexistence.md carefully: top/below geometry and state logic are tested, but actual native menu-bar reveal/hide detection on notched hardware is NOT proven. Build the app shell and reusable public-API observation adapter honestly, exposing indeterminate state and documenting any required Accessibility permission and remaining physical validation. Do not silently convert pointer proximity to true visibility, hide as fallback, or claim continuous behavior has been physically verified. Keep fullscreen/Spaces and window-manager gap policy limits explicit; raise concrete product decisions when needed. Current maintainer Mac uses AeroSpace with a-bar; do not stop a-bar until a usable checked preview exists. The user revoked the spend cap provided configured roles, coding agents and models stay unchanged.
+
+## Focused review repair
+Reviewer at 2026-10-09T17:31:16Z requires fixes before sign-off: (1) DisplayLayout.swift screenChanged path reapplies committed stale menu-bar state after queuing a visibility update. Apply latest placement immediately when geometry and visibility change together, with regression coverage for reveal and hide. (2) SystemMenuBarProbe.swift must not treat unvalidated AX hidden/position sample as decisive. Preserve indeterminate until a justified tested visibility policy exists, documenting physical validation needed on notched hardware and lack of a proven pointer-only reveal trigger. Do not substitute silent hiding or pretend feasibility solved. (3) Add meaningful negative-test evidence that the changed native-app build guard rejects a broken app input at branch HEAD without corrupting the working project. Run declared scoped check once after repairs, and obtain a fresh independent review. Preserve configured roles/agents/models. These are targeted fixes to this task, not authorization to land it or change product scope.
 
 ## Activity
 
@@ -65,3 +68,4 @@ Tasks 0009 and 0010 are landed after independent review and validated close-out.
 - 2026-10-09T17:32:25Z · review_cli_override
 - 2026-10-09T17:32:27Z · review_model_override
 - 2026-10-09T17:32:33Z · status review→active
+- 2026-10-09T17:32:42Z · body: section Focused review repair
