@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test'
-import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 interface CheckStep {
   name: string
@@ -38,6 +42,24 @@ function requireNativeAppGate(source: string): CheckStep {
   return step
 }
 
+const macosPackage = fileURLToPath(new URL('../macos', import.meta.url))
+
+/**
+ * Run the exact gate command against a package path, so the negative test
+ * exercises the same `swift build ... --product divot` invocation that
+ * `repoos check` runs, not a re-implementation of it.
+ */
+function nativeAppBuild(packagePath: string) {
+  const argv = NATIVE_APP_COMMAND.split(/\s+/)
+  const flag = argv.indexOf('--package-path')
+  if (flag === -1) {
+    throw new Error(`native-app gate command has no --package-path: ${NATIVE_APP_COMMAND}`)
+  }
+  argv[flag + 1] = packagePath
+  const [bin, ...args] = argv
+  return spawnSync(bin, args, { encoding: 'utf8' })
+}
+
 describe('native-app build gate', () => {
   test('repoos.toml declares the executable app build gate', () => {
     const toml = readFileSync(new URL('../repoos.toml', import.meta.url), 'utf8')
@@ -66,4 +88,42 @@ describe('native-app build gate', () => {
     `
     expect(() => requireNativeAppGate(weakened)).toThrow('does not build the app product')
   })
+
+  test(
+    'the app build command rejects a broken DivotApp input without touching the project',
+    () => {
+      const fixture = mkdtempSync(join(tmpdir(), 'divot-native-app-gate-'))
+      try {
+        // An isolated copy of the real package, minus build artifacts. Nothing
+        // here writes into the working project.
+        cpSync(macosPackage, fixture, {
+          recursive: true,
+          filter: (source) => !source.split('/').includes('.build'),
+        })
+
+        // Positive control: the fixture is a faithful, buildable package, so a
+        // later failure can only come from the input we break.
+        const healthy = nativeAppBuild(fixture)
+        expect(healthy.status).toBe(0)
+
+        const fixtureMain = join(fixture, 'Sources', 'DivotApp', 'main.swift')
+        const source = readFileSync(fixtureMain, 'utf8')
+        writeFileSync(fixtureMain, `${source}\nlet divotGateNegativeFixture: Int = "not an Int"\n`)
+
+        // The exact gate command now fails on the broken app input.
+        const broken = nativeAppBuild(fixture)
+        expect(broken.status).not.toBe(0)
+        const output = `${broken.stdout}\n${broken.stderr}`
+        expect(output).toContain('DivotApp')
+        expect(output).toContain('error:')
+
+        // The working project is untouched: only the temp fixture was broken.
+        const projectMain = join(macosPackage, 'Sources', 'DivotApp', 'main.swift')
+        expect(readFileSync(projectMain, 'utf8')).toBe(source)
+      } finally {
+        rmSync(fixture, { recursive: true, force: true })
+      }
+    },
+    180_000,
+  )
 })

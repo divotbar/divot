@@ -26,9 +26,26 @@ swift build --package-path macos --product divot
 macos/.build/debug/divot --report
 ```
 
+## App build gate
+
+`repoos check` declares a required `native-app` step that runs
+`swift build --package-path macos --product divot`, and the config guard is
+itself tested (`bun test scripts/native-app-gate.test.ts`). The guard's negative
+test is not just a config-string check: it copies the real package to a temp
+directory (excluding `.build`), proves that copy builds with the exact gate
+command, injects a deliberate type error into its `Sources/DivotApp/main.swift`,
+and asserts the same command exits non-zero and reports a `DivotApp` compile
+error. It then re-reads the working `macos/Sources/DivotApp/main.swift` to prove
+the project was not corrupted. The temp copy is removed in a `finally`.
+
+Observed locally: `bun test scripts/native-app-gate.test.ts` → 4 pass, 0 fail
+(~7s, including the two SwiftPM builds). The negative test requires the Swift
+toolchain, which every declared check step already requires; it does not need
+network access or any physical hardware.
+
 ## Honest status by claim
 
-**Implemented and covered by tests (`swift test --package-path macos`, 52 tests):**
+**Implemented and covered by tests (`swift test --package-path macos`, 53 tests):**
 
 - Top-edge vs below-bar geometry, notched split around the housing, notch gap
   dropped below the bar, screen clamping, and segment non-overlap.
@@ -46,6 +63,9 @@ macos/.build/debug/divot --report
   intermediate position), and hot-unplug drops the display cleanly.
 - A reset/restart re-emits a placement for every display, so panels rebuilt after
   a stop do not stay at their initial size.
+- A reveal that arrived with a geometry change keeps its immediate below-bar
+  placement through the follow-up settled `advance()`: the queued settle may
+  reposition, but it never falls back to the stale top edge.
 - Undecidable input returns `.indeterminate` and holds position.
 - The observation adapter never turns an untrusted probe into a visibility
   claim, never hands the single system-wide sample to more than one display, and
@@ -73,6 +93,11 @@ macos/.build/debug/divot --report
   Accessibility probe is the candidate detector; it is gated, and its
   position/size/`hidden` heuristic is returned as provisional, not decisive,
   until a person validates it.
+- Whether the macOS always-visible menu-bar setting is readable from public
+  APIs. The detector accepts a `configuredAlwaysVisible` signal and treats it as
+  authoritative (covered by pure tests), but the observation adapter does not
+  populate it yet, so an always-visible native bar on notched hardware still
+  resolves to indeterminate rather than below-bar on this build.
 - Whether a single system-wide AX sample can be attributed to the right display
   in a multi-display setup. Until then it is only used for a single masked
   display.

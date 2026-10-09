@@ -177,6 +177,25 @@ private func flatScreen(menuBarShown: Bool) -> ScreenGeometry {
     #expect(update.placement?.mode == .topEdge)
 }
 
+@Test func settledFollowUpDoesNotRegressTheImmediateReveal() {
+    var coordinator = DisplayBarCoordinator()  // default settle delay
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))], at: 0)
+
+    // The reveal applies immediately and still queues a settle observation.
+    _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0.01)
+    #expect(coordinator.isSettling(flatID))
+
+    // When that observation commits it must re-apply the same below-bar
+    // placement, never fall back to the stale top edge. This is the
+    // regression guard for the geometry+visibility fix above: the follow-up
+    // `advance` may reposition, but it must not undo the immediate reveal.
+    let settled = coordinator.advance(at: 0.30)
+    if let update = settled.first(where: { $0.id == flatID }) {
+        #expect(update.placement?.mode == .belowNativeBar(inset: 24))
+    }
+    #expect(!coordinator.isSettling(flatID))
+}
+
 @Test func displayGeometryChangeRepositionsImmediately() {
     var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
     _ = coordinator.update(readings: [DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: true))], at: 0)
