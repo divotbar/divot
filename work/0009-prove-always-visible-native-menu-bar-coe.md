@@ -35,3 +35,4 @@ This is a feasibility gate before the full shell. Read the always-visible story;
 - 2026-10-09T16:41:15Z · note: User-approved defining behavior needs early proof before app shell work.
 - 2026-10-09T16:43:08Z · status ready→active, branch
 - 2026-10-09T16:51:03Z · status active→review
+- 2026-10-09T16:51:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
