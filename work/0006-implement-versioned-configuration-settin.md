@@ -54,3 +54,4 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 - 2026-10-09T21:23:11Z · note: review pass 1: needs some work
 - 2026-10-09T21:23:11Z · status review→active
 - 2026-10-09T21:27:00Z · status active→review
+- 2026-10-09T21:27:00Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (9a7758b) during finalization (#0734)
