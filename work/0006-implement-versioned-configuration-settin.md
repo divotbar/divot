@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-09T21:23:11Z"
+review_passes: 1
 id: "0006"
 title: "Implement versioned configuration, settings, and appearance modes"
 type: feature
@@ -11,7 +13,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-versioned-configuration-settin
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T21:23:11Z"
 ---
 ## Problem
 
@@ -50,3 +51,4 @@ SwiftUI is permitted for settings only. Theme families implemented in the separa
 - 2026-10-09T21:21:44Z · body: section Shots
 - 2026-10-09T21:22:15Z · status active→review
 - 2026-10-09T21:23:11Z · note: review pass 1: needs some work
+
