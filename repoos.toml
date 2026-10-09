@@ -85,7 +85,7 @@ instructions = "Reviews a task the moment it lands in `review`: reads the diff i
 [[agents]]
 name = "pm"
 cli = "cursor"
-model = "default"
+model = "composer-2.5"
 enabled = true
 instructions = "Owns the roadmap: moves tasks between statuses, writes activity entries, keeps the work board tidy."
 [[agents]]
