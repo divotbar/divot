@@ -8,10 +8,15 @@ private func run() {
         DivotAppReport.run()
         return
     }
+    if arguments.contains("--widgets") {
+        DivotAppWidgetReport.run()
+        return
+    }
     if arguments.contains("--help") || arguments.contains("-h") {
         print("divot — persistent top/below bar shell")
-        print("usage: divot [--report] [--help]")
+        print("usage: divot [--report] [--widgets] [--help]")
         print("  --report   print the current display/menu-bar observation and exit")
+        print("  --widgets  run the built-in providers briefly and print live values, then exit")
         return
     }
 

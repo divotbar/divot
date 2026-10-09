@@ -30,7 +30,7 @@ swift test --package-path macos
 swift build --package-path macos --product divot
 ```
 
-This builds `DivotCore` and `DivotAppKit`, tests the notch-aware geometry and placement state machine, and builds the executable app shell. `macos/.build/debug/divot --report` prints one honest observation pass without moving any panel. The shell is not physically validated, the configuration loader and providers are still planned, and there is no signed app bundle.
+This builds `DivotCore` and `DivotAppKit`, tests the notch-aware geometry, the placement state machine, and the provider pipeline, and builds the executable app shell. The built-in status providers (clock, battery/power, network, volume, and frontmost app) are wired and unit-tested, but they are not physically validated. `macos/.build/debug/divot --report` prints one honest display/menu-bar observation pass without moving any panel, and `macos/.build/debug/divot --widgets` prints live built-in provider values for a short window. The configuration loader, themes, and workspace adapter are still planned, and there is no signed app bundle.
 
 ## Repository hosting
 

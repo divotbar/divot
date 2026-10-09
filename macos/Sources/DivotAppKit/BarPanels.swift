@@ -1,10 +1,13 @@
 import AppKit
 import DivotCore
 
-/// A per-display pair of panels that the coordinator positions.
+/// A per-display pair of panels that the coordinator positions and fills.
 @MainActor
 public protocol BarDisplaySurface: AnyObject {
     func apply(_ update: DisplayBarUpdate, reduceMotion: Bool)
+    /// Apply a batch of widget changes to whichever items this surface renders.
+    /// Items not on this display are ignored.
+    func apply(widgetChanges: [WidgetChange])
     func close()
 }
 
@@ -18,7 +21,8 @@ public protocol BarContentLifecycle: AnyObject {
 ///
 /// The split around the camera housing is the whole reason there are two panels:
 /// no hit region ever crosses the notch. `canBecomeKey`/`canBecomeMain` are
-/// `false` so the bar cannot take focus from the user's frontmost app.
+/// `false` so the bar cannot take focus from the user's frontmost app. Each
+/// panel renders half of the configured left/right item groups.
 @MainActor
 public final class NSPanelBarSurface: BarDisplaySurface {
     /// A panel that refuses key/main status: the bar decorates the desktop and
@@ -31,14 +35,31 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     public let id: DisplayBarID
     private let left: NonActivatingPanel
     private let right: NonActivatingPanel
+    private let leftContent: BarContentView
+    private let rightContent: BarContentView
     private var targets: [ObjectIdentifier: CGRect] = [:]
 
-    public init(id: DisplayBarID, on screen: CGRect,
-                leftContent: NSView? = nil,
-                rightContent: NSView? = nil) {
+    public init(id: DisplayBarID,
+                on screen: CGRect,
+                layout: BarLayout = .default,
+                workspaceFeed: WorkspaceFeed? = nil,
+                workspaceIcons: WorkspaceIconProviding? = nil,
+                displayScreensID: Int? = nil,
+                onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
-        self.left = Self.makePanel(on: screen, content: leftContent ?? BarSegmentView())
-        self.right = Self.makePanel(on: screen, content: rightContent ?? BarSegmentView())
+        self.leftContent = BarContentView(side: .left,
+                                          items: layout.left,
+                                          workspaceFeed: workspaceFeed,
+                                          workspaceIcons: workspaceIcons,
+                                          displayScreensID: displayScreensID,
+                                          onActivate: onWidgetAction)
+        self.rightContent = BarContentView(side: .right,
+                                           items: layout.right,
+                                           onActivate: onWidgetAction)
+        self.left = Self.makePanel(on: screen, content: leftContent)
+        self.right = Self.makePanel(on: screen, content: rightContent)
+        leftContent.applyInitialState()
+        rightContent.applyInitialState()
         left.orderFrontRegardless()
         right.orderFrontRegardless()
     }
@@ -51,6 +72,11 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         let animate = update.animated && !reduceMotion
         move(left, to: placement.geometry.left, animated: animate)
         move(right, to: placement.geometry.right, animated: animate)
+    }
+
+    public func apply(widgetChanges: [WidgetChange]) {
+        leftContent.apply(widgetChanges)
+        rightContent.apply(widgetChanges)
     }
 
     public func close() {
@@ -107,33 +133,5 @@ public final class NSPanelBarSurface: BarDisplaySurface {
             guard let target = targets[ObjectIdentifier(panel)] else { continue }
             panel.setFrame(target, display: true)
         }
-    }
-}
-
-/// Placeholder segment chrome for the shell. Real widget rendering and the
-/// theme system land in their own tasks; this keeps the shell visibly present
-/// and appearance-correct without pre-empting that work.
-private final class BarSegmentView: NSView {
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        wantsLayer = true
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("BarSegmentView does not support NSCoding")
-    }
-
-    override var wantsUpdateLayer: Bool { true }
-
-    override func updateLayer() {
-        layer?.cornerRadius = 8
-        layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
-        layer?.borderWidth = 1
-        layer?.borderColor = NSColor.separatorColor.cgColor
-    }
-
-    override func viewDidChangeEffectiveAppearance() {
-        super.viewDidChangeEffectiveAppearance()
-        needsDisplay = true
     }
 }

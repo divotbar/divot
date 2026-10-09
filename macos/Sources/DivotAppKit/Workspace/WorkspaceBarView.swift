@@ -18,6 +18,10 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
     private let stack = NSStackView()
     private let frontAppLabel = NSTextField(labelWithString: "")
+    /// When the layout places the `front-app` item beside this row, that item
+    /// owns the current program and this view must not duplicate it. When it is
+    /// absent from this side, this view shows the program itself.
+    private let showsFrontApp: Bool
     private var observerID: UUID?
     private var activationObserver: NSObjectProtocol?
     private var lastState: WorkspaceFeedState?
@@ -29,10 +33,12 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
     public init(feed: WorkspaceFeed,
                 icons: WorkspaceIconProviding,
-                displayScreensID: Int?) {
+                displayScreensID: Int?,
+                showsFrontApp: Bool = true) {
         self.feed = feed
         self.icons = icons
         self.displayScreensID = displayScreensID
+        self.showsFrontApp = showsFrontApp
         super.init(frame: .zero)
         setup()
     }
@@ -46,7 +52,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
     private func setup() {
         wantsLayer = true
-        applyChrome()
+        // The parent (`BarContentView`) owns the segment chrome; clip this row to
+        // the width it assigns so no chip can draw over a neighbour.
+        layer?.masksToBounds = true
 
         stack.orientation = .horizontal
         stack.alignment = .centerY
@@ -59,14 +67,15 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
             stack.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
 
+        observerID = feed.addObserver { [weak self] state in
+            self?.apply(state)
+        }
+
+        guard showsFrontApp else { return }
         frontAppLabel.font = .systemFont(ofSize: 11)
         frontAppLabel.textColor = .secondaryLabelColor
         frontAppLabel.lineBreakMode = .byTruncatingTail
         frontAppLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        observerID = feed.addObserver { [weak self] state in
-            self?.apply(state)
-        }
         activationObserver = NotificationCenter.default.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
@@ -80,20 +89,6 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     public override func viewWillMove(toSuperview newSuperview: NSView?) {
         super.viewWillMove(toSuperview: newSuperview)
         if newSuperview == nil { barContentDidDetach() }
-    }
-
-    public override func viewDidChangeEffectiveAppearance() {
-        super.viewDidChangeEffectiveAppearance()
-        applyChrome()
-    }
-
-    /// Match the shell's segment chrome so the workspace row stays visibly part
-    /// of the bar rather than leaving a transparent gap.
-    private func applyChrome() {
-        layer?.cornerRadius = 8
-        layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
-        layer?.borderWidth = 1
-        layer?.borderColor = NSColor.separatorColor.cgColor
     }
 
     public func barContentDidDetach() {
@@ -146,7 +141,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                                            availableWidth: availableWidth,
                                            spacing: chipSpacing,
                                            overflowWidth: overflowControlWidth,
-                                           trailingReserve: options.showDetails
+                                           trailingReserve: showsFrontApp && options.showDetails
                                                ? frontAppReserve(within: availableWidth)
                                                : 0)
 
@@ -159,7 +154,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                                                         options: options,
                                                         occupancy: occupancy))
         }
-        if options.showDetails {
+        if showsFrontApp && options.showDetails {
             stack.addArrangedSubview(frontAppLabel)
         }
     }
