@@ -3,13 +3,16 @@ id: "0002"
 title: Flesh out the product vision and initial architecture
 type: spec
 status: inbox
+needs_input: true
+needs_input_reason: underspecified
+needs_input_detail: "missing sections: Problem, Acceptance criteria"
 hold: true
 priority: p2
 area: product
 assigned_to: unassigned
 created_by: repoos-init
 branch: ""
-updated_at: "2026-10-09T16:18:38Z"
+updated_at: "2026-10-09T16:29:46Z"
 ---
 ## Overview
 
@@ -48,3 +51,4 @@ priorities — a short back-and-forth here saves a lot of rework later.
 ## Activity
 
 - 2026-10-09T16:18:38Z · held
+- 2026-10-09T16:29:46Z · needs_input
