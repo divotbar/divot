@@ -2,7 +2,7 @@
 id: "0012"
 title: "Add the second workspace adapter: yabai"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: [macos, docs]
 story: Navigate the workspaces and apps I actually use
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T16:41:13Z"
-updated_at: "2026-10-09T16:41:13Z"
+updated_at: "2026-10-09T17:20:41Z"
 ---
 ## Problem
 
@@ -32,3 +32,4 @@ Second integration milestone; AeroSpace first. No blocker to an AeroSpace-first 
 ## Activity
 
 - 2026-10-09T16:41:13Z · created · njachowski@gmail.com
+- 2026-10-09T17:20:41Z · status inbox→ready
