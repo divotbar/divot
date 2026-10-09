@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-09T17:11:01Z"
-review_passes: 6
 id: "0010"
 title: Align product docs and public guides with the agreed stories
 type: feature
@@ -12,6 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-product-docs-and-public-guides-wit
 created_at: "2026-10-09T16:41:12Z"
+updated_at: "2026-10-09T17:11:15Z"
+review_passes: 6
 review_rounds: 2
 ---
 ## Problem
