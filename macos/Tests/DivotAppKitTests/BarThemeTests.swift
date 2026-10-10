@@ -11,9 +11,11 @@ private let gruvboxDark = AppearanceConfiguration(family: .gruvbox, mode: .dark)
     #expect(theme.usesSystemColors)
     #expect(theme.foreground == .labelColor)
     #expect(theme.selected == .selectedContentBackgroundColor)
-    // Native material is translucent unless the system asks otherwise.
+    // Native material is translucent, but the flat chrome (#0025) paints the
+    // solid background token edge to edge rather than a material blur.
     #expect(!theme.isOpaque)
-    #expect(theme.layerBackground == .clear)
+    #expect(theme.layerBackground == .windowBackgroundColor)
+    #expect(theme.layerBackground == theme.background)
 
     let opaque = BarTheme.resolve(AppearanceConfiguration(material: .opaque), dark: true)
     #expect(opaque.isOpaque)
@@ -46,13 +48,16 @@ private let gruvboxDark = AppearanceConfiguration(family: .gruvbox, mode: .dark)
 }
 
 @MainActor
-@Test func barContentUsesThemedBackgroundAndBorder() {
+@Test func barContentUsesThemedFlatBackgroundWithNoBevel() {
     let theme = BarTheme.resolve(AppearanceConfiguration(family: .gruvbox, mode: .dark, material: .opaque), dark: true)
     let content = BarContentView(side: .right, items: [.clock], theme: theme)
     content.frame = NSRect(x: 0, y: 0, width: 200, height: 32)
     content.updateLayer()
+    // Flat chrome (#0025): the solid background token, square corners, and no
+    // default border.
     #expect(colorMatches(content.layer?.backgroundColor, theme.background))
-    #expect(colorMatches(content.layer?.borderColor, theme.border))
+    #expect(content.layer?.cornerRadius == 0)
+    #expect(content.layer?.borderWidth == 0)
 }
 
 @MainActor
@@ -126,6 +131,12 @@ private func workspaceChip(_ id: String, in view: NSView) -> NSButton? {
     #expect(colorMatches(focused.layer?.backgroundColor, theme.selected))
     #expect(colorMatches(focused.layer?.borderColor, theme.accent))
     #expect(colorMatches(occupied.layer?.backgroundColor, .clear))
+
+    // Flat chrome (#0025): square chips with a flat focused stroke.
+    #expect(focused.layer?.cornerRadius == 0)
+    #expect(occupied.layer?.cornerRadius == 0)
+    #expect(focused.layer?.borderWidth == 1)
+    #expect(occupied.layer?.borderWidth == 0)
 
     // The occupancy marker carries the occupied/disabled role; the name stays in
     // the foreground so state is never color alone.

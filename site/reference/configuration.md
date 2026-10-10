@@ -19,6 +19,7 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `showAppIcon` | Boolean | Optional; show the Divot mark before the workspaces (default `false`) |
 | `showOccupiedDot` | Boolean | Optional; show the occupied marker on workspace chips (default `true`) |
 | `showEmptyDot` | Boolean | Optional; show the empty marker on workspace chips (default `true`) |
+| `bottomShadow` | Boolean | Optional; draw a drop shadow along the bar's bottom edge (default `false`) |
 
 The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
@@ -100,6 +101,20 @@ Hiding a marker leaves the workspace name and the focused highlight, so a worksp
 
 ```json
 "showOccupiedDot": false
+```
+
+## Flat chrome
+
+The bar draws one flat colour from the left screen edge to the right, with square corners and no highlight, bevel, or gradient. The workspace and item chips are flat too; the focused chip keeps a flat accent stroke. A subtle drop shadow along the bottom edge is optional and off by default.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `bottomShadow` | Boolean | `false` | Draw a drop shadow along the bar's bottom edge |
+
+The shadow is a soft gradient drawn just below the bar, so it runs along the bottom edge only and never rims the other edges. Settings has a matching toggle, and toggling it updates the bar live.
+
+```json
+"bottomShadow": true
 ```
 
 ## Keep awake

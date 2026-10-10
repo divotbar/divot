@@ -201,6 +201,28 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func bottomShadowStartsOffAndTogglesAndPersists() throws {
+    let (model, controller) = try makeModel()
+
+    // The shadow is off by default, so settings opens with the toggle off.
+    #expect(!model.configuration.bottomShadow)
+
+    model.setBottomShadow(true)
+    #expect(model.configuration.bottomShadow)
+
+    // The change survives a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.bottomShadow)
+
+    // And it can be turned back off, writing the default shape again.
+    model.setBottomShadow(false)
+    #expect(!model.configuration.bottomShadow)
+    let reread = try ConfigurationParser.parse(Data(contentsOf: controller.configURL))
+    #expect(!reread.configuration.bottomShadow)
+}
+
+@MainActor
 @Test func anUninstalledConfiguredFontShowsTheSystemDefaultInThePicker() throws {
     let (model, _) = try makeModel()
     model.update { $0.text.font = "No Such Font 12345" }

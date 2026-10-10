@@ -40,12 +40,21 @@ public struct DivotSettingsView: View {
             Text("Clicking the icon opens Divot settings. The mark follows the bar's theme and text size.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Toggle("Bottom shadow", isOn: bottomShadowBinding)
+            Text("Draws a subtle drop shadow along the bar's bottom edge. Off by default; the bar stays a flat colour.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
     private var showAppIconBinding: Binding<Bool> {
         Binding(get: { model.configuration.showAppIcon },
                 set: { model.setShowAppIcon($0) })
+    }
+
+    private var bottomShadowBinding: Binding<Bool> {
+        Binding(get: { model.configuration.bottomShadow },
+                set: { model.setBottomShadow($0) })
     }
 
     // MARK: Bar items

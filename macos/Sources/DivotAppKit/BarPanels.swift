@@ -56,8 +56,15 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     /// The configuration the panels were built from, so a restyle can recompute
     /// the theme without a rebuild.
     private let configuration: DivotConfiguration
+    /// Extra panel height below the bar reserved for the optional bottom-shadow
+    /// strip; zero when the shadow is off. The panel is enlarged by this much so
+    /// the gradient can draw *outside* the flat bar instead of over it (#0025).
+    private let shadowHeight: CGFloat
     /// Called after a restyle so the app can drop appearance-dependent caches.
     public var onThemeChanged: (() -> Void)?
+
+    /// How far the optional bottom shadow reaches below the bar.
+    private static let bottomShadowHeight: CGFloat = 6
 
     public init(id: DisplayBarID,
                 on screen: CGRect,
@@ -68,6 +75,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
         self.configuration = configuration
+        let shadowStrip = configuration.bottomShadow ? Self.bottomShadowHeight : 0
+        self.shadowHeight = shadowStrip
         let layout = configuration.barLayout
         let theme = Self.currentTheme(for: configuration)
         self.leftContent = BarContentView(side: .left,
@@ -88,8 +97,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                            presentationOptions: configuration.presentationOptions,
                                            theme: theme,
                                            onActivate: onWidgetAction)
-        self.left = Self.makePanel(on: screen, content: leftContent)
-        self.right = Self.makePanel(on: screen, content: rightContent)
+        self.left = Self.makePanel(on: screen, content: leftContent, shadowHeight: shadowStrip)
+        self.right = Self.makePanel(on: screen, content: rightContent, shadowHeight: shadowStrip)
         leftContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
         rightContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
         leftContent.applyInitialState()
@@ -130,15 +139,15 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     }
 
     public func close() {
-        (left.contentView as? BarContentLifecycle)?.barContentDidDetach()
-        (right.contentView as? BarContentLifecycle)?.barContentDidDetach()
+        leftContent.barContentDidDetach()
+        rightContent.barContentDidDetach()
         left.orderOut(nil)
         right.orderOut(nil)
         left.close()
         right.close()
     }
 
-    private static func makePanel(on screen: CGRect, content: NSView) -> NonActivatingPanel {
+    private static func makePanel(on screen: CGRect, content: NSView, shadowHeight: CGFloat) -> NonActivatingPanel {
         let panel = NonActivatingPanel(contentRect: CGRect(x: screen.minX, y: screen.maxY, width: 1, height: 1),
                                        styleMask: [.borderless, .nonactivatingPanel],
                                        backing: .buffered,
@@ -148,6 +157,10 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         panel.hidesOnDeactivate = false
         panel.isOpaque = false
         panel.backgroundColor = .clear
+        // The optional bottom shadow (#0025) is drawn by `BarPanelContainer`
+        // inside an enlarged panel, not by the window server: a window shadow
+        // would rim every edge, including the camera-housing gap on a notched
+        // display. The panel itself stays shadowless.
         panel.hasShadow = false
         // Just under the system menu bar, so native menus still open above
         // Divot. Spatial placement already avoids overlap on notch-free
@@ -156,21 +169,36 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         panel.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue - 1)
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
         panel.animationBehavior = .none
-        panel.contentView = content
+        panel.contentView = BarPanelContainer(content: content, shadowHeight: shadowHeight)
         return panel
     }
 
     private func move(_ panel: NSPanel, to frame: CGRect, animated: Bool) {
-        targets[ObjectIdentifier(panel)] = frame
+        // Reserve the shadow strip below the bar when the shadow is on, so the
+        // gradient draws over the desktop rather than over the bar content.
+        let target = Self.panelFrame(for: frame, shadowHeight: shadowHeight)
+        targets[ObjectIdentifier(panel)] = target
         guard animated else {
-            panel.setFrame(frame, display: true)
+            panel.setFrame(target, display: true)
             return
         }
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.18
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(frame, display: true)
+            panel.animator().setFrame(target, display: true)
         }
+    }
+
+    /// The panel frame for a bar rect: the bar rect itself, or that rect
+    /// enlarged downward by `shadowHeight` so the shadow strip fits. The top,
+    /// left, and right edges stay flush with the bar, so the bar still reaches
+    /// the screen edges.
+    static func panelFrame(for barFrame: CGRect, shadowHeight: CGFloat) -> CGRect {
+        guard shadowHeight > 0 else { return barFrame }
+        return CGRect(x: barFrame.minX,
+                      y: barFrame.minY - shadowHeight,
+                      width: barFrame.width,
+                      height: barFrame.height + shadowHeight)
     }
 
     /// Stop any in-flight implicit animation by snapping each panel to its last
@@ -183,5 +211,54 @@ public final class NSPanelBarSurface: BarDisplaySurface {
             guard let target = targets[ObjectIdentifier(panel)] else { continue }
             panel.setFrame(target, display: true)
         }
+    }
+}
+
+/// The panel's content view: the bar half pinned to the top with an optional
+/// bottom-shadow strip below it.
+///
+/// A bar panel hugs the top screen edge, so a window-level shadow would rim
+/// every edge — including the camera-housing gap on a notched display. Instead
+/// the panel is enlarged a few points below the bar and a soft, unclipped
+/// gradient fades downward, so the shadow runs strictly along the bottom edge
+/// and never over the flat bar itself (#0025).
+@MainActor
+final class BarPanelContainer: NSView {
+    /// The bar half. Its frame is the top strip; it is never resized.
+    let content: NSView
+    private let shadowHeight: CGFloat
+    private let shadowGradient = CAGradientLayer()
+
+    init(content: NSView, shadowHeight: CGFloat) {
+        self.content = content
+        self.shadowHeight = max(0, shadowHeight)
+        super.init(frame: .zero)
+        wantsLayer = true
+        addSubview(content)
+        guard self.shadowHeight > 0 else { return }
+        // Darkest right under the bar, fading to clear downward. Unit space:
+        // (0, 0) is bottom-left and (1, 1) is top-right, so the strip's top is
+        // the start point.
+        shadowGradient.colors = [
+            NSColor.black.withAlphaComponent(0.20).cgColor,
+            NSColor.black.withAlphaComponent(0).cgColor
+        ]
+        shadowGradient.startPoint = CGPoint(x: 0.5, y: 1)
+        shadowGradient.endPoint = CGPoint(x: 0.5, y: 0)
+        layer?.addSublayer(shadowGradient)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("BarPanelContainer does not support NSCoding")
+    }
+
+    override func layout() {
+        super.layout()
+        // y-up: the bar half occupies the top and the shadow strip the bottom.
+        content.frame = CGRect(x: 0, y: shadowHeight,
+                               width: bounds.width,
+                               height: max(0, bounds.height - shadowHeight))
+        shadowGradient.frame = CGRect(x: 0, y: 0, width: bounds.width, height: shadowHeight)
     }
 }
