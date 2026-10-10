@@ -2,17 +2,17 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: ready
+status: active
 priority: p1
 area: macos
 depends_on: ["0025"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:23:26Z"
+updated_at: "2026-10-10T12:23:30Z"
 ---
 ## Problem
 
@@ -41,3 +41,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:23:11Z · status inbox→ready
 - 2026-10-10T12:23:24Z · cli_override, model_override
 - 2026-10-10T12:23:26Z · model_override
+- 2026-10-10T12:23:30Z · status ready→active, branch
