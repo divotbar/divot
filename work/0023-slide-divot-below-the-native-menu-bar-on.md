@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T10:43:05Z"
+updated_at: "2026-10-10T10:44:40Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -40,9 +40,10 @@ Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new 
 ## Verification
 Automated (task branch, this run):
 
-- `swift test --package-path macos`: **417 tests pass**, including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, the settings-model persistence, and (round 2) two `TopStripCursorMonitor` integration tests that drive the tracking loop through a stub geometry provider and an injected pointer location.
+- `swift test --package-path macos`: **417 tests pass**, including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, the settings-model persistence, and two `TopStripCursorMonitor` integration tests that drive the tracking loop through a stub geometry provider and an injected pointer location.
 - `bun run check`: config schema, examples, and the website build pass.
 - `REPOOS_CHECK_CHANGED=main repoos check`: all steps pass (native-core, native-app, native-app-bundle, justfile). The bundled step runs `scripts/package-app.sh` and the packaged app's headless smoke checks (`--help`, `--report`, `--widgets`).
+- `divot --report` now prints the cursor settings, the engaged displays, and `cursorGlobalMonitor=installed|unavailable`, so a "setting broken" report is diagnosable without moving anything.
 
 Implementation notes:
 
@@ -51,15 +52,16 @@ Implementation notes:
 - Settings carries "Move below the menu bar when it appears" (default on) and the "Always below the menu bar" fallback (default off), persisted through the store with `menuBar.moveBelowOnCursorReveal` / `menuBar.alwaysBelow`.
 - On a detection-policy change the coordinator resets its retained core state so an indeterminate state cannot leave the bar stuck below after the toggle is turned off.
 
-Review round 2:
+Review rounds 2–3:
 
-- Edge case (global monitor may be `nil`): `TopStripCursorMonitor.globalMonitorInstalled` is exposed and the app writes a one-line stderr warning when the global mouse monitor does not install, so support can tell "setting off" from "no global events". The local monitor still runs regardless.
-- Edge case (notch-free + auto-hide relies on `visibleFrame`): kept as the documented cross-check; the flat-display case is now called out in the `docs/local-preview.md` hardware checklist and covered by the detector disagreement tests. `menuBar.alwaysBelow` remains the fallback where that frame lies.
-- Edge case (default on for everyone): the spec default is kept (cursor reveal on), and the Settings caption now states it targets an auto-hidden menu bar; on a notch-free display the cursor reading is ignored in favour of `visibleFrame` anyway, so an always-visible setup is unaffected there.
+- Global monitor availability is surfaced three ways: a stderr warning at launch, `TopStripCursorMonitor.globalMonitorInstalled`, and a `divot --report` line. On this machine the probe reports `cursorGlobalMonitor=installed` even with Accessibility not granted, so the mouse monitor does not depend on the Accessibility grant. The local monitor still runs regardless.
+- Notch-free + auto-hide relies on `visibleFrame` by design (the required cross-check); the flat-display case is in the `docs/local-preview.md` hardware checklist and covered by the detector disagreement tests, with `menuBar.alwaysBelow` as the fallback where that frame lies.
+- Default on is kept per spec; the Settings caption states it targets an auto-hidden menu bar, and on a notch-free display the cursor reading is ignored in favour of `visibleFrame`, so an always-visible setup is unaffected there.
+- Multiple masked displays stay per-display; the settle-delay feel is a hardware item below.
 
 Human-only (NOT supplied here; do not treat as verified):
 
-- Visual confirmation that the bar slides below the native menu bar when the pointer reaches the top edge and returns when it leaves, on the maintainer's display (notched built-in and a flat external display). The screen capture the acceptance asks for was not produced from this agent process; a `ui-verification/0023.json`/shot attachment must be added and the feel confirmed by a person before close-out. No run here claims it works visually.
+- Visual confirmation that the bar slides below the native menu bar when the pointer reaches the top edge and returns when it leaves, on the maintainer's display (notched built-in and a flat external display). The screen capture the acceptance asks for was not produced from this agent process; a `ui-verification/0023.json`/shot attachment must be added and the maintainer must confirm the feel before close-out. No run here claims it works visually.
 
 
 ## Activity
@@ -77,3 +79,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T10:42:31Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T10:43:05Z · note: review pass 2: needs some work
 - 2026-10-10T10:43:05Z · status review→active
+- 2026-10-10T10:44:40Z · body: section Verification
