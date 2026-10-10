@@ -179,6 +179,33 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "unknown field showIcon")
 }
 
+@Test func keepAwakePreferenceDefaultsOffAndParsesExplicitly() throws {
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":["battery"]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: without).configuration.keepAwake == .default)
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":["battery"],"keepAwake":{"remember":true,"isActive":true}}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.keepAwake
+        == KeepAwakeConfiguration(remember: true, isActive: true))
+}
+
+@Test func keepAwakeRejectsUnknownAndWronglyTypedFields() throws {
+    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"keepAwake":{"forever":true}}"##)
+    let unknownFailure = error { try ConfigurationParser.parse(jsonObject: unknown) }
+    #expect(unknownFailure?.path == "keepAwake")
+    #expect(unknownFailure?.message == "unknown field forever")
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"keepAwake":{"remember":"yes"}}"##)
+    let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(typeFailure?.path == "keepAwake.remember")
+    #expect(typeFailure?.message == "expected boolean")
+}
+
+@Test func keepAwakeExampleRoundTrips() throws {
+    let parsed = try ConfigurationParser.parse(try exampleData("keep-awake.json"))
+    #expect(parsed.configuration.keepAwake == KeepAwakeConfiguration(remember: true, isActive: true))
+    #expect(parsed.configuration.isPlaced(.battery))
+}
+
 // MARK: - Version 1 migration fixtures
 
 @Test func starterV1DefaultMigratesToAVersionTwoDocument() throws {

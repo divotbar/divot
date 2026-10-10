@@ -58,6 +58,31 @@ private final class MockBatteryReading: BatteryReading, @unchecked Sendable {
     }
 }
 
+/// A keep-awake state the test can flip, so the battery provider's fold-in is
+/// checked without holding a real power assertion.
+private final class MockKeepAwake: KeepAwakeObserving, @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = false
+    private var handler: (@Sendable (Bool) -> Void)?
+    private var cancels = 0
+
+    var isActive: Bool { lock.lock(); defer { lock.unlock() }; return value }
+    var cancelCount: Int { lock.lock(); defer { lock.unlock() }; return cancels }
+
+    func observe(_ handler: @escaping @Sendable (Bool) -> Void) -> any ProviderSubscription {
+        lock.lock(); self.handler = handler; lock.unlock()
+        return CallbackSubscription { [weak self] in
+            guard let self else { return }
+            self.lock.lock(); self.cancels += 1; self.lock.unlock()
+        }
+    }
+
+    func set(_ newValue: Bool) {
+        lock.lock(); value = newValue; let handler = self.handler; lock.unlock()
+        handler?(newValue)
+    }
+}
+
 private final class MockNetworkReading: NetworkReading, @unchecked Sendable {
     private let lock = NSLock()
     private var handler: (@Sendable (NetworkSnapshot) -> Void)?
@@ -198,6 +223,40 @@ private final class MockFrontAppReading: FrontAppReading {
     _ = BatteryProvider(reading: reading).start { collector.append($0) }
     let content = collector.contents.first
     #expect(content?.isUnavailable == true)
+}
+
+@Test func batteryProviderCarriesKeepAwakeAndFollowsToggle() {
+    let reading = MockBatteryReading()
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 42)
+    let keepAwake = MockKeepAwake()
+    let collector = ContentCollector()
+    let subscription = BatteryProvider(reading: reading, keepAwake: keepAwake).start { collector.append($0) }
+
+    guard case .battery(let first)? = collector.contents.first else {
+        Issue.record("expected an initial battery snapshot")
+        return
+    }
+    #expect(first.percentage == 42)
+    #expect(!first.isKeepingAwake)
+
+    keepAwake.set(true)
+    guard case .battery(let second)? = collector.contents.last, collector.contents.count == 2 else {
+        Issue.record("expected a keep-awake emission")
+        return
+    }
+    #expect(second.isKeepingAwake)
+    #expect(second.percentage == 42)
+
+    keepAwake.set(false)
+    guard case .battery(let third)? = collector.contents.last, collector.contents.count == 3 else {
+        Issue.record("expected a keep-awake-off emission")
+        return
+    }
+    #expect(!third.isKeepingAwake)
+
+    subscription.cancel()
+    #expect(reading.cancelCount == 1)
+    #expect(keepAwake.cancelCount == 1)
 }
 
 @Test func networkProviderForwardsPathSnapshots() {

@@ -32,9 +32,9 @@ Both sides are ordered `left`/`right` groups, and any supported item can move be
 | Area | Required behavior |
 | --- | --- |
 | Left | Workspace indicators and the frontmost application; distinguish focused, occupied, empty; optional per-workspace app icons; click/keyboard activation through the workspace adapter |
-| Right | Battery percentage, minute clock with weekday and date, network status, and volume; status providers fail independently |
+| Right | Battery percentage, minute clock with weekday and date, network status, and volume; status providers fail independently; clicking the battery toggles a Caffeine-style keep-awake assertion with an on-state indicator |
 | Menus | AppKit menus/popovers; escape dismisses; focus returns predictably |
-| Settings | Add/remove/reorder/move items on both sides, per-item options, theme family and System/Light/Dark, size/padding, material, launch at login |
+| Settings | Add/remove/reorder/move items on both sides, per-item options, theme family and System/Light/Dark, size/padding, material, launch at login, and whether keep-awake is remembered across launches |
 | Permissions | Request only when the enabled feature needs them; denial preserves other widgets |
 | Configuration | Validate before applying; invalid reload preserves last known good configuration |
 | Accessibility | Names, roles, selected state, actions, keyboard traversal; no color-only state |

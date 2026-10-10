@@ -22,6 +22,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     private var settingsController: DivotSettingsWindowController?
     private var statusItem: NSStatusItem?
     private var reportedWorkspaceAvailability = false
+    /// Owns the keep-awake power assertion for the whole app lifetime; the
+    /// battery item toggles it and quit releases it.
+    private var keepAwake: KeepAwakeController?
     /// The manager the running workspace feed was started with, so a config
     /// change applies options without re-probing and a re-added item restarts.
     private var startedWorkspaceManager: WorkspaceManagerKind?
@@ -35,6 +38,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         self.configurationController = controller
         let initial = controller.configuration
 
+        let keepAwake = KeepAwakeController(creator: IOKitPowerAssertionCreator())
+        self.keepAwake = keepAwake
+
         // The workspace feed exists before the surfaces so each display's left
         // panel can subscribe to it as it is created.
         let workspaceFeed = WorkspaceFeed()
@@ -43,7 +49,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
 
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
-        let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak workspaceFeed] id, screen, configuration in
+        let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
             let screensID = NSScreen.screens
                 .firstIndex { NSScreenGeometryProvider.displayID(of: $0) == id }
                 .map { $0 + 1 }
@@ -53,7 +59,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                      workspaceFeed: workspaceFeed,
                                      workspaceIcons: icons,
                                      displayScreensID: screensID) { action in
-                DivotAppDelegate.perform(action)
+                self?.perform(action)
             }
         }
         coordinator.start()
@@ -87,11 +93,36 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Apply one validated configuration to every consumer.
     private func apply(_ configuration: DivotConfiguration) {
         coordinator?.apply(configuration: configuration)
+        syncKeepAwake(configuration)
         let pipeline = self.pipeline
-        let providers = DefaultWidgetProviders.make(for: configuration)
+        let providers = DefaultWidgetProviders.make(for: configuration, keepAwake: keepAwake)
         Task { await pipeline?.configure(providers) }
         applyWorkspaceRow(configuration)
         applyAppearance(configuration.appearance)
+    }
+
+    /// Seed the keep-awake assertion from a remembered configuration.
+    ///
+    /// Only a remembered state is applied here. A live toggle that the user
+    /// chose not to remember must survive an unrelated configuration reload
+    /// (a theme edit, an external file change), so it is never force-cleared.
+    private func syncKeepAwake(_ configuration: DivotConfiguration) {
+        guard let keepAwake else { return }
+        let settings = configuration.keepAwake
+        guard settings.remember else { return }
+        if keepAwake.isActive != settings.isActive {
+            keepAwake.setActive(settings.isActive)
+        }
+    }
+
+    /// The battery item's click. Toggling is immediate; persisting the new state
+    /// only happens when the user opted in to remembering it.
+    private func toggleKeepAwake() {
+        guard let keepAwake else { return }
+        let newValue = !keepAwake.isActive
+        keepAwake.setActive(newValue)
+        guard configurationController?.configuration.keepAwake.remember == true else { return }
+        configurationController?.update { $0.keepAwake.isActive = newValue }
     }
 
     /// Start, reconfigure, or stop the workspace row. When the item is not placed
@@ -192,7 +223,12 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openSettings() {
         guard let controller = configurationController else { return }
         if settingsController == nil {
-            settingsController = DivotSettingsWindowController(model: DivotSettingsModel(controller: controller))
+            let keepAwake = self.keepAwake
+            settingsController = DivotSettingsWindowController(
+                model: DivotSettingsModel(controller: controller,
+                                          keepAwakeIsActive: { [weak keepAwake] in
+                                              keepAwake?.isActive ?? false
+                                          }))
         }
         settingsController?.present()
     }
@@ -207,18 +243,23 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         let pipeline = self.pipeline
         Task { await pipeline?.stop() }
         coordinator?.stop()
+        // Never leave a power assertion behind after the process exits.
+        keepAwake?.releaseAll()
     }
 
     /// Explicit, minimal click behavior — Divot never mirrors another app's menu
     /// extras. Status items open the matching System Settings pane or activate
-    /// the frontmost application; the pane links still need physical validation.
-    static func perform(_ action: WidgetAction) {
+    /// the frontmost application; the battery item toggles keep-awake. The pane
+    /// links still need physical validation.
+    private func perform(_ action: WidgetAction) {
         switch action {
         case .openSettings(let pane):
             if let url = pane.url { NSWorkspace.shared.open(url) }
         case .activateApplication(let bundleIdentifier):
             NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier)
                 .first?.activate()
+        case .toggleKeepAwake:
+            toggleKeepAwake()
         case .none:
             break
         }
