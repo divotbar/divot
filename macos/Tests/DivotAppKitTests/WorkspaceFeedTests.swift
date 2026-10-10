@@ -399,6 +399,9 @@ private final class GatedCapabilityAdapter: WorkspaceAdapting, @unchecked Sendab
     gate.release()
     await feed.waitForPendingWork()
     #expect(recorder.last?.availability.isAvailable == true)
+    // The option change made while the probe was in flight is carried in the
+    // same announce, so the renderer sees the merged state, not a stale one.
+    #expect(recorder.last?.options.showEmpty == false)
     #expect(recorder.all.allSatisfy { $0.availability != .unavailable(.managerNotInstalled) })
 }
 
