@@ -2,7 +2,7 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: active
+status: review
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: "error: Invalid model reference: big pickle"
@@ -17,7 +17,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T17:12:58Z"
+updated_at: "2026-10-10T17:13:56Z"
 last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
 last_handoff_failure_sha: 4226ad5c39bb5ec3ad520490436e681e22c034df
 review_passes: 11
@@ -179,3 +179,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T16:48:26Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
 - 2026-10-10T17:09:55Z · model_override
 - 2026-10-10T17:12:58Z · body: section Notes for AI
+- 2026-10-10T17:13:56Z · status active→review
