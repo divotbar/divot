@@ -2,14 +2,14 @@
 id: "0020"
 title: "Bar panels never get placed: placement stays undecided on the notched display even with Accessibility granted"
 type: bug
-status: inbox
+status: ready
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-10T04:02:13Z"
-updated_at: "2026-10-10T04:02:13Z"
+updated_at: "2026-10-10T04:02:14Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ The maintainer confirmed Accessibility is on for `dist/Divot.app` and the log ha
 ## Activity
 
 - 2026-10-10T04:02:13Z · created · njachowski@gmail.com
+- 2026-10-10T04:02:14Z · status inbox→ready
