@@ -33,7 +33,7 @@ The starter validator rejects missing fields, unknown fields, wrong types, and i
 | `material` | `native`, `opaque` |
 | `palette` | Optional object; semantic color token overrides (see below) |
 
-`family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance. The root `accent` defaults to `#D6F58A`; while it is left at that default a family uses its own signature accent, and any other value overrides the family.
+`family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance. The root `accent` defaults to `#D6F58A`; while it is left at that default a family uses its own signature accent, and any other value overrides the family. `material` is kept in the configuration contract, but the flat chrome always draws the solid `background` token, so `native` and `opaque` no longer change the bar fill.
 
 ## Palette overrides
 

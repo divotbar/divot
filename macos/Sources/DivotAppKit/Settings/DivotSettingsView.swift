@@ -241,6 +241,9 @@ public struct DivotSettingsView: View {
                 Text("Native").tag(AppearanceConfiguration.Material.native)
                 Text("Opaque").tag(AppearanceConfiguration.Material.opaque)
             }
+            Text("The bar draws one flat colour, so Material is kept in the configuration but no longer changes the bar fill.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             TextField("Accent (hex)", text: binding(\.appearance.accent))
                 .textFieldStyle(.roundedBorder)
             LabeledContent("Resolved accent") {
