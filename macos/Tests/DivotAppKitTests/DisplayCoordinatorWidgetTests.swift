@@ -7,9 +7,10 @@ import DivotCore
 @MainActor
 private final class RecordingSurface: BarDisplaySurface {
     private(set) var changes: [WidgetChange] = []
+    private(set) var updates: [DisplayBarUpdate] = []
     private(set) var didClose = false
 
-    func apply(_ update: DisplayBarUpdate, reduceMotion: Bool) {}
+    func apply(_ update: DisplayBarUpdate, reduceMotion: Bool) { updates.append(update) }
     func apply(widgetChanges: [WidgetChange]) { changes.append(contentsOf: widgetChanges) }
     func close() { didClose = true }
 }
@@ -22,6 +23,23 @@ private struct ScreenStub: ScreenGeometryProviding {
 
 private struct ProbeStub: SystemMenuBarProbing {
     func sample() -> SystemMenuBarState { .notTrusted }
+}
+
+/// Permission granted, but the sample is only provisional (the app's actual
+/// probe is constructed with `validated: false`), so it carries no decisive
+/// visibility. This is exactly the "Accessibility granted" launch input.
+private struct ProvisionalProbeStub: SystemMenuBarProbing {
+    func sample() -> SystemMenuBarState { .provisional(visible: true, description: "notch fixture") }
+}
+
+/// A built-in notched display: the camera housing masks the whole top band.
+private func notchedReading() -> ScreenGeometryReading {
+    ScreenGeometryReading(id: DisplayBarID(1),
+                          geometry: ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                                                   visibleFrame: CGRect(x: 60, y: 0, width: 1650, height: 1074),
+                                                   safeAreaTop: 33,
+                                                   auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                                                   auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33)))
 }
 
 private func flatReading() -> ScreenGeometryReading {
@@ -104,6 +122,56 @@ private func flatReading() -> ScreenGeometryReading {
     #expect(built.last?.right == [.battery])
     #expect(created.first?.didClose == true)
     #expect(coordinator.configuration.layout.height == 36)
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func notchedDisplayWithGrantedAccessibilityAlwaysGetsAPlacement() {
+    // Accessibility is granted, but the AX sample is provisional, so the
+    // detector has no decisive visibility and returns indeterminate. The bar
+    // must still be placed — at the top edge — rather than leaving the panels
+    // at their initial 1x1 frame.
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProvisionalProbeStub())
+    let surface = RecordingSurface()
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in surface }
+    coordinator.start()
+
+    let placement = try! #require(surface.updates.first?.placement)
+    #expect(placement.mode == .topEdge)
+    #expect(surface.updates.first?.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func rebuildingSurfacesReemitsPlacementSoRecreatedPanelsGetAFrame() {
+    // Regression for #0020: a configuration change (a real config file at
+    // launch) closes and recreates the panels. The recreated panels start at
+    // their initial 1x1 frame, so the coordinator must re-emit a placement for
+    // every display; an unchanged reading must not be a silent no-op.
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProvisionalProbeStub())
+    var created: [RecordingSurface] = []
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in
+        let surface = RecordingSurface()
+        created.append(surface)
+        return surface
+    }
+    coordinator.start()
+    #expect(created.count == 1)
+    #expect(created[0].updates.first?.placement != nil)
+
+    var updated = DivotConfiguration.default
+    updated.left = [.clock]
+    updated.right = [.battery]
+    updated.appearance.family = .gruvbox
+    coordinator.apply(configuration: updated)
+
+    #expect(created.count == 2)
+    // The recreated panel must receive a frame, not stay at 1x1.
+    #expect(created[1].updates.first?.placement != nil)
 
     coordinator.stop()
 }

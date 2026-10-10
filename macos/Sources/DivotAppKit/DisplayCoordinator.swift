@@ -60,6 +60,12 @@ public final class DisplayCoordinator {
         guard barChanged, isRunning else { return }
         for surface in surfaces.values { surface.close() }
         surfaces.removeAll()
+        // Recreated panels start at their initial 1x1 frame, and an unchanged
+        // reading would be a silent no-op in `refresh`. Clear the retained core
+        // state so it re-emits a placement for every display; without this a
+        // rebuild (for example the config file loading at launch) leaves the
+        // new panels unplaced and the bar never appears (#0020).
+        core.reset()
         refresh()
     }
 
