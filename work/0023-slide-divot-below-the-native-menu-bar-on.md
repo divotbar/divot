@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T10:26:12Z"
+updated_at: "2026-10-10T10:37:44Z"
 ---
 ## Problem
 
@@ -35,8 +35,28 @@ Divot sits at the top edge while the native macOS menu bar is auto-hidden. When 
 
 Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new setting lands in the same settings window and metrics code. Do not start until both are done. Keep the cursor monitoring in its own type in `DivotAppKit`, not in the widget views.
 
+## Verification
+Automated (task branch, this run):
+
+- `swift test --package-path macos`: **415 tests pass**, including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, and the settings-model persistence.
+- `bun run check`: config schema, examples, and the website build pass.
+- `REPOOS_CHECK_CHANGED=main repoos check`: all steps pass (native-core, native-app, native-app-bundle, justfile). The bundled step runs `scripts/package-app.sh` and the packaged app's headless smoke checks (`--help`, `--report`, `--widgets`).
+
+Implementation notes:
+
+- `TopStripCursorMonitor` (DivotAppKit) is the only new input type: an event-driven global + local mouse-moved monitor that reports the engaged display IDs only when the pointer crosses a top-strip boundary. No polling; it holds no window or view.
+- `CursorMenuBarReveal` (DivotCore) is the pure geometry; `NativeMenuBarDetector` only consults the cursor reading for a masked (notched) display, and a notch-free display's own `visibleFrame` overrides it.
+- Settings carries "Move below the menu bar when it appears" (default on) and the "Always below the menu bar" fallback (default off), persisted through the store with `menuBar.moveBelowOnCursorReveal` / `menuBar.alwaysBelow`.
+- On a detection-policy change the coordinator resets its retained core state so an indeterminate state cannot leave the bar stuck below after the toggle is turned off.
+
+Human-only (NOT supplied here; do not treat as verified):
+
+- Visual confirmation that the bar slides below the native menu bar when the pointer reaches the top edge and returns when it leaves, on the maintainer's display. The screen capture the acceptance asks for was not produced from this agent process; a person must capture the top strip and confirm the feel. No run here claims it works visually.
+
+
 ## Activity
 
 - 2026-10-10T08:46:31Z · created · njachowski@gmail.com
 - 2026-10-10T10:26:10Z · status inbox→ready
 - 2026-10-10T10:26:12Z · status ready→active, branch
+- 2026-10-10T10:37:44Z · body: section Verification
