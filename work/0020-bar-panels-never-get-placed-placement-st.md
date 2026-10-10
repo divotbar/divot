@@ -2,7 +2,7 @@
 id: "0020"
 title: "Bar panels never get placed: placement stays undecided on the notched display even with Accessibility granted"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -54,4 +54,4 @@ Human-only (NOT supplied here):
 - 2026-10-10T04:16:33Z · note: review pass 1: needs some work
 - 2026-10-10T04:16:33Z · status review→active
 - 2026-10-10T04:17:49Z · body: section Verification
-- 2026-10-10T04:18:58Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-10T04:18:58Z · status active→review
