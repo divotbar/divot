@@ -238,11 +238,44 @@ private final class StateRecorder: @unchecked Sendable {
         lock.unlock()
     }
 
+    var all: [WorkspaceFeedState] {
+        lock.lock()
+        defer { lock.unlock() }
+        return states
+    }
+
     var last: WorkspaceFeedState? {
         lock.lock()
         defer { lock.unlock() }
         return states.last
     }
+}
+
+/// A capability probe that stays open until the test releases the gate, so a
+/// `setOptions` call can be made to land deterministically before the probe
+/// result is known.
+private final class GatedCapabilityAdapter: WorkspaceAdapting, @unchecked Sendable {
+    let kind: WorkspaceManagerKind = .aerospace
+    private let availability: WorkspaceAvailability
+    private let gate: SnapshotGate
+
+    init(availability: WorkspaceAvailability, gate: SnapshotGate) {
+        self.availability = availability
+        self.gate = gate
+    }
+
+    func capabilities() async -> WorkspaceAvailability {
+        gate.markStarted()
+        await gate.waitForRelease()
+        return availability
+    }
+
+    func snapshot() async throws -> WorkspaceSnapshot {
+        WorkspaceSnapshot(manager: .aerospace, workspaces: [workspace("1")])
+    }
+
+    func activate(_ workspace: WorkspaceID) async throws {}
+    func stop() async {}
 }
 
 // MARK: - Feed orchestration
@@ -340,6 +373,36 @@ private final class StateRecorder: @unchecked Sendable {
 
     feed.setOptions(.init(showEmpty: false))
     #expect(feed.state.groups.flatMap(\.workspaces).map(\.id.rawValue) == ["2"])
+}
+
+/// Regression for #0020: the config file loading at launch calls `setOptions`
+/// before the async capability probe returns. The feed must not announce the
+/// pre-probe placeholder (`managerNotInstalled`) as if AeroSpace were absent,
+/// or the app logs "No supported window manager found" while it is running.
+@MainActor
+@Test func setOptionsBeforeTheProbeDoesNotAnnounceAFalseManagerNotInstalled() async {
+    let gate = SnapshotGate()
+    let adapter = GatedCapabilityAdapter(availability: .available(.full), gate: gate)
+    let recorder = StateRecorder()
+    let feed = WorkspaceFeed(debounce: .zero)
+    feed.onChange = { recorder.record($0) }
+
+    feed.start(adapter: adapter, eventSourceProvider: nil, options: .default)
+    await gate.waitForStart()  // the probe began but has not returned
+
+    // The reload path publishes option changes while the probe is in flight.
+    feed.setOptions(.init(showEmpty: false))
+    #expect(recorder.all.isEmpty,
+            "a pre-probe setOptions must not announce the placeholder availability")
+
+    // The real result is announced once, with the options applied.
+    gate.release()
+    await feed.waitForPendingWork()
+    #expect(recorder.last?.availability.isAvailable == true)
+    // The option change made while the probe was in flight is carried in the
+    // same announce, so the renderer sees the merged state, not a stale one.
+    #expect(recorder.last?.options.showEmpty == false)
+    #expect(recorder.all.allSatisfy { $0.availability != .unavailable(.managerNotInstalled) })
 }
 
 @MainActor
