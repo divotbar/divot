@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/flat-bar-chrome-square-edges-to-the-scre
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T11:06:04Z"
+updated_at: "2026-10-10T11:06:47Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -48,6 +48,10 @@ Implementation notes:
 - `bottomShadow` (default `false`) is a root key: parsed, serialized, checked by `scripts/config-schema.ts`, and surfaced as a Settings toggle. Toggling it changes `rendersSameBar`, so the bar rebuilds and the shadow applies live (a brief panel rebuild, not an in-place shadow resize).
 - The shadow is a `BarPanelContainer` `CAGradientLayer` strip inside a panel enlarged 6 pt downward, so it runs along the bottom edge only. Each display's left and right panel gets its own strip, so the camera-housing gap stays clear. The gradient is a fixed neutral dark tint (black at 20% alpha), not a theme token, because a drop shadow is conventionally dark regardless of the bar's theme.
 
+Review round 3:
+
+- `appearance.material` no longer changes the bar fill (the flat chrome always draws the solid `background` token). The Settings Material picker now carries a caption saying so, and the public configuration reference states it, as the review suggested. This is an intentional consequence of the flat spec, not a defect.
+
 Human-only (NOT supplied here; do not treat as verified):
 
 - The acceptance screen capture of the packaged app (flat bar, and the bottom shadow off and on) was not produced from this agent process. This shell has no running bar on the maintainer's display, and screen capture requires the human's Screen Recording grant. A person must run `dist/Divot.app`, capture both shadow states, and confirm the look before close-out. This is not waived by this run, and no run here claims the appearance is correct.
@@ -67,3 +71,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:05:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T11:06:04Z · note: review pass 2: needs some work
 - 2026-10-10T11:06:04Z · status review→active
+- 2026-10-10T11:06:47Z · body: section Verification
