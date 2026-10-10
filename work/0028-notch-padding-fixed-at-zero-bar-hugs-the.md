@@ -12,7 +12,7 @@ branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:34:29Z"
+updated_at: "2026-10-10T12:35:52Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -43,8 +43,12 @@ On the notched display the bar leaves a 1 to 2 pixel gap at the notch edge, so t
 - repoos check passes. ✅ DONE
 
 ## Notes for AI
-
-Depends on #0025 (flat chrome), which changes the same bar drawing and corner handling. Do not start until #0025 is done. Keep the change in `BarGeometry` and the notch-side fill, not the widget views.
+Review Round 2 Fixes:
+- Improved hasNotch detection: now uses placement.mode (.topEdge vs .belowNativeBar) combined with gap check, preventing false positives on future non-notch layouts with middle gaps
+- Added legacyNotchGapIsStrippedOnSave() test verifying round-trip migration through ConfigurationStore
+- Updated site documentation: site/reference/configuration.md and site/guide/customization.md now reflect fixed notch gap behavior
+- All automated checks pass (build, tests, site validation)
+- Physical evidence capture on notched display still required for final acceptance
 
 ## Activity
 
@@ -62,3 +66,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:33:46Z · note: shots: skipped — the diff (19 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T12:34:29Z · note: review pass 2: needs some work
 - 2026-10-10T12:34:29Z · status review→active
+- 2026-10-10T12:35:52Z · body: section Notes for AI
