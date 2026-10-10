@@ -6,7 +6,7 @@ There isn't one yet. Divot is pre-alpha, and there is no signed public download.
 
 ## The configuration doesn't change my menu bar
 
-The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding/notch gap, the System/Light/Dark variant, and the theme family all apply, and the settings window writes the same file. Theme family colors and custom palettes are resolved to semantic tokens and repaint the bar. You can run the native app as a local preview (`just app-run`); there is still no signed public download to install. The browser examples and preview remain design artifacts and do not modify macOS.
+The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding, the System/Light/Dark variant, and the theme family all apply, and the settings window writes the same file. Theme family colors and custom palettes are resolved to semantic tokens and repaint the bar. You can run the native app as a local preview (`just app-run`); there is still no signed public download to install. The browser examples and preview remain design artifacts and do not modify macOS.
 
 ## Website build fails on a link
 

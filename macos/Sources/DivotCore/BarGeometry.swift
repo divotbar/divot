@@ -15,13 +15,22 @@ import CoreGraphics
 public struct BarGeometry: Equatable, Sendable {
     public let left: CGRect
     public let right: CGRect
+    /// True only when the two segments are split around a camera housing: the
+    /// bar hugs the display's auxiliary top areas with a real hole between them.
+    ///
+    /// The panels read this to extend the bar colour a few points into the
+    /// housing so its rounded corners are covered (#0028). It is decided here,
+    /// from the same auxiliary regions that produced the split, and never
+    /// inferred later from "the segments happen to have a gap" — a notch-free
+    /// top-edge layout with a centre seam must not be treated as a notch.
+    public let hasNotch: Bool
 
     public init(screen: CGRect, topLeft: CGRect? = nil, topRight: CGRect? = nil,
-                height: CGFloat = BarMetrics.default.height, gap: CGFloat = 10,
+                height: CGFloat = BarMetrics.default.height, gap: CGFloat = 0,
                 nativeMenuBarInset: CGFloat = 0, edgeMargin: CGFloat = 0) {
         let fallbackHeight = BarMetrics.default.height
         let requestedHeight = max(0, height.isFinite ? height : fallbackHeight)
-        let clearance = max(0, gap.isFinite ? gap : 10)
+        let clearance = max(0, gap.isFinite ? gap : 0)
         let requestedInset = max(0, nativeMenuBarInset.isFinite ? nativeMenuBarInset : 0)
         let requestedMargin = max(0, edgeMargin.isFinite ? edgeMargin : 0)
         // Never push the bar off the bottom of the display.
@@ -40,11 +49,15 @@ public struct BarGeometry: Equatable, Sendable {
             let r = tr.intersection(screen)
             let lh = min(h, l.height)
             let rh = min(h, r.height)
-            left = CGRect(x: l.minX, y: l.maxY - lh,
-                          width: max(0, l.width - clearance), height: lh)
-            let rg = min(clearance, r.width)
-            right = CGRect(x: r.minX + rg, y: r.maxY - rh,
-                           width: max(0, r.width - rg), height: rh)
+            // The notch padding is fixed at zero: the notch-side segments hug
+            // the auxiliary regions exactly and ignore any caller clearance, so
+            // no gap can reopen at the housing edge (#0028).
+            left = CGRect(x: l.minX, y: l.maxY - lh, width: l.width, height: lh)
+            right = CGRect(x: r.minX, y: r.maxY - rh, width: r.width, height: rh)
+            // A real housing means the two auxiliary regions are separated by a
+            // hole, not merely adjacent. A degenerate split with no hole is not
+            // a notch and must not extend the bar.
+            hasNotch = l.maxX < r.minX
         } else {
             let width = max(0, screen.width)
             // `edgeMargin` is the explicit window-manager gap policy knob for the
@@ -57,6 +70,9 @@ public struct BarGeometry: Equatable, Sendable {
             let half = (usableWidth - middleGap) / 2
             left = CGRect(x: screen.minX + margin, y: top - h, width: half, height: h)
             right = CGRect(x: screen.maxX - margin - half, y: top - h, width: half, height: h)
+            // The fallback row (notch-free top edge, or any below-bar row) never
+            // runs alongside a camera housing, so it never extends.
+            hasNotch = false
         }
     }
 }

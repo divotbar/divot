@@ -21,7 +21,7 @@ The intended location is `~/.config/divot/config.json`. Settings and file custom
     "accent": "#D6F58A",
     "material": "native"
   },
-  "layout": { "height": 24, "padding": 6, "notchGap": 10 },
+  "layout": { "height": 24, "padding": 6 },
   "text": { "size": 14, "font": "" },
   "left": ["workspaces", "front-app"],
   "right": ["battery", "clock", "network", "volume"]
@@ -52,8 +52,8 @@ Themes share the one configuration model, so you are not limited to a family's s
 
 The `left` and `right` arrays determine order on each side. Remove an identifier to disable that item, or move it to the other group. Duplicates, unknown identifiers, and an item on both sides are errors. The first contract supports `workspaces`, `front-app`, `battery`, `network`, `volume`, and `clock`.
 
-## Keep the center clear
+## Notched displays
 
-`notchGap` adds space beside the system-reported camera housing; it does not set its width. Long labels should overflow into a menu, not cover the notch. The exact overflow implementation is part of the first app milestone.
+On a Mac with a notch, the bar hugs the camera housing with zero padding and the color extends 6 points into the notch area so the gap and rounded corners stay covered. Long labels should overflow into a menu, not cover the notch. The exact overflow implementation is part of the first app milestone.
 
 See the [complete reference](../reference/configuration) before creating new configurations.

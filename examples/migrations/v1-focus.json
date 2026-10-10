@@ -8,8 +8,7 @@
   },
   "layout": {
     "height": 28,
-    "padding": 10,
-    "notchGap": 12
+    "padding": 10
   },
   "workspaces": {
     "adapter": "aerospace",

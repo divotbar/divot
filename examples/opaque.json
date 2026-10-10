@@ -8,8 +8,7 @@
   },
   "layout": {
     "height": 34,
-    "padding": 14,
-    "notchGap": 10
+    "padding": 14
   },
   "left": [
     "workspaces",

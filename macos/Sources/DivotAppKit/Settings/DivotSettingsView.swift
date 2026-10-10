@@ -226,10 +226,6 @@ public struct DivotSettingsView: View {
                     in: LayoutConfiguration.paddingRange, step: 1) {
                 Text("Padding: \(Int(model.configuration.layout.padding)) pt")
             }
-            Stepper(value: binding(\.layout.notchGap),
-                    in: LayoutConfiguration.notchGapRange, step: 1) {
-                Text("Notch gap: \(Int(model.configuration.layout.notchGap)) pt")
-            }
         }
     }
 

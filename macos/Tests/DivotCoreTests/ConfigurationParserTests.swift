@@ -48,7 +48,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(configuration.right == [.clock])
     #expect(configuration.appearance.mode == .dark)
     #expect(configuration.appearance.material == .opaque)
-    #expect(configuration.layout == LayoutConfiguration(height: 28, padding: 10, notchGap: 12))
+    #expect(configuration.layout == LayoutConfiguration(height: 28, padding: 10))
     #expect(configuration.widgets.workspaces.showEmpty == false)
     #expect(configuration.widgets.clock == ClockConfiguration(weekday: false, date: true, seconds: false))
 }
@@ -90,29 +90,29 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func unknownRootFieldIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"extra":true}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"extra":true}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "root")
     #expect(failure?.message == "unknown field extra")
 }
 
 @Test func menuBarDetectionOptInParsesAndValidates() throws {
-    let optedIn = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"trustAccessibilityProbe":true}}"##)
+    let optedIn = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"menuBar":{"trustAccessibilityProbe":true}}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: optedIn)
     #expect(parsed.configuration.menuBar.trustAccessibilityProbe)
 
     // Absent keeps the conservative shipping default.
-    let absent = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let absent = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: absent).configuration.menuBar == .default)
 
-    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"trustAccessibilityProbe":"yes"}}"##)
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"menuBar":{"trustAccessibilityProbe":"yes"}}"##)
     let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(typeFailure?.path == "menuBar.trustAccessibilityProbe")
 
-    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"followSystemSignal":true}}"##)
+    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"unknownField":true}}"##)
     let unknownFailure = error { try ConfigurationParser.parse(jsonObject: unknown) }
     #expect(unknownFailure?.path == "menuBar")
-    #expect(unknownFailure?.message == "unknown field followSystemSignal")
+    #expect(unknownFailure?.message == "unknown field unknownField")
 }
 
 @Test func menuBarCursorRevealAndFallbackParseAndValidate() throws {
@@ -144,7 +144,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func textSizeAndFontRoundTripAndDeriveTheBarMetrics() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"size":17,"font":"Menlo"},"left":["clock"],"right":[]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"text":{"size":17,"font":"Menlo"},"left":["clock"],"right":[]}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: value)
     #expect(parsed.configuration.text == TextConfiguration(size: 17, font: "Menlo"))
 
@@ -161,7 +161,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func absentTextUsesTheLargerDefault() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: value)
     #expect(parsed.configuration.text == .default)
     #expect(parsed.configuration.barMetrics.textFontSize == BarMetrics.defaultTextSize)
@@ -170,123 +170,130 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 @Test func anUninstalledFontNameIsAcceptedForRenderTimeFallback() throws {
     // The parser cannot know the installed fonts, so it validates the type and
     // leaves the fallback to the renderer rather than rejecting the document.
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"font":"No Such Font"},"left":["clock"],"right":[]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"text":{"font":"No Such Font"},"left":["clock"],"right":[]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: value).configuration.text.font == "No Such Font")
 }
 
 @Test func outOfRangeTextSizeIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"size":99},"left":["clock"],"right":[]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"text":{"size":99},"left":["clock"],"right":[]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "text.size")
     #expect(failure?.message == "expected 10–20")
 }
 
 @Test func nonStringTextFontIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"font":12},"left":["clock"],"right":[]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"text":{"font":12},"left":["clock"],"right":[]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "text.font")
     #expect(failure?.message == "expected string")
 }
 
 @Test func outOfRangeLayoutIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":80,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":80,"padding":12},"left":["clock"],"right":[]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "layout.height")
     #expect(failure?.message == "expected 24–40")
 }
 
 @Test func duplicateItemAcrossGroupsIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":["clock"]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["clock"]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "left/right")
 }
 
 @Test func unknownWidgetNamespaceIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"widgets":{"weather":{}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"weather":{}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets")
     #expect(failure?.message == "unknown field weather")
 }
 
 @Test func unknownWidgetOptionIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"widgets":{"clock":{"timezone":"UTC"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"clock":{"timezone":"UTC"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.clock")
     #expect(failure?.message == "unknown field timezone")
 }
 
 @Test func optionsForAnUnplacedItemAreRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"front-app":{"showIcon":false}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"widgets":{"front-app":{"showIcon":false}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.front-app")
     #expect(failure?.message == "not placed on left or right")
 }
 
 @Test func invalidAppearanceValuesAreRejected() throws {
-    let badFamily = try json(##"{"version":2,"appearance":{"family":"solarized","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let badFamily = try json(##"{"version":2,"appearance":{"family":"solarized","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
     #expect(error { try ConfigurationParser.parse(jsonObject: badFamily) }?.path == "appearance.family")
 
-    let badHex = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let badHex = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
     #expect(error { try ConfigurationParser.parse(jsonObject: badHex) }?.path == "appearance.accent")
 
-    let badMode = try json(##"{"version":2,"appearance":{"family":"native","mode":"twilight","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let badMode = try json(##"{"version":2,"appearance":{"family":"native","mode":"twilight","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
     #expect(error { try ConfigurationParser.parse(jsonObject: badMode) }?.path == "appearance.mode")
 }
 
 @Test func nonBooleanOptionIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"widgets":{"clock":{"seconds":"yes"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"clock":{"seconds":"yes"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.clock.seconds")
     #expect(failure?.message == "expected boolean")
 }
 
 @Test func maxAppIconsIsRangeChecked() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"maxAppIconsPerWorkspace":99}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"maxAppIconsPerWorkspace":99}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.workspaces.maxAppIconsPerWorkspace")
     #expect(failure?.message == "expected 0–32")
 }
 
+@Test func legacyNotchGapIsIgnoredAndNotRewritten() throws {
+    let legacy = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":15},"left":["clock"],"right":[]}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: legacy)
+    #expect(parsed.configuration.layout == LayoutConfiguration(height: 32, padding: 12))
+    #expect(parsed.configuration.layout.contentPolicy.clearance == 0)
+}
+
 @Test func eitherSupportedWorkspaceAdapterParses() throws {
-    let yabai = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"yabai"}}}"##)
+    let yabai = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"yabai"}}}"##)
     #expect(try ConfigurationParser.parse(jsonObject: yabai)
         .configuration.widgets.workspaces.adapter == .yabai)
 
-    let aero = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"aerospace"}}}"##)
+    let aero = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"aerospace"}}}"##)
     #expect(try ConfigurationParser.parse(jsonObject: aero)
         .configuration.widgets.workspaces.adapter == .aerospace)
 }
 
 @Test func unknownWorkspaceAdapterIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"amphibian"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"amphibian"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.workspaces.adapter")
     #expect(failure?.message == "expected aerospace | yabai")
 }
 
 @Test func batteryOptionsMustBeAnEmptyObject() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":[],"right":["battery"],"widgets":{"battery":{"showIcon":true}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["battery"],"widgets":{"battery":{"showIcon":true}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.battery")
     #expect(failure?.message == "unknown field showIcon")
 }
 
 @Test func keepAwakePreferenceDefaultsOffAndParsesExplicitly() throws {
-    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":["battery"]}"##)
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":["battery"]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: without).configuration.keepAwake == .default)
 
-    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":["battery"],"keepAwake":{"remember":true,"isActive":true}}"##)
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":["battery"],"keepAwake":{"remember":true,"isActive":true}}"##)
     #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.keepAwake
         == KeepAwakeConfiguration(remember: true, isActive: true))
 }
 
 @Test func keepAwakeRejectsUnknownAndWronglyTypedFields() throws {
-    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"keepAwake":{"forever":true}}"##)
+    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"keepAwake":{"forever":true}}"##)
     let unknownFailure = error { try ConfigurationParser.parse(jsonObject: unknown) }
     #expect(unknownFailure?.path == "keepAwake")
     #expect(unknownFailure?.message == "unknown field forever")
 
-    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"keepAwake":{"remember":"yes"}}"##)
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"keepAwake":{"remember":"yes"}}"##)
     let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(typeFailure?.path == "keepAwake.remember")
     #expect(typeFailure?.message == "expected boolean")
@@ -300,13 +307,13 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 
 @Test func appIconOptInDefaultsOffAndParsesExplicitly() throws {
     // Absent keeps the first-launch bar unchanged.
-    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[]}"##)
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: without).configuration.showAppIcon == false)
 
-    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showAppIcon":true}"##)
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"showAppIcon":true}"##)
     #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.showAppIcon)
 
-    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showAppIcon":"yes"}"##)
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"showAppIcon":"yes"}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(failure?.path == "showAppIcon")
     #expect(failure?.message == "expected boolean")
@@ -343,17 +350,17 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 
 @Test func workspaceDotTogglesDefaultOnAndParseExplicitly() throws {
     // Absent keeps the first-launch look: both dots on.
-    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[]}"##)
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
     let defaults = try ConfigurationParser.parse(jsonObject: without).configuration
     #expect(defaults.showOccupiedDot)
     #expect(defaults.showEmptyDot)
 
-    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showOccupiedDot":false,"showEmptyDot":true}"##)
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"showOccupiedDot":false,"showEmptyDot":true}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: withValue).configuration
     #expect(!parsed.showOccupiedDot)
     #expect(parsed.showEmptyDot)
 
-    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showEmptyDot":"yes"}"##)
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"showEmptyDot":"yes"}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(failure?.path == "showEmptyDot")
     #expect(failure?.message == "expected boolean")
@@ -389,13 +396,13 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 
 @Test func bottomShadowOptInDefaultsOffAndParsesExplicitly() throws {
     // Absent keeps the first-launch bar unshadowed.
-    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[]}"##)
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: without).configuration.bottomShadow == false)
 
-    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"bottomShadow":true}"##)
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"bottomShadow":true}"##)
     #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.bottomShadow)
 
-    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"bottomShadow":"yes"}"##)
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"bottomShadow":"yes"}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(failure?.path == "bottomShadow")
     #expect(failure?.message == "expected boolean")

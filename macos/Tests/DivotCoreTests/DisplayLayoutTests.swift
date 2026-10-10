@@ -58,10 +58,23 @@ private func aBarNotchedScreen() -> ScreenGeometry {
     let placement = BarPlacementResolver.placement(screen: screen, visibility: .hidden)
     #expect(placement?.mode == .topEdge)
     let g = try! #require(placement?.geometry)
-    // The two auxiliary regions with the housing left open between them.
-    #expect(g.left.maxX == 753)
-    #expect(g.right.minX == 958)
+    // Bar now hugs the notch with zero gap (#0028)
+    #expect(g.left.maxX == 763)
+    #expect(g.right.minX == 948)
     #expect(g.left.maxY == 1107)
+}
+
+@Test func topEdgePolicyIgnoresClearanceSoTheNotchGapStaysZero() {
+    // The removed notch padding cannot be reintroduced through the policy's
+    // clearance: the notched top-edge split always hugs the housing (#0028).
+    let policy = BarContentPolicy(height: 32, clearance: 12, edgeMargin: 0)
+    let placement = BarPlacementResolver.placement(screen: notchedScreen(),
+                                                   visibility: .hidden,
+                                                   policy: policy)
+    let g = try! #require(placement?.geometry)
+    #expect(g.left.maxX == 763)
+    #expect(g.right.minX == 948)
+    #expect(g.hasNotch)
 }
 
 @Test func indeterminateVisibilityHasNoResolvedGeometry() {
