@@ -28,13 +28,18 @@ public final class DivotSettingsModel {
     /// state it is being asked to remember. Kept as a closure rather than the
     /// controller so the model does not own power state.
     private let keepAwakeIsActive: () -> Bool
+    /// The single quit path shared with the menu-bar menu. Kept as a closure so
+    /// the model never owns the application lifecycle and a test can observe it.
+    private let requestQuit: () -> Void
 
     public init(controller: ConfigurationController,
                 loginItem: LoginItemControlling = SMAppServiceLoginItem(),
-                keepAwakeIsActive: @escaping () -> Bool = { false }) {
+                keepAwakeIsActive: @escaping () -> Bool = { false },
+                requestQuit: @escaping () -> Void = {}) {
         self.controller = controller
         self.loginItem = loginItem
         self.keepAwakeIsActive = keepAwakeIsActive
+        self.requestQuit = requestQuit
         self.configuration = controller.configuration
         self.errorMessage = controller.lastError?.description
         self.loginItemEnabled = loginItem.isEnabled
@@ -198,6 +203,14 @@ public final class DivotSettingsModel {
     /// Fallback: always sit below the native menu bar.
     public func setAlwaysBelowMenuBar(_ enabled: Bool) {
         update { $0.menuBar.alwaysBelow = enabled }
+    }
+
+    // MARK: Quit
+
+    /// Take the shared quit path, the same one the menu-bar menu uses. The view
+    /// only calls this after the user confirms through the shared dialog.
+    public func quit() {
+        requestQuit()
     }
 
     // MARK: Keep awake
