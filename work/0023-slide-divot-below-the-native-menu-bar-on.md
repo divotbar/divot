@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
@@ -100,3 +101,4 @@ test
 - 2026-10-10T12:24:03Z · needs_input
 - 2026-10-10T12:24:38Z · status review→active, needs_input
 - 2026-10-10T12:24:38Z · note: close-out repair: merge-conflict
+
