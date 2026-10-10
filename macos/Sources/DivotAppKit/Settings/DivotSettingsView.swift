@@ -8,6 +8,7 @@ import SwiftUI
 /// and VoiceOver come for free; no custom title tooltips are used.
 public struct DivotSettingsView: View {
     @Bindable private var model: DivotSettingsModel
+    @State private var isConfirmingQuit = false
 
     public init(model: DivotSettingsModel) {
         self.model = model
@@ -26,10 +27,17 @@ public struct DivotSettingsView: View {
             textSection
             appearanceSection
             generalSection
+            quitSection
         }
         .formStyle(.grouped)
         .frame(minWidth: 460, minHeight: 560)
         .onAppear { model.refresh() }
+        .divotConfirmation(isPresented: $isConfirmingQuit,
+                           title: "Quit Divot?",
+                           message: "Divot will stop and its bar will be removed. Any keep-awake session ends.",
+                           confirmTitle: "Quit Divot") {
+            model.quit()
+        }
     }
 
     // MARK: Bar
@@ -311,6 +319,23 @@ public struct DivotSettingsView: View {
     private var loginItemBinding: Binding<Bool> {
         Binding(get: { model.loginItemEnabled },
                 set: { model.setLaunchAtLogin($0) })
+    }
+
+    /// Deliberately its own section, last in the form, so the destructive action
+    /// sits away from the toggles and steppers a person edits routinely. The
+    /// button confirms through the shared dialog before quitting.
+    private var quitSection: some View {
+        Section {
+            Button("Quit Divot", role: .destructive) {
+                isConfirmingQuit = true
+            }
+        } header: {
+            Text("Quit Divot")
+        } footer: {
+            Text("Stops Divot and removes the bar. Keep-awake is released. You can launch Divot again when you need it.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     /// Bind a stock control to one field of the shared configuration. The setter
