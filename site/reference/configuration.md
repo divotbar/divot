@@ -1,7 +1,7 @@
 # Configuration reference
 
 ::: info Version 2
-The native parser, store, migration, and settings surface are implemented and validated against these examples. Theme family colors and custom palettes are parsed and persisted but land with the separate theme milestone.
+The native parser, store, migration, settings surface, and theme resolution are implemented and validated against these examples. Theme family colors and custom palettes are applied to the bar.
 :::
 
 ## Root
@@ -27,11 +27,11 @@ The starter validator rejects missing fields, unknown fields, wrong types, and i
 | `material` | `native`, `opaque` |
 | `palette` | Optional object; semantic color token overrides (see below) |
 
-`family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance.
+`family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance. The root `accent` defaults to `#D6F58A`; while it is left at that default a family uses its own signature accent, and any other value overrides the family.
 
 ## Palette overrides
 
-`appearance.palette` is an optional object that overrides individual semantic color tokens of the chosen family and variant. Each token is a six-digit hex color. Supported tokens are `foreground`, `background`, `accent`, `selected`, `occupied`, and `error`. Set only the tokens you want to change; the rest stay with the family. `palette.accent` takes precedence over the root `accent`. The parser and store validate and persist palette overrides; the theme milestone applies them to the bar.
+`appearance.palette` is an optional object that overrides individual semantic color tokens of the chosen family and variant. Each token is a six-digit hex color. Supported tokens are `foreground`, `background`, `accent`, `selected`, `occupied`, and `error`. Set only the tokens you want to change; the rest stay with the family. `palette.accent` takes precedence over the root `accent`. The parser, store, and theme resolver validate, persist, and apply palette overrides; derived chrome roles follow an overridden base.
 
 ```json
 "appearance": {
@@ -95,4 +95,4 @@ See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, and 
 
 ## Custom palettes and theme sharing
 
-Custom palette overrides and theme sharing use the same v2 configuration contract, not a separate file format. A shared theme is a configuration example with a description and screenshot: set `appearance.family` for the base look, then override individual tokens under `appearance.palette` for personal tweaks. Keep credentials and machine-specific paths out of shared examples, and label any light adaptation that is not an official upstream variant. The parser and store validate and persist these examples today; the theme milestone applies family and palette colors to the bar, so a shared example does not repaint the bar until then.
+Custom palette overrides and theme sharing use the same v2 configuration contract, not a separate file format. A shared theme is a configuration example with a description and screenshot: set `appearance.family` for the base look, then override individual tokens under `appearance.palette` for personal tweaks. Keep credentials and machine-specific paths out of shared examples, and label any light adaptation that is not an official upstream variant. The parser, store, and theme resolver validate, persist, and apply these examples; the four families ship with official light and dark variants.

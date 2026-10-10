@@ -26,6 +26,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     private var activationObserver: NSObjectProtocol?
     private var lastState: WorkspaceFeedState?
     private var lastWidth: CGFloat = -1
+    private var theme: BarTheme
 
     private let horizontalInset: CGFloat = 8
     private let chipSpacing: CGFloat = 6
@@ -34,11 +35,13 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     public init(feed: WorkspaceFeed,
                 icons: WorkspaceIconProviding,
                 displayScreensID: Int?,
-                showsFrontApp: Bool = true) {
+                showsFrontApp: Bool = true,
+                theme: BarTheme = .systemDefault) {
         self.feed = feed
         self.icons = icons
         self.displayScreensID = displayScreensID
         self.showsFrontApp = showsFrontApp
+        self.theme = theme
         super.init(frame: .zero)
         setup()
     }
@@ -73,7 +76,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
         guard showsFrontApp else { return }
         frontAppLabel.font = .systemFont(ofSize: 11)
-        frontAppLabel.textColor = .secondaryLabelColor
+        frontAppLabel.textColor = theme.secondary
         frontAppLabel.lineBreakMode = .byTruncatingTail
         frontAppLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         activationObserver = NotificationCenter.default.addObserver(
@@ -103,6 +106,14 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     }
 
     // MARK: Rendering
+
+    /// Re-color the row for a new theme. Chips are rebuilt because their colors
+    /// live in the attributed title and the layer.
+    public func apply(theme: BarTheme) {
+        self.theme = theme
+        frontAppLabel.textColor = theme.secondary
+        rebuild()
+    }
 
     public override func layout() {
         super.layout()
@@ -172,13 +183,24 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                           options: WorkspaceDisplayOptions,
                           occupancy: WorkspaceOccupancy) -> NSButton {
         let button = ChipButton(title: workspace.id.rawValue, target: self, action: #selector(chipClicked(_:)))
-        button.bezelStyle = .recessed
         button.setButtonType(.pushOnPushOff)
         button.state = workspace.isFocused ? .on : .off
         button.controlSize = .small
         button.refusesFirstResponder = false
         button.alignment = .center
         button.identifier = NSUserInterfaceItemIdentifier(workspace.id.rawValue)
+        // The themed chip draws its own background so the selected state is the
+        // family's `selected` color, not the system accent. Focus also remains
+        // the control's selected state and an accessibility value, so state is
+        // never color alone.
+        button.isBordered = false
+        button.wantsLayer = true
+        button.layer?.cornerRadius = 4
+        button.layer?.backgroundColor = workspace.isFocused ? theme.selected.cgColor : NSColor.clear.cgColor
+        // The accent is the interactive focus emphasis: a restrained border on
+        // the focused chip, on top of the selected background.
+        button.layer?.borderWidth = workspace.isFocused ? 1 : 0
+        button.layer?.borderColor = workspace.isFocused ? theme.accent.cgColor : NSColor.clear.cgColor
 
         let label = accessibilityDescription(for: workspace, options: options, occupancy: occupancy)
         button.toolTip = label
@@ -187,13 +209,18 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
         let weight: NSFont.Weight = workspace.isFocused ? .semibold : .regular
         let font = NSFont.systemFont(ofSize: 11, weight: weight)
-        let tint: NSColor? = (occupancy == .empty || occupancy == .unknown) && !workspace.isFocused
-            ? .secondaryLabelColor : nil
+        let nameColor = workspace.isFocused ? theme.selectedForeground : theme.foreground
+        let markerColor: NSColor
+        switch occupancy {
+        case .occupied: markerColor = theme.occupied
+        case .empty, .unknown: markerColor = theme.disabled
+        }
         button.attributedTitle = chipTitle(for: workspace,
                                            options: options,
                                            occupancy: occupancy,
                                            font: font,
-                                           tint: tint)
+                                           nameColor: nameColor,
+                                           markerColor: markerColor)
         return button
     }
 
@@ -211,28 +238,32 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
     /// The chip title: the workspace name plus one attachment per deduplicated
     /// app icon, so enabling icons shows every app rather than only the first,
-    /// then a non-color occupancy marker for every non-focused workspace.
+    /// then a non-color occupancy marker for every non-focused workspace. The
+    /// marker carries the `occupied`/`disabled` role; the name stays in the
+    /// foreground (or the selected foreground) so occupancy is never conveyed by
+    /// text tint alone.
     private func chipTitle(for workspace: Workspace,
                            options: WorkspaceDisplayOptions,
                            occupancy: WorkspaceOccupancy,
                            font: NSFont,
-                           tint: NSColor?) -> NSAttributedString {
-        var attributes: [NSAttributedString.Key: Any] = [.font: font]
-        if let tint { attributes[.foregroundColor] = tint }
+                           nameColor: NSColor,
+                           markerColor: NSColor) -> NSAttributedString {
+        let nameAttributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: nameColor]
+        let markerAttributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: markerColor]
 
-        let title = NSMutableAttributedString(string: workspace.id.rawValue, attributes: attributes)
+        let title = NSMutableAttributedString(string: workspace.id.rawValue, attributes: nameAttributes)
         for identity in WorkspaceLayout.displayApps(for: workspace, options: options) {
             guard let icon = icons.icon(for: identity.bundleID, pointSize: 12) else { continue }
             let attachment = NSTextAttachment()
             attachment.image = icon
             attachment.bounds = CGRect(x: 0, y: -1.5, width: 12, height: 12)
-            title.append(NSAttributedString(string: " ", attributes: attributes))
+            title.append(NSAttributedString(string: " ", attributes: nameAttributes))
             title.append(NSAttributedString(attachment: attachment))
         }
         if !workspace.isFocused {
-            title.append(NSAttributedString(string: " ", attributes: attributes))
+            title.append(NSAttributedString(string: " ", attributes: markerAttributes))
             title.append(NSAttributedString(string: Self.occupancyMarker(for: occupancy),
-                                            attributes: attributes))
+                                            attributes: markerAttributes))
         }
         return title
     }

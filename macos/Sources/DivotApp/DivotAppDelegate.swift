@@ -17,6 +17,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     private var pipeline: WidgetPipeline?
     private var pipelineTask: Task<Void, Never>?
     private var workspaceFeed: WorkspaceFeed?
+    private var workspaceIcons: WorkspaceIconInventory?
     private var configurationController: ConfigurationController?
     private var configurationObserver: UUID?
     private var settingsController: DivotSettingsWindowController?
@@ -40,6 +41,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         let workspaceFeed = WorkspaceFeed()
         self.workspaceFeed = workspaceFeed
         let icons = WorkspaceIconInventory()
+        self.workspaceIcons = icons
 
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
@@ -47,17 +49,27 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             let screensID = NSScreen.screens
                 .firstIndex { NSScreenGeometryProvider.displayID(of: $0) == id }
                 .map { $0 + 1 }
-            return NSPanelBarSurface(id: id,
-                                     on: screen,
-                                     configuration: configuration,
-                                     workspaceFeed: workspaceFeed,
-                                     workspaceIcons: icons,
-                                     displayScreensID: screensID) { action in
+            let surface = NSPanelBarSurface(id: id,
+                                            on: screen,
+                                            configuration: configuration,
+                                            workspaceFeed: workspaceFeed,
+                                            workspaceIcons: icons,
+                                            displayScreensID: screensID) { action in
                 DivotAppDelegate.perform(action)
             }
+            // A family/appearance change can change icon rendering; drop the
+            // appearance-dependent icon cache.
+            surface.onThemeChanged = { [weak icons] in icons?.invalidate() }
+            return surface
         }
         coordinator.start()
         self.coordinator = coordinator
+
+        // A family theme is fixed hex per variant, so when `mode` is `system`
+        // and the Mac toggles appearance the bar must repaint. Each surface's
+        // content view notices the effective-appearance change and restyles;
+        // that invalidates appearance-dependent caches only and never restarts
+        // providers.
 
         let pipeline = WidgetPipeline { changes in
             coordinator.applyWidgetChanges(changes)
@@ -86,12 +98,15 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
 
     /// Apply one validated configuration to every consumer.
     private func apply(_ configuration: DivotConfiguration) {
+        // Appearance first: a surface rebuilt below resolves its theme from the
+        // live effective appearance, so the app-wide override must be in place.
+        applyAppearance(configuration.appearance)
         coordinator?.apply(configuration: configuration)
+        workspaceIcons?.invalidate()
         let pipeline = self.pipeline
         let providers = DefaultWidgetProviders.make(for: configuration)
         Task { await pipeline?.configure(providers) }
         applyWorkspaceRow(configuration)
-        applyAppearance(configuration.appearance)
     }
 
     /// Start, reconfigure, or stop the workspace row. When the item is not placed
@@ -138,8 +153,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                    options: options)
     }
 
-    /// Apply the System/Light/Dark variant. Theme family colors land with the
-    /// separate theme milestone; the variant is a live, app-wide override.
+    /// Apply the System/Light/Dark variant app-wide. Family colors are applied to
+    /// the bar surfaces through the theme; the variant also governs the settings
+    /// window, menus, and popovers because it sets `NSApp.appearance`.
     private func applyAppearance(_ appearance: AppearanceConfiguration) {
         switch appearance.mode {
         case .system: NSApp.appearance = nil

@@ -6,7 +6,7 @@ There isn't one yet. Divot is pre-alpha. [Build the website and core tests](./bu
 
 ## The configuration doesn't change my menu bar
 
-The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding/notch gap, and the System/Light/Dark variant all apply, and the settings window writes the same file. Theme family colors and custom palettes are parsed and persisted but do not repaint the bar yet — that arrives with the theme milestone. There is no packaged release yet, so there is nothing to install; the examples and the browser preview remain design artifacts and do not modify macOS.
+The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding/notch gap, the System/Light/Dark variant, and the theme family all apply, and the settings window writes the same file. Theme family colors and custom palettes are resolved to semantic tokens and repaint the bar. There is no packaged release yet, so there is nothing to install; the examples and the browser preview remain design artifacts and do not modify macOS.
 
 ## Website build fails on a link
 
@@ -22,7 +22,7 @@ It is not needed to run the website or geometry tests. The bar runs without it a
 
 ## A theme or side doesn't change anything
 
-Both configurable sides, per-item options, layout, and the System/Light/Dark variant are implemented and applied by the native app. Theme family colors and custom palettes are validated and saved but not yet drawn: they land with the theme milestone. There is no packaged release, so current examples and the browser preview remain design artifacts.
+Both configurable sides, per-item options, layout, the System/Light/Dark variant, and the theme family are implemented and applied by the native app. Theme family colors and custom palettes are validated, saved, and resolved to the bar's semantic tokens. There is no packaged release, so current examples and the browser preview remain design artifacts.
 
 ## Report a problem
 
