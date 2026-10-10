@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0011"
 title: "Implement Gruvbox, Ayu, Dracula and Tokyo Night theme families"
 type: feature
@@ -53,3 +54,4 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 - 2026-10-10T00:51:38Z · note: review pass 1: good to go
 - 2026-10-10T01:29:18Z · status review→active
 - 2026-10-10T01:29:18Z · note: close-out repair: merge-conflict
+
