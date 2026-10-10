@@ -1,5 +1,4 @@
 ---
-check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-10T08:00:25.236Z: repoos check failed: native-app-bundle — timed out — timed out after 600s"
 id: "0021"
 title: "Divot placement: top edge when the native menu bar is hidden, below only while it is revealed; bar height 32pt"
@@ -96,4 +95,5 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T07:30:11Z · note: review pass 2: needs some work
 - 2026-10-10T07:30:11Z · status review→active
 - 2026-10-10T07:37:52Z · body: section Verification
+
 
