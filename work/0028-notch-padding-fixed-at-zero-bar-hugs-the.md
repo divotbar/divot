@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T13:21:10Z"
+updated_at: "2026-10-10T13:23:11Z"
 review_passes: 6
 review_rounds: 2
 ---
@@ -76,10 +76,10 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 ```json
 [
 {
-"label": "Notch area verification - bar extends to fully cover housing gap",
-"target": "default",
-"route": "/",
-"highlight": "body"
+  "label": "Packaged app notch area - bar extends 6pt into housing corners",
+  "target": "default",
+  "route": "/",
+  "selector": "body"
 }
 ]
 ```
@@ -133,3 +133,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:21:10Z · needs_input
 - 2026-10-10T13:21:10Z · status review→active
 - 2026-10-10T13:21:10Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T13:23:11Z · body: section Shots
