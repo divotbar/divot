@@ -2,7 +2,7 @@
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
-status: review
+status: active
 priority: p1
 area: macos
 depends_on: ["0021", "0022"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T11:04:18Z"
+updated_at: "2026-10-10T11:30:40Z"
 ---
 ## Problem
 
@@ -43,3 +43,4 @@ Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new 
 - 2026-10-10T10:39:42Z · status active→review
 - 2026-10-10T10:52:55Z · status review→active
 - 2026-10-10T11:04:18Z · status active→review
+- 2026-10-10T11:30:40Z · status review→active
