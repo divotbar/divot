@@ -66,24 +66,22 @@ import DivotCore
     #expect(expanded.height == bar.height + 6)
 }
 
-/// The notch-side edge extends 6 points into the notch area to cover the gap
-/// and rounded corners (#0028).
+/// The notch-side edge extends 6 points into the notch area to cover the
+/// rounded corners of the housing (#0028).
 @MainActor
-@Test func notchExtensionCoversTheHousingGap() {
+@Test func notchExtensionCoversRoundedCorners() {
     let left = CGRect(x: 0, y: 950, width: 680, height: 32)
     let right = CGRect(x: 832, y: 950, width: 680, height: 32)
-    let gap = right.minX - left.maxX  // 832 - 680 = 152
-    let extensionAmount = gap / 2  // 76
 
-    let leftExtended = NSPanelBarSurface.extendFrameIntoNotch(left, side: .left, by: extensionAmount)
-    let rightExtended = NSPanelBarSurface.extendFrameIntoNotch(right, side: .right, by: extensionAmount)
+    let leftExtended = NSPanelBarSurface.extendFrameIntoNotch(left, side: .left)
+    let rightExtended = NSPanelBarSurface.extendFrameIntoNotch(right, side: .right)
 
-    // Left extends to the right by gap/2
-    #expect(leftExtended.maxX == left.maxX + extensionAmount)
-    // Right extends to the left by gap/2
-    #expect(rightExtended.minX == right.minX - extensionAmount)
-    // They should meet in the middle
-    #expect(leftExtended.maxX == rightExtended.minX)
+    // Left extends 6 points to the right
+    #expect(leftExtended.maxX == left.maxX + 6)
+    #expect(leftExtended.width == left.width + 6)
+    // Right extends 6 points to the left
+    #expect(rightExtended.minX == right.minX - 6)
+    #expect(rightExtended.width == right.width + 6)
 }
 
 @MainActor
