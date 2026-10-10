@@ -13,11 +13,11 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 cli_override: claude code
-model_override: default
+model_override: haiku
 review_cli_override: claude code
 review_model_override: haiku
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T12:17:25Z"
+updated_at: "2026-10-10T12:17:26Z"
 review_passes: 5
 review_rounds: 2
 incomplete_review_retries: 1
@@ -91,3 +91,4 @@ test
 - 2026-10-10T11:39:14Z · needs_input
 - 2026-10-10T12:17:24Z · cli_override, model_override
 - 2026-10-10T12:17:25Z · cli_override, model_override
+- 2026-10-10T12:17:26Z · model_override
