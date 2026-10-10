@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-10T12:57:34Z"
-review_passes: 8
+last_close_out_gate_ms: 43119
+last_close_out_gate_at: "2026-10-10T13:06:07.768Z"
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
@@ -19,6 +19,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T08:46:31Z"
+updated_at: "2026-10-10T13:06:07Z"
+review_passes: 8
 handoff_signal_retry_count: 1
 close_out_repair_count: 1
 review_rounds: 2
@@ -116,4 +118,5 @@ test
 - 2026-10-10T12:56:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T12:57:34Z · note: review pass 10: needs some work
 - 2026-10-10T12:57:34Z · needs_input
+- 2026-10-10T13:06:07Z · close-out gate completed in 43s
 
