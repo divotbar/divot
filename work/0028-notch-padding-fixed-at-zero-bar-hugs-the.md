@@ -12,7 +12,7 @@ branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:36:10Z"
+updated_at: "2026-10-10T12:36:52Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -69,3 +69,4 @@ Review Round 2 Fixes:
 - 2026-10-10T12:35:52Z · body: section Notes for AI
 - 2026-10-10T12:36:10Z · status active→review
 - 2026-10-10T12:36:10Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:36:52Z · note: review pass 3: needs some work
