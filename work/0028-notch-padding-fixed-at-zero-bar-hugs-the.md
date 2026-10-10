@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-10T17:21:02Z"
-review_passes: 13
+last_close_out_gate_ms: 48110
+last_close_out_gate_at: "2026-10-10T22:10:01.279Z"
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
@@ -16,6 +16,8 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
+updated_at: "2026-10-10T22:10:01Z"
+review_passes: 13
 review_rounds: 2
 dev_error_count: 1
 ---
@@ -188,4 +190,5 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T17:19:38Z · body: section Notes for AI
 - 2026-10-10T17:19:46Z · status active→review
 - 2026-10-10T17:21:02Z · note: review pass 13: good to go
+- 2026-10-10T22:10:01Z · close-out gate completed in 48s
 
