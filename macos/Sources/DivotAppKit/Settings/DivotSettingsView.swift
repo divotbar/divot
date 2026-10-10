@@ -75,7 +75,7 @@ public struct DivotSettingsView: View {
             Button {
                 model.moveWithinSide(id, delta: -1)
             } label: {
-                Image(systemName: "arrow.up")
+                Image(systemName: "arrow.left")
             }
             .disabled(!model.canMove(id, delta: -1))
             .help("Move \(id.displayName) earlier")
@@ -84,7 +84,7 @@ public struct DivotSettingsView: View {
             Button {
                 model.moveWithinSide(id, delta: 1)
             } label: {
-                Image(systemName: "arrow.down")
+                Image(systemName: "arrow.right")
             }
             .disabled(!model.canMove(id, delta: 1))
             .help("Move \(id.displayName) later")
