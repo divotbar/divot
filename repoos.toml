@@ -110,3 +110,10 @@ command = "bun run dev -- --port 5180 --strictPort"
 url = "http://127.0.0.1:5180"
 label = "Website (HMR)"
 healthCheck = { url = "http://127.0.0.1:5180/" }
+
+# The native Divot bar: a foreground process with no URL, run from the Dev page.
+[[dev.targets]]
+name = "divot"
+kind = "process"
+command = "swift run --package-path macos divot"
+label = "Divot bar"
