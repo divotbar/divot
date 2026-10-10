@@ -108,7 +108,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
 
         let options = WorkspaceEnvironmentOverrides
             .displayOptions(configuration.widgets.workspaces.displayOptions)
-        let selection = WorkspaceManagerSelector.select(preferred: configuration.widgets.workspaces.adapter,
+        let preferred = WorkspaceEnvironmentOverrides
+            .adapter(configuration.widgets.workspaces.adapter)
+        let selection = WorkspaceManagerSelector.select(preferred: preferred,
                                                         installed: WorkspaceAdapterFactory.installedManagers())
 
         // Same manager already running: apply the new options in place so the
@@ -133,7 +135,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         let kind = selection.kind
-        feed.start(adapter: WorkspaceAdapterFactory.makeAdapter(for: kind),
+        feed.start(adapter: WorkspaceAdapterFactory.makeAdapter(for: kind,
+                                                               displayIndex: ScreenDisplayIndexResolver.live()),
                    eventSourceProvider: { WorkspaceAdapterFactory.makeEventSource(for: kind) },
                    options: options)
     }

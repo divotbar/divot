@@ -66,7 +66,7 @@ function layout(value: unknown) {
 
 function workspacesOptions(value: unknown, path: string) {
   shape(value, [], ['adapter', 'showEmpty', 'showAppIcons', 'showDetails', 'maxAppIconsPerWorkspace'], path)
-  if ('adapter' in value) oneOf(value.adapter, ['aerospace'], `${path}.adapter`)
+  if ('adapter' in value) oneOf(value.adapter, ['aerospace', 'yabai'], `${path}.adapter`)
   flags(value, ['showEmpty', 'showAppIcons', 'showDetails'], path)
   if ('maxAppIconsPerWorkspace' in value) range(value.maxAppIconsPerWorkspace, 0, 32, `${path}.maxAppIconsPerWorkspace`)
 }

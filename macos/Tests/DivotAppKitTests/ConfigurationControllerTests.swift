@@ -119,7 +119,7 @@ private final class FailingThenWorkingWriter: @unchecked Sendable {
     #expect(reread.configuration.right == DivotConfiguration.default.right)
 }
 
-@Test func environmentOverridesAdjustWorkspaceDisplayOptionsOnly() {
+@Test func environmentOverridesAdjustWorkspaceDisplayOptions() {
     let base = WorkspaceDisplayOptions(showEmpty: true, showAppIcons: false, showDetails: true)
     let overridden = WorkspaceEnvironmentOverrides.displayOptions(
         base,
@@ -128,6 +128,15 @@ private final class FailingThenWorkingWriter: @unchecked Sendable {
     #expect(overridden.showEmpty == false)
     #expect(overridden.showAppIcons == true)
     #expect(overridden.showDetails == true)
+}
+
+@Test func environmentCanOverrideTheWorkspaceAdapter() {
+    #expect(WorkspaceEnvironmentOverrides.adapter(.aerospace,
+                                                  environment: ["DIVOT_WORKSPACES_ADAPTER": "yabai"]) == .yabai)
+    // An absent or unrecognized value keeps the configured adapter.
+    #expect(WorkspaceEnvironmentOverrides.adapter(.aerospace, environment: [:]) == .aerospace)
+    #expect(WorkspaceEnvironmentOverrides.adapter(.yabai,
+                                                  environment: ["DIVOT_WORKSPACES_ADAPTER": "amphibian"]) == .yabai)
 }
 
 @MainActor

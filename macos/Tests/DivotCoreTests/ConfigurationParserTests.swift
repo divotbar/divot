@@ -155,6 +155,23 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "expected 0–32")
 }
 
+@Test func eitherSupportedWorkspaceAdapterParses() throws {
+    let yabai = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"yabai"}}}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: yabai)
+        .configuration.widgets.workspaces.adapter == .yabai)
+
+    let aero = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"aerospace"}}}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: aero)
+        .configuration.widgets.workspaces.adapter == .aerospace)
+}
+
+@Test func unknownWorkspaceAdapterIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"amphibian"}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "widgets.workspaces.adapter")
+    #expect(failure?.message == "expected aerospace | yabai")
+}
+
 @Test func batteryOptionsMustBeAnEmptyObject() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":[],"right":["battery"],"widgets":{"battery":{"showIcon":true}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }

@@ -119,8 +119,8 @@ public struct LayoutConfiguration: Equatable, Sendable {
 
 /// `widgets.workspaces`: the workspace row's display options plus the adapter.
 public struct WorkspacesConfiguration: Equatable, Sendable {
-    /// Window-manager adapter. Only AeroSpace ships; yabai joins in its own
-    /// milestone, so the parser rejects any other value.
+    /// Window-manager adapter. AeroSpace and yabai ship; the parser rejects any
+    /// other value.
     public var adapter: WorkspaceManagerKind
     public var showEmpty: Bool
     public var showAppIcons: Bool
@@ -140,8 +140,8 @@ public struct WorkspacesConfiguration: Equatable, Sendable {
         self.maxAppIconsPerWorkspace = maxAppIconsPerWorkspace
     }
 
-    /// Adapters the current contract accepts. Yabai is a later milestone.
-    public static let supportedAdapters: [WorkspaceManagerKind] = [.aerospace]
+    /// Adapters the current contract accepts.
+    public static let supportedAdapters: [WorkspaceManagerKind] = [.aerospace, .yabai]
     public static let maxAppIconsRange: ClosedRange<Int> = 0...32
 
     public static let `default` = WorkspacesConfiguration()
