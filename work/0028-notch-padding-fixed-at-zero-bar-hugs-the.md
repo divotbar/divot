@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T14:09:40Z"
+updated_at: "2026-10-10T14:10:22Z"
 review_passes: 8
 review_rounds: 2
 ---
@@ -143,3 +143,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T14:08:21Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T14:09:18Z · status active→review
 - 2026-10-10T14:09:19Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (e4c5e8e) during finalization (#0734)
+- 2026-10-10T14:10:22Z · note: review pass 9: needs some work
