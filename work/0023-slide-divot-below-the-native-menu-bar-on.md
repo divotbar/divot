@@ -13,7 +13,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T10:52:55Z"
+updated_at: "2026-10-10T11:03:09Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -43,10 +43,11 @@ Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new 
 ## Verification
 Automated (task branch, this run):
 
-- `swift test --package-path macos`: **417 tests pass**, including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, the settings-model persistence, and two `TopStripCursorMonitor` integration tests that drive the tracking loop through a stub geometry provider and an injected pointer location.
+- `swift test --package-path macos`: **419 tests pass** (417 before this review; +2 new), including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, the settings-model persistence, and two `TopStripCursorMonitor` integration tests that drive the tracking loop through a stub geometry provider and an injected pointer location.
+- New for the review's optional monitor no-op: `MenuBarConfiguration.usesCursorRevealMonitoring` is tested for all four on/off combinations, and `TopStripCursorMonitor.setEnabled` is tested to stop the loop and re-report the current engagement. `DivotAppDelegate` now starts/stops the monitor from that derived setting, so an install with the cursor reveal and the always-below fallback both inactive keeps no global mouse tap installed.
 - `bun run check`: config schema, examples, and the website build pass.
 - `REPOOS_CHECK_CHANGED=main repoos check`: all steps pass (native-core, native-app, native-app-bundle, justfile). The bundled step runs `scripts/package-app.sh` and the packaged app's headless smoke checks (`--help`, `--report`, `--widgets`).
-- `divot --report` now prints the cursor settings, the engaged displays, and `cursorGlobalMonitor=installed|unavailable`, so a "setting broken" report is diagnosable without moving anything.
+- Packaged `dist/Divot.app/Contents/MacOS/divot --report` (this run, maintainer's notched display, `_HIHideMenuBar=1`): `moveBelowOnCursorReveal=true`, `alwaysBelow=false`, `cursorEngaged=` (pointer away from the strip), `cursorGlobalMonitor=installed`, `reduceMotion=false`, `display-1 notched=true visibility=hidden`, `mode=topEdge left=(0.0, 1075.0, 753.0, 32.0) right=(958.0, 1075.0, 752.0, 32.0)`. `divot --report` also prints the cursor settings and `cursorGlobalMonitor=installed|unavailable`, so a "setting broken" report is diagnosable without moving anything.
 
 Implementation notes:
 
@@ -55,17 +56,18 @@ Implementation notes:
 - Settings carries "Move below the menu bar when it appears" (default on) and the "Always below the menu bar" fallback (default off), persisted through the store with `menuBar.moveBelowOnCursorReveal` / `menuBar.alwaysBelow`.
 - On a detection-policy change the coordinator resets its retained core state so an indeterminate state cannot leave the bar stuck below after the toggle is turned off.
 
-Review rounds 2–3:
+Review rounds 2–4:
 
 - Global monitor availability is surfaced three ways: a stderr warning at launch, `TopStripCursorMonitor.globalMonitorInstalled`, and a `divot --report` line. On this machine the probe reports `cursorGlobalMonitor=installed` even with Accessibility not granted, so the mouse monitor does not depend on the Accessibility grant. The local monitor still runs regardless.
+- The monitor is now started/stopped from `menuBar.usesCursorRevealMonitoring` (`moveBelowOnCursorReveal && !alwaysBelow`), so it does not hold a global mouse tap while its reading cannot affect placement; a re-enable re-reads and reports the current engagement at once.
 - Notch-free + auto-hide relies on `visibleFrame` by design (the required cross-check); the flat-display case is in the `docs/local-preview.md` hardware checklist and covered by the detector disagreement tests, with `menuBar.alwaysBelow` as the fallback where that frame lies.
-- Default on is kept per spec; the Settings caption states it targets an auto-hidden menu bar, and on a notch-free display the cursor reading is ignored in favour of `visibleFrame`, so an always-visible setup is unaffected there.
 - Multiple masked displays stay per-display; the settle-delay feel is a hardware item below.
 
 Human-only (NOT supplied here; do not treat as verified):
 
-- Visual confirmation that the bar slides below the native menu bar when the pointer reaches the top edge and returns when it leaves, on the maintainer's display (notched built-in and a flat external display). The screen capture the acceptance asks for was not produced from this agent process; a `ui-verification/0023.json`/shot attachment must be added and the maintainer must confirm the feel before close-out. No run here claims it works visually.
-
+- The acceptance screen capture of the slide (and the flat-external case) and the maintainer's confirmation of the feel were not produced from this agent process. `screencapture` is reachable here, but driving the reveal needs the pointer at the top edge and `CGWarpMouseCursorPosition` is a no-op for this process (verified this run: warping to a location leaves `CGEvent(source: nil)?.location` unchanged), so an agent cannot move the pointer to trigger the native reveal. A person must run `just app-run` (or `open dist/Divot.app`), move the pointer to the top edge, confirm Divot slides below the revealed native menu bar and returns to the top edge when the pointer leaves, and record a screen capture. On the notched built-in this is the default path; on a flat external the `visibleFrame` cross-check applies. No run here claims it works visually or that the feel is right.
+- The browser UI handoff gate does not apply: the diff touches the native app and docs, not a `[[preview.paths]]` web route, so there is no shot to capture and no `ui-verification/0023.json` is produced by design.
+- The Reduce Motion slide was exercised by unit tests only, not on glass.
 
 ## Activity
 
@@ -88,3 +90,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T10:45:32Z · note: review pass 3: needs some work
 - 2026-10-10T10:45:33Z · needs_input
 - 2026-10-10T10:52:55Z · status review→active
+- 2026-10-10T11:03:09Z · body: section Verification
