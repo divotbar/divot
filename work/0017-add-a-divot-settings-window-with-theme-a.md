@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 32531
-last_close_out_gate_at: "2026-10-10T02:24:53.282Z"
 id: "0017"
 title: Add a Divot settings window with theme and appearance pickers
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
 depends_on: ["0006", "0011"]
+merged_commit: ee779250a74e14f48963cea3cfa2b9fb0f7a33fb
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-divot-settings-window-with-theme-a
 created_at: "2026-10-09T20:26:49Z"
-updated_at: "2026-10-10T02:24:53Z"
+updated_at: "2026-10-10T02:24:56Z"
+last_close_out_gate_ms: 32531
+last_close_out_gate_at: "2026-10-10T02:24:53.282Z"
 review_passes: 1
 ---
 ## Problem
@@ -46,4 +47,4 @@ Depends on 0006 (config, settings, appearance modes) and 0011 (theme families). 
 - 2026-10-10T02:20:55Z · note: shots: skipped — the diff (2 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T02:21:33Z · note: review pass 1: good to go
 - 2026-10-10T02:24:53Z · close-out gate completed in 33s
-
+- 2026-10-10T02:24:56Z · status review→done, release:success
