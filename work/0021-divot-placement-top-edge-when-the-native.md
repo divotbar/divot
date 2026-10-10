@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/divot-placement-top-edge-when-the-native
 created_at: "2026-10-10T05:23:24Z"
-updated_at: "2026-10-10T06:06:04Z"
+updated_at: "2026-10-10T06:06:43Z"
 ---
 ## Problem
 
@@ -73,3 +73,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T06:03:05Z · body: section Verification
 - 2026-10-10T06:06:04Z · status active→review
 - 2026-10-10T06:06:04Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T06:06:43Z · note: review pass 1: needs some work
