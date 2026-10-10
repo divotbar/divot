@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-10T17:15:21Z"
-review_passes: 12
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: dev-error
-needs_input_detail: "error: Invalid model reference: big pickle"
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -19,6 +14,8 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
+updated_at: "2026-10-10T17:17:12Z"
+review_passes: 12
 review_rounds: 2
 dev_error_count: 1
 ---
@@ -180,4 +177,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T17:13:56Z · status active→review
 - 2026-10-10T17:13:56Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (4226ad5) during finalization (#0734)
 - 2026-10-10T17:15:21Z · note: review pass 12: needs some work
-
+- 2026-10-10T17:17:12Z · needs_input
