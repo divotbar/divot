@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T13:09:40Z"
+updated_at: "2026-10-10T13:10:05Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -120,3 +120,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:09:10Z · body: section Shots
 - 2026-10-10T13:09:16Z · body: section Verification on notched display
 - 2026-10-10T13:09:22Z · status active→review
+- 2026-10-10T13:10:05Z · note: review pass 5: needs some work
