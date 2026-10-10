@@ -99,3 +99,14 @@ cli = "cursor"
 model = "composer-2.5"
 enabled = true
 instructions = "You are the CTO: an always-on board monitor and un-sticker. Watch for stuck tasks, stale reviews, zombie processes, and broken builds. Report what you find, escalate when needed, and ask the human before taking action. Never move a task to done, merge branches, delete worktrees, change config, or spend money."
+
+# Dev targets: the marketing/docs site with HMR, started from the Dev page.
+# The native bar has no URL and cannot be expressed as a dev target yet; see
+# the follow-up task filed in the RepoOS board for native app run/restart.
+[[dev.targets]]
+name = "site"
+kind = "server"
+command = "bun run dev -- --port 5180 --strictPort"
+url = "http://127.0.0.1:5180"
+label = "Website (HMR)"
+healthCheck = { url = "http://127.0.0.1:5180/" }
