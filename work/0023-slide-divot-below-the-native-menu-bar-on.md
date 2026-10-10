@@ -103,3 +103,4 @@ test
 - 2026-10-10T12:24:38Z · status review→active, needs_input
 - 2026-10-10T12:24:38Z · note: close-out repair: merge-conflict
 - 2026-10-10T12:32:13Z · status active→review
+- 2026-10-10T12:32:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
