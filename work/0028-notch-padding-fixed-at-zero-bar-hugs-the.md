@@ -12,7 +12,7 @@ branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:33:46Z"
+updated_at: "2026-10-10T12:34:29Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -60,3 +60,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:32:50Z · body: section Acceptance criteria
 - 2026-10-10T12:33:45Z · status active→review
 - 2026-10-10T12:33:46Z · note: shots: skipped — the diff (19 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-10T12:34:29Z · note: review pass 2: needs some work
