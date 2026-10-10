@@ -65,9 +65,6 @@ public final class NSPanelBarSurface: BarDisplaySurface {
 
     /// How far the optional bottom shadow reaches below the bar.
     private static let bottomShadowHeight: CGFloat = 6
-    /// Extension of the notch-side edge into the notch area to cover the gap
-    /// and rounded corners of the housing (#0028).
-    private static let notchExtension: CGFloat = 6
 
     public init(id: DisplayBarID,
                 on screen: CGRect,
@@ -135,10 +132,10 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         // The notch extension only applies at the top edge on a notched display.
         // Below the native bar, there's no notch to extend into.
         let isTopEdge = if case .topEdge = placement.mode { true } else { false }
-        let hasGap = placement.geometry.left.maxX < placement.geometry.right.minX
-        let shouldExtend = isTopEdge && hasGap
-        move(left, to: placement.geometry.left, side: .left, hasNotch: shouldExtend, animated: animate)
-        move(right, to: placement.geometry.right, side: .right, hasNotch: shouldExtend, animated: animate)
+        let gap = placement.geometry.right.minX - placement.geometry.left.maxX
+        let shouldExtend = isTopEdge && gap > 0
+        move(left, to: placement.geometry.left, side: .left, gap: gap, hasNotch: shouldExtend, animated: animate)
+        move(right, to: placement.geometry.right, side: .right, gap: gap, hasNotch: shouldExtend, animated: animate)
     }
 
     public func apply(widgetChanges: [WidgetChange]) {
@@ -181,12 +178,12 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         return panel
     }
 
-    private func move(_ panel: NSPanel, to frame: CGRect, side: BarSide, hasNotch: Bool, animated: Bool) {
+    private func move(_ panel: NSPanel, to frame: CGRect, side: BarSide, gap: CGFloat, hasNotch: Bool, animated: Bool) {
         // Reserve the shadow strip below the bar when the shadow is on, so the
         // gradient draws over the desktop rather than over the bar content.
-        // On a notched display, extend the notch-side edge by 6 points to cover
-        // the notch corner (#0028). On notch-free displays, keep the geometry as-is.
-        let extendedFrame = hasNotch ? Self.extendFrameIntoNotch(frame, side: side) : frame
+        // On a notched display, extend toward the housing gap to cover it completely (#0028).
+        // Each panel extends by half the gap so they meet in the middle.
+        let extendedFrame = hasNotch ? Self.extendFrameIntoNotch(frame, side: side, by: gap / 2) : frame
         let target = Self.panelFrame(for: extendedFrame, shadowHeight: shadowHeight)
         targets[ObjectIdentifier(panel)] = target
         guard animated else {
@@ -200,19 +197,19 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         }
     }
 
-    /// Extend the bar frame by 6 points on the notch-side edge to cover the
-    /// notch corner and gap (#0028).
-    static func extendFrameIntoNotch(_ barFrame: CGRect, side: BarSide) -> CGRect {
+    /// Extend the bar frame on the notch-side edge to cover the housing gap.
+    /// Each panel extends by the given amount so they meet in the middle (#0028).
+    static func extendFrameIntoNotch(_ barFrame: CGRect, side: BarSide, by extension: CGFloat) -> CGRect {
         switch side {
         case .left:
             return CGRect(x: barFrame.minX,
                           y: barFrame.minY,
-                          width: barFrame.width + notchExtension,
+                          width: barFrame.width + `extension`,
                           height: barFrame.height)
         case .right:
-            return CGRect(x: barFrame.minX - notchExtension,
+            return CGRect(x: barFrame.minX - `extension`,
                           y: barFrame.minY,
-                          width: barFrame.width + notchExtension,
+                          width: barFrame.width + `extension`,
                           height: barFrame.height)
         }
     }
