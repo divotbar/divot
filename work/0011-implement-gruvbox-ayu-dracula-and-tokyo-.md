@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-gruvbox-ayu-dracula-and-tokyo-
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-10T00:49:54Z"
+updated_at: "2026-10-10T00:49:58Z"
 ---
 ## Problem
 
@@ -48,3 +48,4 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 - 2026-10-09T23:51:00Z · status ready→active, branch
 - 2026-10-10T00:41:59Z · body: section Shots
 - 2026-10-10T00:49:54Z · status active→review
+- 2026-10-10T00:49:58Z · note: highlight main h2 + table matched nothing on /guide/themes
