@@ -235,19 +235,9 @@ final class BarPanelContainer: NSView {
         super.init(frame: .zero)
         wantsLayer = true
         addSubview(content)
-        guard self.shadowHeight > 0 else { return }
-        // A drop shadow is conventionally dark regardless of the bar's theme, so
-        // this is a fixed neutral tint rather than a theme token; theme it only
-        // if the design ever calls for a coloured shadow. Darkest right under
-        // the bar, fading to clear downward. Unit space: (0, 0) is bottom-left
-        // and (1, 1) is top-right, so the strip's top is the start point.
-        shadowGradient.colors = [
-            NSColor.black.withAlphaComponent(0.20).cgColor,
-            NSColor.black.withAlphaComponent(0).cgColor
-        ]
-        shadowGradient.startPoint = CGPoint(x: 0.5, y: 1)
-        shadowGradient.endPoint = CGPoint(x: 0.5, y: 0)
-        layer?.addSublayer(shadowGradient)
+        if self.shadowHeight > 0 {
+            configureShadowGradient()
+        }
     }
 
     @available(*, unavailable)
@@ -257,10 +247,38 @@ final class BarPanelContainer: NSView {
 
     override func layout() {
         super.layout()
+        attachShadowGradientIfNeeded()
         // y-up: the bar half occupies the top and the shadow strip the bottom.
         content.frame = CGRect(x: 0, y: shadowHeight,
                                width: bounds.width,
                                height: max(0, bounds.height - shadowHeight))
-        shadowGradient.frame = CGRect(x: 0, y: 0, width: bounds.width, height: shadowHeight)
+        if shadowHeight > 0 {
+            shadowGradient.frame = CGRect(x: 0, y: 0, width: bounds.width, height: shadowHeight)
+        }
+    }
+
+    /// A drop shadow is conventionally dark regardless of the bar's theme, so
+    /// this is a fixed neutral tint rather than a theme token; theme it only
+    /// if the design ever calls for a coloured shadow.
+    private func configureShadowGradient() {
+        // Darkest right under the bar, fading to clear downward. Unit space:
+        // (0, 0) is bottom-left and (1, 1) is top-right, so the strip's top
+        // is the start point.
+        shadowGradient.colors = [
+            NSColor.black.withAlphaComponent(0.20).cgColor,
+            NSColor.black.withAlphaComponent(0).cgColor
+        ]
+        shadowGradient.startPoint = CGPoint(x: 0.5, y: 1)
+        shadowGradient.endPoint = CGPoint(x: 0.5, y: 0)
+    }
+
+    /// The backing layer can be nil in `init`; attach on layout when needed.
+    private func attachShadowGradientIfNeeded() {
+        guard shadowHeight > 0 else { return }
+        guard let layer else { return }
+        if shadowGradient.superlayer !== layer {
+            configureShadowGradient()
+            layer.addSublayer(shadowGradient)
+        }
     }
 }

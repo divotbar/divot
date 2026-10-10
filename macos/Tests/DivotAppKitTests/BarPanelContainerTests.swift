@@ -21,6 +21,24 @@ import DivotCore
 }
 
 @MainActor
+@Test func panelContainerReattachesTheShadowGradientAfterLayoutIfItWasRemoved() {
+    let content = BarContentView(side: .right, items: [.clock])
+    let container = BarPanelContainer(content: content, shadowHeight: 6)
+    container.frame = NSRect(x: 0, y: 0, width: 400, height: 38)
+    container.layout()
+
+    let gradient = try! #require(container.layer?.sublayers?.first { $0 is CAGradientLayer } as? CAGradientLayer)
+    gradient.removeFromSuperlayer()
+    #expect(container.layer?.sublayers?.contains { $0 is CAGradientLayer } != true)
+
+    container.layout()
+
+    let restored = try! #require(container.layer?.sublayers?.first { $0 is CAGradientLayer } as? CAGradientLayer)
+    #expect(restored === gradient)
+    #expect(restored.frame == NSRect(x: 0, y: 0, width: 400, height: 6))
+}
+
+@MainActor
 @Test func panelContainerWithoutAShadowGivesTheWholeHeightToTheBar() {
     let content = BarContentView(side: .right, items: [.clock])
     let container = BarPanelContainer(content: content, shadowHeight: 0)
