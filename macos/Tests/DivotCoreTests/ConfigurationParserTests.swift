@@ -132,6 +132,17 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(typeFailure?.path == "menuBar.alwaysBelow")
 }
 
+@Test func cursorRevealMonitoringIsOnlyNeededWhenItCanAffectPlacement() {
+    // Default: reveal on, fallback off — the pointer monitor is useful.
+    #expect(MenuBarConfiguration().usesCursorRevealMonitoring)
+    // Reveal off: there is no pointer behaviour to follow.
+    #expect(!MenuBarConfiguration(moveBelowOnCursorReveal: false).usesCursorRevealMonitoring)
+    // Fallback on is authoritative, so a cursor engagement cannot change
+    // placement and the monitor is not worth running.
+    #expect(!MenuBarConfiguration(alwaysBelow: true).usesCursorRevealMonitoring)
+    #expect(!MenuBarConfiguration(moveBelowOnCursorReveal: false, alwaysBelow: true).usesCursorRevealMonitoring)
+}
+
 @Test func textSizeAndFontRoundTripAndDeriveTheBarMetrics() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"size":17,"font":"Menlo"},"left":["clock"],"right":[]}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: value)

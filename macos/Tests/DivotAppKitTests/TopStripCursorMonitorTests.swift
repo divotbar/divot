@@ -71,3 +71,33 @@ private func display(id: UInt32, frame: CGRect) -> ScreenGeometryReading {
     #expect(changes == [[DisplayBarID(1)]])
     monitor.stop()
 }
+
+/// The monitor is skippable: disabling stops the loop, and re-enabling re-reads
+/// and reports the pointer's current engagement without waiting for a move
+/// (#0023 review). The app disables it when neither the cursor reveal nor the
+/// always-below fallback can use the reading.
+@MainActor
+@Test func monitorCanBeDisabledAndReEnabled() {
+    let screen = display(id: 1, frame: CGRect(x: 0, y: 0, width: 1600, height: 1000))
+    let monitor = TopStripCursorMonitor(provider: ScreenStub(readings: [screen]),
+                                        stripHeight: 4,
+                                        pointerLocation: { CGPoint(x: 100, y: 1000) },
+                                        installsEventMonitors: false)
+    var changes: [Set<DisplayBarID>] = []
+    monitor.onChange = { changes.append($0) }
+
+    monitor.setEnabled(true)
+    #expect(monitor.isRunning)
+    #expect(changes == [[DisplayBarID(1)]])
+
+    monitor.setEnabled(false)
+    #expect(!monitor.isRunning)
+
+    // Re-enabling reports the current engagement again at once.
+    monitor.setEnabled(true)
+    #expect(monitor.isRunning)
+    #expect(changes == [[DisplayBarID(1)], [DisplayBarID(1)]])
+
+    monitor.setEnabled(false)
+    #expect(!monitor.isRunning)
+}

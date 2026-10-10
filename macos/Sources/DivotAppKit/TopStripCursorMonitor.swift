@@ -61,6 +61,19 @@ public final class TopStripCursorMonitor {
 
     public var isRunning: Bool { started }
 
+    /// Start or stop the event monitors from the current setting. Disabling
+    /// removes the global/local monitor and the screen-change observer, so an
+    /// install with the cursor reveal (and the always-below fallback) off keeps
+    /// no global mouse tap installed; re-enabling re-reads the pointer and
+    /// reports the current engagement at once (#0023 review).
+    public func setEnabled(_ enabled: Bool) {
+        if enabled {
+            start()
+        } else {
+            stop()
+        }
+    }
+
     /// True when the global mouse monitor installed. A global monitor is what
     /// tracks the pointer over other applications; if it is unavailable only the
     /// local monitor (Divot's own windows) runs, so the app surfaces this so

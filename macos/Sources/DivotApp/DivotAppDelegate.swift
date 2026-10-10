@@ -76,12 +76,15 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         // auto-hidden native menu bar. The monitor is event-driven (it reports
         // only when the pointer enters or leaves a strip) and feeds the
         // coordinator, which decides whether the engaged display slides (#0023).
+        // It only runs while the cursor reveal (and not the always-below
+        // fallback) can affect placement; `apply(_:)` re-syncs it on every
+        // configuration change.
         let cursorMonitor = TopStripCursorMonitor()
         cursorMonitor.onChange = { [weak coordinator] displays in
             coordinator?.setCursorInTopStrip(displays)
         }
-        cursorMonitor.start()
-        if !cursorMonitor.globalMonitorInstalled {
+        cursorMonitor.setEnabled(initial.menuBar.usesCursorRevealMonitoring)
+        if cursorMonitor.isRunning, !cursorMonitor.globalMonitorInstalled {
             // The global mouse monitor tracks the pointer over other apps; without
             // it only Divot's own windows are seen, so the reveal may not follow.
             // Surfaced so support can tell "setting off" from "no global events".
@@ -127,12 +130,23 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         // live effective appearance, so the app-wide override must be in place.
         applyAppearance(configuration.appearance)
         coordinator?.apply(configuration: configuration)
+        syncCursorMonitor(configuration.menuBar)
         workspaceIcons?.invalidate()
         syncKeepAwake(configuration)
         let pipeline = self.pipeline
         let providers = DefaultWidgetProviders.make(for: configuration, keepAwake: keepAwake)
         Task { await pipeline?.configure(providers) }
         applyWorkspaceRow(configuration)
+    }
+
+    /// Start or stop the top-strip cursor monitor from the current setting.
+    ///
+    /// The monitor's reading only affects placement while the cursor reveal is
+    /// on and the always-below fallback is off; otherwise it is stopped so a
+    /// global mouse tap is not left installed for nothing (#0023 review). A
+    /// re-enable re-reads the pointer and reports the current engagement.
+    private func syncCursorMonitor(_ menuBar: MenuBarConfiguration) {
+        cursorMonitor?.setEnabled(menuBar.usesCursorRevealMonitoring)
     }
 
     /// Seed the keep-awake assertion from a remembered configuration.

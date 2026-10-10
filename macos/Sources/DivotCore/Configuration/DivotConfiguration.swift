@@ -258,6 +258,18 @@ public struct MenuBarConfiguration: Equatable, Sendable {
     }
 
     public static let `default` = MenuBarConfiguration()
+
+    /// Whether the top-strip cursor reading can affect placement.
+    ///
+    /// The event-driven pointer monitor is only worth running while the cursor
+    /// reveal is on and the always-below fallback is off: `alwaysBelow` is
+    /// authoritative and short-circuits detection, so a cursor engagement could
+    /// not change the placement. The app stops the monitor otherwise, so an
+    /// install with both features off keeps no global mouse tap installed
+    /// (#0023 review).
+    public var usesCursorRevealMonitoring: Bool {
+        moveBelowOnCursorReveal && !alwaysBelow
+    }
 }
 
 /// The document-level keep-awake preference.
