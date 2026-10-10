@@ -168,3 +168,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T16:31:57Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T16:31:58Z · agent exited with an error (opencode) · error: Invalid model reference: big pickle
 - 2026-10-10T16:31:58Z · status active→review
+- 2026-10-10T16:31:58Z · note: handoff requested (cli)
