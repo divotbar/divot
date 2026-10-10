@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T10:37:44Z"
+updated_at: "2026-10-10T10:39:43Z"
 ---
 ## Problem
 
@@ -60,3 +60,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T10:26:10Z · status inbox→ready
 - 2026-10-10T10:26:12Z · status ready→active, branch
 - 2026-10-10T10:37:44Z · body: section Verification
+- 2026-10-10T10:39:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
