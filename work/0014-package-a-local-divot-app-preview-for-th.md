@@ -2,7 +2,7 @@
 id: "0014"
 title: Package a local Divot.app preview for this Mac
 type: feature
-status: active
+status: review
 priority: p1
 area: [macos, docs]
 story: A beautiful bar from the first launch
@@ -45,4 +45,4 @@ The maintainer Mac runs AeroSpace with a-bar. The reference bar has compact numb
 - 2026-10-09T17:20:40Z · status inbox→ready
 - 2026-10-09T17:20:44Z · body: section Local rollout context
 - 2026-10-10T02:32:20Z · status ready→active, branch
-- 2026-10-10T02:52:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T02:52:32Z · status active→review
