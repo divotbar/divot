@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 25614
-last_close_out_gate_at: "2026-10-10T01:49:31.594Z"
 id: "0011"
 title: "Implement Gruvbox, Ayu, Dracula and Tokyo Night theme families"
 type: feature
-status: review
+status: done
 priority: p1
 area: [macos, docs]
 story: Choose a hacker theme in light or dark
 depends_on: ["0006"]
+merged_commit: a3c548c4478a144eb88addf3cc9e1fef9934d082
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-gruvbox-ayu-dracula-and-tokyo-
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-10T01:49:31Z"
+updated_at: "2026-10-10T01:49:33Z"
+last_close_out_gate_ms: 25614
+last_close_out_gate_at: "2026-10-10T01:49:31.594Z"
 review_passes: 2
 close_out_repair_count: 1
 ---
@@ -60,4 +61,4 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 - 2026-10-10T01:39:35Z · note: highlight main h2 + table matched nothing on /guide/themes
 - 2026-10-10T01:40:52Z · note: review pass 2: good to go
 - 2026-10-10T01:49:31Z · close-out gate completed in 26s
-
+- 2026-10-10T01:49:33Z · status review→done, release:success
