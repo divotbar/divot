@@ -2,7 +2,7 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: review
+status: active
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: "error: Invalid model reference: big pickle"
