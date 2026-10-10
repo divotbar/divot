@@ -99,7 +99,9 @@ public struct LayoutConfiguration: Equatable, Sendable {
     public var padding: Double
     public var notchGap: Double
 
-    public init(height: Double = 32, padding: Double = 12, notchGap: Double = 10) {
+    public init(height: Double = Double(BarMetrics.default.height),
+                padding: Double = Double(BarMetrics.default.rowInset),
+                notchGap: Double = 10) {
         self.height = height
         self.padding = padding
         self.notchGap = notchGap
@@ -275,6 +277,13 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions)
+    }
+
+    /// The compact render rhythm derived from the configured layout. Fonts,
+    /// icon size, item spacing, and the row inset come from `BarMetrics`; only
+    /// the height and padding are user-configurable here.
+    public var barMetrics: BarMetrics {
+        BarMetrics(height: CGFloat(layout.height), rowInset: CGFloat(layout.padding))
     }
 
     // MARK: Editing

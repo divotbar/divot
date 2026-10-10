@@ -84,7 +84,8 @@ public struct BarContentPolicy: Equatable, Sendable {
     /// reserving window-manager space is an adapter policy, not AppKit).
     public var edgeMargin: CGFloat
 
-    public init(height: CGFloat = 32, clearance: CGFloat = 10, edgeMargin: CGFloat = 0) {
+    public init(height: CGFloat = BarMetrics.default.height, clearance: CGFloat = 10,
+                edgeMargin: CGFloat = 0) {
         self.height = height
         self.clearance = clearance
         self.edgeMargin = edgeMargin

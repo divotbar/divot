@@ -1,16 +1,19 @@
 ---
-updated_at: "2026-10-09T23:56:56Z"
-review_passes: 2
 id: "0016"
 title: Fix Divot bar sizing and truncation on the menu-bar row
 type: bug
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: b8da2293097d9b5e1619bde27a68a77a2c7c90d4
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/fix-divot-bar-sizing-and-truncation-on-t
 created_at: "2026-10-09T20:18:47Z"
+updated_at: "2026-10-09T23:58:02Z"
+last_close_out_gate_ms: 25961
+last_close_out_gate_at: "2026-10-09T23:58:00.135Z"
+review_passes: 2
 close_out_repair_count: 1
 ---
 ## Problem
@@ -47,4 +50,5 @@ Depends conceptually on the placement fix in the sibling P0 task; coordinate on 
 - 2026-10-09T23:56:18Z · status active→review
 - 2026-10-09T23:56:18Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-09T23:56:56Z · note: review pass 2: good to go
-
+- 2026-10-09T23:58:00Z · close-out gate completed in 26s
+- 2026-10-09T23:58:02Z · status review→done, release:success
