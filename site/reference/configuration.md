@@ -50,7 +50,7 @@ All sizes are logical points, not physical pixels.
 
 | Field | Range | Meaning |
 | --- | --- | --- |
-| `height` | 24–40 | Panel height; clamp to available safe top area |
+| `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
 | `notchGap` | 0–32 | Extra clearance beside the camera housing |
 
@@ -67,6 +67,20 @@ With no `keepAwake` object (or `remember: false`), keep-awake always starts off 
 
 ```json
 "keepAwake": { "remember": true, "isActive": true }
+```
+
+## Menu bar
+
+On notched hardware the camera housing masks the same top band whether the native menu bar is hidden or revealed, so screen geometry alone cannot say which. The permission-gated Accessibility observation of the bar's own on-screen frame can. It is **off** by default because the on-screen heuristic is hardware-sensitive, so an install never moves its panels on an unconfirmed reading.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `trustAccessibilityProbe` | Boolean | `false` | Follow the native menu bar's reveal/hide using the Accessibility observation |
+
+While off, a notched display holds the top edge (the correct resting position when the native bar is auto-hidden) and never moves below a bar it cannot confirm. Enable it only on a Mac whose Accessibility grant and menu-bar geometry you have confirmed:
+
+```json
+"menuBar": { "trustAccessibilityProbe": true }
 ```
 
 ## Items

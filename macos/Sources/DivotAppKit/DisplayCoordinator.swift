@@ -40,6 +40,7 @@ public final class DisplayCoordinator {
                 surfaceFactory: @escaping SurfaceFactory) {
         self.adapter = adapter
         self.configuration = configuration
+        adapter.trustsAccessibilityProbe = configuration.menuBar.trustAccessibilityProbe
         self.core = DisplayBarCoordinator(menuBarPolicy: menuBarPolicy,
                                           contentPolicy: configuration.layout.contentPolicy)
         self.makeSurface = surfaceFactory
@@ -55,18 +56,27 @@ public final class DisplayCoordinator {
     public func apply(configuration newValue: DivotConfiguration) {
         guard newValue != configuration else { return }
         let barChanged = !configuration.rendersSameBar(as: newValue)
+        let detectionChanged = configuration.menuBar != newValue.menuBar
         configuration = newValue
         core.contentPolicy = newValue.layout.contentPolicy
-        guard barChanged, isRunning else { return }
-        for surface in surfaces.values { surface.close() }
-        surfaces.removeAll()
-        // Recreated panels start at their initial 1x1 frame, and an unchanged
-        // reading would be a silent no-op in `refresh`. Clear the retained core
-        // state so it re-emits a placement for every display; without this a
-        // rebuild (for example the config file loading at launch) leaves the
-        // new panels unplaced and the bar never appears (#0020).
-        core.reset()
-        refresh()
+        adapter.trustsAccessibilityProbe = newValue.menuBar.trustAccessibilityProbe
+        guard isRunning else { return }
+        if barChanged {
+            for surface in surfaces.values { surface.close() }
+            surfaces.removeAll()
+            // Recreated panels start at their initial 1x1 frame, and an
+            // unchanged reading would be a silent no-op in `refresh`. Clear the
+            // retained core state so it re-emits a placement for every display;
+            // without this a rebuild (for example the config file loading at
+            // launch) leaves the new panels unplaced and the bar never appears
+            // (#0020).
+            core.reset()
+            refresh()
+        } else if detectionChanged {
+            // A detection-policy change renders the same bar, so the panels are
+            // not rebuilt, but the placement may change. Re-read and apply it.
+            refresh()
+        }
     }
 
     /// Begin observing. Idempotent.

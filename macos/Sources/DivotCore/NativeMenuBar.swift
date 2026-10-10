@@ -125,7 +125,9 @@ public struct NativeMenuBarSignal: Equatable, Sendable {
     /// Whether the user configured the bar to always show. Undocumented
     /// defaults are deliberately not wired in here.
     public var configuredAlwaysVisible: Bool?
-    /// Nominal macOS menu-bar height used when geometry is clamped away.
+    /// Nominal height of the platform's native menu bar used when geometry is
+    /// clamped away (notch-free displays only). This is the native bar's ~24 pt,
+    /// not Divot's own row height (`BarMetrics.default.height`).
     public var nominalMenuBarHeight: CGFloat
 
     public init(accessibilityVisible: Bool? = nil, configuredAlwaysVisible: Bool? = nil,

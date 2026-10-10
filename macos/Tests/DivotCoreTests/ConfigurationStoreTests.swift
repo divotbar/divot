@@ -92,6 +92,27 @@ private func write(_ json: String, to url: URL) throws {
     #expect((object?["keepAwake"] as? [String: Any])?["remember"] as? Bool == true)
 }
 
+@Test func savePersistsMenuBarOptInAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // The conservative default writes no menu-bar object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(object?["menuBar"] == nil)
+
+    var configuration = DivotConfiguration.default
+    configuration.menuBar.trustAccessibilityProbe = true
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.menuBar.trustAccessibilityProbe)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect((object?["menuBar"] as? [String: Any])?["trustAccessibilityProbe"] as? Bool == true)
+}
+
 @Test func saveRefusesAnInvalidConfiguration() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")

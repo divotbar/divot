@@ -24,8 +24,10 @@ final class Probe {
     func currentReadings() -> [ScreenGeometryReading] { provider.screens() }
 
     private func signal() -> NativeMenuBarSignal {
-        // The Accessibility result is intentionally not trusted by default: an
-        // unverified off-screen heuristic must not silently drive placement.
+        // The probe tool mirrors the shipping default: the raw Accessibility
+        // visibility is reported for diagnostics, but it is not used to resolve
+        // placement unless a caller opts in via
+        // `menuBar.trustAccessibilityProbe` (see the report's `axMenuBar=` line).
         NativeMenuBarSignal(accessibilityVisible: probe.sample().accessibilityVisible,
                             configuredAlwaysVisible: nil)
     }

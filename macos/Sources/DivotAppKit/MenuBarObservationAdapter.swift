@@ -27,22 +27,41 @@ public final class MenuBarObservationAdapter {
     private let provider: ScreenGeometryProviding
     private let probe: SystemMenuBarProbing
 
-    /// Minimum inset assumed for a visible notch-free native bar, used only
-    /// when the reported top band is smaller than a standard bar.
+    /// Nominal height of the **platform's** native menu bar, used only when a
+    /// notch-free display reports a top band smaller than a standard bar. This
+    /// is deliberately independent of `BarMetrics.default.height` (Divot's own
+    /// 32 pt row height): on a notch-free display the native bar is ~24 pt, and
+    /// insetting by the row height there would leave a visible gap under the bar.
     public var nominalMenuBarHeight: CGFloat
+
+    /// Whether a complete Accessibility sample may decide placement.
+    ///
+    /// Off by default: the on-screen position heuristic is hardware-sensitive,
+    /// so a shipping build must not assert it globally. The configuration
+    /// document opts in with `menuBar.trustAccessibilityProbe`. While off, the
+    /// sample is withheld and a masked (notched) display stays indeterminate and
+    /// holds the top edge rather than moving below an unconfirmed bar (#0021).
+    public var trustsAccessibilityProbe: Bool
 
     public init(provider: ScreenGeometryProviding,
                 probe: SystemMenuBarProbing,
-                nominalMenuBarHeight: CGFloat = 24) {
+                nominalMenuBarHeight: CGFloat = 24,
+                trustsAccessibilityProbe: Bool = false) {
         self.provider = provider
         self.probe = probe
         self.nominalMenuBarHeight = nominalMenuBarHeight
+        self.trustsAccessibilityProbe = trustsAccessibilityProbe
     }
 
     public func observe() -> MenuBarObservation {
         let screens = provider.screens()
         let accessibility = probe.sample()
-        let sample = accessibility.accessibilityVisible
+        // A sample the probe itself marked `validated` is decisive on its own;
+        // the raw derived visibility additionally needs the explicit opt-in,
+        // because the on-screen heuristic is hardware-sensitive.
+        let sample: Bool? = trustsAccessibilityProbe
+            ? accessibility.rawDerivedVisible
+            : accessibility.accessibilityVisible
 
         // The AX menu bar is one system-wide object; public APIs do not
         // attribute it to a display, and it reflects whichever display is

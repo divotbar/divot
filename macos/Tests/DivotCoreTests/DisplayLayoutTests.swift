@@ -119,8 +119,8 @@ private func aBarNotchedScreen() -> ScreenGeometry {
 }
 
 @Test func grantedAccessibilityOnANotchedDisplayStillYieldsAPlacement() {
-    // Regression for #0020. Accessibility is granted, but the app's probe is
-    // provisional (`AXSystemMenuBarProbe(validated: false)`), so the decisive
+    // Regression for #0020. When the probe cannot provide a decisive visibility
+    // (not trusted, missing attributes, or otherwise unavailable), the decisive
     // `accessibilityVisible` is nil and a notched display stays indeterminate.
     // That indeterminate visibility is the input that makes the raw resolver
     // return nil; the coordinator must still place the bar at the top edge so
@@ -266,6 +266,31 @@ private func aBarNotchedScreen() -> ScreenGeometry {
     let update = try! #require(updates.first)
     #expect(update.visibility == .visible(inset: 33))
     #expect(update.placement?.mode == .belowNativeBar(inset: 33))
+}
+
+@Test func notchedPlacementFollowsRevealAndHideInBothDirections() {
+    // #0021: on the notched display a decisive AX signal must move Divot below
+    // a revealed native bar and back to the top edge when it hides — in both
+    // directions. The geometry is masked either way, so the signal is the only
+    // input that changes.
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    func reading(_ visible: Bool) -> DisplayReading {
+        DisplayReading(id: notchedID, geometry: notchedScreen(),
+                       signal: NativeMenuBarSignal(accessibilityVisible: visible))
+    }
+
+    let shown = try! #require(coordinator.update(readings: [reading(true)], at: 0).first)
+    #expect(shown.visibility == .visible(inset: 33))
+    #expect(shown.placement?.mode == .belowNativeBar(inset: 33))
+
+    let hidden = try! #require(coordinator.update(readings: [reading(false)], at: 0).first)
+    #expect(hidden.visibility == .hidden)
+    #expect(hidden.placement?.mode == .topEdge)
+    #expect(hidden.animated == false)
+
+    let revealedAgain = try! #require(coordinator.update(readings: [reading(true)], at: 0).first)
+    #expect(revealedAgain.visibility == .visible(inset: 33))
+    #expect(revealedAgain.placement?.mode == .belowNativeBar(inset: 33))
 }
 
 @Test func thirdPartyTopBandKeepsDivotAtTheTopEdge() {

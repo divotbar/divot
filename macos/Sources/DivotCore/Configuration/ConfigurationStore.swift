@@ -196,7 +196,17 @@ public extension DivotConfiguration {
         if !widgets.isEmpty { object["widgets"] = widgets }
         let keepAwake = keepAwake.jsonObject
         if !keepAwake.isEmpty { object["keepAwake"] = keepAwake }
+        let menuBar = menuBar.jsonObject
+        if !menuBar.isEmpty { object["menuBar"] = menuBar }
         return object
+    }
+}
+
+private extension MenuBarConfiguration {
+    /// Only the non-default opt-in is written, so a document that leaves the
+    /// Accessibility heuristic off stays identical to the first-launch shape.
+    var jsonObject: [String: Any] {
+        trustAccessibilityProbe ? ["trustAccessibilityProbe": true] : [:]
     }
 }
 

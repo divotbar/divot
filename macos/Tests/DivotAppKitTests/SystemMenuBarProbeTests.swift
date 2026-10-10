@@ -1,11 +1,12 @@
 import CoreGraphics
 import Testing
+import DivotCore
 @testable import DivotAppKit
 
 // MARK: - Missing / invalid AX attributes
 
 @Test func completeSampleIsProvisionalUntilValidated() {
-    let description = "position=(0.0, 0.0) size=(1710.0, 33.0) hidden=false"
+    let description = "position=(0.0, 0.0) size=(1710.0, 33.0) hidden=false onScreen=true"
     let shown = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
                                          size: CGSize(width: 1710, height: 33),
                                          hidden: false)
@@ -63,9 +64,72 @@ import Testing
                                      hidden: true).accessibilityVisible == nil)
 }
 
+@Test func onScreenBoundaryTreatsAPartialSlideAsStillOnScreen() {
+    // The half-point tolerance keeps the boundary from flickering on rounding:
+    // a bar whose top edge is within half a point of y=0 is still on screen; a
+    // bar slid fully above it is not. A partial-slide field report should be
+    // checked against this rule before the tolerance is widened.
+    let size = CGSize(width: 1710, height: 33)
+    #expect(SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -0.4), size: size,
+                                     hidden: false, validated: true).accessibilityVisible == true)
+    #expect(SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -0.5), size: size,
+                                     hidden: false, validated: true).accessibilityVisible == true)
+    #expect(SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -0.6), size: size,
+                                     hidden: false, validated: true).accessibilityVisible == false)
+}
+
 @Test func unavailableStateReportsPermissionSeparately() {
     let state = SystemMenuBarProbe.state(position: nil, size: nil, hidden: nil)
     if case .unavailable = state {} else { Issue.record("expected unavailable, got \(state)") }
     // Trusted, just unusable: that is not the same as missing permission.
     #expect(state.permissionGranted)
+}
+
+// MARK: - Auto-hidden vs revealed: the reported signal
+
+/// The signal that used to report "visible" while the native bar was
+/// auto-hidden is `kAXHiddenAttribute`: it stays `false` because an auto-hidden
+/// bar is slid off the top, not AX-hidden. The bar's own frame distinguishes the
+/// two — revealed sits at `y == 0`, auto-hidden sits above the screen at a
+/// negative `y` — which is the signal `SystemMenuBarProbe` now uses (#0021).
+@Test func autoHiddenBarIsNotReportedVisible() {
+    let revealed = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
+                                            size: CGSize(width: 1710, height: 33),
+                                            hidden: false,
+                                            validated: true)
+    let autoHidden = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -33),
+                                              size: CGSize(width: 1710, height: 33),
+                                              hidden: false,
+                                              validated: true)
+
+    #expect(revealed.accessibilityVisible == true)
+    #expect(autoHidden.accessibilityVisible == false)
+    // Both samples carry `hidden=false`; only the frame tells them apart.
+    #expect(revealed.sampleDescription.contains("hidden=false"))
+    #expect(autoHidden.sampleDescription.contains("hidden=false"))
+    #expect(revealed.sampleDescription.contains("onScreen=true"))
+    #expect(autoHidden.sampleDescription.contains("onScreen=false"))
+}
+
+/// Acceptance for #0021: on a notched screen a decisive probe sample resolves a
+/// hidden bar to `.hidden` (Divot rests at the top edge) and a revealed bar to
+/// `.visible(inset:)` (Divot moves below it).
+@Test func notchedRevealAndHideResolveFromTheProbeSample() {
+    let notched = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                                 visibleFrame: CGRect(x: 60, y: 0, width: 1650, height: 1074),
+                                 safeAreaTop: 33,
+                                 auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                                 auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
+    let revealed = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: 0),
+                                            size: CGSize(width: 1710, height: 33),
+                                            hidden: false, validated: true)
+    let autoHidden = SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -33),
+                                              size: CGSize(width: 1710, height: 33),
+                                              hidden: false, validated: true)
+
+    let revealedSignal = NativeMenuBarSignal(accessibilityVisible: revealed.accessibilityVisible)
+    let hiddenSignal = NativeMenuBarSignal(accessibilityVisible: autoHidden.accessibilityVisible)
+    #expect(NativeMenuBarDetector.detect(geometry: notched, signal: revealedSignal)
+        == .visible(inset: 33))
+    #expect(NativeMenuBarDetector.detect(geometry: notched, signal: hiddenSignal) == .hidden)
 }

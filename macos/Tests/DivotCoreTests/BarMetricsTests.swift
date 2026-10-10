@@ -7,8 +7,10 @@ import Testing
 
 @Test func defaultBarHeightComesFromOnePlace() {
     // The row height is defined once in `BarMetrics` and read by both the pure
-    // geometry and the content policy, so it cannot drift between them.
-    #expect(BarMetrics.default.height == 24)
+    // geometry and the content policy, so it cannot drift between them. 32 pt
+    // matches the ~64 px (2x) camera-housing band so the row lines up with the
+    // notch (#0021).
+    #expect(BarMetrics.default.height == 32)
     let geometry = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1600, height: 1000))
     #expect(geometry.left.height == BarMetrics.default.height)
     let policy = BarContentPolicy()
