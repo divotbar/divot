@@ -54,7 +54,7 @@ public enum ConfigurationParser {
 
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
-                             optional: ["widgets", "keepAwake"], path: "root")
+                             optional: ["widgets", "keepAwake", "menuBar"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let left = try itemGroup(root["left"], path: "left")
@@ -62,13 +62,15 @@ public enum ConfigurationParser {
         try requireUniquePlacement(left: left, right: right)
         let widgets = try widgetOptions(root["widgets"], placed: Set(left + right))
         let keepAwake = try keepAwakeOptions(root["keepAwake"])
+        let menuBar = try menuBarOptions(root["menuBar"])
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
                                   left: left,
                                   right: right,
                                   widgets: widgets,
-                                  keepAwake: keepAwake)
+                                  keepAwake: keepAwake,
+                                  menuBar: menuBar)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {
@@ -179,6 +181,16 @@ public enum ConfigurationParser {
         var configuration = KeepAwakeConfiguration.default
         if let raw = object["remember"] { configuration.remember = try boolean(raw, path: "keepAwake.remember") }
         if let raw = object["isActive"] { configuration.isActive = try boolean(raw, path: "keepAwake.isActive") }
+        return configuration
+    }
+
+    private static func menuBarOptions(_ value: Any?) throws -> MenuBarConfiguration {
+        guard let value else { return .default }
+        let object = try shape(value, required: [], optional: ["trustAccessibilityProbe"], path: "menuBar")
+        var configuration = MenuBarConfiguration.default
+        if let raw = object["trustAccessibilityProbe"] {
+            configuration.trustAccessibilityProbe = try boolean(raw, path: "menuBar.trustAccessibilityProbe")
+        }
         return configuration
     }
 

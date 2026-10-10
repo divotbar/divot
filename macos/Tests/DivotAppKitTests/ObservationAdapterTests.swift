@@ -115,6 +115,47 @@ private func aBarReading() -> ScreenGeometryReading {
 }
 
 @MainActor
+@Test func accessibilitySampleDrivesPlacementOnlyWhenOptedIn() {
+    // The on-screen heuristic is hardware-sensitive, so the adapter withholds it
+    // unless the configuration opts in (`menuBar.trustAccessibilityProbe`).
+    for derivedVisible in [true, false] {
+        let probe = MockMenuBarProbe(state: .provisional(visible: derivedVisible,
+                                                         description: "on-screen test"))
+        let withheld = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [notchedReading()]),
+                                                 probe: probe)
+        #expect(withheld.observe().readings.first?.signal.accessibilityVisible == nil)
+
+        let trusted = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [notchedReading()]),
+                                                probe: probe,
+                                                trustsAccessibilityProbe: true)
+        #expect(trusted.observe().readings.first?.signal.accessibilityVisible == derivedVisible)
+    }
+}
+
+@MainActor
+@Test func anUntrustedProbeStaysWithheldEvenWhenOptedIn() {
+    let adapter = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [notchedReading()]),
+                                            probe: MockMenuBarProbe(state: .notTrusted),
+                                            trustsAccessibilityProbe: true)
+    #expect(adapter.observe().readings.first?.signal.accessibilityVisible == nil)
+}
+
+@MainActor
+@Test func optedInProbeResolvesRevealedAndHiddenOnANotchedDisplay() {
+    func detection(derivedVisible: Bool) -> NativeMenuBarVisibility {
+        let adapter = MenuBarObservationAdapter(
+            provider: MockScreenProvider(readings: [notchedReading()]),
+            probe: MockMenuBarProbe(state: .provisional(visible: derivedVisible, description: "test")),
+            trustsAccessibilityProbe: true)
+        let observation = adapter.observe()
+        return NativeMenuBarDetector.detect(geometry: observation.readings[0].geometry,
+                                            signal: observation.readings[0].signal)
+    }
+    #expect(detection(derivedVisible: true) == .visible(inset: 33))
+    #expect(detection(derivedVisible: false) == .hidden)
+}
+
+@MainActor
 @Test func accessibilityIsNotSharedAcrossDisplays() {
     // One notched (masked) + one notch-free display. The single system-wide
     // sample cannot be attributed to a display, so it must not be handed to
@@ -134,6 +175,30 @@ private func aBarReading() -> ScreenGeometryReading {
     let notched = observation.readings.first { $0.id == DisplayBarID(1) }!
     #expect(NativeMenuBarDetector.detect(geometry: notched.geometry, signal: notched.signal)
         == .indeterminate(.notchedHousingMasksMenuBar))
+}
+
+@MainActor
+@Test func optedInMultiDisplayStillWithholdsTheSystemWideSample() {
+    // Known limitation (#0021 review): the AX menu bar is one system-wide
+    // object that public APIs do not attribute to a display. Even with the
+    // documented opt-in, the sample is only used when there is a single
+    // display, so a notched built-in plus an external monitor stays
+    // indeterminate and holds the top edge rather than risking a sample
+    // misattributed to the other panel. Attributing across displays is an open
+    // physical-validation item (docs/evidence/0003-app-shell.md).
+    let adapter = MenuBarObservationAdapter(
+        provider: MockScreenProvider(readings: [notchedReading(), flatReading(id: 2, menuBarShown: false)]),
+        probe: MockMenuBarProbe(state: .provisional(visible: true, description: "test")),
+        trustsAccessibilityProbe: true)
+    let observation = adapter.observe()
+
+    #expect(observation.readings.allSatisfy { $0.signal.accessibilityVisible == nil })
+    let notched = observation.readings.first { $0.id == DisplayBarID(1) }!
+    #expect(NativeMenuBarDetector.detect(geometry: notched.geometry, signal: notched.signal)
+        == .indeterminate(.notchedHousingMasksMenuBar))
+    // The notch-free display keeps deciding from its own geometry.
+    let flat = observation.readings.first { $0.id == DisplayBarID(2) }!
+    #expect(NativeMenuBarDetector.detect(geometry: flat.geometry, signal: flat.signal) == .hidden)
 }
 
 @MainActor

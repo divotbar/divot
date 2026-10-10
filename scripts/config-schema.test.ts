@@ -80,6 +80,24 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('keepAwake.remember: expected boolean')
   })
 
+  test('accepts the menu-bar detection opt-in', () => {
+    const config = base()
+    config.menuBar = { trustAccessibilityProbe: true }
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects an unknown menu-bar field', () => {
+    const config = base()
+    config.menuBar = { alwaysBelow: true }
+    expect(() => validate(config)).toThrow('menuBar: unknown field alwaysBelow')
+  })
+
+  test('rejects a non-boolean menu-bar field', () => {
+    const config = base()
+    config.menuBar = { trustAccessibilityProbe: 'yes' }
+    expect(() => validate(config)).toThrow('menuBar.trustAccessibilityProbe: expected boolean')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }
