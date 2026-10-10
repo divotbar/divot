@@ -58,9 +58,9 @@ private func aBarNotchedScreen() -> ScreenGeometry {
     let placement = BarPlacementResolver.placement(screen: screen, visibility: .hidden)
     #expect(placement?.mode == .topEdge)
     let g = try! #require(placement?.geometry)
-    // The two auxiliary regions with the housing left open between them.
-    #expect(g.left.maxX == 753)
-    #expect(g.right.minX == 958)
+    // Bar now hugs the notch with zero gap (#0028)
+    #expect(g.left.maxX == 763)
+    #expect(g.right.minX == 948)
     #expect(g.left.maxY == 1107)
 }
 

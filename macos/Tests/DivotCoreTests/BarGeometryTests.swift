@@ -17,8 +17,9 @@ import Testing
 @Test func externalDisplayWithNegativeOrigin() {
     let g = BarGeometry(screen: CGRect(x: -1920, y: -200, width: 1920, height: 1080))
     let h = BarMetrics.default.height
-    #expect(g.left == CGRect(x: -1920, y: 1080 - 200 - h, width: 950, height: h))
-    #expect(g.right == CGRect(x: -950, y: 1080 - 200 - h, width: 950, height: h))
+    // With gap=0, the middle gap is 0, so each half is exactly 960 (1920/2)
+    #expect(g.left == CGRect(x: -1920, y: 1080 - 200 - h, width: 960, height: h))
+    #expect(g.right == CGRect(x: -960, y: 1080 - 200 - h, width: 960, height: h))
 }
 
 @Test func largeGapDoesNotCreateNegativeWidth() {
@@ -30,19 +31,22 @@ import Testing
 @Test func oneMissingAuxiliaryRegionFallsBack() {
     let s = CGRect(x: 0, y: 0, width: 1000, height: 800)
     let g = BarGeometry(screen: s, topLeft: CGRect(x: 0, y: 768, width: 400, height: 32))
-    #expect(g.left.width == 490 && g.right.minX == 510)
+    // Missing right auxiliary region, uses fallback. With gap=0, each half = 500.
+    #expect(g.left.width == 500 && g.right.minX == 500)
 }
 
 @Test func invalidAuxiliaryRegionsFallBack() {
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
         topLeft: CGRect(x: 0, y: 900, width: 400, height: 32),
         topRight: CGRect(x: 600, y: 900, width: 400, height: 32))
-    #expect(g.left.maxY == 800 && g.left.width == 490)
+    // Auxiliary regions are invalid (outside screen), uses fallback. With gap=0, width = 500.
+    #expect(g.left.maxY == 800 && g.left.width == 500)
 }
 
 @Test func nonfiniteParametersUseDefaults() {
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800), height: .nan, gap: .infinity)
-    #expect(g.left.height == BarMetrics.default.height && g.left.width == 490)
+    // Nonfinite gap falls back to default 0, so width = 500 (half the screen)
+    #expect(g.left.height == BarMetrics.default.height && g.left.width == 500)
 }
 
 @Test func belowNativeBarSpansWidthWithoutNotchGap() {
