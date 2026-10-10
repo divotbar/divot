@@ -153,6 +153,18 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('showOccupiedDot: expected boolean')
   })
 
+  test('accepts the bottom-shadow opt-in', () => {
+    const config = base()
+    config.bottomShadow = true
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects a non-boolean bottom-shadow opt-in', () => {
+    const config = base()
+    config.bottomShadow = 'yes'
+    expect(() => validate(config)).toThrow('bottomShadow: expected boolean')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }

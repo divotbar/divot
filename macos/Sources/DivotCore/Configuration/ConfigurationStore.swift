@@ -207,6 +207,9 @@ public extension DivotConfiguration {
         // default) leaves the first-launch document unchanged (#0026).
         if !showOccupiedDot { object["showOccupiedDot"] = false }
         if !showEmptyDot { object["showEmptyDot"] = false }
+        // The shadow is off by default, so only the opt-in is written; the
+        // first-launch document stays identical (#0025).
+        if bottomShadow { object["bottomShadow"] = true }
         return object
     }
 }
