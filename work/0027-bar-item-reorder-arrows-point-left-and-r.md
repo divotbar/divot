@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/bar-item-reorder-arrows-point-left-and-r
 created_at: "2026-10-10T10:26:07Z"
-updated_at: "2026-10-10T10:26:34Z"
+updated_at: "2026-10-10T10:28:28Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Depends on #0024. Only the reorder controls change; do not alter the left/right 
 - 2026-10-10T10:26:07Z · created · njachowski@gmail.com
 - 2026-10-10T10:26:33Z · status inbox→ready
 - 2026-10-10T10:26:34Z · status ready→active, branch
+- 2026-10-10T10:28:28Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
