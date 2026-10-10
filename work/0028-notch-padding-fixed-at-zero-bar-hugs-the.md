@@ -9,8 +9,10 @@ depends_on: ["0025"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:23:11Z"
+updated_at: "2026-10-10T12:23:24Z"
 ---
 ## Problem
 
@@ -37,3 +39,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 
 - 2026-10-10T12:20:56Z · created · njachowski@gmail.com
 - 2026-10-10T12:23:11Z · status inbox→ready
+- 2026-10-10T12:23:24Z · cli_override, model_override
