@@ -14,8 +14,9 @@ The native parser, store, migration, and settings surface are implemented and va
 | `left` | String array | Ordered, unique items on the left |
 | `right` | String array | Ordered, unique items on the right |
 | `widgets` | Object | Optional; namespaced per-item options |
+| `keepAwake` | Object | Optional; keep-awake persistence (see below) |
 
-The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
+The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
 ## Appearance
 
@@ -52,6 +53,21 @@ All sizes are logical points, not physical pixels.
 | `height` | 24–40 | Panel height; clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
 | `notchGap` | 0–32 | Extra clearance beside the camera housing |
+
+## Keep awake
+
+Clicking the battery item toggles a Caffeine-style keep-awake assertion (public IOKit power assertions), and the battery shows a cup indicator while it is held. The optional root `keepAwake` object controls whether that state survives a relaunch. It is a root object rather than a `widgets.battery` option so it stays valid when the battery item is not placed.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `remember` | Boolean | `false` | Persist the on/off state across launches |
+| `isActive` | Boolean | `false` | The remembered state; only meaningful when `remember` is `true` |
+
+With no `keepAwake` object (or `remember: false`), keep-awake always starts off at launch. `isActive` is written only while `remember` is on.
+
+```json
+"keepAwake": { "remember": true, "isActive": true }
+```
 
 ## Items
 
@@ -91,7 +107,7 @@ Version 1 was a pre-release draft with workspaces hard-coded on the left and a `
 
 ## Examples
 
-See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, and `examples/custom-palette.json` in the source repository. Run `bun run scripts/check-config.ts` to validate all four and the version 1 migration fixtures today.
+See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, `examples/custom-palette.json`, and `examples/keep-awake.json` in the source repository. Run `bun run scripts/check-config.ts` to validate all of them and the version 1 migration fixtures today.
 
 ## Custom palettes and theme sharing
 

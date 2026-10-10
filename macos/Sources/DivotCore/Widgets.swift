@@ -99,23 +99,42 @@ public enum BatteryPresence: Equatable, Sendable {
 
 /// Power state. `percentage` is `nil` when no battery exists or the value is
 /// momentarily unknown.
+///
+/// Keep-awake (the Caffeine-style toggle) rides on the battery item rather than
+/// being a second bar item, so its live state travels with this snapshot and the
+/// indicator and the power reading always agree about what the bar is showing.
 public struct BatterySnapshot: Equatable, Sendable {
     public let presence: BatteryPresence
     public let percentage: Int?
     public let isCharging: Bool
     public let isPluggedIn: Bool
     public let isFullyCharged: Bool
+    /// True while Divot holds its power assertion and the machine is kept awake.
+    public let isKeepingAwake: Bool
 
     public init(presence: BatteryPresence,
                 percentage: Int?,
                 isCharging: Bool = false,
                 isPluggedIn: Bool = false,
-                isFullyCharged: Bool = false) {
+                isFullyCharged: Bool = false,
+                isKeepingAwake: Bool = false) {
         self.presence = presence
         self.percentage = percentage.map { max(0, min(100, $0)) }
         self.isCharging = isCharging
         self.isPluggedIn = isPluggedIn
         self.isFullyCharged = isFullyCharged
+        self.isKeepingAwake = isKeepingAwake
+    }
+
+    /// The same power reading with the keep-awake flag replaced. The provider
+    /// merges the shared keep-awake state into whatever the IOKit read returned.
+    public func withKeepingAwake(_ active: Bool) -> BatterySnapshot {
+        BatterySnapshot(presence: presence,
+                        percentage: percentage,
+                        isCharging: isCharging,
+                        isPluggedIn: isPluggedIn,
+                        isFullyCharged: isFullyCharged,
+                        isKeepingAwake: active)
     }
 
     /// Desktop Mac: no battery, so the bar shows a settled no-battery state.

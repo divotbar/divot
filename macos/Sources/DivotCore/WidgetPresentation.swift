@@ -33,6 +33,36 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
     public static let `default` = WidgetPresentationOptions()
 }
 
+/// A small state indicator drawn beside an item's main content.
+///
+/// The keep-awake cup is the first user: it appears next to the battery when
+/// keep-awake is on. The color is a semantic role, not a literal, so the
+/// contrast audit and the upcoming theme milestone share one source.
+public struct WidgetIndicator: Equatable, Sendable {
+    /// The semantic color role the view resolves for the current appearance.
+    public enum Role: String, Equatable, Sendable, CaseIterable {
+        /// Keep-awake is on: the "active" role. Contrast-audited per variant.
+        case keepAwakeActive = "keep-awake-active"
+
+        /// The indicator hex for the given appearance variant.
+        public func hex(dark: Bool) -> String {
+            switch self {
+            case .keepAwakeActive: return KeepAwakeIndicatorPalette.activeHex(dark: dark)
+            }
+        }
+    }
+
+    public let symbolName: String
+    public let role: Role
+    public let accessibilityLabel: String
+
+    public init(symbolName: String, role: Role, accessibilityLabel: String) {
+        self.symbolName = symbolName
+        self.role = role
+        self.accessibilityLabel = accessibilityLabel
+    }
+}
+
 /// How one item should look: an optional SF Symbol, compact text, and the
 /// accessible description. Kept pure so it is testable without a window server
 /// and so every widget shares one presentation path.
@@ -48,17 +78,21 @@ public struct WidgetPresentation: Equatable, Sendable {
     public let accessibilityLabel: String
     /// Render with the error role (color plus a distinct glyph, never color only).
     public let isError: Bool
+    /// An optional state indicator drawn after the text (e.g. the keep-awake cup).
+    public let indicator: WidgetIndicator?
 
     public init(symbolName: String?,
                 iconBundleIdentifier: String? = nil,
                 text: String,
                 accessibilityLabel: String,
-                isError: Bool = false) {
+                isError: Bool = false,
+                indicator: WidgetIndicator? = nil) {
         self.symbolName = symbolName
         self.iconBundleIdentifier = iconBundleIdentifier
         self.text = text
         self.accessibilityLabel = accessibilityLabel
         self.isError = isError
+        self.indicator = indicator
     }
 }
 
@@ -121,11 +155,19 @@ public enum WidgetPresenter {
     }
 
     private static func batteryPresentation(_ snapshot: BatterySnapshot) -> WidgetPresentation {
+        let indicator = snapshot.isKeepingAwake
+            ? WidgetIndicator(symbolName: "cup.and.saucer.fill",
+                              role: .keepAwakeActive,
+                              accessibilityLabel: "Keep awake on")
+            : nil
         switch snapshot.presence {
         case .none:
+            var description = "No battery (desktop Mac)"
+            if snapshot.isKeepingAwake { description += ", keep awake on" }
             return WidgetPresentation(symbolName: "powerplug.fill",
                                       text: "",
-                                      accessibilityLabel: "No battery (desktop Mac)")
+                                      accessibilityLabel: description,
+                                      indicator: indicator)
         case .internalBattery:
             let symbol = batterySymbol(percentage: snapshot.percentage, charging: snapshot.isCharging)
             let text = snapshot.percentage.map { "\($0)%" } ?? ""
@@ -133,7 +175,11 @@ public enum WidgetPresenter {
             if snapshot.isCharging { description += ", charging" }
             else if snapshot.isPluggedIn { description += ", plugged in" }
             else if snapshot.isFullyCharged { description += ", charged" }
-            return WidgetPresentation(symbolName: symbol, text: text, accessibilityLabel: description)
+            if snapshot.isKeepingAwake { description += ", keep awake on" }
+            return WidgetPresentation(symbolName: symbol,
+                                      text: text,
+                                      accessibilityLabel: description,
+                                      indicator: indicator)
         }
     }
 

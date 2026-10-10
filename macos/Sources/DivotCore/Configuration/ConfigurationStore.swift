@@ -194,6 +194,19 @@ public extension DivotConfiguration {
         ]
         let widgets = widgets.jsonObject
         if !widgets.isEmpty { object["widgets"] = widgets }
+        let keepAwake = keepAwake.jsonObject
+        if !keepAwake.isEmpty { object["keepAwake"] = keepAwake }
+        return object
+    }
+}
+
+private extension KeepAwakeConfiguration {
+    /// Only non-default values are written, so the file stays as small as the
+    /// defaults allow and a plain (unremembered) session never writes here.
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        if remember { object["remember"] = true }
+        if isActive { object["isActive"] = true }
         return object
     }
 }

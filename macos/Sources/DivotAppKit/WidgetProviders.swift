@@ -106,23 +106,46 @@ public protocol BatteryReading: Sendable {
 
 /// Emits the power state and every change. A desktop Mac reports a settled
 /// no-battery state, not an error.
+///
+/// Keep-awake (task 0018) rides on the same item, so this provider folds the
+/// shared keep-awake state into each snapshot and re-emits when either the power
+/// reading or the toggle changes. It never owns the assertion; it only reports
+/// what `KeepAwakeController` is holding.
 public struct BatteryProvider: WidgetProvider {
     public let id = BarItemID.battery
     private let reading: any BatteryReading
+    private let keepAwake: (any KeepAwakeObserving)?
 
-    public init(reading: any BatteryReading) { self.reading = reading }
+    public init(reading: any BatteryReading,
+                keepAwake: (any KeepAwakeObserving)? = nil) {
+        self.reading = reading
+        self.keepAwake = keepAwake
+    }
+
+    /// Battery has no options that change its activation, and the keep-awake
+    /// observer is a shared reference, so the key is deliberately identity-free:
+    /// a reconfigure that keeps the same providers must not restart the IOKit
+    /// observer or drop the assertion state.
+    public var activationKey: String { "battery(keepAwake: \(keepAwake != nil))" }
 
     public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
         let reading = self.reading
+        let keepAwake = self.keepAwake
         let push: @Sendable () -> Void = {
+            let active = keepAwake?.isActive ?? false
             if let snapshot = reading.snapshot() {
-                emit(.battery(snapshot))
+                emit(.battery(snapshot.withKeepingAwake(active)))
             } else {
                 emit(.unavailable(.init(kind: .failed, message: "Battery state is unavailable")))
             }
         }
+        let bag = SubscriptionBag()
         push()
-        return reading.observeChanges { push() }
+        bag.add(reading.observeChanges { push() })
+        if let keepAwake {
+            bag.add(keepAwake.observe { _ in push() })
+        }
+        return bag
     }
 }
 

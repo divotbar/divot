@@ -54,19 +54,21 @@ public enum ConfigurationParser {
 
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
-                             optional: ["widgets"], path: "root")
+                             optional: ["widgets", "keepAwake"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let left = try itemGroup(root["left"], path: "left")
         let right = try itemGroup(root["right"], path: "right")
         try requireUniquePlacement(left: left, right: right)
         let widgets = try widgetOptions(root["widgets"], placed: Set(left + right))
+        let keepAwake = try keepAwakeOptions(root["keepAwake"])
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
                                   left: left,
                                   right: right,
-                                  widgets: widgets)
+                                  widgets: widgets,
+                                  keepAwake: keepAwake)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {
@@ -168,6 +170,15 @@ public enum ConfigurationParser {
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
         if let raw = object["date"] { configuration.date = try boolean(raw, path: "\(path).date") }
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        return configuration
+    }
+
+    private static func keepAwakeOptions(_ value: Any?) throws -> KeepAwakeConfiguration {
+        guard let value else { return .default }
+        let object = try shape(value, required: [], optional: ["remember", "isActive"], path: "keepAwake")
+        var configuration = KeepAwakeConfiguration.default
+        if let raw = object["remember"] { configuration.remember = try boolean(raw, path: "keepAwake.remember") }
+        if let raw = object["isActive"] { configuration.isActive = try boolean(raw, path: "keepAwake.isActive") }
         return configuration
     }
 

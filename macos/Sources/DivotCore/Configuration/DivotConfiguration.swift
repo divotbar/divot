@@ -191,6 +191,28 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// The document-level keep-awake preference.
+///
+/// `remember` is the settings opt-in: at launch keep-awake is always off unless
+/// the user chose to remember it. `isActive` is the remembered on/off state,
+/// written only while `remember` is on, so a plain toggle in a session that does
+/// not remember never touches the file. It is a root field rather than a
+/// `widgets.battery` option because the toggle must keep validating even when
+/// the battery item is not placed on either side.
+public struct KeepAwakeConfiguration: Equatable, Sendable {
+    /// Persist the state across launches. Default off.
+    public var remember: Bool
+    /// The remembered state. Only meaningful when `remember` is `true`.
+    public var isActive: Bool
+
+    public init(remember: Bool = false, isActive: Bool = false) {
+        self.remember = remember
+        self.isActive = isActive
+    }
+
+    public static let `default` = KeepAwakeConfiguration()
+}
+
 /// Namespaced per-item options. `battery`, `network`, and `volume` accept none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
@@ -234,19 +256,22 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var left: [BarItemID]
     public var right: [BarItemID]
     public var widgets: WidgetOptions
+    public var keepAwake: KeepAwakeConfiguration
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
                 layout: LayoutConfiguration = .default,
                 left: [BarItemID] = DivotConfiguration.defaultLeft,
                 right: [BarItemID] = DivotConfiguration.defaultRight,
-                widgets: WidgetOptions = .default) {
+                widgets: WidgetOptions = .default,
+                keepAwake: KeepAwakeConfiguration = .default) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
         self.left = left
         self.right = right
         self.widgets = widgets
+        self.keepAwake = keepAwake
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -267,6 +292,20 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func isPlaced(_ id: BarItemID) -> Bool {
         left.contains(id) || right.contains(id)
+    }
+
+    /// Whether two documents describe the same rendered bar.
+    ///
+    /// Keep-awake persistence is a runtime preference, not bar content, so a
+    /// toggle that only remembers the assertion state must not rebuild the
+    /// panels. The display coordinator compares this instead of the whole
+    /// document to avoid a flicker on every battery click.
+    public func rendersSameBar(as other: DivotConfiguration) -> Bool {
+        left == other.left
+            && right == other.right
+            && layout == other.layout
+            && widgets == other.widgets
+            && appearance == other.appearance
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }

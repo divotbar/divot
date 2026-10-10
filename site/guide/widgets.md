@@ -12,12 +12,14 @@ The native providers below are implemented and unit-tested in the Swift package,
 | --- | --- | --- | --- |
 | `workspaces` | left | Window-manager workspaces | Manager events or bounded refresh (AeroSpace and yabai adapters delivered; not physically validated) |
 | `front-app` | left | Frontmost application | Workspace/application notifications |
-| `battery` | right | Charge and power state | System power notifications |
+| `battery` | right | Charge and power state; click toggles keep-awake | System power notifications |
 | `clock` | right | Local time with weekday and date | Next minute boundary by default |
 | `network` | right | Wi-Fi/network status | Network path notifications |
 | `volume` | right | Output volume | Audio notifications |
 
 Both sides are ordered item groups and every supported item can move between them. The native app fills this default bar from built-in providers — no setup questionnaire and no shell polling. Workspace app icons and empty-state visibility are optional settings on `workspaces`.
+
+Clicking the battery item toggles a Caffeine-style keep-awake assertion and shows a cup indicator while it is held. Keep-awake uses the public IOKit power-assertion API only; quitting the app releases any assertion it holds. Whether the state is remembered across launches is an opt-in setting (default off). This is implemented and unit-tested in the Swift package, not physically validated.
 
 ## Failure and unavailable states
 
@@ -29,7 +31,7 @@ The clock, battery, network, volume, and frontmost-app items need no special per
 
 ## Click behavior
 
-Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app, and the battery, network, volume, and clock items open the matching System Settings pane. The exact pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
+Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app, the battery item toggles keep-awake, and the network, volume, and clock items open the matching System Settings pane. The exact pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
 
 ## Future script widgets
 

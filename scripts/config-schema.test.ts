@@ -62,6 +62,24 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('widgets: unknown field weather')
   })
 
+  test('accepts the keep-awake preference', () => {
+    const config = base()
+    config.keepAwake = { remember: true, isActive: true }
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects an unknown keep-awake field', () => {
+    const config = base()
+    config.keepAwake = { forever: true }
+    expect(() => validate(config)).toThrow('keepAwake: unknown field forever')
+  })
+
+  test('rejects a non-boolean keep-awake field', () => {
+    const config = base()
+    config.keepAwake = { remember: 'yes' }
+    expect(() => validate(config)).toThrow('keepAwake.remember: expected boolean')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }

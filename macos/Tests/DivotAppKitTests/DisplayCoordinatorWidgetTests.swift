@@ -52,6 +52,32 @@ private func flatReading() -> ScreenGeometryReading {
 }
 
 @MainActor
+@Test func aKeepAwakeOnlyChangeDoesNotRebuildSurfaces() {
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [flatReading()]),
+                                            probe: ProbeStub())
+    var built = 0
+    let surface = RecordingSurface()
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in
+        built += 1
+        return surface
+    }
+    coordinator.start()
+    #expect(built == 1)
+
+    var updated = DivotConfiguration.default
+    updated.keepAwake = KeepAwakeConfiguration(remember: true, isActive: true)
+    coordinator.apply(configuration: updated)
+
+    // Remembering the state is a runtime preference: the panels stay put, but
+    // the coordinator still adopts the newest document.
+    #expect(built == 1)
+    #expect(!surface.didClose)
+    #expect(coordinator.configuration.keepAwake.isActive)
+
+    coordinator.stop()
+}
+
+@MainActor
 @Test func applyingAConfigurationRebuildsSurfacesWithTheNewGroups() {
     let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [flatReading()]),
                                             probe: ProbeStub())

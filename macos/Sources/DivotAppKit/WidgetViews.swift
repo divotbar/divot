@@ -9,10 +9,12 @@ import DivotCore
 final class BarItemView: NSView {
     private let iconView = NSImageView()
     private let textField = NSTextField(labelWithString: "")
+    private let indicatorView = NSImageView()
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
     private let metrics: BarMetrics
     private var lastIconBundleIdentifier: String?
+    private var indicatorRole: WidgetIndicator.Role?
 
     init(metrics: BarMetrics = .default) {
         self.metrics = metrics
@@ -21,6 +23,9 @@ final class BarItemView: NSView {
         iconView.imageScaling = .scaleProportionallyDown
         iconView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(iconView)
+        indicatorView.imageScaling = .scaleProportionallyDown
+        indicatorView.translatesAutoresizingMaskIntoConstraints = true
+        addSubview(indicatorView)
         textField.font = .monospacedDigitSystemFont(ofSize: metrics.textFontSize, weight: .medium)
         // Truncation is a safety net for genuinely constrained layouts, never the
         // normal case: the item is sized to the measured text so nothing clips at
@@ -54,18 +59,53 @@ final class BarItemView: NSView {
         textField.textColor = presentation.isError ? .systemRed : .labelColor
         textField.isHidden = presentation.text.isEmpty
 
+        applyIndicator(presentation.indicator)
+
         setAccessibilityRole(action == .none ? .staticText : .button)
         setAccessibilityLabel(presentation.accessibilityLabel)
-        setAccessibilityHelp(action == .none ? nil : "Activates \(presentation.accessibilityLabel)")
+        switch action {
+        case .none: setAccessibilityHelp(nil)
+        case .toggleKeepAwake: setAccessibilityHelp("Toggles keep-awake")
+        default: setAccessibilityHelp("Activates \(presentation.accessibilityLabel)")
+        }
 
         invalidateIntrinsicContentSize()
         needsLayout = true
     }
 
+    /// Draw (or hide) the small state indicator after the text. The color comes
+    /// from the semantic role, so the same contrast-audited value the tests
+    /// check is the one the bar draws.
+    private func applyIndicator(_ indicator: WidgetIndicator?) {
+        guard let indicator,
+              let image = NSImage(systemSymbolName: indicator.symbolName, accessibilityDescription: nil) else {
+            indicatorView.image = nil
+            indicatorView.isHidden = true
+            indicatorView.toolTip = nil
+            indicatorRole = nil
+            return
+        }
+        indicatorView.image = image
+        indicatorRole = indicator.role
+        indicatorView.contentTintColor = Self.color(for: indicator.role,
+                                                    appearance: effectiveAppearance)
+        indicatorView.isHidden = false
+        // A native tooltip is the one thing AGENTS.md forbids; the state is
+        // announced through the item's accessible label instead.
+        indicatorView.toolTip = nil
+    }
+
+    /// Resolve a semantic indicator role against the current appearance.
+    static func color(for role: WidgetIndicator.Role, appearance: NSAppearance) -> NSColor {
+        let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        return NSColor(divotHex: role.hex(dark: dark)) ?? .labelColor
+    }
+
     override var intrinsicContentSize: NSSize {
         let iconWidth = iconView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
         let textWidth = measuredTextWidth
-        return NSSize(width: iconWidth + textWidth,
+        let indicatorWidth = indicatorView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
+        return NSSize(width: iconWidth + textWidth + indicatorWidth,
                       height: max(metrics.iconSize, textField.fittingSize.height))
     }
 
@@ -105,6 +145,12 @@ final class BarItemView: NSView {
             let size = textField.fittingSize
             textField.frame = CGRect(x: x, y: (bounds.height - size.height) / 2,
                                      width: size.width, height: size.height)
+            x += size.width
+        }
+        if !indicatorView.isHidden {
+            if x > 0 { x += metrics.iconSpacing }
+            indicatorView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
+                                         width: metrics.iconSize, height: metrics.iconSize)
         }
     }
 
@@ -126,6 +172,15 @@ final class BarItemView: NSView {
         guard action != .none else { return false }
         onActivate?(action)
         return true
+    }
+
+    /// Re-resolve the indicator tint when the effective appearance changes, so
+    /// the light/dark contrast-audited value follows the system.
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        if let role = indicatorRole {
+            indicatorView.contentTintColor = Self.color(for: role, appearance: effectiveAppearance)
+        }
     }
 }
 
@@ -267,5 +322,14 @@ final class BarContentView: NSView, BarContentLifecycle {
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         needsDisplay = true
+    }
+}
+
+extension NSColor {
+    /// Build an sRGB color from a six-digit `#RRGGBB` string. Returns `nil` when
+    /// the string is not a hex color, so a caller can fall back to a system role.
+    convenience init?(divotHex: String) {
+        guard let rgb = SRGBColor(hex: divotHex) else { return nil }
+        self.init(srgbRed: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
     }
 }
