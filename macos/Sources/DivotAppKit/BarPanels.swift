@@ -40,6 +40,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         /// from the top) instead of the top edge, which is the reported bug.
         /// The panel level stays just under the system menu bar, so native menus
         /// still draw above Divot; only the frame clamp is bypassed (#0021).
+        /// `BarGeometry` already clamps every segment onto the display, so the
+        /// bypass never places a panel off-screen.
         override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
             frameRect
         }

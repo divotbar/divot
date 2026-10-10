@@ -27,8 +27,11 @@ public final class MenuBarObservationAdapter {
     private let provider: ScreenGeometryProviding
     private let probe: SystemMenuBarProbing
 
-    /// Minimum inset assumed for a visible notch-free native bar, used only
-    /// when the reported top band is smaller than a standard bar.
+    /// Nominal height of the **platform's** native menu bar, used only when a
+    /// notch-free display reports a top band smaller than a standard bar. This
+    /// is deliberately independent of `BarMetrics.default.height` (Divot's own
+    /// 32 pt row height): on a notch-free display the native bar is ~24 pt, and
+    /// insetting by the row height there would leave a visible gap under the bar.
     public var nominalMenuBarHeight: CGFloat
 
     /// Whether a complete Accessibility sample may decide placement.
