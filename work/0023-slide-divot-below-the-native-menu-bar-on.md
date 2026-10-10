@@ -2,7 +2,7 @@
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0021", "0022"]
@@ -93,4 +93,5 @@ test
 - 2026-10-10T12:17:53Z · status review→active
 - 2026-10-10T12:21:28Z · needs_input
 - 2026-10-10T12:23:03Z · note: handoff requested (board)
-- 2026-10-10T12:23:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:23:03Z · status active→review
+- 2026-10-10T12:23:03Z · note: review without checks by human
