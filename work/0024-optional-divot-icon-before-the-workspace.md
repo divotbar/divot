@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T09:55:17Z"
+review_passes: 1
 id: "0024"
 title: Optional Divot icon before the workspace numbers that opens Settings when clicked
 type: feature
@@ -10,7 +12,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-divot-icon-before-the-workspace
 created_at: "2026-10-10T09:48:56Z"
-updated_at: "2026-10-10T09:55:17Z"
 ---
 ## Problem
 
@@ -44,3 +45,4 @@ Depends on #0022, which changes the text and icon size metrics this icon must fo
 - 2026-10-10T09:54:43Z · status active→review
 - 2026-10-10T09:54:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T09:55:17Z · note: review pass 1: good to go
+
