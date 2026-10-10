@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/bar-panels-never-get-placed-placement-st
 created_at: "2026-10-10T04:02:13Z"
-updated_at: "2026-10-10T04:17:49Z"
+updated_at: "2026-10-10T04:18:58Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -54,3 +54,4 @@ Human-only (NOT supplied here):
 - 2026-10-10T04:16:33Z · note: review pass 1: needs some work
 - 2026-10-10T04:16:33Z · status review→active
 - 2026-10-10T04:17:49Z · body: section Verification
+- 2026-10-10T04:18:58Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
