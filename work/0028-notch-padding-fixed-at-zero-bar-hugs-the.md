@@ -3,9 +3,6 @@ id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -17,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:54:07Z"
+updated_at: "2026-10-10T12:57:58Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -77,3 +74,4 @@ Review Round 2 Fixes:
 - 2026-10-10T12:36:52Z · note: review pass 3: needs some work
 - 2026-10-10T12:36:52Z · needs_input
 - 2026-10-10T12:54:07Z · review_cli_override, review_model_override
+- 2026-10-10T12:57:58Z · needs_input
