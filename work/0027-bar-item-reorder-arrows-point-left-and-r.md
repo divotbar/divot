@@ -2,7 +2,7 @@
 id: "0027"
 title: Bar item reorder arrows point left and right
 type: bug
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0024"]
@@ -36,4 +36,4 @@ Depends on #0024. Only the reorder controls change; do not alter the left/right 
 - 2026-10-10T10:26:07Z · created · njachowski@gmail.com
 - 2026-10-10T10:26:33Z · status inbox→ready
 - 2026-10-10T10:26:34Z · status ready→active, branch
-- 2026-10-10T10:28:28Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-10T10:28:28Z · status active→review
