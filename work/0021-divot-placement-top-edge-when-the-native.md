@@ -2,14 +2,14 @@
 id: "0021"
 title: "Divot placement: top edge when the native menu bar is hidden, below only while it is revealed; bar height 32pt"
 type: bug
-status: inbox
+status: ready
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-10T05:23:24Z"
-updated_at: "2026-10-10T05:23:24Z"
+updated_at: "2026-10-10T05:23:26Z"
 ---
 ## Problem
 
@@ -43,3 +43,4 @@ The maintainer's current setup: AeroSpace running, native menu bar auto-hide on,
 ## Activity
 
 - 2026-10-10T05:23:24Z · created · njachowski@gmail.com
+- 2026-10-10T05:23:26Z · status inbox→ready
