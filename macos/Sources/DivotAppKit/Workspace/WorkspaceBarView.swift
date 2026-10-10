@@ -219,7 +219,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // never color alone.
         button.isBordered = false
         button.wantsLayer = true
-        button.layer?.cornerRadius = 4
+        // Flat chrome (#0025): square corners, a flat selected fill, and a flat
+        // focused stroke. No rounded corners or bevel.
+        button.layer?.cornerRadius = 0
         button.layer?.backgroundColor = workspace.isFocused ? theme.selected.cgColor : NSColor.clear.cgColor
         // The accent is the interactive focus emphasis: a restrained border on
         // the focused chip, on top of the selected background.

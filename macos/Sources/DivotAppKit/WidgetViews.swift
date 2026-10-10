@@ -220,9 +220,6 @@ final class BarContentView: NSView, BarContentLifecycle {
     private let items: [BarItemID]
     private let presentationOptions: WidgetPresentationOptions
     private var theme: BarTheme
-    /// The segment chrome. Native material blurs behind the bar; opaque and the
-    /// reduced-transparency/increased-contrast paths hide it and fill instead.
-    private let vibrancy = NSVisualEffectView()
     private var itemViews: [BarItemID: BarItemView] = [:]
     /// The `workspaces` item is a live, clickable row rather than a single
     /// value, so it renders through `WorkspaceBarView` and is not driven by the
@@ -234,7 +231,6 @@ final class BarContentView: NSView, BarContentLifecycle {
     var onActivate: ((WidgetAction) -> Void)?
 
     private let metrics: BarMetrics
-    private let cornerRadius: CGFloat = 8
 
     init(side: BarSide,
          items: [BarItemID],
@@ -256,7 +252,6 @@ final class BarContentView: NSView, BarContentLifecycle {
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
-        configureVibrancy()
         // The mark leads the left group only; the right group starts at the
         // status items.
         if side == .left, showsAppIcon {
@@ -289,16 +284,6 @@ final class BarContentView: NSView, BarContentLifecycle {
 
     required init?(coder: NSCoder) {
         fatalError("BarContentView does not support NSCoding")
-    }
-
-    private func configureVibrancy() {
-        vibrancy.material = .menu
-        vibrancy.blendingMode = .behindWindow
-        vibrancy.state = .active
-        vibrancy.wantsLayer = true
-        vibrancy.layer?.cornerRadius = cornerRadius
-        vibrancy.layer?.masksToBounds = true
-        addSubview(vibrancy)
     }
 
     /// Adopt a new theme without rebuilding the view tree.
@@ -344,7 +329,6 @@ final class BarContentView: NSView, BarContentLifecycle {
 
     override func layout() {
         super.layout()
-        vibrancy.frame = bounds
 
         // Keep the group inside the panel's padding so it never runs edge-to-edge
         // and the left/right groups share one rhythm.
@@ -393,11 +377,13 @@ final class BarContentView: NSView, BarContentLifecycle {
     override var wantsUpdateLayer: Bool { true }
 
     override func updateLayer() {
-        layer?.cornerRadius = cornerRadius
+        // Flat chrome (#0025): one solid fill, square corners, no bevel or
+        // material blur. The only stroke left is the increased-contrast
+        // accessibility border, whose width is zero by default.
+        layer?.cornerRadius = 0
         layer?.backgroundColor = theme.layerBackground.cgColor
         layer?.borderWidth = theme.borderWidth
         layer?.borderColor = theme.borderColor.cgColor
-        vibrancy.isHidden = theme.isOpaque
     }
 
     /// Called when the effective appearance changes so the owning surface can

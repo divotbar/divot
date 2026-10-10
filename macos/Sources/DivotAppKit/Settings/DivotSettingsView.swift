@@ -40,12 +40,21 @@ public struct DivotSettingsView: View {
             Text("Clicking the icon opens Divot settings. The mark follows the bar's theme and text size.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Toggle("Bottom shadow", isOn: bottomShadowBinding)
+            Text("Draws a subtle drop shadow along the bar's bottom edge. Off by default; the bar stays a flat colour.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
     private var showAppIconBinding: Binding<Bool> {
         Binding(get: { model.configuration.showAppIcon },
                 set: { model.setShowAppIcon($0) })
+    }
+
+    private var bottomShadowBinding: Binding<Bool> {
+        Binding(get: { model.configuration.bottomShadow },
+                set: { model.setBottomShadow($0) })
     }
 
     // MARK: Bar items
@@ -232,6 +241,9 @@ public struct DivotSettingsView: View {
                 Text("Native").tag(AppearanceConfiguration.Material.native)
                 Text("Opaque").tag(AppearanceConfiguration.Material.opaque)
             }
+            Text("The bar draws one flat colour, so Material is kept in the configuration but no longer changes the bar fill.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             TextField("Accent (hex)", text: binding(\.appearance.accent))
                 .textFieldStyle(.roundedBorder)
             LabeledContent("Resolved accent") {

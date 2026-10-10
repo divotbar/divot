@@ -327,6 +327,13 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// Draw the hollow ring on an empty (non-focused) workspace chip. On by
     /// default; turning it off hides only that marker (#0026).
     public var showEmptyDot: Bool
+    /// Draw a subtle drop shadow along the bottom edge of the bar. Off by
+    /// default so the first-launch bar is unshadowed; when on, the panel extends
+    /// a few points below the bar and a soft gradient fades downward, so the
+    /// shadow runs along the bottom edge only and never rims the other edges.
+    /// Root-level because it changes only the panel chrome, not any item
+    /// (#0025).
+    public var bottomShadow: Bool
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -339,7 +346,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 menuBar: MenuBarConfiguration = .default,
                 showAppIcon: Bool = false,
                 showOccupiedDot: Bool = true,
-                showEmptyDot: Bool = true) {
+                showEmptyDot: Bool = true,
+                bottomShadow: Bool = false) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -352,6 +360,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.showAppIcon = showAppIcon
         self.showOccupiedDot = showOccupiedDot
         self.showEmptyDot = showEmptyDot
+        self.bottomShadow = bottomShadow
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -390,6 +399,7 @@ public struct DivotConfiguration: Equatable, Sendable {
             && showAppIcon == other.showAppIcon
             && showOccupiedDot == other.showOccupiedDot
             && showEmptyDot == other.showEmptyDot
+            && bottomShadow == other.bottomShadow
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
