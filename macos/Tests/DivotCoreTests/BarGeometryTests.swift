@@ -3,15 +3,15 @@ import CoreGraphics
 import Testing
 @testable import DivotCore
 
-@Test func notchClearanceAndHeightClamping() {
+@Test func notchZeroGapNoSeam() {
     let screen = CGRect(x: 0, y: 0, width: 1512, height: 982)
     let g = BarGeometry(screen: screen,
         topLeft: CGRect(x: 0, y: 950, width: 680, height: 32),
         topRight: CGRect(x: 832, y: 950, width: 680, height: 32),
-        height: 40, gap: 10)
-    #expect(g.left == CGRect(x: 0, y: 950, width: 670, height: 32))
-    #expect(g.right == CGRect(x: 842, y: 950, width: 670, height: 32))
-    #expect(g.left.maxX < 680 && g.right.minX > 832)
+        height: 40, gap: 0)
+    #expect(g.left == CGRect(x: 0, y: 950, width: 680, height: 32))
+    #expect(g.right == CGRect(x: 832, y: 950, width: 680, height: 32))
+    #expect(g.left.maxX == 680 && g.right.minX == 832)
 }
 
 @Test func externalDisplayWithNegativeOrigin() {

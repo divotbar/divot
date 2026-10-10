@@ -58,10 +58,10 @@ function appearance(value: unknown) {
 }
 
 function layout(value: unknown) {
-  shape(value, ['height', 'padding', 'notchGap'], [], 'layout')
+  shape(value, ['height', 'padding'], ['notchGap'], 'layout')
   range(value.height, 24, 40, 'layout.height')
   range(value.padding, 0, 24, 'layout.padding')
-  range(value.notchGap, 0, 32, 'layout.notchGap')
+  if ('notchGap' in value) range(value.notchGap, 0, 32, 'layout.notchGap')
 }
 
 /**

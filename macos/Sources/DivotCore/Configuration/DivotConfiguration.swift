@@ -95,25 +95,21 @@ public struct AppearanceConfiguration: Equatable, Sendable {
 public struct LayoutConfiguration: Equatable, Sendable {
     public static let heightRange: ClosedRange<Double> = 24...40
     public static let paddingRange: ClosedRange<Double> = 0...24
-    public static let notchGapRange: ClosedRange<Double> = 0...32
 
     public var height: Double
     public var padding: Double
-    public var notchGap: Double
 
     public init(height: Double = Double(BarMetrics.default.height),
-                padding: Double = Double(BarMetrics.default.rowInset),
-                notchGap: Double = 10) {
+                padding: Double = Double(BarMetrics.default.rowInset)) {
         self.height = height
         self.padding = padding
-        self.notchGap = notchGap
     }
 
     public static let `default` = LayoutConfiguration()
 
     /// The panel content policy the display coordinator positions panels with.
     public var contentPolicy: BarContentPolicy {
-        BarContentPolicy(height: CGFloat(height), clearance: CGFloat(notchGap), edgeMargin: 0)
+        BarContentPolicy(height: CGFloat(height), clearance: 0, edgeMargin: 0)
     }
 }
 

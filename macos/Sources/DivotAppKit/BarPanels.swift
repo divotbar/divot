@@ -65,6 +65,9 @@ public final class NSPanelBarSurface: BarDisplaySurface {
 
     /// How far the optional bottom shadow reaches below the bar.
     private static let bottomShadowHeight: CGFloat = 6
+    /// Extension of the notch-side edge into the notch area to cover the gap
+    /// and rounded corners of the housing (#0028).
+    private static let notchExtension: CGFloat = 6
 
     public init(id: DisplayBarID,
                 on screen: CGRect,
@@ -129,8 +132,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         }
         guard let placement = update.placement else { return }
         let animate = update.animated && !reduceMotion
-        move(left, to: placement.geometry.left, animated: animate)
-        move(right, to: placement.geometry.right, animated: animate)
+        move(left, to: placement.geometry.left, side: .left, animated: animate)
+        move(right, to: placement.geometry.right, side: .right, animated: animate)
     }
 
     public func apply(widgetChanges: [WidgetChange]) {
@@ -173,10 +176,12 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         return panel
     }
 
-    private func move(_ panel: NSPanel, to frame: CGRect, animated: Bool) {
+    private func move(_ panel: NSPanel, to frame: CGRect, side: BarSide, animated: Bool) {
         // Reserve the shadow strip below the bar when the shadow is on, so the
         // gradient draws over the desktop rather than over the bar content.
-        let target = Self.panelFrame(for: frame, shadowHeight: shadowHeight)
+        // Extend the notch-side edge by 6 points to cover the notch corner (#0028).
+        let extendedFrame = Self.extendFrameIntoNotch(frame, side: side)
+        let target = Self.panelFrame(for: extendedFrame, shadowHeight: shadowHeight)
         targets[ObjectIdentifier(panel)] = target
         guard animated else {
             panel.setFrame(target, display: true)
@@ -186,6 +191,23 @@ public final class NSPanelBarSurface: BarDisplaySurface {
             context.duration = 0.18
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             panel.animator().setFrame(target, display: true)
+        }
+    }
+
+    /// Extend the bar frame by 6 points on the notch-side edge to cover the
+    /// notch corner and gap (#0028).
+    static func extendFrameIntoNotch(_ barFrame: CGRect, side: BarSide) -> CGRect {
+        switch side {
+        case .left:
+            return CGRect(x: barFrame.minX,
+                          y: barFrame.minY,
+                          width: barFrame.width + notchExtension,
+                          height: barFrame.height)
+        case .right:
+            return CGRect(x: barFrame.minX - notchExtension,
+                          y: barFrame.minY,
+                          width: barFrame.width + notchExtension,
+                          height: barFrame.height)
         }
     }
 
