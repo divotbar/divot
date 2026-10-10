@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 43739
-last_close_out_gate_at: "2026-10-10T13:29:26.287Z"
 id: "0029"
 title: Add a Quit Divot control to the menu bar menu and the Settings window
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 3f398d6824149dc7fbc5d57bb1de83379e3ba160
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-quit-divot-control-to-the-menu-bar
 created_at: "2026-10-10T13:19:42Z"
-updated_at: "2026-10-10T13:29:26Z"
+updated_at: "2026-10-10T13:29:28Z"
+last_close_out_gate_ms: 43739
+last_close_out_gate_at: "2026-10-10T13:29:26.287Z"
 review_passes: 1
 ---
 ## Problem
@@ -46,4 +47,4 @@ Keep the menu item in the existing status item setup in `DivotAppDelegate`. Do n
 - 2026-10-10T13:26:48Z · note: shots: skipped — the diff (8 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T13:27:20Z · note: review pass 1: good to go
 - 2026-10-10T13:29:26Z · close-out gate completed in 44s
-
+- 2026-10-10T13:29:28Z · status review→done, release:success
