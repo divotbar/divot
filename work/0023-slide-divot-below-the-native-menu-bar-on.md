@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T12:56:24Z"
+updated_at: "2026-10-10T12:57:34Z"
 review_passes: 7
 handoff_signal_retry_count: 1
 close_out_repair_count: 1
@@ -111,3 +111,4 @@ test
 - 2026-10-10T12:55:30Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T12:56:24Z · status active→review
 - 2026-10-10T12:56:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:57:34Z · note: review pass 10: needs some work
