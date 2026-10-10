@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-10T13:24:45Z"
-review_passes: 7
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -19,6 +14,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
+updated_at: "2026-10-10T13:29:13Z"
+review_passes: 7
 review_rounds: 2
 ---
 ## Problem
@@ -134,4 +131,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:24:27Z · note: Acceptance criteria updated: the packaged-app screenshot requirement is removed. Maintainer sign-off on the notch appearance is recorded and is the evidence for this criterion.
 - 2026-10-10T13:24:45Z · note: review pass 7: needs some work
 - 2026-10-10T13:24:45Z · needs_input
-
+- 2026-10-10T13:29:13Z · needs_input
