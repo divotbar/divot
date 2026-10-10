@@ -95,3 +95,4 @@ test
 - 2026-10-10T12:23:03Z · note: handoff requested (board)
 - 2026-10-10T12:23:03Z · status active→review
 - 2026-10-10T12:23:03Z · note: review without checks by human
+- 2026-10-10T12:23:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
