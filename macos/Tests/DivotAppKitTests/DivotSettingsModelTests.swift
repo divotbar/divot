@@ -130,6 +130,28 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func appIconOptInStartsOffAndTogglesAndPersists() throws {
+    let (model, controller) = try makeModel()
+
+    // The icon is off by default, so settings opens with the toggle off.
+    #expect(!model.configuration.showAppIcon)
+
+    model.setShowAppIcon(true)
+    #expect(model.configuration.showAppIcon)
+
+    // The change survives a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.showAppIcon)
+
+    // And it can be turned back off, writing the default shape again.
+    model.setShowAppIcon(false)
+    #expect(!model.configuration.showAppIcon)
+    let reread = try ConfigurationParser.parse(Data(contentsOf: controller.configURL))
+    #expect(!reread.configuration.showAppIcon)
+}
+
+@MainActor
 @Test func anUninstalledConfiguredFontShowsTheSystemDefaultInThePicker() throws {
     let (model, _) = try makeModel()
     model.update { $0.text.font = "No Such Font 12345" }

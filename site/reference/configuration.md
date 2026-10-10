@@ -16,6 +16,7 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `right` | String array | Ordered, unique items on the right |
 | `widgets` | Object | Optional; namespaced per-item options |
 | `keepAwake` | Object | Optional; keep-awake persistence (see below) |
+| `showAppIcon` | Boolean | Optional; show the Divot mark before the workspaces (default `false`) |
 
 The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
@@ -68,6 +69,20 @@ The bar's text size and font are an optional root `text` object. The icon scales
 
 ```json
 "text": { "size": 16, "font": "Helvetica" }
+```
+
+## Bar icon
+
+Divot can show its own mark at the start of the left group, before the workspace numbers. It is an optional root boolean, `showAppIcon`, off by default so the first-launch bar is unchanged.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `showAppIcon` | Boolean | `false` | Show the Divot mark before the workspaces; clicking it opens Divot settings |
+
+The mark is the same template image as the menu-bar item, so it follows the bar's light and dark theme, and it scales with `text.size`. Settings has a matching toggle, and toggling it updates the bar live.
+
+```json
+"showAppIcon": true
 ```
 
 ## Keep awake
@@ -137,7 +152,7 @@ Version 1 was a pre-release draft with workspaces hard-coded on the left and a `
 
 ## Examples
 
-See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, `examples/custom-palette.json`, and `examples/keep-awake.json` in the source repository. Run `bun run scripts/check-config.ts` to validate all of them and the version 1 migration fixtures today.
+See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, `examples/custom-palette.json`, `examples/keep-awake.json`, and `examples/app-icon.json` in the source repository. Run `bun run scripts/check-config.ts` to validate all of them and the version 1 migration fixtures today.
 
 ## Custom palettes and theme sharing
 

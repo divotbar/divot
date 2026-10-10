@@ -123,7 +123,7 @@ function options(id: string, value: unknown) {
 }
 
 export function validate(value: unknown) {
-  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar'], 'root')
+  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar', 'showAppIcon'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
   appearance(value.appearance)
   layout(value.layout)
@@ -132,6 +132,7 @@ export function validate(value: unknown) {
   if (new Set(placed).size !== placed.length) throw new Error('left/right: an item may appear in only one group')
   if ('keepAwake' in value) keepAwake(value.keepAwake)
   if ('menuBar' in value) menuBar(value.menuBar)
+  if ('showAppIcon' in value) boolean(value.showAppIcon, 'showAppIcon')
   if ('widgets' in value) {
     shape(value.widgets, [], ITEMS, 'widgets')
     for (const id of Object.keys(value.widgets)) {

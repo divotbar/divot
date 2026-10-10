@@ -15,6 +15,7 @@ public struct DivotSettingsView: View {
 
     public var body: some View {
         Form {
+            barSection
             barItemsSection
             workspacesSection
             frontAppSection
@@ -28,6 +29,23 @@ public struct DivotSettingsView: View {
         .formStyle(.grouped)
         .frame(minWidth: 460, minHeight: 560)
         .onAppear { model.refresh() }
+    }
+
+    // MARK: Bar
+
+    private var barSection: some View {
+        Section("Bar") {
+            Toggle("Show the Divot icon before the workspaces",
+                   isOn: showAppIconBinding)
+            Text("Clicking the icon opens Divot settings. The mark follows the bar's theme and text size.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var showAppIconBinding: Binding<Bool> {
+        Binding(get: { model.configuration.showAppIcon },
+                set: { model.setShowAppIcon($0) })
     }
 
     // MARK: Bar items
