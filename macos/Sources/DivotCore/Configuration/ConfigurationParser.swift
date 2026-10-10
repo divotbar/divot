@@ -119,6 +119,10 @@ public enum ConfigurationParser {
         let object = try shape(value, required: ["height", "padding"], optional: ["notchGap"], path: path)
         let height = try range(object["height"], LayoutConfiguration.heightRange, path: "\(path).height")
         let padding = try range(object["padding"], LayoutConfiguration.paddingRange, path: "\(path).padding")
+        // Legacy notchGap is accepted but ignored; validate it matches the historical range
+        if let notchGap = object["notchGap"] {
+            _ = try range(notchGap, ClosedRange(uncheckedBounds: (0, 32)), path: "\(path).notchGap")
+        }
         return LayoutConfiguration(height: height, padding: padding)
     }
 
