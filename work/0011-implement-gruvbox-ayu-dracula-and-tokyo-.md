@@ -1,9 +1,8 @@
 ---
-close_out_repair_count: 1
 id: "0011"
 title: "Implement Gruvbox, Ayu, Dracula and Tokyo Night theme families"
 type: feature
-status: active
+status: review
 priority: p1
 area: [macos, docs]
 story: Choose a hacker theme in light or dark
@@ -12,7 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-gruvbox-ayu-dracula-and-tokyo-
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-10T01:29:18Z"
+updated_at: "2026-10-10T01:39:32Z"
+close_out_repair_count: 1
 review_passes: 1
 ---
 ## Problem
@@ -54,4 +54,4 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 - 2026-10-10T00:51:38Z · note: review pass 1: good to go
 - 2026-10-10T01:29:18Z · status review→active
 - 2026-10-10T01:29:18Z · note: close-out repair: merge-conflict
-
+- 2026-10-10T01:39:32Z · status active→review
