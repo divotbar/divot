@@ -17,7 +17,7 @@ model_override: composer-2.5
 review_cli_override: claude code
 review_model_override: haiku
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T11:30:02Z"
+updated_at: "2026-10-10T11:31:01Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -39,8 +39,11 @@ The bar's background and item chips show rounded corners and a 3D bevel. The mai
 - `repoos check` passes.
 
 ## Notes for AI
-
 Depends on #0024, which changes the left group's leading item. Keep changes to the panel and chip drawing, not the workspace feed.
+
+`BarPanelContainer` attaches the bottom-shadow gradient in `layout()` when `shadowHeight > 0` and the sublayer is missing (not only in `init`), so a nil backing layer at init cannot permanently drop the shadow.
+
+Packaged-app screen captures (flat bar, `bottomShadow` off and on) and maintainer visual sign-off are still required before close-out; this agent run cannot record them.
 
 ## Verification
 Automated (task branch, this run):
@@ -88,3 +91,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:29:55Z · review_cli_override, review_model_override
 - 2026-10-10T11:29:56Z · review_model_override
 - 2026-10-10T11:30:01Z · status review→active
+- 2026-10-10T11:31:01Z · body: section Notes for AI
