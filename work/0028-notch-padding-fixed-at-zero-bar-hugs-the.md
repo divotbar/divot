@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T13:09:10Z"
+updated_at: "2026-10-10T13:09:16Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -53,29 +53,33 @@ Review Round 2 Fixes:
 - Physical evidence capture on notched display still required for final acceptance
 
 ## Verification on notched display
-1. Extract and launch the packaged app:
-unzip dist/Divot-0.1.0-preview.1-*.zip
+Build command (commit 0a87954f329a):
+```bash
+cd /path/to/divot && swift build -c release --product divot
+```
+
+Or extract and run the packaged app:
+```bash
+unzip dist/Divot-0.1.0-preview.1-0a87954f329a.zip
 open Divot.app
+```
 
-2. On a notched MacBook Pro (14" or 16"), verify the notch area:
-- Bar should hug the notch with zero visible gap
-- Color should extend 6pt into the notch area, covering the rounded corners
-- Rounded corners of the housing should blend with the bar color
-- No background should show through at the notch edge
+On a notched MacBook Pro (14" or 16"), verify the notch area:
+- Bar panels should now extend to meet in the middle, fully covering the camera housing gap
+- No blue wallpaper should show through the notch area
+- Bar color should be solid across the housing width
+- Rounded corners of the housing should blend seamlessly with the bar
 
-3. Capture the notch area with: macOS screenshot tool (Cmd+Shift+4, then spacebar for window capture)
-
-4. Use this command to add the shot to the task:
-repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","label":"Notch area verification"}]'
+Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 
 ## Shots
 ```json
 [
 {
-  "label": "Notch area verification - bar extends to fully cover housing gap",
-  "target": "default",
-  "route": "/",
-  "highlight": "body"
+"label": "Notch area verification - bar extends to fully cover housing gap",
+"target": "default",
+"route": "/",
+"highlight": "body"
 }
 ]
 ```
@@ -114,3 +118,4 @@ repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","
 - 2026-10-10T13:07:22Z · status review→active
 - 2026-10-10T13:07:22Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T13:09:10Z · body: section Shots
+- 2026-10-10T13:09:16Z · body: section Verification on notched display
