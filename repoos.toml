@@ -58,6 +58,14 @@ name = "native-app"
 command = "swift build --package-path macos --product divot"
 required = true
 
+# Package and launch the local Divot.app preview: structure, ad-hoc signature,
+# and a real run of the bundled executable. Never opens a window or claims a
+# person looked at the bar.
+[[check.steps]]
+name = "native-app-bundle"
+command = "scripts/smoke-app-bundle.sh"
+required = true
+
 [[preview.targets]]
 name = "website"
 areas = ["web", "docs"]

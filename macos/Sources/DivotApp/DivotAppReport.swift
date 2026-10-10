@@ -17,6 +17,9 @@ enum DivotAppReport {
         print("displays=\(observation.readings.count)")
         print("accessibility=\(describe(observation.accessibility))")
         print("reduceMotion=\(reduceMotion)")
+        // Whether the bundled menu-bar mark resolved is an app-shell fact, not
+        // a visual claim; it proves a packaged bundle carries its Resources.
+        print("menuBarMark=\(DivotMenuBarMark.image() == nil ? "fallback" : "resolved")")
         for reading in observation.readings {
             let visibility = NativeMenuBarDetector.detect(geometry: reading.geometry, signal: reading.signal)
             print("\(reading.id) notched=\(reading.geometry.isNotched) visibility=\(visibility)")

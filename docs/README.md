@@ -9,12 +9,14 @@ Read in this order:
 5. [Accessibility physical checks](accessibility-physical-checks.md): the VoiceOver/display/fullscreen checklist a person runs.
 6. [Configuration](configuration.md): versioned configuration contract and migration rules.
 7. [Roadmap](roadmap.md): delivery order and release gates.
-8. [Native architecture ADR](adr/0001-native-appkit.md).
-9. [Native menu-bar feasibility evidence](evidence/0009-native-menu-bar-coexistence.md): what public APIs were observed to do, and the open decision.
-10. [App shell evidence](evidence/0003-app-shell.md): what the AppKit shell and display coordinator actually do, and what still needs physical proof.
-11. [Native providers evidence](evidence/0004-native-providers.md): what the provider pipeline and status widgets do, and what still needs physical proof.
-12. [AeroSpace workspace adapter evidence](evidence/0005-aerospace-workspace-adapter.md): the live read-only observation and what remains unverified.
-13. [Native macOS Spaces feasibility](evidence/0013-native-spaces-feasibility.md): why public APIs cannot drive a native Spaces adapter, and the scope that is honestly supportable.
-14. [Performance harness evidence](evidence/0007-performance-harness.md): what the harness and accessibility checks cover, and what a person must still measure.
+8. [Local preview](local-preview.md): packaging, install/run, and the remaining hardware checklist.
+9. [Native architecture ADR](adr/0001-native-appkit.md).
+10. [Native menu-bar feasibility evidence](evidence/0009-native-menu-bar-coexistence.md): what public APIs were observed to do, and the open decision.
+11. [App shell evidence](evidence/0003-app-shell.md): what the AppKit shell and display coordinator actually do, and what still needs physical proof.
+12. [Native providers evidence](evidence/0004-native-providers.md): what the provider pipeline and status widgets do, and what still needs physical proof.
+13. [AeroSpace workspace adapter evidence](evidence/0005-aerospace-workspace-adapter.md): the live read-only observation and what remains unverified.
+14. [Native macOS Spaces feasibility](evidence/0013-native-spaces-feasibility.md): why public APIs cannot drive a native Spaces adapter, and the scope that is honestly supportable.
+15. [Performance harness evidence](evidence/0007-performance-harness.md): what the harness and accessibility checks cover, and what a person must still measure.
+16. [Local preview evidence](evidence/0014-local-preview.md): what the packaging smoke test observed, and what it does not prove.
 
 `docs/` is engineering context. `site/` is public documentation and marketing. Keep implementation status consistent across both. The app is not shipping yet.

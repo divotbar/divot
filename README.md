@@ -2,7 +2,7 @@
 
 A quieter edge for your Mac. An open-source, performance-first status bar designed around the camera notch: workspaces and the active app on the left, everyday status on the right.
 
-**Status: foundation / pre-alpha.** This repository contains the product and engineering specifications, a working static landing/docs site, a validated versioned configuration contract, and a tested Swift layout core. The native application is not yet implemented; there is no installable release or measured performance claim.
+**Status: foundation / pre-alpha.** This repository contains the product and engineering specifications, a working static landing/docs site, a validated versioned configuration contract, a tested Swift layout core, and a buildable AppKit accessory shell that can be packaged as a local, ad-hoc-signed preview. There is no signed/notarized public release, no installer, and no measured performance claim.
 
 ## Run the website
 
@@ -23,7 +23,16 @@ Requires macOS 26+ and a Swift 6.2+ toolchain (Xcode 26+).
 swift test --package-path macos
 ```
 
-`macos/` is a library foundation, not an app bundle. AppKit panels, system providers, and AeroSpace integration are scheduled next. See [roadmap](docs/roadmap.md).
+`macos/` builds the `DivotCore` library, the `DivotAppKit` platform adapter, and the
+`divot` accessory app shell. To package and run an actual local preview bundle:
+
+```sh
+just app-package   # build Release, assemble + ad-hoc sign dist/Divot.app
+just app-run       # build and open the app
+```
+
+That is a local, ad-hoc-signed preview — not a signed or notarized public release. See the
+[local preview guide](docs/local-preview.md) and [roadmap](docs/roadmap.md).
 
 ## Start here
 
@@ -43,4 +52,4 @@ MIT. No code has been copied from SketchyBar or a-bar. Repository hosting URL an
 
 ## Just recipes
 
-Run `just` for documented, grouped commands. Common entry points: `just install`, `just dev`, `just web-check`, `just macos-test`, `just check`, and `just list`. `just serve` is a foreground, human-operated RepoOS server. `just review <id>` and `just done <id>` use the supported control plane; done still requires human approval. There is no blanket staging/commit recipe.
+Run `just` for documented, grouped commands. Common entry points: `just install`, `just dev`, `just web-check`, `just macos-test`, `just check`, and `just list`. Native preview recipes: `just app-package`, `just app-smoke`, and `just app-run`. `just serve` is a foreground, human-operated RepoOS server. `just review <id>` and `just done <id>` use the supported control plane; done still requires human approval. There is no blanket staging/commit recipe.
