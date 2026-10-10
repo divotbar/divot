@@ -1,20 +1,18 @@
 ---
-last_close_out_gate_ms: 40694
-last_close_out_gate_at: "2026-10-10T08:24:05.130Z"
 id: "0021"
 title: "Divot placement: top edge when the native menu bar is hidden, below only while it is revealed; bar height 32pt"
 type: bug
-status: review
-needs_input: true
-needs_input_reason: dev-error
-needs_input_detail: the agent process exited with an error — open the task to see the full output
+status: done
 priority: p0
 area: macos
+merged_commit: 7a22d1e0b572992e9e233121516dbef46c0b860e
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/divot-placement-top-edge-when-the-native
 created_at: "2026-10-10T05:23:24Z"
-updated_at: "2026-10-10T08:24:05Z"
+updated_at: "2026-10-10T08:24:07Z"
+last_close_out_gate_ms: 40694
+last_close_out_gate_at: "2026-10-10T08:24:05.130Z"
 review_passes: 3
 last_check_failure: "repoos check at 2026-10-10T08:00:25.236Z: repoos check failed: native-app-bundle — timed out — timed out after 600s"
 review_rounds: 2
@@ -101,4 +99,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T08:15:28Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T08:16:06Z · note: review pass 3: good to go
 - 2026-10-10T08:24:05Z · close-out gate completed in 41s
-
+- 2026-10-10T08:24:07Z · status review→done, release:success
