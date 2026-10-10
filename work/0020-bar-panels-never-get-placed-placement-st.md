@@ -39,3 +39,4 @@ The maintainer confirmed Accessibility is on for `dist/Divot.app` and the log ha
 - 2026-10-10T04:02:14Z · status inbox→ready
 - 2026-10-10T04:02:17Z · status ready→active, branch
 - 2026-10-10T04:15:46Z · status active→review
+- 2026-10-10T04:15:46Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
