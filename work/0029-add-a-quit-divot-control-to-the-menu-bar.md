@@ -40,3 +40,4 @@ Keep the menu item in the existing status item setup in `DivotAppDelegate`. Do n
 - 2026-10-10T13:20:50Z · status inbox→ready
 - 2026-10-10T13:20:50Z · status ready→active, branch
 - 2026-10-10T13:26:48Z · status active→review
+- 2026-10-10T13:26:48Z · note: shots: skipped — the diff (8 changed paths) touches no [[preview.paths]] globs — no UI change to capture
