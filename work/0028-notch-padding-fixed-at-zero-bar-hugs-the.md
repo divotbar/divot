@@ -135,3 +135,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:29:13Z · status review→active
 - 2026-10-10T13:29:13Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T13:29:46Z · status active→review
+- 2026-10-10T13:29:46Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (e4c5e8e) during finalization (#0734)
