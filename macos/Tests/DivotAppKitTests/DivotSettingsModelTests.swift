@@ -95,6 +95,23 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func rememberKeepAwakeCapturesTheLiveState() throws {
+    let (_, controller) = try makeModel()
+    #expect(!controller.configuration.keepAwake.remember)
+
+    // The live assertion is on when the user opts in, so the remembered state
+    // must capture it rather than defaulting to off.
+    let model = DivotSettingsModel(controller: controller, keepAwakeIsActive: { true })
+    model.setRememberKeepAwake(true)
+    #expect(model.configuration.keepAwake.remember)
+    #expect(model.configuration.keepAwake.isActive)
+
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.keepAwake == KeepAwakeConfiguration(remember: true, isActive: true))
+}
+
+@MainActor
 @Test func modelFollowsChangesPublishedByTheSharedController() throws {
     let (model, controller) = try makeModel()
 

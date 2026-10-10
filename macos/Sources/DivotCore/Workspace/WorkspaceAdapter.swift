@@ -207,3 +207,27 @@ public protocol WorkspaceEventSource: Sendable {
     func events() -> AsyncStream<WorkspaceEvent>
     func stop() async
 }
+
+// MARK: - Identity resolution
+
+/// Resolves a running process to its app bundle identifier.
+///
+/// An adapter whose CLI reports only an app name (yabai's `query --windows`
+/// gives `app` and `pid`, not a bundle id) uses this so its app identities key
+/// icons the same way AeroSpace's bundle ids do. Returning `nil` is honest: the
+/// identity then falls back to the app name and simply has no icon.
+public protocol WorkspaceProcessIdentityResolving: Sendable {
+    func bundleIdentifier(forProcessID pid: Int) -> String?
+}
+
+/// Maps a manager's own display identifier to Divot's 1-based
+/// `NSScreen.screens` index.
+///
+/// AeroSpace reports the `NSScreen` index directly. yabai reports a
+/// `CGDirectDisplayID`, so the platform half supplies this mapping in order to
+/// keep per-display workspace filtering correct instead of assuming ordering.
+/// Returning `nil` is honest: the rows then fall back rather than duplicate
+/// another display's workspaces.
+public protocol WorkspaceDisplayIndexResolving: Sendable {
+    func screenIndex(forDisplayIdentifier identifier: Int) -> Int?
+}

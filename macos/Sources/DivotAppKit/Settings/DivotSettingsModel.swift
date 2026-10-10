@@ -21,11 +21,17 @@ public final class DivotSettingsModel {
 
     private let controller: ConfigurationController
     private let loginItem: LoginItemControlling
+    /// Reads the live keep-awake state so the "remember" toggle can capture the
+    /// state it is being asked to remember. Kept as a closure rather than the
+    /// controller so the model does not own power state.
+    private let keepAwakeIsActive: () -> Bool
 
     public init(controller: ConfigurationController,
-                loginItem: LoginItemControlling = SMAppServiceLoginItem()) {
+                loginItem: LoginItemControlling = SMAppServiceLoginItem(),
+                keepAwakeIsActive: @escaping () -> Bool = { false }) {
         self.controller = controller
         self.loginItem = loginItem
+        self.keepAwakeIsActive = keepAwakeIsActive
         self.configuration = controller.configuration
         self.errorMessage = controller.lastError?.description
         self.loginItemEnabled = loginItem.isEnabled
@@ -141,5 +147,17 @@ public final class DivotSettingsModel {
         }
         loginItemEnabled = loginItem.isEnabled
         loginItemStatus = loginItem.statusDescription
+    }
+
+    // MARK: Keep awake
+
+    /// Turn the "remember across launches" policy on or off. Enabling captures
+    /// the live state so the next launch restores exactly what is on now.
+    public func setRememberKeepAwake(_ enabled: Bool) {
+        let active = keepAwakeIsActive()
+        update { configuration in
+            configuration.keepAwake.remember = enabled
+            if enabled { configuration.keepAwake.isActive = active }
+        }
     }
 }

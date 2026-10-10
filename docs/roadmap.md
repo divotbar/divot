@@ -8,7 +8,7 @@ RepoOS initialization, requirements, architecture ADR, performance protocol, sta
 
 1. AppKit app target and display adapter: executable shell and per-display left/right panels with persistent top/below placement are in place (task 0003); item rendering, overflow, and physical validation remain.
 2. Provider pipeline: the native providers for the frontmost app, battery/power, a minute clock with weekday/date, network, and volume are implemented with lifecycle, notifications, cancellation, and contextual unavailable states (task 0004); physical validation of the status widgets remains.
-3. Workspace adapter: the AeroSpace adapter layer — capability detection, documented-CLI reads, event-driven refresh with reconnect, async actions, deduplicated app identities, per-monitor/overflow rules, and the left-panel workspace row — is implemented (task 0005); on-device appearance, click activation, and app-icon rendering remain to be physically validated.
+3. Workspace adapter: the AeroSpace adapter layer — capability detection, documented-CLI reads, event-driven refresh with reconnect, async actions, deduplicated app identities, per-monitor/overflow rules, and the left-panel workspace row — is implemented (task 0005); the yabai adapter behind the same interface is implemented and fixture-tested (task 0012); on-device appearance, click activation, app-icon rendering, and live yabai behavior remain to be physically validated.
 4. Versioned configuration (left/right item groups, namespaced options), atomic reload, settings, launch at login — implemented (task 0006).
 5. Appearance: native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night families with light/dark variants — implemented (task 0011): upstream-attributed palettes, semantic tokens, palette overrides, live switching, and per-role contrast fixtures. Physical readability/accessibility QA remains.
 6. Physical device QA and performance evidence.
@@ -16,7 +16,7 @@ RepoOS initialization, requirements, architecture ADR, performance protocol, sta
 
 ## 0.2 · personal workflows
 
-Yabai as a second workspace adapter, per-display profiles, additional native status providers, and a safe script protocol. Every item remains subject to measured cost and independent failure handling.
+The yabai adapter layer (task 0012) is implemented and fixture-tested; per-display profiles, additional native status providers, a safe script protocol, and live yabai validation remain. Every item remains subject to measured cost and independent failure handling.
 
 ## Later
 

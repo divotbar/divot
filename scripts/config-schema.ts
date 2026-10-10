@@ -64,9 +64,19 @@ function layout(value: unknown) {
   range(value.notchGap, 0, 32, 'layout.notchGap')
 }
 
+/**
+ * The keep-awake preference. `remember` is the settings opt-in; `isActive` is
+ * the remembered on/off state. Root-level because the toggle on the battery
+ * item must stay valid even when the battery is not placed on either side.
+ */
+function keepAwake(value: unknown) {
+  shape(value, [], ['remember', 'isActive'], 'keepAwake')
+  flags(value, ['remember', 'isActive'], 'keepAwake')
+}
+
 function workspacesOptions(value: unknown, path: string) {
   shape(value, [], ['adapter', 'showEmpty', 'showAppIcons', 'showDetails', 'maxAppIconsPerWorkspace'], path)
-  if ('adapter' in value) oneOf(value.adapter, ['aerospace'], `${path}.adapter`)
+  if ('adapter' in value) oneOf(value.adapter, ['aerospace', 'yabai'], `${path}.adapter`)
   flags(value, ['showEmpty', 'showAppIcons', 'showDetails'], path)
   if ('maxAppIconsPerWorkspace' in value) range(value.maxAppIconsPerWorkspace, 0, 32, `${path}.maxAppIconsPerWorkspace`)
 }
@@ -91,12 +101,13 @@ function options(id: string, value: unknown) {
 }
 
 export function validate(value: unknown) {
-  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['widgets'], 'root')
+  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['widgets', 'keepAwake'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
   appearance(value.appearance)
   layout(value.layout)
   const placed = [...group(value.left, 'left'), ...group(value.right, 'right')]
   if (new Set(placed).size !== placed.length) throw new Error('left/right: an item may appear in only one group')
+  if ('keepAwake' in value) keepAwake(value.keepAwake)
   if ('widgets' in value) {
     shape(value.widgets, [], ITEMS, 'widgets')
     for (const id of Object.keys(value.widgets)) {

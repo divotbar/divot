@@ -19,6 +19,7 @@ public struct DivotSettingsView: View {
             workspacesSection
             frontAppSection
             clockSection
+            keepAwakeSection
             layoutSection
             appearanceSection
             generalSection
@@ -130,6 +131,20 @@ public struct DivotSettingsView: View {
             Toggle("Show date", isOn: binding(\.widgets.clock.date))
             Toggle("Show seconds", isOn: binding(\.widgets.clock.seconds))
         }
+    }
+
+    private var keepAwakeSection: some View {
+        Section("Keep awake") {
+            Toggle("Remember keep-awake across launches", isOn: rememberKeepAwakeBinding)
+            Text("Click the battery item to keep the Mac awake. When this is off (the default), keep-awake always starts off after a relaunch.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var rememberKeepAwakeBinding: Binding<Bool> {
+        Binding(get: { model.configuration.keepAwake.remember },
+                set: { model.setRememberKeepAwake($0) })
     }
 
     private var layoutSection: some View {

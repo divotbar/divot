@@ -63,11 +63,13 @@ spaces.
 
 Divot deliberately does not mirror the system's menu extras. Each item has one
 explicit default action (`WidgetActions`): front-app activates the running app;
-battery, network, volume, and clock open the matching System Settings pane; the
-workspaces item owns no action here (that is the workspace-adapter milestone).
-The pane links use candidate `x-apple.systempreferences:com.apple.preference.*`
-identifiers and **still need validation on the target OS**; a later milestone
-may replace the volume/network links with a native control popover.
+network, volume, and clock open the matching System Settings pane; the battery
+item toggles keep-awake (task 0018), which is a provider action rather than a
+settings link; the workspaces item owns no action here (that is the
+workspace-adapter milestone). The pane links use candidate
+`x-apple.systempreferences:com.apple.preference.*` identifiers and **still need
+validation on the target OS**; a later milestone may replace the volume/network
+links with a native control popover.
 
 ## Tests
 

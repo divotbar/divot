@@ -5,6 +5,18 @@ import Foundation
 /// the file. These are read-time overrides only: they never change what a
 /// settings save persists.
 public enum WorkspaceEnvironmentOverrides {
+    /// The configured adapter, overridden by `DIVOT_WORKSPACES_ADAPTER`. An
+    /// unrecognized value is ignored so a typo cannot steer the selection.
+    public static func adapter(_ base: WorkspaceManagerKind,
+                               environment: [String: String] = ProcessInfo.processInfo.environment)
+        -> WorkspaceManagerKind {
+        guard let raw = environment["DIVOT_WORKSPACES_ADAPTER"],
+              let kind = WorkspaceManagerKind(rawValue: raw.trimmingCharacters(in: .whitespaces).lowercased()) else {
+            return base
+        }
+        return kind
+    }
+
     public static func displayOptions(_ base: WorkspaceDisplayOptions,
                                       environment: [String: String] = ProcessInfo.processInfo.environment)
         -> WorkspaceDisplayOptions {

@@ -101,7 +101,9 @@ public struct LayoutConfiguration: Equatable, Sendable {
     public var padding: Double
     public var notchGap: Double
 
-    public init(height: Double = 32, padding: Double = 12, notchGap: Double = 10) {
+    public init(height: Double = Double(BarMetrics.default.height),
+                padding: Double = Double(BarMetrics.default.rowInset),
+                notchGap: Double = 10) {
         self.height = height
         self.padding = padding
         self.notchGap = notchGap
@@ -119,8 +121,8 @@ public struct LayoutConfiguration: Equatable, Sendable {
 
 /// `widgets.workspaces`: the workspace row's display options plus the adapter.
 public struct WorkspacesConfiguration: Equatable, Sendable {
-    /// Window-manager adapter. Only AeroSpace ships; yabai joins in its own
-    /// milestone, so the parser rejects any other value.
+    /// Window-manager adapter. AeroSpace and yabai ship; the parser rejects any
+    /// other value.
     public var adapter: WorkspaceManagerKind
     public var showEmpty: Bool
     public var showAppIcons: Bool
@@ -140,8 +142,8 @@ public struct WorkspacesConfiguration: Equatable, Sendable {
         self.maxAppIconsPerWorkspace = maxAppIconsPerWorkspace
     }
 
-    /// Adapters the current contract accepts. Yabai is a later milestone.
-    public static let supportedAdapters: [WorkspaceManagerKind] = [.aerospace]
+    /// Adapters the current contract accepts.
+    public static let supportedAdapters: [WorkspaceManagerKind] = [.aerospace, .yabai]
     public static let maxAppIconsRange: ClosedRange<Int> = 0...32
 
     public static let `default` = WorkspacesConfiguration()
@@ -191,6 +193,28 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// The document-level keep-awake preference.
+///
+/// `remember` is the settings opt-in: at launch keep-awake is always off unless
+/// the user chose to remember it. `isActive` is the remembered on/off state,
+/// written only while `remember` is on, so a plain toggle in a session that does
+/// not remember never touches the file. It is a root field rather than a
+/// `widgets.battery` option because the toggle must keep validating even when
+/// the battery item is not placed on either side.
+public struct KeepAwakeConfiguration: Equatable, Sendable {
+    /// Persist the state across launches. Default off.
+    public var remember: Bool
+    /// The remembered state. Only meaningful when `remember` is `true`.
+    public var isActive: Bool
+
+    public init(remember: Bool = false, isActive: Bool = false) {
+        self.remember = remember
+        self.isActive = isActive
+    }
+
+    public static let `default` = KeepAwakeConfiguration()
+}
+
 /// Namespaced per-item options. `battery`, `network`, and `volume` accept none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
@@ -234,19 +258,22 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var left: [BarItemID]
     public var right: [BarItemID]
     public var widgets: WidgetOptions
+    public var keepAwake: KeepAwakeConfiguration
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
                 layout: LayoutConfiguration = .default,
                 left: [BarItemID] = DivotConfiguration.defaultLeft,
                 right: [BarItemID] = DivotConfiguration.defaultRight,
-                widgets: WidgetOptions = .default) {
+                widgets: WidgetOptions = .default,
+                keepAwake: KeepAwakeConfiguration = .default) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
         self.left = left
         self.right = right
         self.widgets = widgets
+        self.keepAwake = keepAwake
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -269,6 +296,20 @@ public struct DivotConfiguration: Equatable, Sendable {
         left.contains(id) || right.contains(id)
     }
 
+    /// Whether two documents describe the same rendered bar.
+    ///
+    /// Keep-awake persistence is a runtime preference, not bar content, so a
+    /// toggle that only remembers the assertion state must not rebuild the
+    /// panels. The display coordinator compares this instead of the whole
+    /// document to avoid a flicker on every battery click.
+    public func rendersSameBar(as other: DivotConfiguration) -> Bool {
+        left == other.left
+            && right == other.right
+            && layout == other.layout
+            && widgets == other.widgets
+            && appearance == other.appearance
+    }
+
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
@@ -277,6 +318,13 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions)
+    }
+
+    /// The compact render rhythm derived from the configured layout. Fonts,
+    /// icon size, item spacing, and the row inset come from `BarMetrics`; only
+    /// the height and padding are user-configurable here.
+    public var barMetrics: BarMetrics {
+        BarMetrics(height: CGFloat(layout.height), rowInset: CGFloat(layout.padding))
     }
 
     // MARK: Editing

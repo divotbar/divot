@@ -17,9 +17,10 @@ public struct BarGeometry: Equatable, Sendable {
     public let right: CGRect
 
     public init(screen: CGRect, topLeft: CGRect? = nil, topRight: CGRect? = nil,
-                height: CGFloat = 32, gap: CGFloat = 10, nativeMenuBarInset: CGFloat = 0,
-                edgeMargin: CGFloat = 0) {
-        let requestedHeight = max(0, height.isFinite ? height : 32)
+                height: CGFloat = BarMetrics.default.height, gap: CGFloat = 10,
+                nativeMenuBarInset: CGFloat = 0, edgeMargin: CGFloat = 0) {
+        let fallbackHeight = BarMetrics.default.height
+        let requestedHeight = max(0, height.isFinite ? height : fallbackHeight)
         let clearance = max(0, gap.isFinite ? gap : 10)
         let requestedInset = max(0, nativeMenuBarInset.isFinite ? nativeMenuBarInset : 0)
         let requestedMargin = max(0, edgeMargin.isFinite ? edgeMargin : 0)

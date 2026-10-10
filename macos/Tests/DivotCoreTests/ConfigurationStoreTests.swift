@@ -71,6 +71,27 @@ private func write(_ json: String, to url: URL) throws {
     #expect(object?["version"] as? Int == 2)
 }
 
+@Test func savePersistsKeepAwakeAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // A plain unremembered document writes no keep-awake object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(object?["keepAwake"] == nil)
+
+    var configuration = DivotConfiguration.default
+    configuration.keepAwake = KeepAwakeConfiguration(remember: true, isActive: true)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.keepAwake == KeepAwakeConfiguration(remember: true, isActive: true))
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect((object?["keepAwake"] as? [String: Any])?["remember"] as? Bool == true)
+}
+
 @Test func saveRefusesAnInvalidConfiguration() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")

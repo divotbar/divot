@@ -9,24 +9,32 @@ import DivotCore
 final class BarItemView: NSView {
     private let iconView = NSImageView()
     private let textField = NSTextField(labelWithString: "")
+    private let indicatorView = NSImageView()
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
-
-    private let iconSize: CGFloat = 14
-    private let spacing: CGFloat = 5
+    private let metrics: BarMetrics
     private var lastIconBundleIdentifier: String?
     private var presentation: WidgetPresentation?
     private var theme: BarTheme = .systemDefault
+    private var indicatorRole: WidgetIndicator.Role?
 
-    init() {
+    init(metrics: BarMetrics = .default) {
+        self.metrics = metrics
         super.init(frame: .zero)
         wantsLayer = true
         iconView.imageScaling = .scaleProportionallyDown
         iconView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(iconView)
-        textField.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        indicatorView.imageScaling = .scaleProportionallyDown
+        indicatorView.translatesAutoresizingMaskIntoConstraints = true
+        addSubview(indicatorView)
+        textField.font = .monospacedDigitSystemFont(ofSize: metrics.textFontSize, weight: .medium)
+        // Truncation is a safety net for genuinely constrained layouts, never the
+        // normal case: the item is sized to the measured text so nothing clips at
+        // the default width.
         textField.lineBreakMode = .byTruncatingTail
         textField.maximumNumberOfLines = 1
+        textField.setContentCompressionResistancePriority(.required, for: .horizontal)
         textField.translatesAutoresizingMaskIntoConstraints = true
         addSubview(textField)
     }
@@ -53,9 +61,15 @@ final class BarItemView: NSView {
         textField.isHidden = presentation.text.isEmpty
         applyColors()
 
+        applyIndicator(presentation.indicator)
+
         setAccessibilityRole(action == .none ? .staticText : .button)
         setAccessibilityLabel(presentation.accessibilityLabel)
-        setAccessibilityHelp(action == .none ? nil : "Activates \(presentation.accessibilityLabel)")
+        switch action {
+        case .none: setAccessibilityHelp(nil)
+        case .toggleKeepAwake: setAccessibilityHelp("Toggles keep-awake")
+        default: setAccessibilityHelp("Activates \(presentation.accessibilityLabel)")
+        }
 
         invalidateIntrinsicContentSize()
         needsLayout = true
@@ -65,6 +79,9 @@ final class BarItemView: NSView {
     func apply(theme: BarTheme) {
         self.theme = theme
         applyColors()
+        if let indicatorRole {
+            indicatorView.contentTintColor = indicatorColor(for: indicatorRole)
+        }
     }
 
     private func applyColors() {
@@ -74,10 +91,56 @@ final class BarItemView: NSView {
         textField.textColor = color
     }
 
+    /// Draw (or hide) the small state indicator after the text. The color comes
+    /// from the semantic role, so the same contrast-audited value the tests
+    /// check is the one the bar draws.
+    private func applyIndicator(_ indicator: WidgetIndicator?) {
+        guard let indicator,
+              let image = NSImage(systemSymbolName: indicator.symbolName, accessibilityDescription: nil) else {
+            indicatorView.image = nil
+            indicatorView.isHidden = true
+            indicatorView.toolTip = nil
+            indicatorRole = nil
+            return
+        }
+        indicatorView.image = image
+        indicatorRole = indicator.role
+        indicatorView.contentTintColor = indicatorColor(for: indicator.role)
+        indicatorView.isHidden = false
+        // A native tooltip is the one thing AGENTS.md forbids; the state is
+        // announced through the item's accessible label instead.
+        indicatorView.toolTip = nil
+    }
+
+    /// The indicator tint: the audited native hex for the native family, or the
+    /// theme's positive `occupied` role for a family, so the cup matches the bar.
+    private func indicatorColor(for role: WidgetIndicator.Role) -> NSColor {
+        theme.usesSystemColors
+            ? Self.color(for: role, appearance: effectiveAppearance)
+            : theme.occupied
+    }
+
+    /// Resolve a semantic indicator role against the current appearance.
+    static func color(for role: WidgetIndicator.Role, appearance: NSAppearance) -> NSColor {
+        let dark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        return NSColor(divotHex: role.hex(dark: dark)) ?? .labelColor
+    }
+
     override var intrinsicContentSize: NSSize {
-        let iconWidth = iconView.isHidden ? 0 : iconSize + spacing
-        let textWidth = textField.isHidden ? 0 : textField.intrinsicContentSize.width
-        return NSSize(width: iconWidth + textWidth, height: max(iconSize, textField.intrinsicContentSize.height))
+        let iconWidth = iconView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
+        let textWidth = measuredTextWidth
+        let indicatorWidth = indicatorView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
+        return NSSize(width: iconWidth + textWidth + indicatorWidth,
+                      height: max(metrics.iconSize, textField.fittingSize.height))
+    }
+
+    /// The width the label cell actually draws. `NSTextField.intrinsicContentSize`
+    /// omits the cell's own padding, so sizing a field to it ellipsizes the tail
+    /// ("Muted" → "Mut…"); `fittingSize` includes that padding, so a field sized
+    /// to it is never truncated.
+    private var measuredTextWidth: CGFloat {
+        guard !textField.isHidden else { return 0 }
+        return ceil(max(textField.fittingSize.width, textField.intrinsicContentSize.width))
     }
 
     /// A front-app item names its bundle; the view resolves the real
@@ -99,14 +162,20 @@ final class BarItemView: NSView {
         super.layout()
         var x: CGFloat = 0
         if !iconView.isHidden {
-            iconView.frame = CGRect(x: 0, y: (bounds.height - iconSize) / 2,
-                                    width: iconSize, height: iconSize)
-            x = iconSize + spacing
+            iconView.frame = CGRect(x: 0, y: (bounds.height - metrics.iconSize) / 2,
+                                    width: metrics.iconSize, height: metrics.iconSize)
+            x = metrics.iconSize + metrics.iconSpacing
         }
         if !textField.isHidden {
-            let size = textField.intrinsicContentSize
+            let size = textField.fittingSize
             textField.frame = CGRect(x: x, y: (bounds.height - size.height) / 2,
-                                     width: max(0, bounds.width - x), height: size.height)
+                                     width: size.width, height: size.height)
+            x += size.width
+        }
+        if !indicatorView.isHidden {
+            if x > 0 { x += metrics.iconSpacing }
+            indicatorView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
+                                         width: metrics.iconSize, height: metrics.iconSize)
         }
     }
 
@@ -129,6 +198,15 @@ final class BarItemView: NSView {
         onActivate?(action)
         return true
     }
+
+    /// Re-resolve the indicator tint when the effective appearance changes, so
+    /// the light/dark contrast-audited value follows the system.
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        if let role = indicatorRole {
+            indicatorView.contentTintColor = indicatorColor(for: role)
+        }
+    }
 }
 
 /// Arranges the item views for one side of the bar.
@@ -141,7 +219,6 @@ final class BarContentView: NSView, BarContentLifecycle {
     let side: BarSide
     private let items: [BarItemID]
     private let presentationOptions: WidgetPresentationOptions
-    private let padding: CGFloat
     private var theme: BarTheme
     /// The segment chrome. Native material blurs behind the bar; opaque and the
     /// reduced-transparency/increased-contrast paths hide it and fill instead.
@@ -153,7 +230,7 @@ final class BarContentView: NSView, BarContentLifecycle {
     private var workspaceViews: [BarItemID: WorkspaceBarView] = [:]
     var onActivate: ((WidgetAction) -> Void)?
 
-    private let spacing: CGFloat = 12
+    private let metrics: BarMetrics
     private let cornerRadius: CGFloat = 8
 
     init(side: BarSide,
@@ -161,14 +238,14 @@ final class BarContentView: NSView, BarContentLifecycle {
          workspaceFeed: WorkspaceFeed? = nil,
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
+         metrics: BarMetrics = .default,
          presentationOptions: WidgetPresentationOptions = .default,
-         padding: CGFloat = 12,
          theme: BarTheme = .systemDefault,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
+        self.metrics = metrics
         self.presentationOptions = presentationOptions
-        self.padding = max(0, padding)
         self.theme = theme
         self.onActivate = onActivate
         super.init(frame: .zero)
@@ -180,12 +257,13 @@ final class BarContentView: NSView, BarContentLifecycle {
                                             icons: workspaceIcons,
                                             displayScreensID: displayScreensID,
                                             showsFrontApp: !items.contains(.frontApp),
-                                            theme: theme)
+                                            theme: theme,
+                                            metrics: metrics)
                 workspaceViews[id] = view
                 addSubview(view)
                 continue
             }
-            let view = BarItemView()
+            let view = BarItemView(metrics: metrics)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
             view.apply(theme: theme)
             itemViews[id] = view
@@ -251,8 +329,11 @@ final class BarContentView: NSView, BarContentLifecycle {
         super.layout()
         vibrancy.frame = bounds
 
-        let inset = padding
+        // Keep the group inside the panel's padding so it never runs edge-to-edge
+        // and the left/right groups share one rhythm.
+        let inset = metrics.rowInset
         let usableWidth = max(0, bounds.width - inset * 2)
+
         var fixedTotal: CGFloat = 0
         var fixedCount = 0
         for id in items where itemViews[id] != nil {
@@ -261,7 +342,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         }
         let workspaceCount = items.filter { workspaceViews[$0] != nil }.count
         let totalCount = fixedCount + workspaceCount
-        let spacingTotal = totalCount > 1 ? spacing * CGFloat(totalCount - 1) : 0
+        let spacingTotal = totalCount > 1 ? metrics.itemSpacing * CGFloat(totalCount - 1) : 0
         // The workspace row is elastic: it takes the width the fixed items leave.
         let elasticWidth = workspaceCount > 0 ? max(0, usableWidth - fixedTotal - spacingTotal) : 0
         let perWorkspace = workspaceCount > 0 ? elasticWidth / CGFloat(workspaceCount) : 0
@@ -272,14 +353,14 @@ final class BarContentView: NSView, BarContentLifecycle {
         for id in items {
             if let workspace = workspaceViews[id] {
                 workspace.frame = CGRect(x: x, y: 0, width: perWorkspace, height: bounds.height)
-                x += perWorkspace + spacing
+                x += perWorkspace + metrics.itemSpacing
                 continue
             }
             guard let view = itemViews[id] else { continue }
             let width = view.intrinsicContentSize.width
             let height = min(bounds.height, view.intrinsicContentSize.height)
             view.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
-            x += width + spacing
+            x += width + metrics.itemSpacing
         }
     }
 
@@ -301,5 +382,14 @@ final class BarContentView: NSView, BarContentLifecycle {
         super.viewDidChangeEffectiveAppearance()
         needsDisplay = true
         onEffectiveAppearanceChange?()
+    }
+}
+
+extension NSColor {
+    /// Build an sRGB color from a six-digit `#RRGGBB` string. Returns `nil` when
+    /// the string is not a hex color, so a caller can fall back to a system role.
+    convenience init?(divotHex: String) {
+        guard let rgb = SRGBColor(hex: divotHex) else { return nil }
+        self.init(srgbRed: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
     }
 }

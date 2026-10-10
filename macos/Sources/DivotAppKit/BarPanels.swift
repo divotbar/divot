@@ -60,14 +60,14 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           workspaceFeed: workspaceFeed,
                                           workspaceIcons: workspaceIcons,
                                           displayScreensID: displayScreensID,
+                                          metrics: configuration.barMetrics,
                                           presentationOptions: configuration.presentationOptions,
-                                          padding: configuration.layout.padding,
                                           theme: theme,
                                           onActivate: onWidgetAction)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
+                                           metrics: configuration.barMetrics,
                                            presentationOptions: configuration.presentationOptions,
-                                           padding: configuration.layout.padding,
                                            theme: theme,
                                            onActivate: onWidgetAction)
         self.left = Self.makePanel(on: screen, content: leftContent)

@@ -1,19 +1,22 @@
 ---
-close_out_repair_count: 1
 id: "0012"
 title: "Add the second workspace adapter: yabai"
 type: feature
-status: active
+status: done
 priority: p2
 area: [macos, docs]
 story: Navigate the workspaces and apps I actually use
 depends_on: ["0005"]
+merged_commit: 36b215d6c318b46674afaf26a093c43b1af8391f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-the-second-workspace-adapter-yabai
 created_at: "2026-10-09T16:41:13Z"
-updated_at: "2026-10-09T23:50:23Z"
-review_passes: 1
+updated_at: "2026-10-10T00:42:25Z"
+last_close_out_gate_ms: 23612
+last_close_out_gate_at: "2026-10-10T00:42:22.998Z"
+review_passes: 3
+close_out_repair_count: 1
 ---
 ## Problem
 
@@ -59,4 +62,11 @@ Second integration milestone; AeroSpace first. No blocker to an AeroSpace-first 
 - 2026-10-09T21:14:30Z · note: review pass 1: good to go
 - 2026-10-09T23:50:23Z · status review→active
 - 2026-10-09T23:50:23Z · note: close-out repair: merge-conflict
-
+- 2026-10-09T23:57:54Z · status active→review
+- 2026-10-09T23:58:46Z · note: review pass 2: good to go
+- 2026-10-10T00:09:24Z · status review→active
+- 2026-10-10T00:09:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T00:37:40Z · status active→review
+- 2026-10-10T00:38:27Z · note: review pass 3: good to go
+- 2026-10-10T00:42:22Z · close-out gate completed in 24s
+- 2026-10-10T00:42:25Z · status review→done, release:success

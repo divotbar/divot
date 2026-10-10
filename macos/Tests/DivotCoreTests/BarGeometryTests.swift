@@ -16,8 +16,9 @@ import Testing
 
 @Test func externalDisplayWithNegativeOrigin() {
     let g = BarGeometry(screen: CGRect(x: -1920, y: -200, width: 1920, height: 1080))
-    #expect(g.left == CGRect(x: -1920, y: 848, width: 950, height: 32))
-    #expect(g.right == CGRect(x: -950, y: 848, width: 950, height: 32))
+    let h = BarMetrics.default.height
+    #expect(g.left == CGRect(x: -1920, y: 1080 - 200 - h, width: 950, height: h))
+    #expect(g.right == CGRect(x: -950, y: 1080 - 200 - h, width: 950, height: h))
 }
 
 @Test func largeGapDoesNotCreateNegativeWidth() {
@@ -41,7 +42,7 @@ import Testing
 
 @Test func nonfiniteParametersUseDefaults() {
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800), height: .nan, gap: .infinity)
-    #expect(g.left.height == 32 && g.left.width == 490)
+    #expect(g.left.height == BarMetrics.default.height && g.left.width == 490)
 }
 
 @Test func belowNativeBarSpansWidthWithoutNotchGap() {

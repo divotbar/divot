@@ -49,11 +49,15 @@ public final class DisplayCoordinator {
     /// rebuild every surface so the bar's item groups, options, padding, and
     /// height reflect the document. Panels are recreated rather than mutated so
     /// a moved item never draws at an intermediate position.
+    ///
+    /// A document that only changes a runtime preference (keep-awake state)
+    /// renders the same bar, so it is adopted without tearing the panels down.
     public func apply(configuration newValue: DivotConfiguration) {
         guard newValue != configuration else { return }
+        let barChanged = !configuration.rendersSameBar(as: newValue)
         configuration = newValue
         core.contentPolicy = newValue.layout.contentPolicy
-        guard isRunning else { return }
+        guard barChanged, isRunning else { return }
         for surface in surfaces.values { surface.close() }
         surfaces.removeAll()
         refresh()

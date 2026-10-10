@@ -21,7 +21,7 @@ The intended location is `~/.config/divot/config.json`. Settings and file custom
     "accent": "#D6F58A",
     "material": "native"
   },
-  "layout": { "height": 32, "padding": 12, "notchGap": 10 },
+  "layout": { "height": 24, "padding": 6, "notchGap": 10 },
   "left": ["workspaces", "front-app"],
   "right": ["battery", "clock", "network", "volume"]
 }
