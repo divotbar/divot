@@ -213,10 +213,11 @@ observe; leave unobserved items blank rather than marking them done.
 - [ ] Native menu-bar reveal/hide: move the pointer to the top edge and confirm
       Divot slides below the revealed bar, then returns to the top when the
       pointer leaves (`menuBar.moveBelowOnCursorReveal`, on by default). On a
-      notched display this is the default path; the
-      `menuBar.trustAccessibilityProbe` opt-in additionally takes precedence once
-      Accessibility is granted. `menuBar.alwaysBelow` is the fallback for a Mac
-      where the cursor reveal does not line up.
+      notched display this is the default path; on a flat external display the
+      bar's own `visibleFrame` is the cross-check, so confirm the reveal there
+      too. The `menuBar.trustAccessibilityProbe` opt-in additionally takes
+      precedence once Accessibility is granted. `menuBar.alwaysBelow` is the
+      fallback for a Mac where the cursor reveal does not line up.
 - [ ] Fullscreen, Spaces, and multiple displays (add/remove, sleep/wake).
 - [ ] VoiceOver and keyboard traversal of every item and the Settings window
       ([accessibility physical checks](accessibility-physical-checks.md)).

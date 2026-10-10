@@ -81,6 +81,13 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             coordinator?.setCursorInTopStrip(displays)
         }
         cursorMonitor.start()
+        if !cursorMonitor.globalMonitorInstalled {
+            // The global mouse monitor tracks the pointer over other apps; without
+            // it only Divot's own windows are seen, so the reveal may not follow.
+            // Surfaced so support can tell "setting off" from "no global events".
+            FileHandle.standardError.write(
+                Data("divot: global cursor monitor unavailable; top-strip reveal may not track the pointer over other applications.\n".utf8))
+        }
         self.cursorMonitor = cursorMonitor
 
         // A family theme is fixed hex per variant, so when `mode` is `system`

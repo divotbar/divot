@@ -54,7 +54,7 @@ public struct DivotSettingsView: View {
     private var menuBarSection: some View {
         Section("Menu bar") {
             Toggle("Move below the menu bar when it appears", isOn: moveBelowOnCursorRevealBinding)
-            Text("When the pointer reaches the top edge, Divot slides below the native menu bar while it is shown and returns to the top edge when it hides. Off keeps Divot where it is.")
+            Text("For an auto-hidden menu bar: when the pointer reaches the top edge, Divot slides below the native menu bar while it is shown and returns to the top edge when it hides. Off keeps Divot where it is.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Toggle("Always below the menu bar", isOn: alwaysBelowMenuBarBinding)

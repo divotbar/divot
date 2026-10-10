@@ -6,7 +6,7 @@ import DivotCore
 /// When the native menu bar is auto-hidden, macOS reveals it as the pointer
 /// reaches the top edge of a display. Public APIs do not report that reveal, so
 /// Divot observes the pointer directly: a global (and local) mouse-moved
-/// monitor maps `NSEvent.mouseLocation` onto the top strip of each display and
+/// monitor maps the pointer position onto the top strip of each display and
 /// reports the engaged display IDs. It never polls — work happens only when the
 /// pointer crosses into or out of a strip — and it holds no window or view, so
 /// the bar's widget views stay free of input handling (#0023).
@@ -25,46 +25,76 @@ public final class TopStripCursorMonitor {
     public var stripHeight: CGFloat
 
     private let provider: ScreenGeometryProviding
+    /// The pointer position, injectable so the tracking loop is testable without
+    /// a window server. In production this is `NSEvent.mouseLocation`.
+    private let pointerLocation: () -> CGPoint
+    /// False in tests: the tracking loop still runs, but no real `NSEvent`
+    /// monitors are installed.
+    private let installsEventMonitors: Bool
+
     private var displays: [ScreenGeometryReading] = []
     private var engaged: Set<DisplayBarID> = []
     private var globalMonitor: Any?
     private var localMonitor: Any?
     private var tokens: [NSObjectProtocol] = []
+    private var started = false
 
-    public init(provider: ScreenGeometryProviding = NSScreenGeometryProvider(),
-                stripHeight: CGFloat = CursorMenuBarReveal.defaultStripHeight) {
-        self.provider = provider
-        self.stripHeight = stripHeight
+    public convenience init(provider: ScreenGeometryProviding = NSScreenGeometryProvider(),
+                            stripHeight: CGFloat = CursorMenuBarReveal.defaultStripHeight) {
+        self.init(provider: provider,
+                  stripHeight: stripHeight,
+                  pointerLocation: { NSEvent.mouseLocation },
+                  installsEventMonitors: true)
     }
 
-    public var isRunning: Bool { globalMonitor != nil || localMonitor != nil }
+    /// Designated initializer. The pointer source and the event-monitor flag are
+    /// seams for tests.
+    init(provider: ScreenGeometryProviding,
+         stripHeight: CGFloat,
+         pointerLocation: @escaping () -> CGPoint,
+         installsEventMonitors: Bool) {
+        self.provider = provider
+        self.stripHeight = stripHeight
+        self.pointerLocation = pointerLocation
+        self.installsEventMonitors = installsEventMonitors
+    }
+
+    public var isRunning: Bool { started }
+
+    /// True when the global mouse monitor installed. A global monitor is what
+    /// tracks the pointer over other applications; if it is unavailable only the
+    /// local monitor (Divot's own windows) runs, so the app surfaces this so
+    /// support can tell "setting off" from "no global events" (#0023 review).
+    public var globalMonitorInstalled: Bool { globalMonitor != nil }
 
     public func start() {
-        guard !isRunning else { return }
+        guard !started else { return }
+        started = true
         displays = provider.screens()
         engaged = currentEngaged()
 
-        // A global monitor sees movement over other applications; a local
-        // monitor sees movement over Divot's own windows (which a global
-        // monitor deliberately excludes). NSEvent monitors normally call back on
-        // the main thread; `deliverSample` handles an off-main callback without
-        // allocating a task on the common path.
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { [weak self] _ in
-            self?.deliverSample()
-        }
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { [weak self] event in
-            self?.deliverSample()
-            return event
-        }
-
-        // A newly attached or reconfigured display changes which frames the
-        // pointer can enter; re-read them rather than polling.
-        let token = NotificationCenter.default.addObserver(
-            forName: NSApplication.didChangeScreenParametersNotification,
-            object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.refreshDisplays() }
+        if installsEventMonitors {
+            // A global monitor sees movement over other applications; a local
+            // monitor sees movement over Divot's own windows (which a global
+            // monitor deliberately excludes). NSEvent monitors normally call
+            // back on the main thread; `deliverSample` handles an off-main
+            // callback without allocating a task on the common path.
+            globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { [weak self] _ in
+                self?.deliverSample()
             }
-        tokens.append(token)
+            localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { [weak self] event in
+                self?.deliverSample()
+                return event
+            }
+            // A newly attached or reconfigured display changes which frames the
+            // pointer can enter; re-read them rather than polling.
+            let token = NotificationCenter.default.addObserver(
+                forName: NSApplication.didChangeScreenParametersNotification,
+                object: nil, queue: .main) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.refreshDisplays() }
+                }
+            tokens.append(token)
+        }
 
         // Deliver the state at start so the coordinator is not waiting for the
         // first move to agree with the pointer's actual position.
@@ -78,6 +108,7 @@ public final class TopStripCursorMonitor {
         localMonitor = nil
         for token in tokens { NotificationCenter.default.removeObserver(token) }
         tokens.removeAll()
+        started = false
     }
 
     private func refreshDisplays() {
@@ -85,7 +116,9 @@ public final class TopStripCursorMonitor {
         samplePointer()
     }
 
-    private func samplePointer() {
+    /// Re-read the pointer position and report an engagement change. Internal so
+    /// tests can drive the tracking loop without a real event monitor.
+    func samplePointer() {
         let next = currentEngaged()
         guard next != engaged else { return }
         engaged = next
@@ -105,7 +138,7 @@ public final class TopStripCursorMonitor {
     }
 
     private func currentEngaged() -> Set<DisplayBarID> {
-        CursorMenuBarReveal.engagedDisplayIDs(mouseLocation: NSEvent.mouseLocation,
+        CursorMenuBarReveal.engagedDisplayIDs(mouseLocation: pointerLocation(),
                                               displays: displays,
                                               stripHeight: stripHeight)
     }
