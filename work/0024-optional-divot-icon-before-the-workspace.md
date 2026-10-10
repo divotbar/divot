@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 40318
-last_close_out_gate_at: "2026-10-10T10:11:18.051Z"
 id: "0024"
 title: Optional Divot icon before the workspace numbers that opens Settings when clicked
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
 depends_on: ["0022"]
+merged_commit: 0a0ff5040ff3dc6373d5c5161a3f7d03320452aa
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-divot-icon-before-the-workspace
 created_at: "2026-10-10T09:48:56Z"
-updated_at: "2026-10-10T10:11:18Z"
+updated_at: "2026-10-10T10:11:20Z"
+last_close_out_gate_ms: 40318
+last_close_out_gate_at: "2026-10-10T10:11:18.051Z"
 review_passes: 1
 ---
 ## Problem
@@ -48,4 +49,4 @@ Depends on #0022, which changes the text and icon size metrics this icon must fo
 - 2026-10-10T09:54:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T09:55:17Z · note: review pass 1: good to go
 - 2026-10-10T10:11:18Z · close-out gate completed in 40s
-
+- 2026-10-10T10:11:20Z · status review→done, release:success
