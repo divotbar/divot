@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T01:40:52Z"
+review_passes: 2
 id: "0011"
 title: "Implement Gruvbox, Ayu, Dracula and Tokyo Night theme families"
 type: feature
@@ -11,9 +13,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-gruvbox-ayu-dracula-and-tokyo-
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-10T01:40:52Z"
 close_out_repair_count: 1
-review_passes: 1
 ---
 ## Problem
 
@@ -57,3 +57,4 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 - 2026-10-10T01:39:32Z · status active→review
 - 2026-10-10T01:39:35Z · note: highlight main h2 + table matched nothing on /guide/themes
 - 2026-10-10T01:40:52Z · note: review pass 2: good to go
+
