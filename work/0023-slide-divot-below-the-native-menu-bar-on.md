@@ -2,7 +2,7 @@
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -81,4 +81,4 @@ test
 - 2026-10-10T11:30:40Z · status review→active
 - 2026-10-10T11:32:19Z · body: section Verification
 - 2026-10-10T11:32:42Z · body: section Verification
-- 2026-10-10T11:33:08Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T11:33:08Z · status active→review
