@@ -236,9 +236,11 @@ final class BarPanelContainer: NSView {
         wantsLayer = true
         addSubview(content)
         guard self.shadowHeight > 0 else { return }
-        // Darkest right under the bar, fading to clear downward. Unit space:
-        // (0, 0) is bottom-left and (1, 1) is top-right, so the strip's top is
-        // the start point.
+        // A drop shadow is conventionally dark regardless of the bar's theme, so
+        // this is a fixed neutral tint rather than a theme token; theme it only
+        // if the design ever calls for a coloured shadow. Darkest right under
+        // the bar, fading to clear downward. Unit space: (0, 0) is bottom-left
+        // and (1, 1) is top-right, so the strip's top is the start point.
         shadowGradient.colors = [
             NSColor.black.withAlphaComponent(0.20).cgColor,
             NSColor.black.withAlphaComponent(0).cgColor
