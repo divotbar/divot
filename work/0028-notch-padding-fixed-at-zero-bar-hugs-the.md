@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T13:20:17Z"
+review_passes: 6
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
@@ -17,8 +19,6 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T13:20:17Z"
-review_passes: 5
 review_rounds: 2
 ---
 ## Problem
@@ -133,3 +133,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:19:04Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (56dbf7f) during finalization (#0734)
 - 2026-10-10T13:20:16Z · note: review pass 6: needs some work
 - 2026-10-10T13:20:17Z · needs_input
+
