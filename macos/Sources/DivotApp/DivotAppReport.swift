@@ -8,14 +8,22 @@ import DivotCore
 @MainActor
 enum DivotAppReport {
     static func run() {
+        // Mirror the running app's decision: the on-screen AX heuristic is only
+        // trusted when the document opts in (`menuBar.trustAccessibilityProbe`),
+        // so a notched display's placement line here matches what the bar will
+        // actually do rather than always reporting the conservative top edge.
+        let store = ConfigurationStore()
+        _ = store.load()
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
-                                                probe: AXSystemMenuBarProbe(validated: true))
+                                                probe: AXSystemMenuBarProbe())
+        adapter.trustsAccessibilityProbe = store.current.menuBar.trustAccessibilityProbe
         let observation = adapter.observe()
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
 
         print("# divot shell placement report")
         print("displays=\(observation.readings.count)")
         print("accessibility=\(describe(observation.accessibility))")
+        print("trustAccessibilityProbe=\(store.current.menuBar.trustAccessibilityProbe)")
         print("reduceMotion=\(reduceMotion)")
         // Whether the bundled menu-bar mark resolved is an app-shell fact, not
         // a visual claim; it proves a packaged bundle carries its Resources.
@@ -30,22 +38,20 @@ enum DivotAppReport {
             }
         }
 
-        printWorkspaceReport()
+        printWorkspaceReport(store: store)
     }
 
     /// One read-only pass against whichever manager is installed. Blocks the
     /// (idle) main thread on short-lived subprocesses so the whole report stays
     /// a single synchronous command; it never subscribes or mutates manager
     /// state.
-    private static func printWorkspaceReport() {
+    private static func printWorkspaceReport(store: ConfigurationStore) {
         print("# workspaces")
         // The screen mapping must be captured on the main actor before the
         // adapter runs its queries on background work.
         let displayIndex = ScreenDisplayIndexResolver.live()
-        // Read the validated configuration for the adapter and honor the same
-        // environment override the running app uses.
-        let store = ConfigurationStore()
-        _ = store.load()
+        // Honor the same environment override the running app uses. The
+        // validated configuration was already loaded by `run()`.
         let preferred = WorkspaceEnvironmentOverrides.adapter(store.current.widgets.workspaces.adapter)
         let installed = WorkspaceAdapterFactory.installedManagers()
         guard let selection = WorkspaceManagerSelector.select(preferred: preferred,

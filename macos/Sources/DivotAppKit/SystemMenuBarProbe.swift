@@ -118,10 +118,12 @@ public enum SystemMenuBarProbe {
 /// visibility: `hidden` reads `false` for an auto-hidden bar, so `!hidden`
 /// alone claims visible; the bar's frame is above the screen in that case.
 public struct AXSystemMenuBarProbe: SystemMenuBarProbing {
-    /// Set when the on-screen position/size/`hidden` heuristic is the trusted
-    /// signal for this build. `DivotApp` and the report/probe tools pass `true`
-    /// for the maintainer's auto-hidden notched display (#0021); the default
-    /// stays provisional so an unvalidated sample can never move a panel.
+    /// Set when the on-screen position/size/`hidden` heuristic is trusted for
+    /// this build. The app leaves it provisional by default and decides trust in
+    /// `MenuBarObservationAdapter` from `menuBar.trustAccessibilityProbe`, so a
+    /// shipping build never asserts a hardware-specific heuristic globally; the
+    /// default here stays provisional so an unvalidated sample can never move a
+    /// panel.
     public let validated: Bool
 
     public init(validated: Bool = false) {

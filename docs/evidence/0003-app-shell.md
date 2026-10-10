@@ -81,8 +81,9 @@ network access or any physical hardware.
   because it is slid above the screen, so the on-screen position test
   (`position.y >= 0`) is the signal that distinguishes revealed from hidden
   (#0021). A complete sample stays `.provisional` unless explicitly marked
-  `validated`; `DivotApp` marks the probe validated on the maintainer's notched
-  display.
+  `validated`; the app withholds the derived visibility unless the configuration
+  opts in (`menuBar.trustAccessibilityProbe`, default off), so a shipping build
+  never asserts the hardware-specific heuristic globally.
 - Missing or zero-area AX attributes stay `.unavailable` instead of being coerced
   into a visible/hidden claim.
 
@@ -106,9 +107,10 @@ network access or any physical hardware.
 - Whether the bar actually appears/is ordered correctly on-screen on a real
   display, and the fullscreen/Spaces/multi-display behaviors above.
 - Whether native-bar reveal/hide is observable on notched hardware. The
-  Accessibility probe is the detector; its on-screen position test is now used
-  as a decisive signal (`AXSystemMenuBarProbe(validated: true)`), but whether the
-  bar visually lands correctly on reveal is still a human check.
+  Accessibility probe is the detector; its on-screen position test becomes the
+  decisive signal only after a person opts in
+  (`menuBar.trustAccessibilityProbe`, default off), and whether the bar visually
+  lands correctly on reveal is still a human check.
 - Whether the macOS always-visible menu-bar setting is readable from public
   APIs. The detector accepts a `configuredAlwaysVisible` signal and treats it as
   authoritative (covered by pure tests), but the observation adapter does not
@@ -135,11 +137,12 @@ converts pointer proximity into a visibility claim. On notch-free displays
 `visibleFrame` remains the signal and no permission is needed.
 
 Permission alone is not enough by itself: a complete sample stays
-`.provisional` unless explicitly marked `validated`. The corrected on-screen
-position test is the trusted signal for this build, so `DivotApp` (and the
-report/probe tools) construct `AXSystemMenuBarProbe(validated: true)` for the
-maintainer's auto-hidden notched display. Whether the bar visually lands right
-is still a human check (see the "not verified" list above).
+`.provisional` unless explicitly marked `validated`, and the adapter withholds
+the derived visibility unless the configuration opts in
+(`menuBar.trustAccessibilityProbe`, default off). With that opt-in enabled, the
+on-screen position test is the trusted signal for this build and a masked
+notched display follows reveal/hide. Whether the bar visually lands right is
+still a human check (see the "not verified" list above).
 
 When a validated sample is used, it is applied conservatively: it is only used
 for a display whose own geometry is masked by the camera housing, and only when

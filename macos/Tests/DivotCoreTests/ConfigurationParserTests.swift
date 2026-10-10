@@ -96,6 +96,25 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "unknown field extra")
 }
 
+@Test func menuBarDetectionOptInParsesAndValidates() throws {
+    let optedIn = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"trustAccessibilityProbe":true}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: optedIn)
+    #expect(parsed.configuration.menuBar.trustAccessibilityProbe)
+
+    // Absent keeps the conservative shipping default.
+    let absent = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: absent).configuration.menuBar == .default)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"trustAccessibilityProbe":"yes"}}"##)
+    let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(typeFailure?.path == "menuBar.trustAccessibilityProbe")
+
+    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"alwaysBelow":true}}"##)
+    let unknownFailure = error { try ConfigurationParser.parse(jsonObject: unknown) }
+    #expect(unknownFailure?.path == "menuBar")
+    #expect(unknownFailure?.message == "unknown field alwaysBelow")
+}
+
 @Test func outOfRangeLayoutIsRejected() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":80,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }

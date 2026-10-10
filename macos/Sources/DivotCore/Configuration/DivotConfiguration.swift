@@ -193,6 +193,27 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// The document-level menu-bar detection preference.
+///
+/// On notched hardware the camera housing masks the same top band whether the
+/// native bar is hidden or revealed, so public geometry cannot decide it. The
+/// permission-gated Accessibility observation of the bar's own on-screen frame
+/// can, but that heuristic is hardware-sensitive: a wrong reading would move
+/// the panels off the top edge on another Mac. It is therefore **off** unless a
+/// person opts in. While off, a notched display stays conservative — it holds
+/// the top edge and never moves below a bar it cannot confirm (#0021).
+public struct MenuBarConfiguration: Equatable, Sendable {
+    /// Trust the Accessibility on-screen observation to decide reveal/hide.
+    /// Default `false`: the shipping-safe choice.
+    public var trustAccessibilityProbe: Bool
+
+    public init(trustAccessibilityProbe: Bool = false) {
+        self.trustAccessibilityProbe = trustAccessibilityProbe
+    }
+
+    public static let `default` = MenuBarConfiguration()
+}
+
 /// The document-level keep-awake preference.
 ///
 /// `remember` is the settings opt-in: at launch keep-awake is always off unless
@@ -259,6 +280,7 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var right: [BarItemID]
     public var widgets: WidgetOptions
     public var keepAwake: KeepAwakeConfiguration
+    public var menuBar: MenuBarConfiguration
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -266,7 +288,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 left: [BarItemID] = DivotConfiguration.defaultLeft,
                 right: [BarItemID] = DivotConfiguration.defaultRight,
                 widgets: WidgetOptions = .default,
-                keepAwake: KeepAwakeConfiguration = .default) {
+                keepAwake: KeepAwakeConfiguration = .default,
+                menuBar: MenuBarConfiguration = .default) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -274,6 +297,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.right = right
         self.widgets = widgets
         self.keepAwake = keepAwake
+        self.menuBar = menuBar
     }
 
     /// Default left is `workspaces`, `front-app`.

@@ -64,6 +64,20 @@ import DivotCore
                                      hidden: true).accessibilityVisible == nil)
 }
 
+@Test func onScreenBoundaryTreatsAPartialSlideAsStillOnScreen() {
+    // The half-point tolerance keeps the boundary from flickering on rounding:
+    // a bar whose top edge is within half a point of y=0 is still on screen; a
+    // bar slid fully above it is not. A partial-slide field report should be
+    // checked against this rule before the tolerance is widened.
+    let size = CGSize(width: 1710, height: 33)
+    #expect(SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -0.4), size: size,
+                                     hidden: false, validated: true).accessibilityVisible == true)
+    #expect(SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -0.5), size: size,
+                                     hidden: false, validated: true).accessibilityVisible == true)
+    #expect(SystemMenuBarProbe.state(position: CGPoint(x: 0, y: -0.6), size: size,
+                                     hidden: false, validated: true).accessibilityVisible == false)
+}
+
 @Test func unavailableStateReportsPermissionSeparately() {
     let state = SystemMenuBarProbe.state(position: nil, size: nil, hidden: nil)
     if case .unavailable = state {} else { Issue.record("expected unavailable, got \(state)") }

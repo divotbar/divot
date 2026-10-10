@@ -74,6 +74,16 @@ function keepAwake(value: unknown) {
   flags(value, ['remember', 'isActive'], 'keepAwake')
 }
 
+/**
+ * The menu-bar detection preference. `trustAccessibilityProbe` opts in to the
+ * permission-gated Accessibility observation of the native menu bar; it is off
+ * by default because the on-screen heuristic is hardware-sensitive.
+ */
+function menuBar(value: unknown) {
+  shape(value, [], ['trustAccessibilityProbe'], 'menuBar')
+  flags(value, ['trustAccessibilityProbe'], 'menuBar')
+}
+
 function workspacesOptions(value: unknown, path: string) {
   shape(value, [], ['adapter', 'showEmpty', 'showAppIcons', 'showDetails', 'maxAppIconsPerWorkspace'], path)
   if ('adapter' in value) oneOf(value.adapter, ['aerospace', 'yabai'], `${path}.adapter`)
@@ -101,13 +111,14 @@ function options(id: string, value: unknown) {
 }
 
 export function validate(value: unknown) {
-  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['widgets', 'keepAwake'], 'root')
+  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['widgets', 'keepAwake', 'menuBar'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
   appearance(value.appearance)
   layout(value.layout)
   const placed = [...group(value.left, 'left'), ...group(value.right, 'right')]
   if (new Set(placed).size !== placed.length) throw new Error('left/right: an item may appear in only one group')
   if ('keepAwake' in value) keepAwake(value.keepAwake)
+  if ('menuBar' in value) menuBar(value.menuBar)
   if ('widgets' in value) {
     shape(value.widgets, [], ITEMS, 'widgets')
     for (const id of Object.keys(value.widgets)) {

@@ -10,6 +10,12 @@ Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `clo
 
 Keep-awake (task 0018) is an optional root object, `keepAwake`, rather than a `widgets.battery` option so it stays valid when the battery item is not placed. `remember` (default `false`) opts in to persisting the state across launches; `isActive` (default `false`) is the remembered on/off state and is written only while `remember` is on. Clicking the battery item toggles keep-awake, and the item shows a cup indicator while the assertion is held. A document with no `keepAwake` object launches with keep-awake off.
 
+Menu-bar detection (task 0021) is an optional root object, `menuBar`. On notched hardware the camera housing masks the same top band whether the native bar is hidden or revealed, so `trustAccessibilityProbe` (default `false`) opts in to the permission-gated Accessibility observation of the bar's own on-screen frame to follow reveal/hide. It is off by default because the on-screen heuristic is hardware-sensitive; while off, a notched display holds the top edge and never moves below a bar it cannot confirm. Enable it on a Mac whose Accessibility grant and geometry you have confirmed:
+
+```json
+{ "menuBar": { "trustAccessibilityProbe": true } }
+```
+
 Custom palette overrides use the same contract: an optional `appearance.palette` object overrides individual semantic color tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, merged over the selected family and variant. `palette.accent` takes precedence over the root `accent`. The parser, store, and theme resolver validate, persist, and apply these overrides; derived chrome roles (muted/disabled text, surface, border, selected label) follow an overridden base so a custom palette stays coherent.
 
 See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, `examples/custom-palette.json` and the public reference for complete examples. They use the same shape and are validated during web checks; the checker also runs negative cases for unknown tokens, misplaced items, and unknown options, and validates the version 1 migration fixtures under `examples/migrations/`. The starter checker rejects unknown fields/types/ranges and unknown or misplaced items; later replace duplication with generated schema or cross-language contract fixtures.

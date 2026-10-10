@@ -91,7 +91,12 @@ shasum -a 256 -c Divot-0.1.0-preview.1-<commit>.zip.sha256
    time the notched-menu-bar detector is used. The request is contextual; deny
    it and the rest of the bar still runs, with the notched case reported as
    indeterminate rather than guessed. See
-   [app shell evidence](evidence/0003-app-shell.md).
+   [app shell evidence](evidence/0003-app-shell.md). The preview is **ad-hoc
+   signed**, so every repackage changes its code signature and a grant from a
+   previous build no longer matches the new one: if `divot --report` prints
+   `accessibility=not trusted (permission required)` after a rebuild, re-add
+   Divot under System Settings → Privacy & Security → Accessibility (remove the
+   stale row first, then add the new `dist/Divot.app`).
 5. The bar should appear as a single row: workspaces and the frontmost app on
    the left; battery %, clock (time + weekday/date), network, and volume on the
    right. No configuration file is required for these defaults.
@@ -126,11 +131,13 @@ below the system menu bar (`mainMenu - 1`), so native menus stay above Divot.
 Disclosed limits (never hidden):
 
 - **Notched displays:** the camera housing masks the same band, so
-  `visibleFrame` alone cannot decide native-bar visibility. The app uses the
+  `visibleFrame` alone cannot decide native-bar visibility. An opt-in
+  (`menuBar.trustAccessibilityProbe`, off by default) enables the
   permission-gated Accessibility observation — the bar's own on-screen frame,
   not `kAXHiddenAttribute` (which stays `false` while auto-hidden) — and holds
-  the top edge when the probe is unavailable. Visual confirmation of the reveal
-  and of the top-edge placement on this Mac is still pending.
+  the top edge when the probe is unavailable or the opt-in is off. Visual
+  confirmation of the reveal and of the top-edge placement on this Mac is still
+  pending.
 - **AppKit's menu-bar frame clamp:** the nonactivating panels override
   `constrainFrameRect(_:to:)` so a top-edge placement can occupy the camera
   housing; the default clamp parks it at `visibleFrame.maxY`.
@@ -202,8 +209,10 @@ observe; leave unobserved items blank rather than marking them done.
 - [ ] Default left/right content matches the list above at this display width,
       with no clipped labels.
 - [ ] Native menu-bar reveal/hide: Divot moves below a revealed (non-notched)
-      bar and returns to the top. Notched/always-visible cases stay
-      indeterminate as disclosed.
+      bar and returns to the top. On a notched display this needs the
+      `menuBar.trustAccessibilityProbe` opt-in once Accessibility is granted;
+      without it (and for an always-visible bar) the case stays indeterminate as
+      disclosed.
 - [ ] Fullscreen, Spaces, and multiple displays (add/remove, sleep/wake).
 - [ ] VoiceOver and keyboard traversal of every item and the Settings window
       ([accessibility physical checks](accessibility-physical-checks.md)).

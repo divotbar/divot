@@ -1,4 +1,5 @@
 import CoreGraphics
+import Foundation
 import Testing
 import DivotCore
 @testable import DivotAppKit
@@ -141,6 +142,42 @@ private func flatReading() -> ScreenGeometryReading {
     let placement = try! #require(surface.updates.first?.placement)
     #expect(placement.mode == .topEdge)
     #expect(surface.updates.first?.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func menuBarOptInReevaluatesPlacementWithoutRebuildingPanels() {
+    // The derived AX sample is withheld by default and used after the
+    // configuration opts in. The opt-in renders the same bar, so the panels
+    // must not be rebuilt — but the placement must be re-read and applied.
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProvisionalProbeStub())
+    var built = 0
+    let surface = RecordingSurface()
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in
+        built += 1
+        return surface
+    }
+    coordinator.start()
+    #expect(built == 1)
+    #expect(!adapter.trustsAccessibilityProbe)
+    #expect(surface.updates.first?.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(surface.updates.first?.placement?.mode == .topEdge)
+
+    var optedIn = DivotConfiguration.default
+    optedIn.menuBar.trustAccessibilityProbe = true
+    coordinator.apply(configuration: optedIn)
+
+    // The settle timer commits the new placement; run the loop briefly.
+    RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+
+    // The opt-in renders the same bar: no rebuild, no close.
+    #expect(built == 1)
+    #expect(!surface.didClose)
+    #expect(adapter.trustsAccessibilityProbe)
+    #expect(coordinator.configuration.menuBar.trustAccessibilityProbe)
+    #expect(surface.updates.last?.placement?.mode == .belowNativeBar(inset: 33))
 
     coordinator.stop()
 }
