@@ -49,11 +49,11 @@ public struct BarGeometry: Equatable, Sendable {
             let r = tr.intersection(screen)
             let lh = min(h, l.height)
             let rh = min(h, r.height)
-            left = CGRect(x: l.minX, y: l.maxY - lh,
-                          width: max(0, l.width - clearance), height: lh)
-            let rg = min(clearance, r.width)
-            right = CGRect(x: r.minX + rg, y: r.maxY - rh,
-                           width: max(0, r.width - rg), height: rh)
+            // The notch padding is fixed at zero: the notch-side segments hug
+            // the auxiliary regions exactly and ignore any caller clearance, so
+            // no gap can reopen at the housing edge (#0028).
+            left = CGRect(x: l.minX, y: l.maxY - lh, width: l.width, height: lh)
+            right = CGRect(x: r.minX, y: r.maxY - rh, width: r.width, height: rh)
             // A real housing means the two auxiliary regions are separated by a
             // hole, not merely adjacent. A degenerate split with no hole is not
             // a notch and must not extend the bar.

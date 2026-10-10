@@ -34,6 +34,20 @@ import Testing
     #expect(!g.hasNotch)
 }
 
+@Test func notchSplitIgnoresCallerClearance() {
+    // A caller-supplied clearance must not reopen the notch gap: the notched
+    // top-edge split hugs the auxiliary regions exactly (#0028 review).
+    let screen = CGRect(x: 0, y: 0, width: 1710, height: 1107)
+    let tl = CGRect(x: 0, y: 1074, width: 763, height: 33)
+    let tr = CGRect(x: 948, y: 1074, width: 762, height: 33)
+    let zero = BarGeometry(screen: screen, topLeft: tl, topRight: tr, height: 32, gap: 0)
+    let wide = BarGeometry(screen: screen, topLeft: tl, topRight: tr, height: 32, gap: 30)
+    #expect(wide.left == zero.left)
+    #expect(wide.right == zero.right)
+    #expect(wide.left.maxX == 763 && wide.right.minX == 948)
+    #expect(wide.hasNotch)
+}
+
 @Test func adjacentAuxiliaryRegionsAreNotAHousing() {
     // A degenerate split with no hole between the regions is not a housing.
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),

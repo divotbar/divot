@@ -76,8 +76,9 @@ public struct BarPlacement: Equatable, Sendable {
 public struct BarContentPolicy: Equatable, Sendable {
     /// Row height in points.
     public var height: CGFloat
-    /// Clearance from the camera housing at the top edge. The center seam of a
-    /// below-bar row is twice this value, matching `BarGeometry`'s convention.
+    /// Centre-seam clearance for the non-notched rows; the below-bar row's seam
+    /// is twice this value. The notched top-edge split ignores it entirely, so
+    /// the bar always hugs the camera housing with a fixed zero gap (#0028).
     public var clearance: CGFloat
     /// Distance from the physical screen's left/right edges in below-bar mode.
     /// The default of zero keeps the row edge-to-edge (it overlays app content;
