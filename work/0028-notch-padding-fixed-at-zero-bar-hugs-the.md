@@ -2,7 +2,7 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -58,4 +58,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:31:37Z · note: review pass 1: needs some work
 - 2026-10-10T12:31:37Z · status review→active
 - 2026-10-10T12:32:50Z · body: section Acceptance criteria
-- 2026-10-10T12:33:45Z · note: shots: skipped — the diff (19 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-10T12:33:45Z · status active→review
