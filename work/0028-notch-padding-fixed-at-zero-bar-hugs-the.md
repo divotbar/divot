@@ -17,7 +17,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T17:13:56Z"
+updated_at: "2026-10-10T17:14:24Z"
 last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
 last_handoff_failure_sha: 4226ad5c39bb5ec3ad520490436e681e22c034df
 review_passes: 11
