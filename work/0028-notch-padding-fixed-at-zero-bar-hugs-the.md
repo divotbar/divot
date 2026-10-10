@@ -2,7 +2,10 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: active
+status: review
+needs_input: true
+needs_input_reason: dev-error
+needs_input_detail: "error: Invalid model reference: big pickle"
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -14,9 +17,10 @@ model_override: big pickle
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T16:31:57Z"
+updated_at: "2026-10-10T16:31:58Z"
 review_passes: 11
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 
@@ -162,3 +166,5 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T16:31:57Z · needs_input
 - 2026-10-10T16:31:57Z · status review→active
 - 2026-10-10T16:31:57Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T16:31:58Z · agent exited with an error (opencode) · error: Invalid model reference: big pickle
+- 2026-10-10T16:31:58Z · status active→review
