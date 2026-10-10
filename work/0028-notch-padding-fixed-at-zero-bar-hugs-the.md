@@ -128,3 +128,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:23:11Z · body: section Shots
 - 2026-10-10T13:23:33Z · status active→review
 - 2026-10-10T13:24:27Z · body: section Acceptance criteria
+- 2026-10-10T13:24:27Z · note: Acceptance criteria updated: the packaged-app screenshot requirement is removed. Maintainer sign-off on the notch appearance is recorded and is the evidence for this criterion.
