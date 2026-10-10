@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-10T08:53:07Z"
-review_passes: 1
 id: "0022"
 title: "Adjustable text and icon size and font in Divot settings, with a larger default"
 type: feature
@@ -12,6 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/adjustable-text-and-icon-size-and-font-i
 created_at: "2026-10-10T05:25:45Z"
+updated_at: "2026-10-10T08:52:23Z"
 ---
 ## Problem
 
@@ -42,6 +41,3 @@ Depends on #0021 (row height and placement, which changes `BarMetrics`). Do not 
 - 2026-10-10T07:15:23Z · status inbox→ready
 - 2026-10-10T08:43:08Z · status ready→active, branch
 - 2026-10-10T08:52:23Z · status active→review
-- 2026-10-10T08:52:23Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-10T08:53:07Z · note: review pass 1: good to go
-

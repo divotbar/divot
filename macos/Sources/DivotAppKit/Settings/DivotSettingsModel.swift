@@ -18,6 +18,9 @@ public final class DivotSettingsModel {
     /// Launch-at-login state, mirrored from the system so the toggle is honest.
     public private(set) var loginItemEnabled: Bool
     public private(set) var loginItemStatus: String
+    /// Installed font families, sorted, for the bar font picker. The system
+    /// default is offered separately as an empty selection.
+    public let availableFontFamilies: [String]
 
     private let controller: ConfigurationController
     private let loginItem: LoginItemControlling
@@ -36,6 +39,7 @@ public final class DivotSettingsModel {
         self.errorMessage = controller.lastError?.description
         self.loginItemEnabled = loginItem.isEnabled
         self.loginItemStatus = loginItem.statusDescription
+        self.availableFontFamilies = BarFont.installedFamilies()
         // Keep the window in step with external edits (the file watcher) and with
         // the bar's own reloads. Values are equal after our own save, so this is
         // idempotent; there is no second copy of the truth.
@@ -135,6 +139,24 @@ public final class DivotSettingsModel {
         let items = configuration.items(on: side)
         guard let index = items.firstIndex(of: id) else { return false }
         return items.indices.contains(index + delta)
+    }
+
+    // MARK: Text
+
+    /// The font picker selection: the configured family when it is installed,
+    /// else the system default, so a missing font shows the honest fallback
+    /// rather than a blank row.
+    public var selectedFontFamily: String {
+        BarFontResolver.resolveFamily(configuration.text.font,
+                                      installed: Set(availableFontFamilies)) ?? ""
+    }
+
+    public func setTextSize(_ size: Double) {
+        update { $0.text.size = size }
+    }
+
+    public func setTextFont(_ family: String) {
+        update { $0.text.font = family }
     }
 
     // MARK: Login item

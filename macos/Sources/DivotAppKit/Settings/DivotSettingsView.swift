@@ -21,6 +21,7 @@ public struct DivotSettingsView: View {
             clockSection
             keepAwakeSection
             layoutSection
+            textSection
             appearanceSection
             generalSection
         }
@@ -162,6 +163,32 @@ public struct DivotSettingsView: View {
                 Text("Notch gap: \(Int(model.configuration.layout.notchGap)) pt")
             }
         }
+    }
+
+    private var textSection: some View {
+        Section("Text") {
+            Picker("Font", selection: textFontBinding) {
+                Text("System default").tag("")
+                ForEach(model.availableFontFamilies, id: \.self) { family in
+                    Text(family).tag(family)
+                }
+            }
+            Slider(value: binding(\.text.size), in: TextConfiguration.sizeRange, step: 1) {
+                Text("Text size: \(Int(model.configuration.text.size)) pt")
+            } minimumValueLabel: {
+                Image(systemName: "textformat.size.smaller")
+            } maximumValueLabel: {
+                Image(systemName: "textformat.size.larger")
+            }
+            Text("Icon size follows the text size, so the two stay in proportion. A font that is not installed falls back to the system font.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var textFontBinding: Binding<String> {
+        Binding(get: { model.selectedFontFamily },
+                set: { model.setTextFont($0) })
     }
 
     private var appearanceSection: some View {

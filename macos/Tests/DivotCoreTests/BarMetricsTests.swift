@@ -54,8 +54,41 @@ import Testing
     #expect(!m.fits(widths, available: needed - 1))
 }
 
-// MARK: - Default layout on the maintainer's notched display
+// MARK: - Text size and proportional icons (#0022)
 
+@Test func defaultTextSizeIsLargerThanTheOldFixedSize() {
+    // The default is the single knob for the bar's type; the original fixed
+    // 12 pt text was too small on the maintainer's display.
+    #expect(BarMetrics.default.textFontSize == BarMetrics.defaultTextSize)
+    #expect(BarMetrics.defaultTextSize > 12)
+    #expect(BarMetrics.default.chipFontSize < BarMetrics.default.textFontSize)
+    #expect(BarMetrics.default.iconSize > BarMetrics.default.textFontSize)
+}
+
+@Test func iconSizeFollowsTextSizeSoTheTwoStayInProportion() {
+    let small = BarMetrics.scaled(textSize: 11)
+    let large = BarMetrics.scaled(textSize: 18)
+    #expect(large.textFontSize > small.textFontSize)
+    #expect(large.iconSize > small.iconSize)
+    #expect(large.chipFontSize > small.chipFontSize)
+    // The offsets are fixed, so the icon never drifts relative to the text.
+    #expect(large.iconSize - large.textFontSize == small.iconSize - small.textFontSize)
+    #expect(small.iconSize == small.textFontSize + 2)
+    #expect(small.chipFontSize == small.textFontSize - 1)
+}
+
+@Test func scaledCarriesTheConfiguredHeightPaddingAndFont() {
+    let metrics = BarMetrics.scaled(textSize: 16, height: 30, rowInset: 10, fontFamily: "Helvetica")
+    #expect(metrics.height == 30)
+    #expect(metrics.rowInset == 10)
+    #expect(metrics.textFontSize == 16)
+    #expect(metrics.iconSize == 18)
+    #expect(metrics.fontFamily == "Helvetica")
+    // A non-finite size falls back to the default rather than poisoning layout.
+    #expect(BarMetrics.scaled(textSize: .nan).textFontSize == BarMetrics.defaultTextSize)
+}
+
+// MARK: - Default layout on the maintainer's notched display
 /// The 0009/0015 notched built-in display: two auxiliary top regions beside the
 /// camera housing. Each side must have room for its default group's measured
 /// labels, and the split must keep both groups clear of the housing.

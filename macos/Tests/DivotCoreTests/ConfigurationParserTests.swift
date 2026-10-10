@@ -115,6 +115,51 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(unknownFailure?.message == "unknown field alwaysBelow")
 }
 
+@Test func textSizeAndFontRoundTripAndDeriveTheBarMetrics() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"size":17,"font":"Menlo"},"left":["clock"],"right":[]}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.text == TextConfiguration(size: 17, font: "Menlo"))
+
+    // The derived metrics carry the size and font, and the icon scales with it.
+    let metrics = parsed.configuration.barMetrics
+    #expect(metrics.textFontSize == 17)
+    #expect(metrics.iconSize == 19)
+    #expect(metrics.fontFamily == "Menlo")
+
+    // Round-trip through the canonical JSON.
+    let encoded = try JSONSerialization.data(withJSONObject: parsed.configuration.jsonObject,
+                                             options: [.sortedKeys])
+    #expect(try ConfigurationParser.parse(encoded).configuration == parsed.configuration)
+}
+
+@Test func absentTextUsesTheLargerDefault() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.text == .default)
+    #expect(parsed.configuration.barMetrics.textFontSize == BarMetrics.defaultTextSize)
+}
+
+@Test func anUninstalledFontNameIsAcceptedForRenderTimeFallback() throws {
+    // The parser cannot know the installed fonts, so it validates the type and
+    // leaves the fallback to the renderer rather than rejecting the document.
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"font":"No Such Font"},"left":["clock"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: value).configuration.text.font == "No Such Font")
+}
+
+@Test func outOfRangeTextSizeIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"size":99},"left":["clock"],"right":[]}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "text.size")
+    #expect(failure?.message == "expected 10–20")
+}
+
+@Test func nonStringTextFontIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"text":{"font":12},"left":["clock"],"right":[]}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "text.font")
+    #expect(failure?.message == "expected string")
+}
+
 @Test func outOfRangeLayoutIsRejected() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":80,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
