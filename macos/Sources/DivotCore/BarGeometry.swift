@@ -15,6 +15,15 @@ import CoreGraphics
 public struct BarGeometry: Equatable, Sendable {
     public let left: CGRect
     public let right: CGRect
+    /// True only when the two segments are split around a camera housing: the
+    /// bar hugs the display's auxiliary top areas with a real hole between them.
+    ///
+    /// The panels read this to extend the bar colour a few points into the
+    /// housing so its rounded corners are covered (#0028). It is decided here,
+    /// from the same auxiliary regions that produced the split, and never
+    /// inferred later from "the segments happen to have a gap" — a notch-free
+    /// top-edge layout with a centre seam must not be treated as a notch.
+    public let hasNotch: Bool
 
     public init(screen: CGRect, topLeft: CGRect? = nil, topRight: CGRect? = nil,
                 height: CGFloat = BarMetrics.default.height, gap: CGFloat = 0,
@@ -45,6 +54,10 @@ public struct BarGeometry: Equatable, Sendable {
             let rg = min(clearance, r.width)
             right = CGRect(x: r.minX + rg, y: r.maxY - rh,
                            width: max(0, r.width - rg), height: rh)
+            // A real housing means the two auxiliary regions are separated by a
+            // hole, not merely adjacent. A degenerate split with no hole is not
+            // a notch and must not extend the bar.
+            hasNotch = l.maxX < r.minX
         } else {
             let width = max(0, screen.width)
             // `edgeMargin` is the explicit window-manager gap policy knob for the
@@ -57,6 +70,9 @@ public struct BarGeometry: Equatable, Sendable {
             let half = (usableWidth - middleGap) / 2
             left = CGRect(x: screen.minX + margin, y: top - h, width: half, height: h)
             right = CGRect(x: screen.maxX - margin - half, y: top - h, width: half, height: h)
+            // The fallback row (notch-free top edge, or any below-bar row) never
+            // runs alongside a camera housing, so it never extends.
+            hasNotch = false
         }
     }
 }

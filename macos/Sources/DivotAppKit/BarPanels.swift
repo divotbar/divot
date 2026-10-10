@@ -129,13 +129,25 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         }
         guard let placement = update.placement else { return }
         let animate = update.animated && !reduceMotion
-        // The notch extension only applies at the top edge on a notched display.
-        // Below the native bar, there's no notch to extend into.
-        let isTopEdge = if case .topEdge = placement.mode { true } else { false }
-        let hasGap = placement.geometry.left.maxX < placement.geometry.right.minX
-        let shouldExtend = isTopEdge && hasGap
-        move(left, to: placement.geometry.left, side: .left, hasNotch: shouldExtend, animated: animate)
-        move(right, to: placement.geometry.right, side: .right, hasNotch: shouldExtend, animated: animate)
+        // Extend the notch-side edge only where the geometry was genuinely split
+        // around a camera housing. `BarGeometry` decides that from the display's
+        // auxiliary top areas, so a notch-free top-edge seam is never mistaken
+        // for a notch (#0028). Below the native bar there is no housing to
+        // extend into, and the geometry reports `hasNotch == false` there too.
+        let extendsIntoNotch = placement.geometry.hasNotch
+        move(left, to: placement.geometry.left, side: .left,
+             hasNotch: extendsIntoNotch, animated: animate)
+        move(right, to: placement.geometry.right, side: .right,
+             hasNotch: extendsIntoNotch, animated: animate)
+    }
+
+    /// The frames the two panels were last told to occupy, in screen
+    /// coordinates, or `nil` before the first placement. Exposed so tests can
+    /// assert the production placement path end to end (#0028).
+    var appliedPanelFrames: (left: CGRect, right: CGRect)? {
+        guard let leftFrame = targets[ObjectIdentifier(left)],
+              let rightFrame = targets[ObjectIdentifier(right)] else { return nil }
+        return (leftFrame, rightFrame)
     }
 
     public func apply(widgetChanges: [WidgetChange]) {

@@ -84,99 +84,99 @@ import DivotCore
     #expect(rightExtended.width == right.width + 6)
 }
 
+/// A notch-free top-edge layout with a centre seam is *not* a notch: the
+/// extension must not apply even though the segments are separated by a gap.
+/// This is the guard against inferring the notch from the segment gap alone.
 @MainActor
-@Test func notchExtensionDoesNotApplyOnNotchFreeDisplays() {
-    // On a notch-free display with gap=0, left and right are adjacent.
-    // The hasNotch check detects this by verifying left.maxX < right.minX.
-    let left = CGRect(x: 0, y: 950, width: 500, height: 32)
-    let right = CGRect(x: 500, y: 950, width: 500, height: 32)
+@Test func notchExtensionDoesNotApplyToATopEdgeSeamWithoutAHousing() {
+    let screen = CGRect(x: 0, y: 0, width: 1000, height: 800)
+    // A positive clearance gives this fallback row a real centre seam.
+    let geometry = BarContentPolicy(height: 32, clearance: 10, edgeMargin: 0)
+        .geometry(screen: ScreenGeometry(frame: screen,
+                                         visibleFrame: screen,
+                                         safeAreaTop: 0),
+                  nativeMenuBarInset: 0)
+    #expect(geometry.left.maxX < geometry.right.minX) // there is a seam ...
+    #expect(!geometry.hasNotch)                       // ... but no housing
 
-    // hasNotch = left.maxX < right.minX → 500 < 500 → false
-    #expect(!{ left.maxX < right.minX }())
+    let surface = NSPanelBarSurface(id: DisplayBarID(7), on: screen)
+    surface.apply(DisplayBarUpdate(id: DisplayBarID(7),
+                                   placement: BarPlacement(mode: .topEdge, geometry: geometry),
+                                   animated: false,
+                                   cancelAnimations: false,
+                                   visibility: .hidden),
+                  reduceMotion: false)
 
-    // Extension would be skipped; the geometry is used as-is.
+    let frames = try! #require(surface.appliedPanelFrames)
+    // No 6pt extension: the panels are exactly the geometry's segments.
+    #expect(frames.left == geometry.left)
+    #expect(frames.right == geometry.right)
 }
 
+/// Below the native bar there is no camera housing alongside the row, so the
+/// extension never applies even though the notched display has one above.
 @MainActor
 @Test func notchExtensionDoesNotApplyBelowNativeBar() {
-    // Below the native bar, even if there's a gap, there's no notch to extend into.
-    // The extension only applies at top edge (placement.mode == .topEdge) AND hasGap.
-    let left = CGRect(x: 0, y: 1042, width: 845, height: 32)
-    let right = CGRect(x: 865, y: 1042, width: 845, height: 32)
-    
-    // There IS a gap: 865 - 845 = 20
-    #expect(left.maxX < right.minX)
-    
-    // But below native bar, extension is skipped because placement.mode != .topEdge.
-    // The shouldExtend logic: isTopEdge && hasGap = false && true = false
+    let screen = CGRect(x: 0, y: 0, width: 1710, height: 1107)
+    let notched = ScreenGeometry(
+        frame: screen,
+        visibleFrame: CGRect(x: 0, y: 0, width: 1710, height: 1074),
+        safeAreaTop: 33,
+        auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+        auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
+    let policy = BarContentPolicy(height: 32, clearance: 10, edgeMargin: 0)
+    let placement = try! #require(BarPlacementResolver.placement(
+        screen: notched, visibility: .visible(inset: 33), policy: policy))
+    #expect(placement.mode == .belowNativeBar(inset: 33))
+    #expect(!placement.geometry.hasNotch)
+
+    let surface = NSPanelBarSurface(id: DisplayBarID(8), on: screen)
+    surface.apply(DisplayBarUpdate(id: DisplayBarID(8),
+                                   placement: placement,
+                                   animated: false,
+                                   cancelAnimations: false,
+                                   visibility: .visible(inset: 33)),
+                  reduceMotion: false)
+
+    let frames = try! #require(surface.appliedPanelFrames)
+    #expect(frames.left == placement.geometry.left)
+    #expect(frames.right == placement.geometry.right)
 }
 
-@MainActor
-@Test func notchExtensionOnlyAppliesAtTopEdgeWithGap() {
-    // Test that extension guard works: isTopEdge && (left.maxX < right.minX)
-    // Extension is only applied when both conditions are true.
-
-    // Case 1: Top edge with notch gap - should extend
-    let geometryWithGap = BarGeometry(
-        screen: CGRect(x: 0, y: 0, width: 1512, height: 982),
-        topLeft: CGRect(x: 0, y: 950, width: 680, height: 32),
-        topRight: CGRect(x: 832, y: 950, width: 680, height: 32),
-        height: 40, gap: 0)
-    let hasGap1 = geometryWithGap.left.maxX < geometryWithGap.right.minX
-    #expect(hasGap1)  // 680 < 832 = true, mode is .topEdge
-    // shouldExtend = true && true = extend ✓
-
-    // Case 2: Below native bar - should NOT extend (even if auxiliary regions exist)
-    // When nativeMenuBarInset > 0, uses fallback layout (no auxiliary split)
-    let geometryBelowBar = BarGeometry(
-        screen: CGRect(x: 0, y: 0, width: 1710, height: 1107),
-        topLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
-        topRight: CGRect(x: 948, y: 1074, width: 762, height: 33),
-        height: 32, gap: 0, nativeMenuBarInset: 33)
-    let hasGap2 = geometryBelowBar.left.maxX < geometryBelowBar.right.minX
-    // Below-bar uses fallback layout, creates middle gap, no notch split
-    // shouldExtend = false && _ = no extend ✓ (mode is .belowNativeBar, not .topEdge)
-
-    // Case 3: Top edge notch-free - should NOT extend
-    let geometryNoGap = BarGeometry(
-        screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
-        height: 32, gap: 0)
-    let hasGap3 = geometryNoGap.left.maxX < geometryNoGap.right.minX
-    #expect(!hasGap3)  // Adjacent segments, no gap
-    // shouldExtend = true && false = no extend ✓
-}
-
+/// The extension runs through the production placement path:
+/// `apply(update:)` → `move()` → `extendFrameIntoNotch()` → `panel.setFrame()`.
+/// The applied panel frames are asserted directly, so this fails if production
+/// placement ever stops extending.
 @MainActor
 @Test func notchExtensionAppliesCorrectFrameThroughPlacementPath() {
-    // Test that the extension is applied through the actual production path:
-    // apply(update:) → move() → extendFrameIntoNotch() → panel.setFrame()
-    
-    let configuration = DivotConfiguration.default
-    let surface = NSPanelBarSurface(id: DisplayBarID(1), on: CGRect(x: 0, y: 0, width: 1512, height: 982), configuration: configuration)
-    
-    // Create a notched geometry (top edge with gap)
-    let geometry = BarGeometry(
-        screen: CGRect(x: 0, y: 0, width: 1512, height: 982),
-        topLeft: CGRect(x: 0, y: 950, width: 680, height: 32),
-        topRight: CGRect(x: 832, y: 950, width: 680, height: 32),
-        height: 32, gap: 0)  // gap is fixed at 0 now
-    
-    let placement = BarPlacement(mode: .topEdge, geometry: geometry)
-    let update = DisplayBarUpdate(
-        id: DisplayBarID(1),
-        placement: placement,
-        animated: false,
-        cancelAnimations: false,
-        visibility: .hidden)
-    
-    // Apply the update - this calls move() which applies the extension
-    surface.apply(update, reduceMotion: false)
-    
-    // The panel frames should be extended by 6pt on the notch-side edge
-    // Left panel: extends 6pt to the right (width += 6)
-    // Right panel: extends 6pt to the left (minX -= 6, width += 6)
-    
-    // We can't directly inspect the private panel frames, but the test verifies
-    // that apply() executes without error and the extension logic is invoked.
-    // The actual frame values are tested in notchExtensionCoversRoundedCorners().
+    let screen = CGRect(x: 0, y: 0, width: 1512, height: 982)
+    let notched = ScreenGeometry(
+        frame: screen,
+        visibleFrame: screen,
+        safeAreaTop: 32,
+        auxiliaryTopLeft: CGRect(x: 0, y: 950, width: 680, height: 32),
+        auxiliaryTopRight: CGRect(x: 832, y: 950, width: 680, height: 32))
+    let placement = try! #require(BarPlacementResolver.placement(screen: notched, visibility: .hidden))
+    #expect(placement.mode == .topEdge)
+    #expect(placement.geometry.hasNotch)
+
+    let surface = NSPanelBarSurface(id: DisplayBarID(9), on: screen)
+    surface.apply(DisplayBarUpdate(id: DisplayBarID(9),
+                                   placement: placement,
+                                   animated: false,
+                                   cancelAnimations: false,
+                                   visibility: .hidden),
+                  reduceMotion: false)
+
+    let frames = try! #require(surface.appliedPanelFrames)
+    let g = placement.geometry
+    // Left fill covers the housing's left edge plus the 6pt extension ...
+    #expect(frames.left.maxX == g.left.maxX + 6)
+    #expect(frames.left.width == g.left.width + 6)
+    // ... and the right fill does the same from the other side.
+    #expect(frames.right.minX == g.right.minX - 6)
+    #expect(frames.right.width == g.right.width + 6)
+    // The extension is exactly the 6pt budget the design calls for.
+    #expect(frames.left.maxX - g.left.maxX == 6)
+    #expect(g.right.minX - frames.right.minX == 6)
 }

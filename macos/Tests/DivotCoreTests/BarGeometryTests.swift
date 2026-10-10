@@ -12,6 +12,36 @@ import Testing
     #expect(g.left == CGRect(x: 0, y: 950, width: 680, height: 32))
     #expect(g.right == CGRect(x: 832, y: 950, width: 680, height: 32))
     #expect(g.left.maxX == 680 && g.right.minX == 832)
+    #expect(g.hasNotch)
+}
+
+@Test func middleGapWithoutAuxiliaryRegionsIsNotAHousing() {
+    // A notch-free fallback row with a centre seam must not read as a notch,
+    // even though the two segments are separated by a gap (#0028 round 2).
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
+                        height: 32, gap: 10)
+    #expect(g.left.maxX < g.right.minX)
+    #expect(!g.hasNotch)
+}
+
+@Test func belowBarRowIsNeverAHousing() {
+    // The same notched regions, but inset below the native bar: no housing
+    // alongside this row, so the extension must not apply there.
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+        topLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+        topRight: CGRect(x: 948, y: 1074, width: 762, height: 33),
+        height: 32, gap: 10, nativeMenuBarInset: 33)
+    #expect(!g.hasNotch)
+}
+
+@Test func adjacentAuxiliaryRegionsAreNotAHousing() {
+    // A degenerate split with no hole between the regions is not a housing.
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
+        topLeft: CGRect(x: 0, y: 768, width: 500, height: 32),
+        topRight: CGRect(x: 500, y: 768, width: 500, height: 32),
+        height: 32, gap: 0)
+    #expect(g.left.maxX == 500 && g.right.minX == 500)
+    #expect(!g.hasNotch)
 }
 
 @Test func externalDisplayWithNegativeOrigin() {
