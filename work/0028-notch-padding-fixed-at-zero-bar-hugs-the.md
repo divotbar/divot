@@ -1,6 +1,4 @@
 ---
-last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
-last_handoff_failure_sha: 4226ad5c39bb5ec3ad520490436e681e22c034df
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
@@ -15,11 +13,13 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: opencode
-model_override: big pickle
+model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T16:48:26Z"
+updated_at: "2026-10-10T17:09:55Z"
+last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
+last_handoff_failure_sha: 4226ad5c39bb5ec3ad520490436e681e22c034df
 review_passes: 11
 review_rounds: 2
 dev_error_count: 1
@@ -172,4 +172,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T16:31:58Z · status active→review
 - 2026-10-10T16:31:58Z · note: handoff requested (cli)
 - 2026-10-10T16:48:26Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
-
+- 2026-10-10T17:09:55Z · model_override
