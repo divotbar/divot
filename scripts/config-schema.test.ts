@@ -116,16 +116,28 @@ describe('validate', () => {
     expect(() => validate(config)).not.toThrow()
   })
 
+  test('accepts the cursor-reveal toggle and the always-below fallback', () => {
+    const config = base()
+    config.menuBar = { moveBelowOnCursorReveal: false, alwaysBelow: true }
+    expect(() => validate(config)).not.toThrow()
+  })
+
   test('rejects an unknown menu-bar field', () => {
     const config = base()
-    config.menuBar = { alwaysBelow: true }
-    expect(() => validate(config)).toThrow('menuBar: unknown field alwaysBelow')
+    config.menuBar = { followSystemSignal: true }
+    expect(() => validate(config)).toThrow('menuBar: unknown field followSystemSignal')
   })
 
   test('rejects a non-boolean menu-bar field', () => {
     const config = base()
     config.menuBar = { trustAccessibilityProbe: 'yes' }
     expect(() => validate(config)).toThrow('menuBar.trustAccessibilityProbe: expected boolean')
+  })
+
+  test('rejects a non-boolean cursor-reveal toggle', () => {
+    const config = base()
+    config.menuBar = { moveBelowOnCursorReveal: 'yes' }
+    expect(() => validate(config)).toThrow('menuBar.moveBelowOnCursorReveal: expected boolean')
   })
 
   test('accepts the app-icon opt-in', () => {

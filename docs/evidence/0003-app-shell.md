@@ -70,9 +70,11 @@ network access or any physical hardware.
 - A camera housing is detected from either public signal (`safeAreaInsets.top` or
   the auxiliary top areas beside the notch). A notched display whose inset reads
   zero — for example with a third-party bar (a-bar/AeroSpace) occupying the band
-  — is therefore never misread as a revealed native menu bar: it stays
-  `.indeterminate(notchedHousingMasksMenuBar)` and holds the top edge instead of
-  stacking below the bar (task 0015).
+  — is therefore never misread from *geometry* as a revealed native menu bar: its
+  pure-geometry result stays `.indeterminate(notchedHousingMasksMenuBar)` and
+  holds the top edge instead of stacking below the bar (task 0015). The default
+  pointer-reveal path (task 0023) is a separate, deliberate input: when the
+  pointer is in the top strip the bars simply move below the revealed native bar.
 - The observation adapter never turns an untrusted probe into a visibility
   claim, never hands the single system-wide sample to more than one display, and
   never lets it override a display whose own `visibleFrame` decides.
@@ -106,11 +108,14 @@ network access or any physical hardware.
 
 - Whether the bar actually appears/is ordered correctly on-screen on a real
   display, and the fullscreen/Spaces/multi-display behaviors above.
-- Whether native-bar reveal/hide is observable on notched hardware. The
-  Accessibility probe is the detector; its on-screen position test becomes the
-  decisive signal only after a person opts in
-  (`menuBar.trustAccessibilityProbe`, default off), and whether the bar visually
-  lands correctly on reveal is still a human check.
+- Whether native-bar reveal/hide is observable on notched hardware. The default
+  path is the pointer reaching a display's top strip
+  (`menuBar.moveBelowOnCursorReveal`, on by default), observed by an
+  event-driven mouse-moved monitor (`DivotAppKit.TopStripCursorMonitor`) with no
+  polling; the permission-gated Accessibility probe is a further opt-in
+  (`menuBar.trustAccessibilityProbe`, default off) that takes precedence when
+  enabled. Whether the bar visually lands correctly on reveal is still a human
+  check.
 - Whether the macOS always-visible menu-bar setting is readable from public
   APIs. The detector accepts a `configuredAlwaysVisible` signal and treats it as
   authoritative (covered by pure tests), but the observation adapter does not
@@ -121,20 +126,21 @@ network access or any physical hardware.
   display.
 - Animation smoothness, no flashing/overlap, and no focus theft under rapid
   toggles; sleep/wake and hot-plug with real displays.
-- Whether a **pointer-only reveal** on a notched display fires any event that
-  causes a refresh. Every `observe()` takes a fresh AX sample (asserted by test),
-  so if an event does fire, the new state is read; but no event was observed to
-  fire on hover in the 0009 run, so placement may not update for a reveal that is
-  driven by pointer movement alone. This remains unproven.
+- Whether the pointer reveal lands the bar correctly and returns it. A
+  mouse-moved monitor now supplies the event trigger the earlier run lacked
+  (instead of relying on whatever refresh happened to fire), the visibility
+  cross-check and the enter/dwell/leave transition are covered by pure and
+  AppKit tests, but the on-screen feel is still a human check.
 
 ## Permissions
 
-Accessibility permission is required for the notched-display detector (product
-decision (a) in the 0009 report). Without it the shell logs the missing
-permission at launch and every notched display is reported as
-`indeterminate(notchedHousingMasksMenuBar)` — it holds the top edge and never
-converts pointer proximity into a visibility claim. On notch-free displays
-`visibleFrame` remains the signal and no permission is needed.
+Accessibility permission is required for the notched-display Accessibility
+detector (product decision (a) in the 0009 report). Without it the shell logs the
+missing permission at launch, and the notched-display detector still has the
+default pointer-reveal path (`menuBar.moveBelowOnCursorReveal`) to fall back on;
+the Accessibility probe only adds a decisive signal after a person opts in. On
+notch-free displays `visibleFrame` remains the signal and no permission is
+needed.
 
 Permission alone is not enough by itself: a complete sample stays
 `.provisional` unless explicitly marked `validated`, and the adapter withholds
