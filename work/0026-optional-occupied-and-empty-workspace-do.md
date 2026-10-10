@@ -2,15 +2,15 @@
 id: "0026"
 title: Optional occupied and empty workspace dots in Settings
 type: feature
-status: ready
+status: active
 priority: p1
 area: macos
 depends_on: ["0024"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/optional-occupied-and-empty-workspace-do
 created_at: "2026-10-10T10:26:07Z"
-updated_at: "2026-10-10T10:26:32Z"
+updated_at: "2026-10-10T10:26:33Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Depends on #0024. Keep the marker drawing in the workspace bar view; do not chan
 
 - 2026-10-10T10:26:07Z · created · njachowski@gmail.com
 - 2026-10-10T10:26:32Z · status inbox→ready
+- 2026-10-10T10:26:33Z · status ready→active, branch
