@@ -13,9 +13,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/flat-bar-chrome-square-edges-to-the-scre
 cli_override: cursor
-model_override: default
+model_override: composer-2.5
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T11:29:47Z"
+updated_at: "2026-10-10T11:29:48Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -82,3 +82,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:07:46Z · note: review pass 3: needs some work
 - 2026-10-10T11:07:46Z · needs_input
 - 2026-10-10T11:29:47Z · cli_override, model_override
+- 2026-10-10T11:29:48Z · model_override
