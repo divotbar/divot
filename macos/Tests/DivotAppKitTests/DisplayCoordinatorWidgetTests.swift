@@ -128,6 +128,30 @@ private func flatReading() -> ScreenGeometryReading {
 }
 
 @MainActor
+@Test func togglingTheAppIconRebuildsSurfacesSoItAppliesLive() {
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [flatReading()]),
+                                            probe: ProbeStub())
+    var built: [DivotConfiguration] = []
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, configuration in
+        built.append(configuration)
+        return RecordingSurface()
+    }
+    coordinator.start()
+    #expect(built.count == 1)
+
+    var updated = DivotConfiguration.default
+    updated.showAppIcon = true
+    coordinator.apply(configuration: updated)
+
+    // The icon is bar content, so the left panel is rebuilt from the document;
+    // the mark appears (or disappears) live, without a relaunch.
+    #expect(built.count == 2)
+    #expect(built.last?.showAppIcon == true)
+
+    coordinator.stop()
+}
+
+@MainActor
 @Test func notchedDisplayWithGrantedAccessibilityAlwaysGetsAPlacement() {
     // Accessibility is granted, but the AX sample is provisional, so the
     // detector has no decisive visibility and returns indeterminate. The bar

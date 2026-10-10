@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "appearance": {
+    "family": "native",
+    "mode": "system",
+    "accent": "#D6F58A",
+    "material": "native"
+  },
+  "layout": {
+    "height": 32,
+    "padding": 6,
+    "notchGap": 10
+  },
+  "left": [
+    "workspaces",
+    "front-app"
+  ],
+  "right": [
+    "battery",
+    "clock",
+    "network",
+    "volume"
+  ],
+  "showAppIcon": true
+}

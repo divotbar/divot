@@ -313,6 +313,11 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var widgets: WidgetOptions
     public var keepAwake: KeepAwakeConfiguration
     public var menuBar: MenuBarConfiguration
+    /// Show the Divot mark at the start of the left group, before the
+    /// workspaces; clicking it opens the Divot settings window. Root-level
+    /// because it decorates the bar's left group rather than a single item, and
+    /// it is off by default so the first-launch bar is unchanged (#0024).
+    public var showAppIcon: Bool
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -322,7 +327,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 right: [BarItemID] = DivotConfiguration.defaultRight,
                 widgets: WidgetOptions = .default,
                 keepAwake: KeepAwakeConfiguration = .default,
-                menuBar: MenuBarConfiguration = .default) {
+                menuBar: MenuBarConfiguration = .default,
+                showAppIcon: Bool = false) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -332,6 +338,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.widgets = widgets
         self.keepAwake = keepAwake
         self.menuBar = menuBar
+        self.showAppIcon = showAppIcon
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -367,6 +374,7 @@ public struct DivotConfiguration: Equatable, Sendable {
             && text == other.text
             && widgets == other.widgets
             && appearance == other.appearance
+            && showAppIcon == other.showAppIcon
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
