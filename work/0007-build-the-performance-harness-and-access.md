@@ -2,16 +2,16 @@
 id: "0007"
 title: Build the performance harness and accessibility regression checks
 type: feature
-status: ready
+status: active
 priority: p1
 area: [macos, docs]
 story: A native companion that stays out of my way
 depends_on: ["0006", "0011"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/build-the-performance-harness-and-access
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-09T17:20:40Z"
+updated_at: "2026-10-10T02:18:10Z"
 ---
 ## Problem
 
@@ -34,3 +34,4 @@ Performance targets remain provisional. Review current product stories and theme
 - 2026-10-09T16:18:39Z · created · njachowski@gmail.com
 - 2026-10-09T16:41:14Z · story, depends_on, body
 - 2026-10-09T17:20:40Z · status inbox→ready
+- 2026-10-10T02:18:10Z · status ready→active, branch
