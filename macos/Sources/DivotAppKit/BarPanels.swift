@@ -73,6 +73,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         self.leftContent = BarContentView(side: .left,
                                           items: layout.left,
                                           showsAppIcon: configuration.showAppIcon,
+                                          showOccupiedDot: configuration.showOccupiedDot,
+                                          showEmptyDot: configuration.showEmptyDot,
                                           workspaceFeed: workspaceFeed,
                                           workspaceIcons: workspaceIcons,
                                           displayScreensID: displayScreensID,

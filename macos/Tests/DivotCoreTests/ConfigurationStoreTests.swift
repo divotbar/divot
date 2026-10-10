@@ -157,6 +157,31 @@ private func write(_ json: String, to url: URL) throws {
     #expect(object?["showAppIcon"] as? Bool == true)
 }
 
+@Test func savePersistsTheWorkspaceDotTogglesAndOmitsThemWhenOn() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // Both on by default: the first-launch document writes no key at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(object?["showOccupiedDot"] == nil)
+    #expect(object?["showEmptyDot"] == nil)
+
+    var configuration = DivotConfiguration.default
+    configuration.showOccupiedDot = false
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(!reloaded.current.showOccupiedDot)
+    // The untouched marker stays on and is not written.
+    #expect(reloaded.current.showEmptyDot)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(object?["showOccupiedDot"] as? Bool == false)
+    #expect(object?["showEmptyDot"] == nil)
+}
+
 @Test func saveRefusesAnInvalidConfiguration() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
