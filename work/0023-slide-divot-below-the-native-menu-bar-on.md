@@ -13,7 +13,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T11:03:09Z"
+updated_at: "2026-10-10T11:04:18Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -91,3 +91,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T10:45:33Z · needs_input
 - 2026-10-10T10:52:55Z · status review→active
 - 2026-10-10T11:03:09Z · body: section Verification
+- 2026-10-10T11:04:18Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
