@@ -2,7 +2,7 @@
 id: "0018"
 title: "Add a keep-awake (Caffeine-style) toggle to the right side, on the battery item"
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 depends_on: ["0016"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-09T20:50:06Z"
-updated_at: "2026-10-09T20:50:06Z"
+updated_at: "2026-10-10T00:42:28Z"
 ---
 ## Problem
 
@@ -39,3 +39,4 @@ Depends on #0016 (bar sizing), which touches the same widget view files. Start o
 ## Activity
 
 - 2026-10-09T20:50:06Z · created · njachowski@gmail.com
+- 2026-10-10T00:42:28Z · status inbox→ready
