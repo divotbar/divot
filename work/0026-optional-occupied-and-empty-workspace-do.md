@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-occupied-and-empty-workspace-do
 created_at: "2026-10-10T10:26:07Z"
-updated_at: "2026-10-10T10:26:33Z"
+updated_at: "2026-10-10T10:32:43Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Depends on #0024. Keep the marker drawing in the workspace bar view; do not chan
 - 2026-10-10T10:26:07Z · created · njachowski@gmail.com
 - 2026-10-10T10:26:32Z · status inbox→ready
 - 2026-10-10T10:26:33Z · status ready→active, branch
+- 2026-10-10T10:32:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
