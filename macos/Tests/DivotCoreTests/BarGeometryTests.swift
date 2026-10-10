@@ -3,22 +3,67 @@ import CoreGraphics
 import Testing
 @testable import DivotCore
 
-@Test func notchClearanceAndHeightClamping() {
+@Test func notchZeroGapNoSeam() {
     let screen = CGRect(x: 0, y: 0, width: 1512, height: 982)
     let g = BarGeometry(screen: screen,
         topLeft: CGRect(x: 0, y: 950, width: 680, height: 32),
         topRight: CGRect(x: 832, y: 950, width: 680, height: 32),
-        height: 40, gap: 10)
-    #expect(g.left == CGRect(x: 0, y: 950, width: 670, height: 32))
-    #expect(g.right == CGRect(x: 842, y: 950, width: 670, height: 32))
-    #expect(g.left.maxX < 680 && g.right.minX > 832)
+        height: 40, gap: 0)
+    #expect(g.left == CGRect(x: 0, y: 950, width: 680, height: 32))
+    #expect(g.right == CGRect(x: 832, y: 950, width: 680, height: 32))
+    #expect(g.left.maxX == 680 && g.right.minX == 832)
+    #expect(g.hasNotch)
+}
+
+@Test func middleGapWithoutAuxiliaryRegionsIsNotAHousing() {
+    // A notch-free fallback row with a centre seam must not read as a notch,
+    // even though the two segments are separated by a gap (#0028 round 2).
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
+                        height: 32, gap: 10)
+    #expect(g.left.maxX < g.right.minX)
+    #expect(!g.hasNotch)
+}
+
+@Test func belowBarRowIsNeverAHousing() {
+    // The same notched regions, but inset below the native bar: no housing
+    // alongside this row, so the extension must not apply there.
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+        topLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+        topRight: CGRect(x: 948, y: 1074, width: 762, height: 33),
+        height: 32, gap: 10, nativeMenuBarInset: 33)
+    #expect(!g.hasNotch)
+}
+
+@Test func notchSplitIgnoresCallerClearance() {
+    // A caller-supplied clearance must not reopen the notch gap: the notched
+    // top-edge split hugs the auxiliary regions exactly (#0028 review).
+    let screen = CGRect(x: 0, y: 0, width: 1710, height: 1107)
+    let tl = CGRect(x: 0, y: 1074, width: 763, height: 33)
+    let tr = CGRect(x: 948, y: 1074, width: 762, height: 33)
+    let zero = BarGeometry(screen: screen, topLeft: tl, topRight: tr, height: 32, gap: 0)
+    let wide = BarGeometry(screen: screen, topLeft: tl, topRight: tr, height: 32, gap: 30)
+    #expect(wide.left == zero.left)
+    #expect(wide.right == zero.right)
+    #expect(wide.left.maxX == 763 && wide.right.minX == 948)
+    #expect(wide.hasNotch)
+}
+
+@Test func adjacentAuxiliaryRegionsAreNotAHousing() {
+    // A degenerate split with no hole between the regions is not a housing.
+    let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
+        topLeft: CGRect(x: 0, y: 768, width: 500, height: 32),
+        topRight: CGRect(x: 500, y: 768, width: 500, height: 32),
+        height: 32, gap: 0)
+    #expect(g.left.maxX == 500 && g.right.minX == 500)
+    #expect(!g.hasNotch)
 }
 
 @Test func externalDisplayWithNegativeOrigin() {
     let g = BarGeometry(screen: CGRect(x: -1920, y: -200, width: 1920, height: 1080))
     let h = BarMetrics.default.height
-    #expect(g.left == CGRect(x: -1920, y: 1080 - 200 - h, width: 950, height: h))
-    #expect(g.right == CGRect(x: -950, y: 1080 - 200 - h, width: 950, height: h))
+    // With gap=0, the middle gap is 0, so each half is exactly 960 (1920/2)
+    #expect(g.left == CGRect(x: -1920, y: 1080 - 200 - h, width: 960, height: h))
+    #expect(g.right == CGRect(x: -960, y: 1080 - 200 - h, width: 960, height: h))
 }
 
 @Test func largeGapDoesNotCreateNegativeWidth() {
@@ -30,19 +75,22 @@ import Testing
 @Test func oneMissingAuxiliaryRegionFallsBack() {
     let s = CGRect(x: 0, y: 0, width: 1000, height: 800)
     let g = BarGeometry(screen: s, topLeft: CGRect(x: 0, y: 768, width: 400, height: 32))
-    #expect(g.left.width == 490 && g.right.minX == 510)
+    // Missing right auxiliary region, uses fallback. With gap=0, each half = 500.
+    #expect(g.left.width == 500 && g.right.minX == 500)
 }
 
 @Test func invalidAuxiliaryRegionsFallBack() {
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
         topLeft: CGRect(x: 0, y: 900, width: 400, height: 32),
         topRight: CGRect(x: 600, y: 900, width: 400, height: 32))
-    #expect(g.left.maxY == 800 && g.left.width == 490)
+    // Auxiliary regions are invalid (outside screen), uses fallback. With gap=0, width = 500.
+    #expect(g.left.maxY == 800 && g.left.width == 500)
 }
 
 @Test func nonfiniteParametersUseDefaults() {
     let g = BarGeometry(screen: CGRect(x: 0, y: 0, width: 1000, height: 800), height: .nan, gap: .infinity)
-    #expect(g.left.height == BarMetrics.default.height && g.left.width == 490)
+    // Nonfinite gap falls back to default 0, so width = 500 (half the screen)
+    #expect(g.left.height == BarMetrics.default.height && g.left.width == 500)
 }
 
 @Test func belowNativeBarSpansWidthWithoutNotchGap() {

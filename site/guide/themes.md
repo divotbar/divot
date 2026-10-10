@@ -53,7 +53,7 @@ The parser, store, and theme resolver validate, persist, and apply this shape. C
 {
   "version": 2,
   "appearance": { "family": "gruvbox", "mode": "dark", "accent": "#D6F58A", "material": "opaque" },
-  "layout": { "height": 28, "padding": 10, "notchGap": 12 },
+  "layout": { "height": 28, "padding": 10 },
   "left": ["workspaces"],
   "right": ["clock"],
   "widgets": { "workspaces": { "showEmpty": false }, "clock": { "weekday": false, "date": true } }

@@ -255,7 +255,7 @@ private extension AppearanceConfiguration {
 
 private extension LayoutConfiguration {
     var jsonObject: [String: Any] {
-        ["height": height, "padding": padding, "notchGap": notchGap]
+        ["height": height, "padding": padding]
     }
 }
 

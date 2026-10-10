@@ -116,11 +116,14 @@ public enum ConfigurationParser {
     }
 
     private static func layout(_ value: Any?, path: String) throws -> LayoutConfiguration {
-        let object = try shape(value, required: ["height", "padding", "notchGap"], optional: [], path: path)
+        let object = try shape(value, required: ["height", "padding"], optional: ["notchGap"], path: path)
         let height = try range(object["height"], LayoutConfiguration.heightRange, path: "\(path).height")
         let padding = try range(object["padding"], LayoutConfiguration.paddingRange, path: "\(path).padding")
-        let notchGap = try range(object["notchGap"], LayoutConfiguration.notchGapRange, path: "\(path).notchGap")
-        return LayoutConfiguration(height: height, padding: padding, notchGap: notchGap)
+        // Legacy notchGap is accepted but ignored; validate it matches the historical range
+        if let notchGap = object["notchGap"] {
+            _ = try range(notchGap, ClosedRange(uncheckedBounds: (0, 32)), path: "\(path).notchGap")
+        }
+        return LayoutConfiguration(height: height, padding: padding)
     }
 
     private static func widgetOptions(_ value: Any?, placed: Set<BarItemID>) throws -> WidgetOptions {

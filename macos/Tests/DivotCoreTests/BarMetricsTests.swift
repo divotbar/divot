@@ -98,9 +98,9 @@ import Testing
     let geometry = BarGeometry(screen: screen,
                                topLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
                                topRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
-    // The real housing band, left open between the two segments.
-    #expect(geometry.left.maxX == 753)
-    #expect(geometry.right.minX == 958)
+    // The notch gap is now fixed at zero; bar hugs the housing (#0028)
+    #expect(geometry.left.maxX == 763)
+    #expect(geometry.right.minX == 948)
 
     // Representative measured item widths for the default groups at the compact
     // font (a status label never exceeds the long localized clock string).
