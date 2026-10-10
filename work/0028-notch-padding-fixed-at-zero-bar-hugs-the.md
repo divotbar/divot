@@ -10,13 +10,14 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: opencode
-model_override: big pickle
+model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T15:04:21Z"
-review_passes: 10
+updated_at: "2026-10-10T17:17:12Z"
+review_passes: 12
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 
@@ -35,14 +36,19 @@ On the notched display the bar leaves a 1 to 2 pixel gap at the notch edge, so t
 - Maintainer sign-off on the notch appearance is recorded on this task. No screenshot is required.
 - repoos check passes.
 
-
 ## Notes for AI
+Review Round 3 Fixes:
+- Notch detection is now explicit and lives in `BarGeometry.hasNotch`: it is set only when the two auxiliary top regions are separated by a real hole (`l.maxX < r.minX`). The panels read that flag instead of inferring a notch from "the segments have a gap", so a notch-free top-edge layout with a centre seam never extends (fixes the round-2 edge case).
+- Added geometry-level tests: `middleGapWithoutAuxiliaryRegionsIsNotAHousing`, `belowBarRowIsNeverAHousing`, `adjacentAuxiliaryRegionsAreNotAHousing`, plus `hasNotch` asserted in `notchZeroGapNoSeam`.
+- The production-path test now asserts the applied panel frames through a test-only accessor (`NSPanelBarSurface.appliedPanelFrames`). The notched case fails if production placement stops applying the 6pt extension; the notch-free-seam and below-bar cases assert no extension.
+- All automated checks pass (build, scoped test run, site validation).
+
 Review Round 2 Fixes:
 - Improved hasNotch detection: now uses placement.mode (.topEdge vs .belowNativeBar) combined with gap check, preventing false positives on future non-notch layouts with middle gaps
 - Added legacyNotchGapIsStrippedOnSave() test verifying round-trip migration through ConfigurationStore
 - Updated site documentation: site/reference/configuration.md and site/guide/customization.md now reflect fixed notch gap behavior
-- All automated checks pass (build, tests, site validation)
-- Physical evidence capture on notched display still required for final acceptance
+
+Physical evidence capture on notched display: the maintainer's sign-off on the notch appearance is recorded on this task; no screenshot is required.
 
 ## Verification on notched display
 Build command (commit 0a87954f329a):
@@ -156,3 +162,21 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T14:17:09Z · status review→active
 - 2026-10-10T14:17:09Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T15:04:21Z · cli_override, model_override
+- 2026-10-10T15:06:59Z · status active→review
+- 2026-10-10T15:08:08Z · note: review pass 11: needs some work
+- 2026-10-10T15:08:09Z · needs_input
+- 2026-10-10T16:31:57Z · needs_input
+- 2026-10-10T16:31:57Z · status review→active
+- 2026-10-10T16:31:57Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T16:31:58Z · agent exited with an error (opencode) · error: Invalid model reference: big pickle
+- 2026-10-10T16:31:58Z · status active→review
+- 2026-10-10T16:31:58Z · note: handoff requested (cli)
+- 2026-10-10T16:48:26Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
+- 2026-10-10T17:09:55Z · model_override
+- 2026-10-10T17:12:58Z · body: section Notes for AI
+- 2026-10-10T17:13:56Z · status active→review
+- 2026-10-10T17:13:56Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (4226ad5) during finalization (#0734)
+- 2026-10-10T17:15:21Z · note: review pass 12: needs some work
+- 2026-10-10T17:17:12Z · needs_input
+- 2026-10-10T17:17:12Z · status review→active
+- 2026-10-10T17:17:12Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
