@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-gruvbox-ayu-dracula-and-tokyo-
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-09T23:51:00Z"
+updated_at: "2026-10-10T00:41:59Z"
 ---
 ## Problem
 
@@ -29,8 +29,21 @@ Semantic tokens, live persisted switching, verified upstream palette attribution
 
 Depends on shared settings/config and provider views. Do not label unofficial light adaptations official. Update public theme guides with delivered state.
 
+## Shots
+```json
+[
+{
+  "label": "Theme guide: delivered families, attribution, contrast, materials",
+  "target": "website",
+  "route": "/guide/themes",
+  "highlight": "main h2 + table"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-09T16:41:12Z · created · njachowski@gmail.com
 - 2026-10-09T17:20:39Z · status inbox→ready
 - 2026-10-09T23:51:00Z · status ready→active, branch
+- 2026-10-10T00:41:59Z · body: section Shots
