@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-10T12:24:03Z"
-review_passes: 6
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: active
 priority: p1
 area: macos
 depends_on: ["0021", "0022"]
@@ -19,6 +14,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T08:46:31Z"
+updated_at: "2026-10-10T12:24:38Z"
+review_passes: 6
 review_rounds: 2
 incomplete_review_retries: 1
 ---
@@ -101,4 +98,5 @@ test
 - 2026-10-10T12:23:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T12:24:03Z · note: review pass 8: needs some work
 - 2026-10-10T12:24:03Z · needs_input
-
+- 2026-10-10T12:24:38Z · status review→active, needs_input
+- 2026-10-10T12:24:38Z · note: close-out repair: merge-conflict
