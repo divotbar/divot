@@ -43,3 +43,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:23:26Z · model_override
 - 2026-10-10T12:23:30Z · status ready→active, branch
 - 2026-10-10T12:30:48Z · status active→review
+- 2026-10-10T12:30:48Z · note: shots: skipped — the diff (18 changed paths) touches no [[preview.paths]] globs — no UI change to capture
