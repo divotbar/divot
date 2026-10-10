@@ -2,7 +2,7 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -153,3 +153,5 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T14:16:57Z · note: review pass 10: needs some work
 - 2026-10-10T14:16:57Z · needs_input
 - 2026-10-10T14:17:09Z · needs_input
+- 2026-10-10T14:17:09Z · status review→active
+- 2026-10-10T14:17:09Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
