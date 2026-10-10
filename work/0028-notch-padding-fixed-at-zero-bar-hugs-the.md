@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T12:31:37Z"
+review_passes: 1
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
@@ -12,7 +14,6 @@ branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:31:37Z"
 ---
 ## Problem
 
@@ -45,3 +46,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:30:48Z · status active→review
 - 2026-10-10T12:30:48Z · note: shots: skipped — the diff (18 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T12:31:37Z · note: review pass 1: needs some work
+
