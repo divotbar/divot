@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/bar-panels-never-get-placed-placement-st
 created_at: "2026-10-10T04:02:13Z"
-updated_at: "2026-10-10T04:16:33Z"
+updated_at: "2026-10-10T04:17:49Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -35,6 +35,15 @@ With Accessibility granted, the bar appears at the top band of the built-in notc
 
 The maintainer confirmed Accessibility is on for `dist/Divot.app` and the log has no permission warning. The bar process started from the Dev page is a different ad-hoc-signed binary; do not rely on it for verification. Keep the change inside `DivotCore` placement logic and the probe, not the widget views, so it does not conflict with other active work.
 
+## Verification
+Automated (task branch, this run):
+- `scripts/smoke-app-bundle.sh`: PASS (packaged Release bundle, bundled `--report`/`--widgets`).
+- Packaged `dist/Divot.app` launched via `open` with stderr captured: the workspace capability probe now reports `available (workspaces, windows, events, callbacks, monitors)` with a 3-workspace snapshot, and the false `No supported window manager found` line is gone.
+- Window-server observation (CGWindowListCopyWindowInfo, not a screenshot): two on-screen Divot panels at `(x:0, y:33, w:753, h:24)` and `(x:958, y:33, w:752, h:24)` — the built-in notched top band, split around the camera housing.
+
+Human-only (NOT supplied here):
+- No screen capture was produced: `screencapture` failed with "could not create image from display" (Screen Recording permission is not granted to the agent process). A person must capture the bar and confirm its appearance; no visual claim is made.
+
 ## Activity
 
 - 2026-10-10T04:02:13Z · created · njachowski@gmail.com
@@ -44,3 +53,4 @@ The maintainer confirmed Accessibility is on for `dist/Divot.app` and the log ha
 - 2026-10-10T04:15:46Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T04:16:33Z · note: review pass 1: needs some work
 - 2026-10-10T04:16:33Z · status review→active
+- 2026-10-10T04:17:49Z · body: section Verification
