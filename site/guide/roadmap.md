@@ -7,6 +7,7 @@
 - Proposed JSON configurations and a structural validator.
 - A Swift foundation: `DivotCore` geometry/placement tests, `DivotAppKit` platform adapter, and a buildable AppKit shell (not physically validated).
 - Built-in status providers (frontmost app, battery/power, a minute clock, network, and volume) wired into the bar with lifecycle, cancellation, and unavailable states (unit-tested, not physically validated).
+- A performance harness (`divot --bench`) and automated accessibility/contrast regression checks (unit-tested; no Release measurements or VoiceOver/display results published yet).
 
 ## First native release
 

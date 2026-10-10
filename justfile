@@ -55,6 +55,12 @@ web-check:
 macos-test:
     swift test --package-path macos
 
+# Build the optimized Release app and run the performance harness.
+[group('quality')]
+bench:
+    swift build --package-path macos -c release --product divot
+    macos/.build/release/divot --bench
+
 # Validate the justfile without executing recipes.
 [group('quality')]
 just-check:
