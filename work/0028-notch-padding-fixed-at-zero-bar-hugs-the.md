@@ -2,7 +2,7 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:59:20Z"
+updated_at: "2026-10-10T12:59:26Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -94,3 +94,4 @@ repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","
 - 2026-10-10T12:57:59Z · status review→active
 - 2026-10-10T12:57:59Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T12:59:20Z · body: section Verification on notched display
+- 2026-10-10T12:59:26Z · status active→review
