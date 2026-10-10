@@ -2,7 +2,7 @@
 id: "0022"
 title: "Adjustable text and icon size and font in Divot settings, with a larger default"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0021"]
@@ -40,4 +40,4 @@ Depends on #0021 (row height and placement, which changes `BarMetrics`). Do not 
 - 2026-10-10T05:25:45Z · created · njachowski@gmail.com
 - 2026-10-10T07:15:23Z · status inbox→ready
 - 2026-10-10T08:43:08Z · status ready→active, branch
-- 2026-10-10T08:52:23Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T08:52:23Z · status active→review
