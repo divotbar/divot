@@ -25,3 +25,6 @@ jobs:
       - run: xcodebuild -version && swift --version
       - run: swift test --package-path macos
       - run: swift build --package-path macos --product divot
+      # Package the local preview and launch the bundled executable. Ad-hoc
+      # signing; no Developer ID, no notarization, no security-setting change.
+      - run: ./scripts/smoke-app-bundle.sh

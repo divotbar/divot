@@ -35,10 +35,26 @@ build:
 macos-build:
     swift build --package-path macos
 
-# Build the executable app shell (no signed .app bundle yet).
+# Build the executable app shell (debug executable, not a packaged bundle).
 [group('build')]
 macos-app:
     swift build --package-path macos --product divot
+
+# Assemble the ad-hoc-signed local Divot.app preview (Release by default).
+[group('app')]
+app-package:
+    scripts/package-app.sh
+
+# Package and verify the local preview: structure, signature, and a real launch.
+[group('app')]
+app-smoke:
+    scripts/smoke-app-bundle.sh
+
+# Build the preview bundle and open it as a real app on this Mac.
+[group('app')]
+app-run:
+    scripts/package-app.sh
+    open dist/Divot.app
 
 # Run the declared RepoOS gate.
 [group('quality')]
