@@ -318,6 +318,15 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// because it decorates the bar's left group rather than a single item, and
     /// it is off by default so the first-launch bar is unchanged (#0024).
     public var showAppIcon: Bool
+    /// Draw the filled dot on an occupied (non-focused) workspace chip. On by
+    /// default so the first-launch bar keeps today's look; turning it off hides
+    /// only that marker, leaving the name and focus highlight. Root-level
+    /// because it changes only the marker drawing, not the workspace feed
+    /// (#0026).
+    public var showOccupiedDot: Bool
+    /// Draw the hollow ring on an empty (non-focused) workspace chip. On by
+    /// default; turning it off hides only that marker (#0026).
+    public var showEmptyDot: Bool
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -328,7 +337,9 @@ public struct DivotConfiguration: Equatable, Sendable {
                 widgets: WidgetOptions = .default,
                 keepAwake: KeepAwakeConfiguration = .default,
                 menuBar: MenuBarConfiguration = .default,
-                showAppIcon: Bool = false) {
+                showAppIcon: Bool = false,
+                showOccupiedDot: Bool = true,
+                showEmptyDot: Bool = true) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -339,6 +350,8 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.keepAwake = keepAwake
         self.menuBar = menuBar
         self.showAppIcon = showAppIcon
+        self.showOccupiedDot = showOccupiedDot
+        self.showEmptyDot = showEmptyDot
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -375,6 +388,8 @@ public struct DivotConfiguration: Equatable, Sendable {
             && widgets == other.widgets
             && appearance == other.appearance
             && showAppIcon == other.showAppIcon
+            && showOccupiedDot == other.showOccupiedDot
+            && showEmptyDot == other.showEmptyDot
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }

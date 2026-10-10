@@ -313,6 +313,52 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(!configuration.rendersSameBar(as: .default))
 }
 
+@Test func workspaceDotTogglesDefaultOnAndParseExplicitly() throws {
+    // Absent keeps the first-launch look: both dots on.
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[]}"##)
+    let defaults = try ConfigurationParser.parse(jsonObject: without).configuration
+    #expect(defaults.showOccupiedDot)
+    #expect(defaults.showEmptyDot)
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showOccupiedDot":false,"showEmptyDot":true}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: withValue).configuration
+    #expect(!parsed.showOccupiedDot)
+    #expect(parsed.showEmptyDot)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showEmptyDot":"yes"}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(failure?.path == "showEmptyDot")
+    #expect(failure?.message == "expected boolean")
+}
+
+@Test func workspaceDotTogglesRoundTripThroughTheCanonicalJSON() throws {
+    var configuration = DivotConfiguration.default
+    configuration.showOccupiedDot = false
+    configuration.showEmptyDot = false
+    let encoded = try JSONSerialization.data(withJSONObject: configuration.jsonObject,
+                                             options: [.sortedKeys])
+    let reparsed = try ConfigurationParser.parse(encoded)
+    #expect(reparsed.configuration == configuration)
+    #expect(!reparsed.configuration.showOccupiedDot)
+    #expect(!reparsed.configuration.showEmptyDot)
+
+    // Both on (the default) writes no key, so the first-launch document is
+    // identical.
+    #expect(DivotConfiguration.default.jsonObject["showOccupiedDot"] == nil)
+    #expect(DivotConfiguration.default.jsonObject["showEmptyDot"] == nil)
+}
+
+@Test func workspaceDotTogglesChangeWhatTheRenderedBarNeeds() {
+    // Hiding a marker must rebuild the panel so the setting applies live;
+    // `rendersSameBar` therefore has to see the change.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.showOccupiedDot = false
+    #expect(!configuration.rendersSameBar(as: .default))
+    configuration.showEmptyDot = false
+    #expect(!DivotConfiguration.default.rendersSameBar(as: configuration))
+}
+
 // MARK: - Version 1 migration fixtures
 
 @Test func starterV1DefaultMigratesToAVersionTwoDocument() throws {

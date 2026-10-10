@@ -239,6 +239,8 @@ final class BarContentView: NSView, BarContentLifecycle {
     init(side: BarSide,
          items: [BarItemID],
          showsAppIcon: Bool = false,
+         showOccupiedDot: Bool = true,
+         showEmptyDot: Bool = true,
          workspaceFeed: WorkspaceFeed? = nil,
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
@@ -270,7 +272,9 @@ final class BarContentView: NSView, BarContentLifecycle {
                                             displayScreensID: displayScreensID,
                                             showsFrontApp: !items.contains(.frontApp),
                                             theme: theme,
-                                            metrics: metrics)
+                                            metrics: metrics,
+                                            showOccupiedDot: showOccupiedDot,
+                                            showEmptyDot: showEmptyDot)
                 workspaceViews[id] = view
                 addSubview(view)
                 continue
