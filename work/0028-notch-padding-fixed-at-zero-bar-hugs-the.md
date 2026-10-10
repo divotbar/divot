@@ -180,3 +180,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T17:09:55Z · model_override
 - 2026-10-10T17:12:58Z · body: section Notes for AI
 - 2026-10-10T17:13:56Z · status active→review
+- 2026-10-10T17:13:56Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (4226ad5) during finalization (#0734)
