@@ -140,6 +140,17 @@ Disclosed limits (never hidden):
   per-install opt-in (`menuBar.trustAccessibilityProbe`, off by default) and
   takes precedence when enabled. Visual confirmation of the reveal/hide on this
   Mac is still pending.
+- **Global cursor monitor:** the top-strip monitor installs AppKit's global
+  mouse-moved monitor when the cursor-reveal setting is on (and the
+  always-below fallback is off). If macOS refuses that monitor, only movement
+  over Divot's own windows is observed and the bar may not slide while you use
+  other apps; launch logs and `divot --report` print
+  `cursorGlobalMonitor=unavailable` so support can distinguish that from the
+  setting being off.
+- **Notch-free externals with auto-hide:** on a flat display the slide follows
+  that display's own `visibleFrame`, not the pointer alone. If the two disagree
+  on your hardware, use **Always below the menu bar** in Settings
+  (`menuBar.alwaysBelow`).
 - **AppKit's menu-bar frame clamp:** the nonactivating panels override
   `constrainFrameRect(_:to:)` so a top-edge placement can occupy the camera
   housing; the default clamp parks it at `visibleFrame.maxY`.
