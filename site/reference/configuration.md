@@ -57,7 +57,8 @@ All sizes are logical points, not physical pixels.
 | --- | --- | --- |
 | `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
-| `notchGap` | 0–32 | Extra clearance beside the camera housing |
+
+On notched displays the bar hugs the notch with zero padding and the color extends 6 points into the notch area to cover the gap and corners. Legacy configuration files may contain a `notchGap` field; it is ignored during load and omitted when the file is next saved.
 
 ## Text
 

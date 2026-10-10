@@ -132,9 +132,13 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         }
         guard let placement = update.placement else { return }
         let animate = update.animated && !reduceMotion
-        let hasNotch = placement.geometry.left.maxX < placement.geometry.right.minX
-        move(left, to: placement.geometry.left, side: .left, hasNotch: hasNotch, animated: animate)
-        move(right, to: placement.geometry.right, side: .right, hasNotch: hasNotch, animated: animate)
+        // The notch extension only applies at the top edge on a notched display.
+        // Below the native bar, there's no notch to extend into.
+        let isTopEdge = if case .topEdge = placement.mode { true } else { false }
+        let hasGap = placement.geometry.left.maxX < placement.geometry.right.minX
+        let shouldExtend = isTopEdge && hasGap
+        move(left, to: placement.geometry.left, side: .left, hasNotch: shouldExtend, animated: animate)
+        move(right, to: placement.geometry.right, side: .right, hasNotch: shouldExtend, animated: animate)
     }
 
     public func apply(widgetChanges: [WidgetChange]) {

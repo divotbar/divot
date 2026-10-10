@@ -294,6 +294,23 @@ private func write(_ json: String, to url: URL) throws {
     #expect(store.current == .default)
 }
 
+@Test func legacyNotchGapIsStrippedOnSave() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    // Load a legacy config with notchGap.
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":15},"left":["clock"],"right":["battery"]}"##, to: url)
+    let store = ConfigurationStore(configURL: url)
+    #expect(store.load() == .loaded)
+    // Save it back; notchGap should be omitted.
+    try store.save(store.current)
+
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let layout = object?["layout"] as? [String: Any]
+    #expect(layout?["notchGap"] == nil)
+    #expect(layout?["height"] as? Int == 32)
+    #expect(layout?["padding"] as? Int == 12)
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])
