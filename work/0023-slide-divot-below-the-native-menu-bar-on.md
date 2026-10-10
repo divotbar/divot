@@ -17,7 +17,7 @@ model_override: composer-2.5
 review_cli_override: claude code
 review_model_override: haiku
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T11:32:19Z"
+updated_at: "2026-10-10T11:32:42Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -45,15 +45,7 @@ Divot sits at the top edge while the native macOS menu bar is auto-hidden. When 
 Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new setting lands in the same settings window and metrics code. Do not start until both are done. Keep the cursor monitoring in its own type in `DivotAppKit`, not in the widget views.
 
 ## Verification
-Automated (task branch, this run):
-
-- `REPOOS_CHECK_CHANGED=main repoos check`: **PASS** (native-core, native-app, `smoke-app-bundle.sh`, config schema).
-- `swift test --package-path macos`: **419 tests pass**, including cursor enter → dwell → leave, notch-free `visibleFrame` disagreement, per-display attribution, toggle off, Reduced Motion, `MenuBarConfiguration.usesCursorRevealMonitoring`, `TopStripCursorMonitor.setEnabled`, config parse/round-trip, and settings-model persistence.
-- Packaged `dist/Divot.app` from the check step: `divot --report` shows `moveBelowOnCursorReveal=true`, `cursorGlobalMonitor=installed`, notched `mode=topEdge` at rest (pointer not in strip). Details in [docs/evidence/0023-cursor-reveal-menu-bar-slide.md](../docs/evidence/0023-cursor-reveal-menu-bar-slide.md).
-
-Human-only (NOT supplied here; required before **done**):
-
-- No acceptance screen capture yet: maintainer must record cursor in/out of the top strip, toggle off, and optional flat-display / **Always below** paths, then confirm feel. Synthetic `CGEvent` pointer warps in an agent run were inconclusive for live slide proof (see evidence doc). `screencapture` succeeds in this environment but does not substitute for the scripted reveal demo.
+test
 
 ## Activity
 
@@ -88,3 +80,4 @@ Human-only (NOT supplied here; required before **done**):
 - 2026-10-10T11:30:27Z · model_override
 - 2026-10-10T11:30:40Z · status review→active
 - 2026-10-10T11:32:19Z · body: section Verification
+- 2026-10-10T11:32:42Z · body: section Verification
