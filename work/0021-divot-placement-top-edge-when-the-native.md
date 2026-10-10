@@ -96,3 +96,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T07:30:11Z · status review→active
 - 2026-10-10T07:37:52Z · body: section Verification
 - 2026-10-10T08:15:28Z · status active→review
+- 2026-10-10T08:15:28Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
