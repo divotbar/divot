@@ -14,7 +14,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T17:17:12Z"
+updated_at: "2026-10-10T17:19:38Z"
 review_passes: 12
 review_rounds: 2
 dev_error_count: 1
@@ -37,11 +37,16 @@ On the notched display the bar leaves a 1 to 2 pixel gap at the notch edge, so t
 - repoos check passes.
 
 ## Notes for AI
+Review Round 12 Fixes:
+- Notch padding can no longer be reintroduced through the caller's clearance: `BarGeometry`'s notched top-edge split now hugs the auxiliary regions exactly and ignores `gap`/clearance (removed the `l.width - clearance` / `r.minX + rg` shaving). `BarContentPolicy.clearance` now only affects the non-notched centre seam.
+- Added `notchSplitIgnoresCallerClearance` (core geometry) and `topEdgePolicyIgnoresClearanceSoTheNotchGapStaysZero` (policy/placement path) proving a nonzero clearance leaves the notch gap at zero.
+- Updated `site/guide/troubleshooting.md`: the config-application list no longer names the removed notch gap setting.
+- Merged `main` into the branch and re-ran `REPOOS_CHECK_CHANGED=main repoos check`; all checks pass.
+
 Review Round 3 Fixes:
-- Notch detection is now explicit and lives in `BarGeometry.hasNotch`: it is set only when the two auxiliary top regions are separated by a real hole (`l.maxX < r.minX`). The panels read that flag instead of inferring a notch from "the segments have a gap", so a notch-free top-edge layout with a centre seam never extends (fixes the round-2 edge case).
+- Notch detection is now explicit and lives in `BarGeometry.hasNotch`: it is set only when the two auxiliary top regions are separated by a real hole (`l.maxX < r.minX`). The panels read that flag instead of inferring a notch from "the segments have a gap", so a notch-free top-edge layout with a centre seam never extends.
 - Added geometry-level tests: `middleGapWithoutAuxiliaryRegionsIsNotAHousing`, `belowBarRowIsNeverAHousing`, `adjacentAuxiliaryRegionsAreNotAHousing`, plus `hasNotch` asserted in `notchZeroGapNoSeam`.
 - The production-path test now asserts the applied panel frames through a test-only accessor (`NSPanelBarSurface.appliedPanelFrames`). The notched case fails if production placement stops applying the 6pt extension; the notch-free-seam and below-bar cases assert no extension.
-- All automated checks pass (build, scoped test run, site validation).
 
 Review Round 2 Fixes:
 - Improved hasNotch detection: now uses placement.mode (.topEdge vs .belowNativeBar) combined with gap check, preventing false positives on future non-notch layouts with middle gaps
@@ -180,3 +185,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T17:17:12Z · needs_input
 - 2026-10-10T17:17:12Z · status review→active
 - 2026-10-10T17:17:12Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T17:19:38Z · body: section Notes for AI
