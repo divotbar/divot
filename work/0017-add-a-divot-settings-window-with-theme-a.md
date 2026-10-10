@@ -40,3 +40,4 @@ Depends on 0006 (config, settings, appearance modes) and 0011 (theme families). 
 - 2026-10-10T02:18:09Z · status ready→active, branch
 - 2026-10-10T02:20:31Z · note: Implementation note: the settings window with theme-family and System/Light/Dark pickers already shipped via 0006 (window + controller + view model) and 0011 (theme families/palette resolution), so this task adds the missing acceptance-criteria coverage: view-model tests that iterate all five families and all three modes, prove each selection maps to the persisted config and survives a reload, and prove a palette override changes the resolved palette the bar draws. No duplicate window was added.
 - 2026-10-10T02:20:55Z · status active→review
+- 2026-10-10T02:20:55Z · note: shots: skipped — the diff (2 changed paths) touches no [[preview.paths]] globs — no UI change to capture
