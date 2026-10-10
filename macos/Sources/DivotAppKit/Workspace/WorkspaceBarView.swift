@@ -31,7 +31,11 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
     private let horizontalInset: CGFloat
     private let chipSpacing: CGFloat
-    private let overflowControlWidth: CGFloat = 30
+    /// The overflow control's real width, measured once from a template button,
+    /// so `WorkspaceLayout.fit` reserves the space it actually needs. A fixed
+    /// guess under-reserved and let a crowded row cross the notch at larger
+    /// text sizes.
+    private var overflowControlWidth: CGFloat = 30
 
     public init(feed: WorkspaceFeed,
                 icons: WorkspaceIconProviding,
@@ -64,6 +68,12 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // the width it assigns so no chip can draw over a neighbour.
         layer?.masksToBounds = true
 
+        // Measure the overflow control's real width before any fit decision, so
+        // the reserved space matches what is drawn.
+        overflowControlWidth = makeOverflowButton(hidden: [],
+                                                   options: .default,
+                                                   occupancy: { _ in .unknown }).fittingSize.width
+
         stack.orientation = .horizontal
         stack.alignment = .centerY
         stack.spacing = chipSpacing
@@ -80,7 +90,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         }
 
         guard showsFrontApp else { return }
-        frontAppLabel.font = .systemFont(ofSize: metrics.chipFontSize)
+        frontAppLabel.font = BarFont.chip(metrics, weight: .regular)
         frontAppLabel.textColor = theme.secondary
         frontAppLabel.lineBreakMode = .byTruncatingTail
         frontAppLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -213,7 +223,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         button.setAccessibilityValue(workspace.isFocused ? "selected" : "")
 
         let weight: NSFont.Weight = workspace.isFocused ? .semibold : .regular
-        let font = NSFont.systemFont(ofSize: metrics.chipFontSize, weight: weight)
+        let font = BarFont.chip(metrics, weight: weight)
         let nameColor = workspace.isFocused ? theme.selectedForeground : theme.foreground
         let markerColor: NSColor
         switch occupancy {
@@ -257,11 +267,12 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         let markerAttributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: markerColor]
 
         let title = NSMutableAttributedString(string: workspace.id.rawValue, attributes: nameAttributes)
+        let iconSize = max(8, metrics.chipFontSize.rounded())
         for identity in WorkspaceLayout.displayApps(for: workspace, options: options) {
-            guard let icon = icons.icon(for: identity.bundleID, pointSize: 12) else { continue }
+            guard let icon = icons.icon(for: identity.bundleID, pointSize: iconSize) else { continue }
             let attachment = NSTextAttachment()
             attachment.image = icon
-            attachment.bounds = CGRect(x: 0, y: -1.5, width: 12, height: 12)
+            attachment.bounds = CGRect(x: 0, y: -1.5, width: iconSize, height: iconSize)
             title.append(NSAttributedString(string: " ", attributes: nameAttributes))
             title.append(NSAttributedString(attachment: attachment))
         }

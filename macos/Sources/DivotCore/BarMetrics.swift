@@ -31,15 +31,20 @@ public struct BarMetrics: Equatable, Sendable {
     public var chipFontSize: CGFloat
     /// Gap between workspace chips.
     public var chipSpacing: CGFloat
+    /// Family name for the bar's text, or `nil` for the system font. An
+    /// uninstalled name is resolved to the system font at render time, so the
+    /// stored value never breaks the bar.
+    public var fontFamily: String?
 
     public init(height: CGFloat = 32,
                 itemSpacing: CGFloat = 8,
                 rowInset: CGFloat = 6,
-                iconSize: CGFloat = 14,
+                iconSize: CGFloat = 16,
                 iconSpacing: CGFloat = 4,
-                textFontSize: CGFloat = 12,
-                chipFontSize: CGFloat = 11,
-                chipSpacing: CGFloat = 6) {
+                textFontSize: CGFloat = 14,
+                chipFontSize: CGFloat = 13,
+                chipSpacing: CGFloat = 6,
+                fontFamily: String? = nil) {
         self.height = height
         self.itemSpacing = itemSpacing
         self.rowInset = rowInset
@@ -48,9 +53,34 @@ public struct BarMetrics: Equatable, Sendable {
         self.textFontSize = textFontSize
         self.chipFontSize = chipFontSize
         self.chipSpacing = chipSpacing
+        self.fontFamily = fontFamily
     }
 
     public static let `default` = BarMetrics()
+
+    /// The default text size, larger than the original fixed 12 pt so the bar
+    /// reads comfortably on the maintainer's display (#0022).
+    public static let defaultTextSize: CGFloat = 14
+
+    /// Derive the whole render rhythm from a configured text size.
+    ///
+    /// Icon and chip sizes are expressed relative to the text so the row stays
+    /// in proportion as the text grows: the icon is two points larger than the
+    /// text and the workspace chip one point smaller. Heights and gaps are
+    /// passed through, so a layout change never disturbs the type scale.
+    public static func scaled(textSize: CGFloat,
+                              height: CGFloat = BarMetrics.default.height,
+                              rowInset: CGFloat = BarMetrics.default.rowInset,
+                              fontFamily: String? = nil) -> BarMetrics {
+        let size = (textSize.isFinite ? textSize : defaultTextSize).rounded()
+        let clamped = max(1, size)
+        return BarMetrics(height: height,
+                          rowInset: rowInset,
+                          iconSize: clamped + 2,
+                          textFontSize: clamped,
+                          chipFontSize: max(1, clamped - 1),
+                          fontFamily: fontFamily)
+    }
 
     // MARK: Width measurement
 

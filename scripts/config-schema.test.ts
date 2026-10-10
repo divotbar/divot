@@ -80,6 +80,36 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('keepAwake.remember: expected boolean')
   })
 
+  test('accepts the text size and font', () => {
+    const config = base()
+    config.text = { size: 16, font: 'Helvetica' }
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('accepts an empty font as the system default', () => {
+    const config = base()
+    config.text = { size: 14, font: '' }
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects an out-of-range text size', () => {
+    const config = base()
+    config.text = { size: 80 }
+    expect(() => validate(config)).toThrow('text.size: expected 10–20')
+  })
+
+  test('rejects a non-string font', () => {
+    const config = base()
+    config.text = { font: 12 }
+    expect(() => validate(config)).toThrow('text.font: expected string')
+  })
+
+  test('rejects an unknown text field', () => {
+    const config = base()
+    config.text = { weight: 'bold' }
+    expect(() => validate(config)).toThrow('text: unknown field weight')
+  })
+
   test('accepts the menu-bar detection opt-in', () => {
     const config = base()
     config.menuBar = { trustAccessibilityProbe: true }

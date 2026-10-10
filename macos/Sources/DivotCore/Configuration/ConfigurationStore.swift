@@ -192,6 +192,8 @@ public extension DivotConfiguration {
             "left": left.map(\.rawValue),
             "right": right.map(\.rawValue)
         ]
+        let text = text.jsonObject
+        if !text.isEmpty { object["text"] = text }
         let widgets = widgets.jsonObject
         if !widgets.isEmpty { object["widgets"] = widgets }
         let keepAwake = keepAwake.jsonObject
@@ -239,6 +241,18 @@ private extension AppearanceConfiguration {
 private extension LayoutConfiguration {
     var jsonObject: [String: Any] {
         ["height": height, "padding": padding, "notchGap": notchGap]
+    }
+}
+
+private extension TextConfiguration {
+    /// Only non-default values are written, so the first-launch document stays
+    /// as small as the defaults allow.
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = TextConfiguration.default
+        if size != defaults.size { object["size"] = size }
+        if font != defaults.font { object["font"] = font }
+        return object
     }
 }
 

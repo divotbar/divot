@@ -65,6 +65,18 @@ function layout(value: unknown) {
 }
 
 /**
+ * The bar's text size and font. `size` is the single knob (icon and chip sizes
+ * follow it); `font` is any installed font family name or an empty string for
+ * the system font. A name that is not installed falls back to the system font
+ * at render time, so the checker validates the type but not the name.
+ */
+function text(value: unknown) {
+  shape(value, [], ['size', 'font'], 'text')
+  if ('size' in value) range(value.size, 10, 20, 'text.size')
+  if ('font' in value && typeof value.font !== 'string') throw new Error('text.font: expected string')
+}
+
+/**
  * The keep-awake preference. `remember` is the settings opt-in; `isActive` is
  * the remembered on/off state. Root-level because the toggle on the battery
  * item must stay valid even when the battery is not placed on either side.
@@ -111,10 +123,11 @@ function options(id: string, value: unknown) {
 }
 
 export function validate(value: unknown) {
-  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['widgets', 'keepAwake', 'menuBar'], 'root')
+  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
   appearance(value.appearance)
   layout(value.layout)
+  if ('text' in value) text(value.text)
   const placed = [...group(value.left, 'left'), ...group(value.right, 'right')]
   if (new Set(placed).size !== placed.length) throw new Error('left/right: an item may appear in only one group')
   if ('keepAwake' in value) keepAwake(value.keepAwake)

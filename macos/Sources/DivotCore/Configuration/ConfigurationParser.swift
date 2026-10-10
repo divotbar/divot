@@ -54,9 +54,10 @@ public enum ConfigurationParser {
 
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
-                             optional: ["widgets", "keepAwake", "menuBar"], path: "root")
+                             optional: ["text", "widgets", "keepAwake", "menuBar"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
+        let text = try textOptions(root["text"])
         let left = try itemGroup(root["left"], path: "left")
         let right = try itemGroup(root["right"], path: "right")
         try requireUniquePlacement(left: left, right: right)
@@ -66,6 +67,7 @@ public enum ConfigurationParser {
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
+                                  text: text,
                                   left: left,
                                   right: right,
                                   widgets: widgets,
@@ -172,6 +174,24 @@ public enum ConfigurationParser {
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
         if let raw = object["date"] { configuration.date = try boolean(raw, path: "\(path).date") }
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        return configuration
+    }
+
+    private static func textOptions(_ value: Any?) throws -> TextConfiguration {
+        guard let value else { return .default }
+        let object = try shape(value, required: [], optional: ["size", "font"], path: "text")
+        var configuration = TextConfiguration.default
+        if let raw = object["size"] {
+            configuration.size = try range(raw, TextConfiguration.sizeRange, path: "text.size")
+        }
+        if let raw = object["font"] {
+            guard let string = raw as? String else {
+                throw ConfigurationError(path: "text.font", message: "expected string")
+            }
+            // Any name is accepted: an uninstalled font falls back to the system
+            // font at render time rather than failing the whole document.
+            configuration.font = string
+        }
         return configuration
     }
 

@@ -11,6 +11,7 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `version` | Integer | Exactly `2` |
 | `appearance` | Object | Required |
 | `layout` | Object | Required |
+| `text` | Object | Optional; text size and font for the bar |
 | `left` | String array | Ordered, unique items on the left |
 | `right` | String array | Ordered, unique items on the right |
 | `widgets` | Object | Optional; namespaced per-item options |
@@ -53,6 +54,21 @@ All sizes are logical points, not physical pixels.
 | `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
 | `notchGap` | 0–32 | Extra clearance beside the camera housing |
+
+## Text
+
+The bar's text size and font are an optional root `text` object. The icon scales with the text size so the two stay in proportion.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `size` | Number 10–20 | `14` | Bar text size in points; icon and chip sizes follow it |
+| `font` | String | `""` | Installed font family name, or `""` for the system font |
+
+`size` is the single knob: the status icon is two points larger and the workspace chip one point smaller, so changing it keeps the row in proportion. `font` accepts any installed font family name; a name that is not installed falls back to the system font at render time rather than failing the load. Settings exposes both controls and applies changes to the bar without a relaunch.
+
+```json
+"text": { "size": 16, "font": "Helvetica" }
+```
 
 ## Keep awake
 
