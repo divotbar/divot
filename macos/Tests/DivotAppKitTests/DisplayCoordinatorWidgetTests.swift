@@ -156,11 +156,14 @@ private func flatReading() -> ScreenGeometryReading {
     // Accessibility is granted, but the AX sample is provisional, so the
     // detector has no decisive visibility and returns indeterminate. The bar
     // must still be placed — at the top edge — rather than leaving the panels
-    // at their initial 1x1 frame.
+    // at their initial 1x1 frame. The cursor reveal is disabled so the AX path
+    // is exercised in isolation.
     let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
                                             probe: ProvisionalProbeStub())
     let surface = RecordingSurface()
-    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in surface }
+    var configuration = DivotConfiguration.default
+    configuration.menuBar.moveBelowOnCursorReveal = false
+    let coordinator = DisplayCoordinator(adapter: adapter, configuration: configuration) { _, _, _ in surface }
     coordinator.start()
 
     let placement = try! #require(surface.updates.first?.placement)
@@ -179,7 +182,9 @@ private func flatReading() -> ScreenGeometryReading {
                                             probe: ProvisionalProbeStub())
     var built = 0
     let surface = RecordingSurface()
-    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in
+    var configuration = DivotConfiguration.default
+    configuration.menuBar.moveBelowOnCursorReveal = false
+    let coordinator = DisplayCoordinator(adapter: adapter, configuration: configuration) { _, _, _ in
         built += 1
         return surface
     }
@@ -191,6 +196,7 @@ private func flatReading() -> ScreenGeometryReading {
 
     var optedIn = DivotConfiguration.default
     optedIn.menuBar.trustAccessibilityProbe = true
+    optedIn.menuBar.moveBelowOnCursorReveal = false
     coordinator.apply(configuration: optedIn)
 
     // The settle timer commits the new placement; run the loop briefly.
@@ -233,6 +239,103 @@ private func flatReading() -> ScreenGeometryReading {
     #expect(created.count == 2)
     // The recreated panel must receive a frame, not stay at 1x1.
     #expect(created[1].updates.first?.placement != nil)
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func cursorRevealSlidesAMaskedDisplayAndReturnsIt() {
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProbeStub())
+    let surface = RecordingSurface()
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in surface }
+    coordinator.start()
+    // The pointer is not in the strip at start (the monitor reports an empty set).
+    #expect(surface.updates.first?.placement?.mode == .topEdge)
+    #expect(surface.updates.first?.visibility == .hidden)
+
+    // Enter the top strip: after the settle dwell the masked display moves below.
+    coordinator.setCursorInTopStrip([DisplayBarID(1)])
+    RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+    #expect(surface.updates.last?.visibility == .visible(inset: 33))
+    #expect(surface.updates.last?.placement?.mode == .belowNativeBar(inset: 33))
+
+    // Leave: it returns to the top edge.
+    coordinator.setCursorInTopStrip([])
+    RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+    #expect(surface.updates.last?.placement?.mode == .topEdge)
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func cursorRevealIsOffWhenTheSettingIsOff() {
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProbeStub())
+    let surface = RecordingSurface()
+    var configuration = DivotConfiguration.default
+    configuration.menuBar.moveBelowOnCursorReveal = false
+    let coordinator = DisplayCoordinator(adapter: adapter, configuration: configuration) { _, _, _ in surface }
+    coordinator.start()
+    // With the setting off the cursor set is withheld entirely.
+    #expect(adapter.cursorEngagedDisplays == nil)
+    #expect(surface.updates.first?.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(surface.updates.first?.placement?.mode == .topEdge)
+
+    coordinator.setCursorInTopStrip([DisplayBarID(1)])
+    RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+    // The masked display holds the top edge: no slide below an unconfirmed bar.
+    #expect(surface.updates.last?.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(surface.updates.last?.placement?.mode == .topEdge)
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func togglingCursorRevealOffReevaluatesPlacementWithoutRebuilding() {
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProbeStub())
+    var built = 0
+    let surface = RecordingSurface()
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in
+        built += 1
+        return surface
+    }
+    coordinator.start()
+    #expect(built == 1)
+
+    coordinator.setCursorInTopStrip([DisplayBarID(1)])
+    RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+    #expect(surface.updates.last?.placement?.mode == .belowNativeBar(inset: 33))
+
+    // Turning the setting off is a detection-policy change: the panels are not
+    // rebuilt, but the placement must be re-read and applied. With the cursor
+    // withheld the masked display falls back to indeterminate → top edge.
+    var off = DivotConfiguration.default
+    off.menuBar.moveBelowOnCursorReveal = false
+    coordinator.apply(configuration: off)
+    RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+    #expect(built == 1)
+    #expect(!surface.didClose)
+    #expect(surface.updates.last?.visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(surface.updates.last?.placement?.mode == .topEdge)
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func alwaysBelowFallbackPlacesAFlatDisplayBelow() {
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [flatReading()]),
+                                            probe: ProbeStub())
+    let surface = RecordingSurface()
+    var configuration = DivotConfiguration.default
+    configuration.menuBar.alwaysBelow = true
+    let coordinator = DisplayCoordinator(adapter: adapter, configuration: configuration) { _, _, _ in surface }
+    coordinator.start()
+
+    // The flat display's own visibleFrame says hidden, but the explicit fallback
+    // is authoritative and places it below by the nominal bar height.
+    #expect(surface.updates.first?.placement?.mode == .belowNativeBar(inset: 24))
 
     coordinator.stop()
 }

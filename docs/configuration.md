@@ -16,11 +16,15 @@ The workspace occupancy markers (task 0026) are two root booleans, `showOccupied
 
 The flat bar chrome (task 0025) is an optional root boolean, `bottomShadow` (default `false`), rather than a `widgets` option because it changes only the panel chrome. The bar draws a single flat colour from the left screen edge to the right with square corners and no highlight, bevel, or gradient — the workspace and item chips are flat too, and the focused chip keeps a flat accent stroke. When `bottomShadow` is on, the panel extends a few points below the bar and draws a soft gradient, so the shadow runs along the bottom edge only and never rims the other edges; it is off by default so the first-launch bar has no shadow. Settings has a matching toggle, and toggling it rebuilds the bar live and survives a relaunch.
 
-Menu-bar detection (task 0021) is an optional root object, `menuBar`. On notched hardware the camera housing masks the same top band whether the native bar is hidden or revealed, so `trustAccessibilityProbe` (default `false`) opts in to the permission-gated Accessibility observation of the bar's own on-screen frame to follow reveal/hide. It is off by default because the on-screen heuristic is hardware-sensitive; while off, a notched display holds the top edge and never moves below a bar it cannot confirm. Enable it on a Mac whose Accessibility grant and geometry you have confirmed:
+Menu-bar detection is an optional root object, `menuBar`. When the native bar is auto-hidden, macOS reveals it as the pointer reaches the top edge of a display. `moveBelowOnCursorReveal` (default `true`) follows that directly: while the pointer is in a display's top strip Divot sits below the native bar, and when it leaves Divot returns to the top edge. The pointer observation is event-driven (a mouse-moved monitor, no polling) and is decided per display; a notch-free display's own `visibleFrame` cross-checks it, so a reading that disagrees with the geometry is corrected rather than followed.
+
+On notched hardware the camera housing masks the same top band whether the bar is hidden or revealed, so geometry alone cannot decide it. `trustAccessibilityProbe` (default `false`) additionally opts in to the permission-gated Accessibility observation of the bar's own on-screen frame; it is off by default because that heuristic is hardware-sensitive. When it is on it decides the masked case, with the cursor observation as the fallback beneath it. For a Mac where the cursor reveal does not line up, `alwaysBelow` (default `false`) keeps Divot below the native bar at all times:
 
 ```json
-{ "menuBar": { "trustAccessibilityProbe": true } }
+{ "menuBar": { "moveBelowOnCursorReveal": true, "alwaysBelow": false, "trustAccessibilityProbe": false } }
 ```
+
+Menu-bar settings are in the Settings window and persist through the store; the cursor reveal behaviour is off when its toggle is off, and the slide respects Reduce Motion.
 
 Custom palette overrides use the same contract: an optional `appearance.palette` object overrides individual semantic color tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, merged over the selected family and variant. `palette.accent` takes precedence over the root `accent`. The parser, store, and theme resolver validate, persist, and apply these overrides; derived chrome roles (muted/disabled text, surface, border, selected label) follow an overridden base so a custom palette stays coherent.
 

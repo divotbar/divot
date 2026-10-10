@@ -14,9 +14,19 @@ enum DivotAppReport {
         // actually do rather than always reporting the conservative top edge.
         let store = ConfigurationStore()
         _ = store.load()
-        let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
+        let provider = NSScreenGeometryProvider()
+        let adapter = MenuBarObservationAdapter(provider: provider,
                                                 probe: AXSystemMenuBarProbe())
         adapter.trustsAccessibilityProbe = store.current.menuBar.trustAccessibilityProbe
+        adapter.alwaysBelowMenuBar = store.current.menuBar.alwaysBelow
+        // Mirror the running app's pointer reveal too, so a report taken with the
+        // pointer at the top edge shows the same placement the bar would use. The
+        // setting off is reported distinctly, not as "no signal".
+        let cursorEngaged = store.current.menuBar.moveBelowOnCursorReveal
+            ? CursorMenuBarReveal.engagedDisplayIDs(mouseLocation: NSEvent.mouseLocation,
+                                                    displays: provider.screens())
+            : nil
+        adapter.cursorEngagedDisplays = cursorEngaged
         let observation = adapter.observe()
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
 
@@ -24,6 +34,15 @@ enum DivotAppReport {
         print("displays=\(observation.readings.count)")
         print("accessibility=\(describe(observation.accessibility))")
         print("trustAccessibilityProbe=\(store.current.menuBar.trustAccessibilityProbe)")
+        print("moveBelowOnCursorReveal=\(store.current.menuBar.moveBelowOnCursorReveal)")
+        print("alwaysBelow=\(store.current.menuBar.alwaysBelow)")
+        print("cursorEngaged=\(cursorEngaged.map { $0.sorted().map(\.description).joined(separator: ",") } ?? "off")")
+        // Whether the cursor reveal can register a global mouse monitor, probed
+        // once and removed. This is what distinguishes "the setting is off" from
+        // "no global pointer events" without moving anything (#0023 review).
+        let cursorProbe = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { _ in }
+        print("cursorGlobalMonitor=\(cursorProbe == nil ? "unavailable" : "installed")")
+        if let cursorProbe { NSEvent.removeMonitor(cursorProbe) }
         print("reduceMotion=\(reduceMotion)")
         // Whether the bundled menu-bar mark resolved is an app-shell fact, not
         // a visual claim; it proves a packaged bundle carries its Resources.

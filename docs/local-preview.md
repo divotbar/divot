@@ -131,13 +131,26 @@ below the system menu bar (`mainMenu - 1`), so native menus stay above Divot.
 Disclosed limits (never hidden):
 
 - **Notched displays:** the camera housing masks the same band, so
-  `visibleFrame` alone cannot decide native-bar visibility. An opt-in
-  (`menuBar.trustAccessibilityProbe`, off by default) enables the
-  permission-gated Accessibility observation — the bar's own on-screen frame,
-  not `kAXHiddenAttribute` (which stays `false` while auto-hidden) — and holds
-  the top edge when the probe is unavailable or the opt-in is off. Visual
-  confirmation of the reveal and of the top-edge placement on this Mac is still
-  pending.
+  `visibleFrame` alone cannot decide native-bar visibility. The default follows
+  the pointer reaching the display's top strip (`menuBar.moveBelowOnCursorReveal`,
+  on by default; a mouse-moved monitor, no polling) and returns to the top edge
+  when it leaves, with the notch-free `visibleFrame` as a cross-check. The
+  Accessibility observation of the bar's own on-screen frame — not
+  `kAXHiddenAttribute` (which stays `false` while auto-hidden) — is a further
+  per-install opt-in (`menuBar.trustAccessibilityProbe`, off by default) and
+  takes precedence when enabled. Visual confirmation of the reveal/hide on this
+  Mac is still pending.
+- **Global cursor monitor:** the top-strip monitor installs AppKit's global
+  mouse-moved monitor when the cursor-reveal setting is on (and the
+  always-below fallback is off). If macOS refuses that monitor, only movement
+  over Divot's own windows is observed and the bar may not slide while you use
+  other apps; launch logs and `divot --report` print
+  `cursorGlobalMonitor=unavailable` so support can distinguish that from the
+  setting being off.
+- **Notch-free externals with auto-hide:** on a flat display the slide follows
+  that display's own `visibleFrame`, not the pointer alone. If the two disagree
+  on your hardware, use **Always below the menu bar** in Settings
+  (`menuBar.alwaysBelow`).
 - **AppKit's menu-bar frame clamp:** the nonactivating panels override
   `constrainFrameRect(_:to:)` so a top-edge placement can occupy the camera
   housing; the default clamp parks it at `visibleFrame.maxY`.
@@ -208,11 +221,14 @@ observe; leave unobserved items blank rather than marking them done.
       or the notch.
 - [ ] Default left/right content matches the list above at this display width,
       with no clipped labels.
-- [ ] Native menu-bar reveal/hide: Divot moves below a revealed (non-notched)
-      bar and returns to the top. On a notched display this needs the
-      `menuBar.trustAccessibilityProbe` opt-in once Accessibility is granted;
-      without it (and for an always-visible bar) the case stays indeterminate as
-      disclosed.
+- [ ] Native menu-bar reveal/hide: move the pointer to the top edge and confirm
+      Divot slides below the revealed bar, then returns to the top when the
+      pointer leaves (`menuBar.moveBelowOnCursorReveal`, on by default). On a
+      notched display this is the default path; on a flat external display the
+      bar's own `visibleFrame` is the cross-check, so confirm the reveal there
+      too. The `menuBar.trustAccessibilityProbe` opt-in additionally takes
+      precedence once Accessibility is granted. `menuBar.alwaysBelow` is the
+      fallback for a Mac where the cursor reveal does not line up.
 - [ ] Fullscreen, Spaces, and multiple displays (add/remove, sleep/wake).
 - [ ] VoiceOver and keyboard traversal of every item and the Settings window
       ([accessibility physical checks](accessibility-physical-checks.md)).

@@ -2,10 +2,11 @@
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
 depends_on: ["0021", "0022"]
+merged_commit: 704f124b4a5d0825ef9c4f7dd74c39d066ac6441
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
@@ -14,8 +15,12 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T12:23:03Z"
-review_passes: 5
+updated_at: "2026-10-10T13:06:09Z"
+last_close_out_gate_ms: 43119
+last_close_out_gate_at: "2026-10-10T13:06:07.768Z"
+review_passes: 8
+handoff_signal_retry_count: 1
+close_out_repair_count: 1
 review_rounds: 2
 incomplete_review_retries: 1
 ---
@@ -96,3 +101,20 @@ test
 - 2026-10-10T12:23:03Z · status active→review
 - 2026-10-10T12:23:03Z · note: review without checks by human
 - 2026-10-10T12:23:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:24:03Z · note: review pass 8: needs some work
+- 2026-10-10T12:24:03Z · needs_input
+- 2026-10-10T12:24:38Z · status review→active, needs_input
+- 2026-10-10T12:24:38Z · note: close-out repair: merge-conflict
+- 2026-10-10T12:32:13Z · status active→review
+- 2026-10-10T12:32:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:33:16Z · note: review pass 9: needs some work
+- 2026-10-10T12:33:16Z · needs_input
+- 2026-10-10T12:55:30Z · needs_input
+- 2026-10-10T12:55:30Z · status review→active
+- 2026-10-10T12:55:30Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T12:56:24Z · status active→review
+- 2026-10-10T12:56:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:57:34Z · note: review pass 10: needs some work
+- 2026-10-10T12:57:34Z · needs_input
+- 2026-10-10T13:06:07Z · close-out gate completed in 43s
+- 2026-10-10T13:06:09Z · status review→done, release:success

@@ -14,6 +14,7 @@ import DivotCore
 @MainActor
 public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: DisplayCoordinator?
+    private var cursorMonitor: TopStripCursorMonitor?
     private var pipeline: WidgetPipeline?
     private var pipelineTask: Task<Void, Never>?
     private var workspaceFeed: WorkspaceFeed?
@@ -26,6 +27,13 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the keep-awake power assertion for the whole app lifetime; the
     /// battery item toggles it and quit releases it.
     private var keepAwake: KeepAwakeController?
+    /// The one quit path. Both the status item menu and the app's main menu
+    /// target it, and the Settings window reaches it through the same instance,
+    /// so every quit control ends the process the same way. The keep-awake
+    /// release runs here first (idempotently) and again in
+    /// `applicationWillTerminate`.
+    private lazy var quitCoordinator = QuitCoordinator(
+        releasePowerAssertions: { [weak self] in self?.keepAwake?.releaseAll() })
     /// The manager the running workspace feed was started with, so a config
     /// change applies options without re-probing and a re-added item restarts.
     private var startedWorkspaceManager: WorkspaceManagerKind?
@@ -71,6 +79,27 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         coordinator.start()
         self.coordinator = coordinator
 
+        // The pointer reaching a display's top strip is what reveals an
+        // auto-hidden native menu bar. The monitor is event-driven (it reports
+        // only when the pointer enters or leaves a strip) and feeds the
+        // coordinator, which decides whether the engaged display slides (#0023).
+        // It only runs while the cursor reveal (and not the always-below
+        // fallback) can affect placement; `apply(_:)` re-syncs it on every
+        // configuration change.
+        let cursorMonitor = TopStripCursorMonitor()
+        cursorMonitor.onChange = { [weak coordinator] displays in
+            coordinator?.setCursorInTopStrip(displays)
+        }
+        cursorMonitor.setEnabled(initial.menuBar.usesCursorRevealMonitoring)
+        if cursorMonitor.isRunning, !cursorMonitor.globalMonitorInstalled {
+            // The global mouse monitor tracks the pointer over other apps; without
+            // it only Divot's own windows are seen, so the reveal may not follow.
+            // Surfaced so support can tell "setting off" from "no global events".
+            FileHandle.standardError.write(
+                Data("divot: global cursor monitor unavailable; top-strip reveal may not track the pointer over other applications.\n".utf8))
+        }
+        self.cursorMonitor = cursorMonitor
+
         // A family theme is fixed hex per variant, so when `mode` is `system`
         // and the Mac toggles appearance the bar must repaint. Each surface's
         // content view notices the effective-appearance change and restyles;
@@ -108,12 +137,23 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         // live effective appearance, so the app-wide override must be in place.
         applyAppearance(configuration.appearance)
         coordinator?.apply(configuration: configuration)
+        syncCursorMonitor(configuration.menuBar)
         workspaceIcons?.invalidate()
         syncKeepAwake(configuration)
         let pipeline = self.pipeline
         let providers = DefaultWidgetProviders.make(for: configuration, keepAwake: keepAwake)
         Task { await pipeline?.configure(providers) }
         applyWorkspaceRow(configuration)
+    }
+
+    /// Start or stop the top-strip cursor monitor from the current setting.
+    ///
+    /// The monitor's reading only affects placement while the cursor reveal is
+    /// on and the always-below fallback is off; otherwise it is stopped so a
+    /// global mouse tap is not left installed for nothing (#0023 review). A
+    /// re-enable re-reads the pointer and reports the current engagement.
+    private func syncCursorMonitor(_ menuBar: MenuBarConfiguration) {
+        cursorMonitor?.setEnabled(menuBar.usesCursorRevealMonitoring)
     }
 
     /// Seed the keep-awake assertion from a remembered configuration.
@@ -209,9 +249,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         settings.target = self
         appMenu.addItem(settings)
         appMenu.addItem(.separator())
-        appMenu.addItem(NSMenuItem(title: "Quit Divot",
-                                  action: #selector(NSApplication.terminate(_:)),
-                                  keyEquivalent: "q"))
+        let quit = NSMenuItem(title: "Quit Divot",
+                              action: #selector(QuitCoordinator.quit(_:)),
+                              keyEquivalent: "q")
+        quit.target = quitCoordinator
+        appMenu.addItem(quit)
         appMenuItem.submenu = appMenu
         NSApp.mainMenu = mainMenu
     }
@@ -232,9 +274,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         settings.target = self
         menu.addItem(settings)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit Divot",
-                                action: #selector(NSApplication.terminate(_:)),
-                                keyEquivalent: "q"))
+        let quit = NSMenuItem(title: "Quit Divot",
+                              action: #selector(QuitCoordinator.quit(_:)),
+                              keyEquivalent: "q")
+        quit.target = quitCoordinator
+        menu.addItem(quit)
         item.menu = menu
         statusItem = item
     }
@@ -247,6 +291,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                 model: DivotSettingsModel(controller: controller,
                                           keepAwakeIsActive: { [weak keepAwake] in
                                               keepAwake?.isActive ?? false
+                                          },
+                                          requestQuit: { [weak self] in
+                                              self?.quitCoordinator.quit()
                                           }))
         }
         settingsController?.present()
@@ -261,6 +308,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         pipelineTask?.cancel()
         let pipeline = self.pipeline
         Task { await pipeline?.stop() }
+        cursorMonitor?.stop()
         coordinator?.stop()
         // Never leave a power assertion behind after the process exits.
         keepAwake?.releaseAll()

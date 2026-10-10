@@ -8,6 +8,7 @@ import SwiftUI
 /// and VoiceOver come for free; no custom title tooltips are used.
 public struct DivotSettingsView: View {
     @Bindable private var model: DivotSettingsModel
+    @State private var isConfirmingQuit = false
 
     public init(model: DivotSettingsModel) {
         self.model = model
@@ -16,6 +17,7 @@ public struct DivotSettingsView: View {
     public var body: some View {
         Form {
             barSection
+            menuBarSection
             barItemsSection
             workspacesSection
             frontAppSection
@@ -25,10 +27,17 @@ public struct DivotSettingsView: View {
             textSection
             appearanceSection
             generalSection
+            quitSection
         }
         .formStyle(.grouped)
         .frame(minWidth: 460, minHeight: 560)
         .onAppear { model.refresh() }
+        .divotConfirmation(isPresented: $isConfirmingQuit,
+                           title: "Quit Divot?",
+                           message: "Divot will stop and its bar will be removed. Any keep-awake session ends.",
+                           confirmTitle: "Quit Divot") {
+            model.quit()
+        }
     }
 
     // MARK: Bar
@@ -55,6 +64,31 @@ public struct DivotSettingsView: View {
     private var bottomShadowBinding: Binding<Bool> {
         Binding(get: { model.configuration.bottomShadow },
                 set: { model.setBottomShadow($0) })
+    }
+
+    // MARK: Menu bar
+
+    private var menuBarSection: some View {
+        Section("Menu bar") {
+            Toggle("Move below the menu bar when it appears", isOn: moveBelowOnCursorRevealBinding)
+            Text("For an auto-hidden menu bar: when the pointer reaches the top edge, Divot slides below the native menu bar while it is shown and returns to the top edge when it hides. Off keeps Divot where it is.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Toggle("Always below the menu bar", isOn: alwaysBelowMenuBarBinding)
+            Text("Fallback for Macs where the cursor reveal does not line up: keep Divot below the native menu bar at all times.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var moveBelowOnCursorRevealBinding: Binding<Bool> {
+        Binding(get: { model.configuration.menuBar.moveBelowOnCursorReveal },
+                set: { model.setMoveBelowOnCursorReveal($0) })
+    }
+
+    private var alwaysBelowMenuBarBinding: Binding<Bool> {
+        Binding(get: { model.configuration.menuBar.alwaysBelow },
+                set: { model.setAlwaysBelowMenuBar($0) })
     }
 
     // MARK: Bar items
@@ -281,6 +315,23 @@ public struct DivotSettingsView: View {
     private var loginItemBinding: Binding<Bool> {
         Binding(get: { model.loginItemEnabled },
                 set: { model.setLaunchAtLogin($0) })
+    }
+
+    /// Deliberately its own section, last in the form, so the destructive action
+    /// sits away from the toggles and steppers a person edits routinely. The
+    /// button confirms through the shared dialog before quitting.
+    private var quitSection: some View {
+        Section {
+            Button("Quit Divot", role: .destructive) {
+                isConfirmingQuit = true
+            }
+        } header: {
+            Text("Quit Divot")
+        } footer: {
+            Text("Stops Divot and removes the bar. Keep-awake is released. You can launch Divot again when you need it.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     /// Bind a stock control to one field of the shared configuration. The setter

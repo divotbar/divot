@@ -108,6 +108,59 @@ import Testing
         == .visible(inset: 33))
 }
 
+// MARK: - Cursor reveal and the visible-frame cross-check
+
+private func notchedGeometry() -> ScreenGeometry {
+    ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+                   visibleFrame: CGRect(x: 60, y: 0, width: 1650, height: 1074),
+                   safeAreaTop: 33,
+                   auxiliaryTopLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+                   auxiliaryTopRight: CGRect(x: 948, y: 1074, width: 762, height: 33))
+}
+
+private func flatGeometry(menuBarInset: CGFloat) -> ScreenGeometry {
+    ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                   visibleFrame: CGRect(x: 0, y: 0, width: 1600, height: 1000 - menuBarInset),
+                   safeAreaTop: 0)
+}
+
+@Test func cursorInTheTopStripRevealsAMaskedDisplay() {
+    // The camera housing masks the band, so the pointer observation decides.
+    let g = notchedGeometry()
+    #expect(NativeMenuBarDetector.detect(geometry: g, signal: .init(cursorRevealsMenuBar: true))
+        == .visible(inset: 33))
+    #expect(NativeMenuBarDetector.detect(geometry: g, signal: .init(cursorRevealsMenuBar: false))
+        == .hidden)
+}
+
+@Test func cursorReadingDoesNotOverrideATrustedAccessibilityProbe() {
+    // When the Accessibility opt-in is on it decides; the cursor reading only
+    // fills the masked case where geometry alone cannot (#0023).
+    let g = notchedGeometry()
+    let signal = NativeMenuBarSignal(accessibilityVisible: false, cursorRevealsMenuBar: true)
+    #expect(NativeMenuBarDetector.detect(geometry: g, signal: signal) == .hidden)
+}
+
+@Test func visibleFrameCrossChecksADisagreeingCursorReading() {
+    // Notch-free display: `visibleFrame` decides, so a cursor reading that
+    // disagrees is corrected rather than followed, in both directions.
+    let hidden = flatGeometry(menuBarInset: 0)
+    let shown = flatGeometry(menuBarInset: 24)
+    #expect(NativeMenuBarDetector.detect(geometry: hidden, signal: .init(cursorRevealsMenuBar: true))
+        == .hidden)
+    #expect(NativeMenuBarDetector.detect(geometry: shown, signal: .init(cursorRevealsMenuBar: false))
+        == .visible(inset: 24))
+}
+
+@Test func alwaysBelowFallbackIsAuthoritative() {
+    // Escape hatch for a Mac where the cursor reveal does not line up: sit below
+    // by the housing band (notched) or the nominal bar (notch-free).
+    #expect(NativeMenuBarDetector.detect(geometry: notchedGeometry(),
+                                         signal: .init(alwaysBelowMenuBar: true)) == .visible(inset: 33))
+    #expect(NativeMenuBarDetector.detect(geometry: flatGeometry(menuBarInset: 0),
+                                         signal: .init(alwaysBelowMenuBar: true)) == .visible(inset: 24))
+}
+
 // MARK: - Coalescing controller
 
 @Test func hiddenBarReturnsToTopEdgeInsteadOfHiding() {
