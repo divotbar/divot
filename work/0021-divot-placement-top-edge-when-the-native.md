@@ -2,7 +2,7 @@
 id: "0021"
 title: "Divot placement: top edge when the native menu bar is hidden, below only while it is revealed; bar height 32pt"
 type: bug
-status: active
+status: review
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: the agent process exited with an error — open the task to see the full output
@@ -95,4 +95,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T07:30:11Z · note: review pass 2: needs some work
 - 2026-10-10T07:30:11Z · status review→active
 - 2026-10-10T07:37:52Z · body: section Verification
-- 2026-10-10T08:15:28Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T08:15:28Z · status active→review
