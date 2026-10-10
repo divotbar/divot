@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T00:38:28Z"
+review_passes: 3
 id: "0012"
 title: "Add the second workspace adapter: yabai"
 type: feature
@@ -11,8 +13,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-the-second-workspace-adapter-yabai
 created_at: "2026-10-09T16:41:13Z"
-updated_at: "2026-10-10T00:38:27Z"
-review_passes: 2
 close_out_repair_count: 1
 ---
 ## Problem
@@ -65,3 +65,4 @@ Second integration milestone; AeroSpace first. No blocker to an AeroSpace-first 
 - 2026-10-10T00:09:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T00:37:40Z · status active→review
 - 2026-10-10T00:38:27Z · note: review pass 3: good to go
+
