@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T10:45:33Z"
+review_passes: 3
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
@@ -13,9 +15,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T10:45:33Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 
@@ -87,3 +87,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T10:45:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T10:45:32Z · note: review pass 3: needs some work
 - 2026-10-10T10:45:33Z · needs_input
+
