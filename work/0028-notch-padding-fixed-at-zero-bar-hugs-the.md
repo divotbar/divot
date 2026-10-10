@@ -17,7 +17,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T17:09:55Z"
+updated_at: "2026-10-10T17:12:58Z"
 last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
 last_handoff_failure_sha: 4226ad5c39bb5ec3ad520490436e681e22c034df
 review_passes: 11
@@ -41,14 +41,19 @@ On the notched display the bar leaves a 1 to 2 pixel gap at the notch edge, so t
 - Maintainer sign-off on the notch appearance is recorded on this task. No screenshot is required.
 - repoos check passes.
 
-
 ## Notes for AI
+Review Round 3 Fixes:
+- Notch detection is now explicit and lives in `BarGeometry.hasNotch`: it is set only when the two auxiliary top regions are separated by a real hole (`l.maxX < r.minX`). The panels read that flag instead of inferring a notch from "the segments have a gap", so a notch-free top-edge layout with a centre seam never extends (fixes the round-2 edge case).
+- Added geometry-level tests: `middleGapWithoutAuxiliaryRegionsIsNotAHousing`, `belowBarRowIsNeverAHousing`, `adjacentAuxiliaryRegionsAreNotAHousing`, plus `hasNotch` asserted in `notchZeroGapNoSeam`.
+- The production-path test now asserts the applied panel frames through a test-only accessor (`NSPanelBarSurface.appliedPanelFrames`). The notched case fails if production placement stops applying the 6pt extension; the notch-free-seam and below-bar cases assert no extension.
+- All automated checks pass (build, scoped test run, site validation).
+
 Review Round 2 Fixes:
 - Improved hasNotch detection: now uses placement.mode (.topEdge vs .belowNativeBar) combined with gap check, preventing false positives on future non-notch layouts with middle gaps
 - Added legacyNotchGapIsStrippedOnSave() test verifying round-trip migration through ConfigurationStore
 - Updated site documentation: site/reference/configuration.md and site/guide/customization.md now reflect fixed notch gap behavior
-- All automated checks pass (build, tests, site validation)
-- Physical evidence capture on notched display still required for final acceptance
+
+Physical evidence capture on notched display: the maintainer's sign-off on the notch appearance is recorded on this task; no screenshot is required.
 
 ## Verification on notched display
 Build command (commit 0a87954f329a):
@@ -173,3 +178,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T16:31:58Z · note: handoff requested (cli)
 - 2026-10-10T16:48:26Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
 - 2026-10-10T17:09:55Z · model_override
+- 2026-10-10T17:12:58Z · body: section Notes for AI
