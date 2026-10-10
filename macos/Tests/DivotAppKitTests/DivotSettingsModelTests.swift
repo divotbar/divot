@@ -80,6 +80,35 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func reorderIsDisabledAtTheEndsAndKeepsTheBarOrderInSync() throws {
+    let (model, _) = try makeModel()
+
+    // The default left group is [workspaces, front-app]: the first item can
+    // only move later (right), and the last only earlier (left).
+    let left = model.configuration.items(on: .left)
+    let first = try #require(left.first)
+    let last = try #require(left.last)
+    #expect(!model.canMove(first, delta: -1))
+    #expect(model.canMove(first, delta: 1))
+    #expect(model.canMove(last, delta: -1))
+    #expect(!model.canMove(last, delta: 1))
+
+    // Pressing the disabled direction at either end is a no-op.
+    model.moveWithinSide(first, delta: -1)
+    model.moveWithinSide(last, delta: 1)
+    #expect(model.configuration.items(on: .left) == left)
+
+    // A middle item moves one slot, and the ordered configuration the bar
+    // renders with follows it (right default is [battery, clock, network, volume]).
+    model.moveWithinSide(.clock, delta: -1)
+    #expect(model.configuration.items(on: .right) == [.clock, .battery, .network, .volume])
+    #expect(model.configuration.barLayout.items(on: .right) == model.configuration.right)
+
+    // The moved item is now first, so it cannot move earlier again.
+    #expect(!model.canMove(.clock, delta: -1))
+}
+
+@MainActor
 @Test func loginItemToggleRoutesThroughTheControl() throws {
     let stub = StubLoginItem()
     let (model, _) = try makeModel(loginItem: stub)
