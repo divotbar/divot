@@ -95,3 +95,4 @@ repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","
 - 2026-10-10T12:57:59Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-10T12:59:20Z · body: section Verification on notched display
 - 2026-10-10T12:59:26Z · status active→review
+- 2026-10-10T12:59:26Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
