@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T02:29:28Z"
+review_passes: 1
 id: "0007"
 title: Build the performance harness and accessibility regression checks
 type: feature
@@ -11,7 +13,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-the-performance-harness-and-access
 created_at: "2026-10-09T16:18:39Z"
-updated_at: "2026-10-10T02:29:28Z"
 ---
 ## Problem
 
@@ -38,3 +39,4 @@ Performance targets remain provisional. Review current product stories and theme
 - 2026-10-10T02:28:32Z · status active→review
 - 2026-10-10T02:28:33Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T02:29:28Z · note: review pass 1: good to go
+
