@@ -3,6 +3,9 @@ id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -121,3 +124,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:09:16Z · body: section Verification on notched display
 - 2026-10-10T13:09:22Z · status active→review
 - 2026-10-10T13:10:05Z · note: review pass 5: needs some work
+- 2026-10-10T13:10:05Z · needs_input
