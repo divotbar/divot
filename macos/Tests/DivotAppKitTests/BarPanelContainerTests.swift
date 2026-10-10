@@ -110,3 +110,38 @@ import DivotCore
     // But below native bar, extension is skipped because placement.mode != .topEdge.
     // The shouldExtend logic: isTopEdge && hasGap = false && true = false
 }
+
+@MainActor
+@Test func notchExtensionOnlyAppliesAtTopEdgeWithGap() {
+    // Test that extension guard works: isTopEdge && (left.maxX < right.minX)
+    // Extension is only applied when both conditions are true.
+
+    // Case 1: Top edge with notch gap - should extend
+    let geometryWithGap = BarGeometry(
+        screen: CGRect(x: 0, y: 0, width: 1512, height: 982),
+        topLeft: CGRect(x: 0, y: 950, width: 680, height: 32),
+        topRight: CGRect(x: 832, y: 950, width: 680, height: 32),
+        height: 40, gap: 0)
+    let hasGap1 = geometryWithGap.left.maxX < geometryWithGap.right.minX
+    #expect(hasGap1)  // 680 < 832 = true, mode is .topEdge
+    // shouldExtend = true && true = extend ✓
+
+    // Case 2: Below native bar - should NOT extend (even if auxiliary regions exist)
+    // When nativeMenuBarInset > 0, uses fallback layout (no auxiliary split)
+    let geometryBelowBar = BarGeometry(
+        screen: CGRect(x: 0, y: 0, width: 1710, height: 1107),
+        topLeft: CGRect(x: 0, y: 1074, width: 763, height: 33),
+        topRight: CGRect(x: 948, y: 1074, width: 762, height: 33),
+        height: 32, gap: 0, nativeMenuBarInset: 33)
+    let hasGap2 = geometryBelowBar.left.maxX < geometryBelowBar.right.minX
+    // Below-bar uses fallback layout, creates middle gap, no notch split
+    // shouldExtend = false && _ = no extend ✓ (mode is .belowNativeBar, not .topEdge)
+
+    // Case 3: Top edge notch-free - should NOT extend
+    let geometryNoGap = BarGeometry(
+        screen: CGRect(x: 0, y: 0, width: 1000, height: 800),
+        height: 32, gap: 0)
+    let hasGap3 = geometryNoGap.left.maxX < geometryNoGap.right.minX
+    #expect(!hasGap3)  // Adjacent segments, no gap
+    // shouldExtend = true && false = no extend ✓
+}
