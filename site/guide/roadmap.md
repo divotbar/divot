@@ -10,7 +10,7 @@
 
 ## First native release
 
-AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume) → AeroSpace and yabai workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release. The status providers and both workspace adapters are implemented and unit-tested (adapters with fixtures); physical validation and the remaining steps are still planned.
+AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, a minute clock with weekday/date, network, and volume) → AeroSpace and yabai workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release. The status providers, both workspace adapters (fixture-tested), the versioned configuration and settings, and the four theme families are implemented and unit-tested; physical validation, accessibility/device QA, performance evidence, and packaging remain planned.
 
 There is no promised release date. Each step has its own acceptance criteria and review. A downloadable build appears only after the release gates pass.
 

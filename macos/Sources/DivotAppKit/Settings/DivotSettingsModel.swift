@@ -1,3 +1,4 @@
+import AppKit
 import DivotCore
 import Foundation
 import Observation
@@ -46,6 +47,30 @@ public final class DivotSettingsModel {
 
     /// The file the settings edit, shown so a power user can open it directly.
     public var configPath: String { controller.configURL.path }
+
+    /// The theme the bar will actually draw, resolved from the current family,
+    /// mode, accent, and palette overrides against the live effective appearance.
+    public var resolvedTheme: ResolvedTheme {
+        let dark = NSApplication.shared.effectiveAppearance
+            .bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        return ThemeResolver.resolve(configuration.appearance, dark: dark)
+    }
+
+    /// The accent the bar will use: a palette override, else an explicit root
+    /// accent, else the family's signature color.
+    public var resolvedAccentHex: String {
+        resolvedTheme.tokens?.accent.hexString ?? configuration.appearance.effectiveAccent
+    }
+
+    /// A one-line attribution for the selected family variant, or an honest
+    /// "follows macOS" note for the native default.
+    public var themeSourceLine: String {
+        guard let attribution = resolvedTheme.attribution else {
+            return "Native follows macOS appearance and the system accent."
+        }
+        let official = attribution.isOfficialVariant ? "official \(attribution.variantName)" : attribution.variantName
+        return "\(attribution.familyName) · \(official) · \(attribution.source) (\(attribution.license))"
+    }
 
     /// Re-read the shared snapshot (e.g. when the window is reopened after an
     /// external file change).

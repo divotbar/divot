@@ -182,7 +182,16 @@ public struct DivotSettingsView: View {
             }
             TextField("Accent (hex)", text: binding(\.appearance.accent))
                 .textFieldStyle(.roundedBorder)
-            Text("Family and variant are saved separately. Theme family colors arrive with the theme milestone; the variant applies to the bar immediately.")
+            LabeledContent("Resolved accent") {
+                Text(model.resolvedAccentHex)
+                    .font(.caption)
+                    .monospaced()
+                    .foregroundStyle(.secondary)
+            }
+            Text(model.themeSourceLine)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text("Family and variant are saved separately, so switching variant keeps the family. Leave the accent at the default to use the family's signature color, or set a hex value to override it. Per-token palette overrides live in the configuration file.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
