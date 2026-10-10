@@ -1,13 +1,12 @@
 ---
-last_close_out_gate_ms: 48110
-last_close_out_gate_at: "2026-10-10T22:10:01.279Z"
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: review
+status: done
 priority: p1
 area: macos
 depends_on: ["0025"]
+merged_commit: 6083846a2da08b9b30c7aee9f921d48b4cf3d672
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
@@ -16,7 +15,9 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T22:10:01Z"
+updated_at: "2026-10-10T22:10:04Z"
+last_close_out_gate_ms: 48110
+last_close_out_gate_at: "2026-10-10T22:10:01.279Z"
 review_passes: 13
 review_rounds: 2
 dev_error_count: 1
@@ -191,4 +192,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T17:19:46Z · status active→review
 - 2026-10-10T17:21:02Z · note: review pass 13: good to go
 - 2026-10-10T22:10:01Z · close-out gate completed in 48s
-
+- 2026-10-10T22:10:04Z · status review→done, release:success
