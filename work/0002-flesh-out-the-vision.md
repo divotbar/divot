@@ -6,13 +6,14 @@ status: inbox
 needs_input: true
 needs_input_reason: underspecified
 needs_input_detail: "missing sections: Problem, Acceptance criteria"
+is_archived: true
 hold: true
 priority: p2
 area: product
 assigned_to: unassigned
 created_by: repoos-init
 branch: ""
-updated_at: "2026-10-09T16:29:46Z"
+updated_at: "2026-10-10T07:12:33Z"
 ---
 ## Overview
 
@@ -52,3 +53,4 @@ priorities — a short back-and-forth here saves a lot of rework later.
 
 - 2026-10-09T16:18:38Z · held
 - 2026-10-09T16:29:46Z · needs_input
+- 2026-10-10T07:12:33Z · archived
