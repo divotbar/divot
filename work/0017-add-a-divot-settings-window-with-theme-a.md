@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T02:21:33Z"
+review_passes: 1
 id: "0017"
 title: Add a Divot settings window with theme and appearance pickers
 type: feature
@@ -10,7 +12,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-divot-settings-window-with-theme-a
 created_at: "2026-10-09T20:26:49Z"
-updated_at: "2026-10-10T02:21:33Z"
 ---
 ## Problem
 
@@ -42,3 +43,4 @@ Depends on 0006 (config, settings, appearance modes) and 0011 (theme families). 
 - 2026-10-10T02:20:55Z · status active→review
 - 2026-10-10T02:20:55Z · note: shots: skipped — the diff (2 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T02:21:33Z · note: review pass 1: good to go
+
