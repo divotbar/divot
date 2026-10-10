@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/flat-bar-chrome-square-edges-to-the-scre
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T11:03:56Z"
+updated_at: "2026-10-10T11:04:24Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -35,6 +35,24 @@ The bar's background and item chips show rounded corners and a 3D bevel. The mai
 
 Depends on #0024, which changes the left group's leading item. Keep changes to the panel and chip drawing, not the workspace feed.
 
+## Verification
+Automated (task branch, this run):
+
+- `REPOOS_CHECK_CHANGED=main repoos check`: all steps pass (site, native-core, native-app, native-app-bundle, justfile). `swift test --package-path macos` runs **412 tests**, including the `bottomShadow` default and explicit parse, the wrong-type error, the canonical JSON round-trip, store persist/omit, settings-model toggle and persist, `rendersSameBar`, the flat bar/chip drawing assertions, and the panel-container and panel-frame shadow math.
+- `bun run check`: the config schema tests (including the new `bottomShadow` accept/reject cases), the example fixtures, and the website build pass.
+- Packaged bundle: `scripts/package-app.sh` plus `scripts/smoke-app-bundle.sh` PASS (structure, ad-hoc signature, launch, `--report`, default bar layout, archive and checksum). This does not render the bar.
+
+Implementation notes:
+
+- Flat chrome: `BarContentView` fills the solid `background` token edge to edge with `cornerRadius = 0` and no default border; the `NSVisualEffectView` material path is removed. Workspace chips are square with a flat `accent` focused stroke.
+- `bottomShadow` (default `false`) is a root key: parsed, serialized, checked by `scripts/config-schema.ts`, and surfaced as a Settings toggle. Toggling it changes `rendersSameBar`, so the bar rebuilds and the shadow applies live (a brief panel rebuild, not an in-place shadow resize).
+- The shadow is a `BarPanelContainer` `CAGradientLayer` strip inside a panel enlarged 6 pt downward, so it runs along the bottom edge only. Each display's left and right panel gets its own strip, so the camera-housing gap stays clear. The gradient is a fixed neutral dark tint (black at 20% alpha), not a theme token, because a drop shadow is conventionally dark regardless of the bar's theme.
+
+Human-only (NOT supplied here; do not treat as verified):
+
+- The acceptance screen capture of the packaged app (flat bar, and the bottom shadow off and on) was not produced from this agent process. This shell has no running bar on the maintainer's display, and screen capture requires the human's Screen Recording grant. A person must run `dist/Divot.app`, capture both shadow states, and confirm the look before close-out. This is not waived by this run, and no run here claims the appearance is correct.
+
+
 ## Activity
 
 - 2026-10-10T10:26:06Z · created · njachowski@gmail.com
@@ -44,3 +62,4 @@ Depends on #0024, which changes the left group's leading item. Keep changes to t
 - 2026-10-10T11:03:15Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T11:03:56Z · note: review pass 1: needs some work
 - 2026-10-10T11:03:56Z · status review→active
+- 2026-10-10T11:04:24Z · body: section Verification
