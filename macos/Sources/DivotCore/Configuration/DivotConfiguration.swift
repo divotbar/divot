@@ -227,22 +227,49 @@ public struct ClockConfiguration: Equatable, Sendable {
 /// The document-level menu-bar detection preference.
 ///
 /// On notched hardware the camera housing masks the same top band whether the
-/// native bar is hidden or revealed, so public geometry cannot decide it. The
-/// permission-gated Accessibility observation of the bar's own on-screen frame
-/// can, but that heuristic is hardware-sensitive: a wrong reading would move
-/// the panels off the top edge on another Mac. It is therefore **off** unless a
-/// person opts in. While off, a notched display stays conservative — it holds
-/// the top edge and never moves below a bar it cannot confirm (#0021).
+/// native bar is hidden or revealed, so public geometry cannot decide it. Two
+/// observations can: the permission-gated Accessibility frame of the bar, and
+/// the pointer reaching the top strip, which is when macOS reveals an
+/// auto-hidden bar. The cursor observation is direct and on by default
+/// (`moveBelowOnCursorReveal`); the Accessibility heuristic is hardware-
+/// sensitive and opt-in. On a notch-free display `visibleFrame` alone decides
+/// and cross-checks the cursor reading, so both observations are ignored there
+/// (#0021, #0023).
 public struct MenuBarConfiguration: Equatable, Sendable {
     /// Trust the Accessibility on-screen observation to decide reveal/hide.
     /// Default `false`: the shipping-safe choice.
     public var trustAccessibilityProbe: Bool
+    /// Move below the native bar while the pointer is in the top strip, and
+    /// return to the top edge when it leaves. Default `true`: the direct
+    /// observation makes an auto-hidden bar's reveal followable without the
+    /// Accessibility opt-in. When off, Divot keeps its current placement and
+    /// only the geometry/Accessibility path decides.
+    public var moveBelowOnCursorReveal: Bool
+    /// Fallback for Macs where the cursor reveal does not line up: always sit
+    /// below the native menu bar. Default `false`.
+    public var alwaysBelow: Bool
 
-    public init(trustAccessibilityProbe: Bool = false) {
+    public init(trustAccessibilityProbe: Bool = false,
+                moveBelowOnCursorReveal: Bool = true,
+                alwaysBelow: Bool = false) {
         self.trustAccessibilityProbe = trustAccessibilityProbe
+        self.moveBelowOnCursorReveal = moveBelowOnCursorReveal
+        self.alwaysBelow = alwaysBelow
     }
 
     public static let `default` = MenuBarConfiguration()
+
+    /// Whether the top-strip cursor reading can affect placement.
+    ///
+    /// The event-driven pointer monitor is only worth running while the cursor
+    /// reveal is on and the always-below fallback is off: `alwaysBelow` is
+    /// authoritative and short-circuits detection, so a cursor engagement could
+    /// not change the placement. The app stops the monitor otherwise, so an
+    /// install with both features off keeps no global mouse tap installed
+    /// (#0023 review).
+    public var usesCursorRevealMonitoring: Bool {
+        moveBelowOnCursorReveal && !alwaysBelow
+    }
 }
 
 /// The document-level keep-awake preference.

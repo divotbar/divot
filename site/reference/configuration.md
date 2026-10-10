@@ -134,16 +134,20 @@ With no `keepAwake` object (or `remember: false`), keep-awake always starts off 
 
 ## Menu bar
 
-On notched hardware the camera housing masks the same top band whether the native menu bar is hidden or revealed, so screen geometry alone cannot say which. The permission-gated Accessibility observation of the bar's own on-screen frame can. It is **off** by default because the on-screen heuristic is hardware-sensitive, so an install never moves its panels on an unconfirmed reading.
+When the native menu bar is auto-hidden, macOS reveals it as the pointer reaches the top edge of a display. Divot follows that pointer reveal by default through an event-driven mouse-moved monitor (no polling): while the pointer is in a display's top strip Divot sits below the native bar, and when it leaves Divot returns to the top edge. A notch-free display's own `visibleFrame` is the cross-check, so a reading that disagrees with the geometry is corrected rather than followed.
+
+On notched hardware the camera housing masks the same top band whether the native menu bar is hidden or revealed, so screen geometry alone cannot say which. The permission-gated Accessibility observation of the bar's own on-screen frame can. It is **off** by default because the on-screen heuristic is hardware-sensitive. `alwaysBelow` is the fallback for a Mac where the cursor reveal does not line up.
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `trustAccessibilityProbe` | Boolean | `false` | Follow the native menu bar's reveal/hide using the Accessibility observation |
+| `moveBelowOnCursorReveal` | Boolean | `true` | Follow the native menu bar's reveal from the pointer reaching the top strip |
+| `alwaysBelow` | Boolean | `false` | Fallback: keep Divot below the native menu bar at all times |
+| `trustAccessibilityProbe` | Boolean | `false` | Let the Accessibility observation decide the masked (notched) case |
 
-While off, a notched display holds the top edge (the correct resting position when the native bar is auto-hidden) and never moves below a bar it cannot confirm. Enable it only on a Mac whose Accessibility grant and menu-bar geometry you have confirmed:
+Turning `moveBelowOnCursorReveal` off leaves Divot in its current placement; the Accessibility path then decides the notched case only when `trustAccessibilityProbe` is on.
 
 ```json
-"menuBar": { "trustAccessibilityProbe": true }
+"menuBar": { "moveBelowOnCursorReveal": true, "alwaysBelow": false, "trustAccessibilityProbe": true }
 ```
 
 ## Items

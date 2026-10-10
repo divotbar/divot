@@ -244,3 +244,48 @@ private func aBarReading() -> ScreenGeometryReading {
         signal: observation.readings[0].signal)
     #expect(detected == .indeterminate(.notchedHousingMasksMenuBar))
 }
+
+@MainActor
+@Test func cursorEngagedDisplaysAreAttributedPerDisplay() {
+    // The pointer is in one display's top strip; only that display's reading is
+    // engaged, and a notch-free display still decides from its own visibleFrame.
+    let adapter = MenuBarObservationAdapter(
+        provider: MockScreenProvider(readings: [notchedReading(), flatReading(id: 2, menuBarShown: false)]),
+        probe: MockMenuBarProbe(state: .notTrusted),
+        cursorEngagedDisplays: [DisplayBarID(1)])
+    let observation = adapter.observe()
+    let notched = observation.readings.first { $0.id == DisplayBarID(1) }!
+    let flat = observation.readings.first { $0.id == DisplayBarID(2) }!
+
+    #expect(notched.signal.cursorRevealsMenuBar == true)
+    #expect(flat.signal.cursorRevealsMenuBar == false)
+    #expect(NativeMenuBarDetector.detect(geometry: notched.geometry, signal: notched.signal)
+        == .visible(inset: 33))
+    #expect(NativeMenuBarDetector.detect(geometry: flat.geometry, signal: flat.signal) == .hidden)
+}
+
+@MainActor
+@Test func cursorSignalIsWithheldWhenTheSettingIsOff() {
+    // `nil` means the "move below on cursor reveal" setting is off, so the
+    // masked display stays indeterminate rather than being told hidden.
+    let adapter = MenuBarObservationAdapter(
+        provider: MockScreenProvider(readings: [notchedReading()]),
+        probe: MockMenuBarProbe(state: .notTrusted),
+        cursorEngagedDisplays: nil)
+    let observation = adapter.observe()
+    #expect(observation.readings.first?.signal.cursorRevealsMenuBar == nil)
+    #expect(NativeMenuBarDetector.detect(geometry: observation.readings[0].geometry,
+                                         signal: observation.readings[0].signal)
+        == .indeterminate(.notchedHousingMasksMenuBar))
+}
+
+@MainActor
+@Test func alwaysBelowFallbackReachesTheDetectorThroughTheAdapter() {
+    let adapter = MenuBarObservationAdapter(provider: MockScreenProvider(readings: [flatReading(id: 1, menuBarShown: false)]),
+                                            probe: MockMenuBarProbe(state: .notTrusted),
+                                            alwaysBelowMenuBar: true)
+    let observation = adapter.observe()
+    #expect(NativeMenuBarDetector.detect(geometry: observation.readings[0].geometry,
+                                         signal: observation.readings[0].signal)
+        == .visible(inset: 24))
+}

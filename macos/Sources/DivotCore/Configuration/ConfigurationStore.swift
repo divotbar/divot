@@ -215,10 +215,15 @@ public extension DivotConfiguration {
 }
 
 private extension MenuBarConfiguration {
-    /// Only the non-default opt-in is written, so a document that leaves the
-    /// Accessibility heuristic off stays identical to the first-launch shape.
+    /// Only non-default values are written, so a document that leaves the
+    /// pointer reveal on and the fallback off stays identical to the
+    /// first-launch shape.
     var jsonObject: [String: Any] {
-        trustAccessibilityProbe ? ["trustAccessibilityProbe": true] : [:]
+        var object: [String: Any] = [:]
+        if trustAccessibilityProbe { object["trustAccessibilityProbe"] = true }
+        if !moveBelowOnCursorReveal { object["moveBelowOnCursorReveal"] = false }
+        if alwaysBelow { object["alwaysBelow"] = true }
+        return object
     }
 }
 

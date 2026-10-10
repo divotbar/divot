@@ -18,5 +18,6 @@ Read in this order:
 14. [Native macOS Spaces feasibility](evidence/0013-native-spaces-feasibility.md): why public APIs cannot drive a native Spaces adapter, and the scope that is honestly supportable.
 15. [Performance harness evidence](evidence/0007-performance-harness.md): what the harness and accessibility checks cover, and what a person must still measure.
 16. [Local preview evidence](evidence/0014-local-preview.md): what the packaging smoke test observed, and what it does not prove.
+17. [Cursor-reveal slide evidence](evidence/0023-cursor-reveal-menu-bar-slide.md): automated checks for task 0023, and what still needs a screen capture.
 
 `docs/` is engineering context. `site/` is public documentation and marketing. Keep implementation status consistent across both. The app is not shipping yet.

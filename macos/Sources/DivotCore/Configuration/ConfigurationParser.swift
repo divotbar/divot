@@ -223,10 +223,18 @@ public enum ConfigurationParser {
 
     private static func menuBarOptions(_ value: Any?) throws -> MenuBarConfiguration {
         guard let value else { return .default }
-        let object = try shape(value, required: [], optional: ["trustAccessibilityProbe"], path: "menuBar")
+        let object = try shape(value, required: [],
+                               optional: ["trustAccessibilityProbe", "moveBelowOnCursorReveal", "alwaysBelow"],
+                               path: "menuBar")
         var configuration = MenuBarConfiguration.default
         if let raw = object["trustAccessibilityProbe"] {
             configuration.trustAccessibilityProbe = try boolean(raw, path: "menuBar.trustAccessibilityProbe")
+        }
+        if let raw = object["moveBelowOnCursorReveal"] {
+            configuration.moveBelowOnCursorReveal = try boolean(raw, path: "menuBar.moveBelowOnCursorReveal")
+        }
+        if let raw = object["alwaysBelow"] {
+            configuration.alwaysBelow = try boolean(raw, path: "menuBar.alwaysBelow")
         }
         return configuration
     }
