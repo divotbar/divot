@@ -2,14 +2,14 @@
 id: "0029"
 title: Add a Quit Divot control to the menu bar menu and the Settings window
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-10T13:19:42Z"
-updated_at: "2026-10-10T13:19:46Z"
+updated_at: "2026-10-10T13:20:50Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Keep the menu item in the existing status item setup in `DivotAppDelegate`. Do n
 
 - 2026-10-10T13:19:42Z · created · njachowski@gmail.com
 - 2026-10-10T13:19:46Z · note: Scope correction: the status item menu already has a Quit Divot item (DivotAppDelegate, around lines 245 and 268). This task only needs the Settings window button, plus a test that the menu and Settings both reach the same quit path.
+- 2026-10-10T13:20:50Z · status inbox→ready
