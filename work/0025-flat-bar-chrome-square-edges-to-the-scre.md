@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/flat-bar-chrome-square-edges-to-the-scre
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T11:05:24Z"
+updated_at: "2026-10-10T11:06:04Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -65,3 +65,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:04:24Z · body: section Verification
 - 2026-10-10T11:05:24Z · status active→review
 - 2026-10-10T11:05:24Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T11:06:04Z · note: review pass 2: needs some work
