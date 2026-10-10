@@ -2,7 +2,7 @@
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -124,3 +124,5 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:10:05Z · needs_input
 - 2026-10-10T13:18:32Z · note: Maintainer sign-off: checked the notch area on the maintainer's notched Mac and the appearance is fine. The earlier blue-block reading from a screenshot was overruled by the maintainer's own check. The physical-verification criterion is satisfied by this sign-off.
 - 2026-10-10T13:18:32Z · needs_input
+- 2026-10-10T13:18:32Z · status review→active
+- 2026-10-10T13:18:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
