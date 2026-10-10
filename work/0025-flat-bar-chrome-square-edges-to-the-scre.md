@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-10T11:38:19Z"
-review_passes: 4
+last_close_out_gate_ms: 42484
+last_close_out_gate_at: "2026-10-10T12:12:00.105Z"
 id: "0025"
 title: "Flat bar chrome: square edges to the screen edges, no 3D, optional bottom shadow"
 type: bug
@@ -16,6 +16,8 @@ model_override: composer-2.5
 review_cli_override: claude code
 review_model_override: haiku
 created_at: "2026-10-10T10:26:06Z"
+updated_at: "2026-10-10T12:12:00Z"
+review_passes: 4
 review_rounds: 2
 incomplete_review_retries: 1
 ---
@@ -96,4 +98,5 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:31:35Z · note: review pass 5: incomplete — no verdict in report
 - 2026-10-10T11:36:36Z · needs_input (review-rounds-exhausted) cleared for review again by human
 - 2026-10-10T11:38:19Z · note: review pass 6: good to go
+- 2026-10-10T12:12:00Z · close-out gate completed in 42s
 
