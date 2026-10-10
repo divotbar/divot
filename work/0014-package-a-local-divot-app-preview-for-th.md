@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 39905
-last_close_out_gate_at: "2026-10-10T02:57:46.136Z"
 id: "0014"
 title: Package a local Divot.app preview for this Mac
 type: feature
-status: review
+status: done
 priority: p1
 area: [macos, docs]
 story: A beautiful bar from the first launch
 depends_on: ["0007"]
+merged_commit: fc2072fb4dbccac21bdca9ad2da4e03a23bd4396
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/package-a-local-divot-app-preview-for-th
 created_at: "2026-10-09T16:44:33Z"
-updated_at: "2026-10-10T02:57:46Z"
+updated_at: "2026-10-10T02:57:48Z"
+last_close_out_gate_ms: 39905
+last_close_out_gate_at: "2026-10-10T02:57:46.136Z"
 review_passes: 1
 ---
 ## Problem
@@ -52,4 +53,4 @@ The maintainer Mac runs AeroSpace with a-bar. The reference bar has compact numb
 - 2026-10-10T02:52:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T02:53:03Z · note: review pass 1: good to go
 - 2026-10-10T02:57:46Z · close-out gate completed in 40s
-
+- 2026-10-10T02:57:48Z · status review→done, release:success
