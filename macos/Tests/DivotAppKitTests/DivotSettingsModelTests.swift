@@ -138,3 +138,73 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
     #expect(model.resolvedTheme.usesSystemColors)
     #expect(model.themeSourceLine.contains("macOS"))
 }
+
+@MainActor
+@Test func everyThemeFamilySelectionAppliesAndPersists() throws {
+    let (model, controller) = try makeModel()
+
+    // Every family the picker offers maps to the persisted document and to the
+    // palette the bar resolves. The native default follows macOS rather than a
+    // fixed family palette.
+    for family in AppearanceConfiguration.Family.allCases {
+        model.update { $0.appearance.family = family }
+
+        #expect(model.configuration.appearance.family == family)
+        #expect(model.resolvedTheme.family == family)
+        if family == .native {
+            #expect(model.resolvedTheme.usesSystemColors)
+            #expect(model.resolvedTheme.tokens == nil)
+            #expect(model.themeSourceLine.contains("macOS"))
+        } else {
+            #expect(!model.resolvedTheme.usesSystemColors)
+            let tokens = try #require(model.resolvedTheme.tokens)
+            // The family's signature accent is applied by default, and the
+            // settings line names the family rather than the native default.
+            #expect(model.resolvedAccentHex == tokens.accent.hexString)
+            #expect(model.themeSourceLine.contains(family.displayName))
+        }
+    }
+
+    // The last selection is what a relaunch reloads from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.appearance.family == AppearanceConfiguration.Family.allCases.last)
+}
+
+@MainActor
+@Test func everyAppearanceModeSelectionAppliesAndPersists() throws {
+    let (model, controller) = try makeModel()
+    model.update { $0.appearance.family = .ayu }
+
+    // Each System/Light/Dark choice is applied and, because family and mode are
+    // stored separately, never discards the chosen family.
+    for mode in AppearanceConfiguration.Mode.allCases {
+        model.update { $0.appearance.mode = mode }
+        #expect(model.configuration.appearance.mode == mode)
+        #expect(model.configuration.appearance.family == .ayu)
+    }
+
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.appearance.mode == AppearanceConfiguration.Mode.allCases.last)
+    #expect(reloaded.current.appearance.family == .ayu)
+}
+
+@MainActor
+@Test func paletteOverrideChangesTheAppliedResolvedPalette() throws {
+    let (model, _) = try makeModel()
+    model.update {
+        $0.appearance.family = .tokyoNight
+        $0.appearance.mode = .dark
+    }
+    let signatureAccent = try #require(model.resolvedTheme.tokens?.accent)
+
+    model.update { $0.appearance.palette[.accent] = "#123456" }
+
+    // The override is persisted and is what the resolved palette (and therefore
+    // the bar) draws with, taking precedence over the family signature accent.
+    #expect(model.configuration.appearance.palette[.accent] == "#123456")
+    #expect(model.resolvedTheme.tokens?.accent == ThemeColor(hex: "#123456"))
+    #expect(model.resolvedTheme.tokens?.accent != signatureAccent)
+    #expect(model.resolvedAccentHex == "#123456")
+}
