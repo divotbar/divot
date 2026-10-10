@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/divot-placement-top-edge-when-the-native
 created_at: "2026-10-10T05:23:24Z"
-updated_at: "2026-10-10T05:23:27Z"
+updated_at: "2026-10-10T06:03:05Z"
 ---
 ## Problem
 
@@ -40,8 +40,34 @@ Two status-glyph readings to keep (no change needed): a filled dot means the wor
 
 The maintainer's current setup: AeroSpace running, native menu bar auto-hide on, Accessibility granted to `dist/Divot.app`. Do not change the AeroSpace or a-bar configuration. Keep the change in the placement and probe code, not the widget views.
 
+## Verification
+Automated (task branch, this run):
+
+- `swift build --package-path macos` and `swift test --package-path macos`: build clean, 355 tests pass, including the new probe/detection/height/transition tests.
+- `REPOOS_CHECK_CHANGED=main repoos check`: all steps pass (native-core tests, native-app, package-app, smoke-app-bundle including "default bar layout through the packaged app").
+- `scripts/package-app.sh --no-archive`: packaged Release `dist/Divot.app` from this branch.
+
+Root cause of "below the notch band": AppKit's default `constrainFrameRect(_:to:)` clamps a window frame below the menu-bar band (`visibleFrame.maxY`) even while the native bar is hidden. On the built-in notched display that parked the top-edge bar at y=33 from the top instead of y=0. The nonactivating panels now override `constrainFrameRect` so a top-edge placement may occupy the camera-housing band; the panel level stays `mainMenu - 1`, so native menus still draw above Divot.
+
+Window-server observation (CGWindowListCopyWindowInfo, not a screenshot):
+
+- This branch's packaged build, two panels: `(x:0, y:0, w:753, h:30)` and `(x:958, y:0, w:752, h:30)` — the top edge.
+- The build from `main` still running on the machine: same panels at `y:33`.
+- `h:30` here is the local config file's `layout.height: 30`; the code default is now 32. Window-list geometry is objective; it does not judge appearance.
+
+Screen capture: `screencapture -x -R0,0,1710,80` succeeded and shows the branch build's bar on the top edge above the older build's below-band row (both apps were running). The capture was an inspection aid; the screenshot binary is not committed.
+
+Signal that reported "visible" while auto-hidden: `kAXHiddenAttribute`. It stays `false` because an auto-hidden bar is slid above the screen rather than AX-hidden, so the old `!hidden` heuristic claimed visible. `SystemMenuBarProbe` now derives visibility from the bar's own frame — on-screen when `position.y >= 0`, off-screen when negative — and the app constructs `AXSystemMenuBarProbe(validated: true)` so a notched display resolves `.hidden` (top edge) while hidden and `.visible(inset:)` while revealed.
+
+Human-only (NOT supplied here; do not treat as verified):
+
+- The live Accessibility sample on the maintainer's machine was not observable from this agent process (`AXIsProcessTrusted()` is false here; the Accessibility grant belongs to `dist/Divot.app`). The agent verified the probe's on-screen rule and the detector/coordinator transitions by test, not by a live AX read.
+- Visual confirmation of the top strip on the maintainer's setup. The appearance is the maintainer's to confirm; no claim is made that it looks right.
+- Auto-hidden vs revealed transition with Accessibility granted to the packaged app.
+
 ## Activity
 
 - 2026-10-10T05:23:24Z · created · njachowski@gmail.com
 - 2026-10-10T05:23:26Z · status inbox→ready
 - 2026-10-10T05:23:27Z · status ready→active, branch
+- 2026-10-10T06:03:05Z · body: section Verification
