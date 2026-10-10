@@ -38,6 +38,11 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     private let leftContent: BarContentView
     private let rightContent: BarContentView
     private var targets: [ObjectIdentifier: CGRect] = [:]
+    /// The configuration the panels were built from, so a restyle can recompute
+    /// the theme without a rebuild.
+    private let configuration: DivotConfiguration
+    /// Called after a restyle so the app can drop appearance-dependent caches.
+    public var onThemeChanged: (() -> Void)?
 
     public init(id: DisplayBarID,
                 on screen: CGRect,
@@ -47,7 +52,9 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 displayScreensID: Int? = nil,
                 onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
+        self.configuration = configuration
         let layout = configuration.barLayout
+        let theme = Self.currentTheme(for: configuration)
         self.leftContent = BarContentView(side: .left,
                                           items: layout.left,
                                           workspaceFeed: workspaceFeed,
@@ -55,18 +62,38 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           displayScreensID: displayScreensID,
                                           metrics: configuration.barMetrics,
                                           presentationOptions: configuration.presentationOptions,
+                                          theme: theme,
                                           onActivate: onWidgetAction)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
                                            metrics: configuration.barMetrics,
                                            presentationOptions: configuration.presentationOptions,
+                                           theme: theme,
                                            onActivate: onWidgetAction)
         self.left = Self.makePanel(on: screen, content: leftContent)
         self.right = Self.makePanel(on: screen, content: rightContent)
+        leftContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
+        rightContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
         leftContent.applyInitialState()
         rightContent.applyInitialState()
         left.orderFrontRegardless()
         right.orderFrontRegardless()
+    }
+
+    /// The theme for the current configuration and the live effective
+    /// appearance. `mode` is applied app-wide, so the effective appearance is
+    /// the single source of truth for the light/dark variant.
+    static func currentTheme(for configuration: DivotConfiguration) -> BarTheme {
+        let dark = NSApplication.shared.effectiveAppearance
+            .bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        return BarTheme.resolve(configuration.appearance, dark: dark)
+    }
+
+    private func restyle() {
+        let theme = Self.currentTheme(for: configuration)
+        leftContent.apply(theme: theme)
+        rightContent.apply(theme: theme)
+        onThemeChanged?()
     }
 
     public func apply(_ update: DisplayBarUpdate, reduceMotion: Bool) {

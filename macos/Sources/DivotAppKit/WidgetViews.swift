@@ -14,6 +14,8 @@ final class BarItemView: NSView {
     var onActivate: ((WidgetAction) -> Void)?
     private let metrics: BarMetrics
     private var lastIconBundleIdentifier: String?
+    private var presentation: WidgetPresentation?
+    private var theme: BarTheme = .systemDefault
     private var indicatorRole: WidgetIndicator.Role?
 
     init(metrics: BarMetrics = .default) {
@@ -44,11 +46,11 @@ final class BarItemView: NSView {
     /// `presentation` is already computed by the pure presenter.
     func update(_ presentation: WidgetPresentation, action: WidgetAction) {
         self.action = action
+        self.presentation = presentation
 
         let image = resolveIcon(presentation)
         if let image {
             iconView.image = image
-            iconView.contentTintColor = presentation.isError ? .systemRed : .labelColor
             iconView.isHidden = false
         } else {
             iconView.image = nil
@@ -56,8 +58,8 @@ final class BarItemView: NSView {
         }
 
         textField.stringValue = presentation.text
-        textField.textColor = presentation.isError ? .systemRed : .labelColor
         textField.isHidden = presentation.text.isEmpty
+        applyColors()
 
         applyIndicator(presentation.indicator)
 
@@ -71,6 +73,22 @@ final class BarItemView: NSView {
 
         invalidateIntrinsicContentSize()
         needsLayout = true
+    }
+
+    /// Re-color the text and symbol for a new theme without re-resolving content.
+    func apply(theme: BarTheme) {
+        self.theme = theme
+        applyColors()
+        if let indicatorRole {
+            indicatorView.contentTintColor = indicatorColor(for: indicatorRole)
+        }
+    }
+
+    private func applyColors() {
+        let isError = presentation?.isError ?? false
+        let color = isError ? theme.error : theme.foreground
+        iconView.contentTintColor = color
+        textField.textColor = color
     }
 
     /// Draw (or hide) the small state indicator after the text. The color comes
@@ -87,12 +105,19 @@ final class BarItemView: NSView {
         }
         indicatorView.image = image
         indicatorRole = indicator.role
-        indicatorView.contentTintColor = Self.color(for: indicator.role,
-                                                    appearance: effectiveAppearance)
+        indicatorView.contentTintColor = indicatorColor(for: indicator.role)
         indicatorView.isHidden = false
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
         indicatorView.toolTip = nil
+    }
+
+    /// The indicator tint: the audited native hex for the native family, or the
+    /// theme's positive `occupied` role for a family, so the cup matches the bar.
+    private func indicatorColor(for role: WidgetIndicator.Role) -> NSColor {
+        theme.usesSystemColors
+            ? Self.color(for: role, appearance: effectiveAppearance)
+            : theme.occupied
     }
 
     /// Resolve a semantic indicator role against the current appearance.
@@ -179,7 +204,7 @@ final class BarItemView: NSView {
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         if let role = indicatorRole {
-            indicatorView.contentTintColor = Self.color(for: role, appearance: effectiveAppearance)
+            indicatorView.contentTintColor = indicatorColor(for: role)
         }
     }
 }
@@ -194,6 +219,10 @@ final class BarContentView: NSView, BarContentLifecycle {
     let side: BarSide
     private let items: [BarItemID]
     private let presentationOptions: WidgetPresentationOptions
+    private var theme: BarTheme
+    /// The segment chrome. Native material blurs behind the bar; opaque and the
+    /// reduced-transparency/increased-contrast paths hide it and fill instead.
+    private let vibrancy = NSVisualEffectView()
     private var itemViews: [BarItemID: BarItemView] = [:]
     /// The `workspaces` item is a live, clickable row rather than a single
     /// value, so it renders through `WorkspaceBarView` and is not driven by the
@@ -202,6 +231,7 @@ final class BarContentView: NSView, BarContentLifecycle {
     var onActivate: ((WidgetAction) -> Void)?
 
     private let metrics: BarMetrics
+    private let cornerRadius: CGFloat = 8
 
     init(side: BarSide,
          items: [BarItemID],
@@ -210,20 +240,24 @@ final class BarContentView: NSView, BarContentLifecycle {
          displayScreensID: Int? = nil,
          metrics: BarMetrics = .default,
          presentationOptions: WidgetPresentationOptions = .default,
+         theme: BarTheme = .systemDefault,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
         self.metrics = metrics
         self.presentationOptions = presentationOptions
+        self.theme = theme
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
+        configureVibrancy()
         for id in items {
             if id == .workspaces, let workspaceFeed, let workspaceIcons {
                 let view = WorkspaceBarView(feed: workspaceFeed,
                                             icons: workspaceIcons,
                                             displayScreensID: displayScreensID,
                                             showsFrontApp: !items.contains(.frontApp),
+                                            theme: theme,
                                             metrics: metrics)
                 workspaceViews[id] = view
                 addSubview(view)
@@ -231,6 +265,7 @@ final class BarContentView: NSView, BarContentLifecycle {
             }
             let view = BarItemView(metrics: metrics)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
+            view.apply(theme: theme)
             itemViews[id] = view
             addSubview(view)
         }
@@ -238,6 +273,24 @@ final class BarContentView: NSView, BarContentLifecycle {
 
     required init?(coder: NSCoder) {
         fatalError("BarContentView does not support NSCoding")
+    }
+
+    private func configureVibrancy() {
+        vibrancy.material = .menu
+        vibrancy.blendingMode = .behindWindow
+        vibrancy.state = .active
+        vibrancy.wantsLayer = true
+        vibrancy.layer?.cornerRadius = cornerRadius
+        vibrancy.layer?.masksToBounds = true
+        addSubview(vibrancy)
+    }
+
+    /// Adopt a new theme without rebuilding the view tree.
+    func apply(theme: BarTheme) {
+        self.theme = theme
+        for view in itemViews.values { view.apply(theme: theme) }
+        for view in workspaceViews.values { view.apply(theme: theme) }
+        needsDisplay = true
     }
 
     /// Release the workspace row's feed observer when the panel is torn down.
@@ -274,6 +327,7 @@ final class BarContentView: NSView, BarContentLifecycle {
 
     override func layout() {
         super.layout()
+        vibrancy.frame = bounds
 
         // Keep the group inside the panel's padding so it never runs edge-to-edge
         // and the left/right groups share one rhythm.
@@ -313,15 +367,21 @@ final class BarContentView: NSView, BarContentLifecycle {
     override var wantsUpdateLayer: Bool { true }
 
     override func updateLayer() {
-        layer?.cornerRadius = 8
-        layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
-        layer?.borderWidth = 1
-        layer?.borderColor = NSColor.separatorColor.cgColor
+        layer?.cornerRadius = cornerRadius
+        layer?.backgroundColor = theme.layerBackground.cgColor
+        layer?.borderWidth = theme.borderWidth
+        layer?.borderColor = theme.borderColor.cgColor
+        vibrancy.isHidden = theme.isOpaque
     }
+
+    /// Called when the effective appearance changes so the owning surface can
+    /// recompute its theme for the new light/dark variant.
+    var onEffectiveAppearanceChange: (() -> Void)?
 
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         needsDisplay = true
+        onEffectiveAppearanceChange?()
     }
 }
 

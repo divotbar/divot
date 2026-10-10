@@ -5,10 +5,9 @@ import Foundation
 /// The appearance half of the configuration.
 ///
 /// `family` and `mode` are deliberately independent: changing the System/Light/
-/// Dark variant keeps the chosen family. Theme families themselves are delivered
-/// by the separate theme milestone; this task persists and validates the choice
-/// and applies the appearance variant. `palette` overrides individual semantic
-/// tokens over the selected family.
+/// Dark variant keeps the chosen family. The four families resolve to semantic
+/// tokens in `DivotCore.ThemeResolver` (see `ThemePalette`); `palette` overrides
+/// individual semantic tokens over the selected family and variant.
 public struct AppearanceConfiguration: Equatable, Sendable {
     public enum Family: String, CaseIterable, Codable, Sendable {
         case native
@@ -81,7 +80,10 @@ public struct AppearanceConfiguration: Equatable, Sendable {
     public static let defaultAccent = "#D6F58A"
     public static let `default` = AppearanceConfiguration()
 
-    /// The effective accent: a palette override wins over the root accent.
+    /// The accent after applying only the palette override: a `palette.accent`
+    /// wins over the root accent. Family-aware resolution (the family signature
+    /// accent when the root accent is left at its default) lives in
+    /// `ThemeResolver.resolve`.
     public var effectiveAccent: String { palette[.accent] ?? accent }
 }
 

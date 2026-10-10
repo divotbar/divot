@@ -120,3 +120,21 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
     controller.update { $0.appearance.mode = .dark }
     #expect(model.configuration.appearance.mode == .dark)
 }
+
+@MainActor
+@Test func settingsExposeTheResolvedFamilyThemeAndSource() throws {
+    let (model, _) = try makeModel()
+    model.update { $0.appearance.family = .dracula }
+
+    #expect(model.resolvedTheme.family == .dracula)
+    #expect(model.themeSourceLine.contains("Dracula"))
+    #expect(model.themeSourceLine.contains("MIT"))
+    // The resolved accent is a real hex, resolved from the family rather than
+    // the root default.
+    #expect(model.resolvedAccentHex.hasPrefix("#"))
+    #expect(model.resolvedAccentHex.count == 7)
+
+    model.update { $0.appearance.family = .native }
+    #expect(model.resolvedTheme.usesSystemColors)
+    #expect(model.themeSourceLine.contains("macOS"))
+}

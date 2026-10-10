@@ -37,7 +37,7 @@ For a distraction-free setup, use `examples/focus.json`: a 28-point opaque bar w
 
 ## Your own palette
 
-Themes share the one configuration model, so you are not limited to a family's stock colors. Add `appearance.palette` to override individual semantic tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, and `examples/custom-palette.json` shows a Gruvbox base with overrides. The parser and store keep these overrides; the theme milestone applies them to the bar.
+Themes share the one configuration model, so you are not limited to a family's stock colors. Add `appearance.palette` to override individual semantic tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex, and `examples/custom-palette.json` shows a Gruvbox base with overrides. The parser, store, and theme resolver keep and apply these overrides; the derived chrome roles follow an overridden base.
 
 ## Ordering
 
