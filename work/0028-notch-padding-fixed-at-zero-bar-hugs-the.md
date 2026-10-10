@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-10T15:08:09Z"
-review_passes: 11
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 depends_on: ["0025"]
@@ -19,6 +14,8 @@ model_override: big pickle
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
+updated_at: "2026-10-10T16:31:57Z"
+review_passes: 11
 review_rounds: 2
 ---
 ## Problem
@@ -162,4 +159,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T15:06:59Z · status active→review
 - 2026-10-10T15:08:08Z · note: review pass 11: needs some work
 - 2026-10-10T15:08:09Z · needs_input
-
+- 2026-10-10T16:31:57Z · needs_input
