@@ -270,6 +270,49 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.configuration.isPlaced(.battery))
 }
 
+@Test func appIconOptInDefaultsOffAndParsesExplicitly() throws {
+    // Absent keeps the first-launch bar unchanged.
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: without).configuration.showAppIcon == false)
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showAppIcon":true}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.showAppIcon)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["workspaces"],"right":[],"showAppIcon":"yes"}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(failure?.path == "showAppIcon")
+    #expect(failure?.message == "expected boolean")
+}
+
+@Test func appIconOptInRoundTripsThroughTheCanonicalJSON() throws {
+    var configuration = DivotConfiguration.default
+    configuration.showAppIcon = true
+    let encoded = try JSONSerialization.data(withJSONObject: configuration.jsonObject,
+                                             options: [.sortedKeys])
+    let reparsed = try ConfigurationParser.parse(encoded)
+    #expect(reparsed.configuration == configuration)
+    #expect(reparsed.configuration.showAppIcon)
+
+    // The default writes no key, so the first-launch document is identical.
+    #expect(DivotConfiguration.default.jsonObject["showAppIcon"] == nil)
+}
+
+@Test func appIconExampleRoundTrips() throws {
+    let parsed = try ConfigurationParser.parse(try exampleData("app-icon.json"))
+    #expect(parsed.configuration.showAppIcon)
+    // Everything else stays at the first-launch shape.
+    #expect(parsed.configuration.left == DivotConfiguration.defaultLeft)
+}
+
+@Test func appIconOptInChangesWhatTheRenderedBarNeeds() {
+    // Toggling the icon must rebuild the left panel, so `rendersSameBar` has to
+    // see the change; otherwise the setting would not apply live.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.showAppIcon = true
+    #expect(!configuration.rendersSameBar(as: .default))
+}
+
 // MARK: - Version 1 migration fixtures
 
 @Test func starterV1DefaultMigratesToAVersionTwoDocument() throws {

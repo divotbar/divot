@@ -228,6 +228,9 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// value, so it renders through `WorkspaceBarView` and is not driven by the
     /// widget pipeline.
     private var workspaceViews: [BarItemID: WorkspaceBarView] = [:]
+    /// The optional Divot mark at the very start of the left group. It is not a
+    /// configured item; it decorates the left group and opens Divot settings.
+    private var appIconButton: DivotAppIconButton?
     var onActivate: ((WidgetAction) -> Void)?
 
     private let metrics: BarMetrics
@@ -235,6 +238,7 @@ final class BarContentView: NSView, BarContentLifecycle {
 
     init(side: BarSide,
          items: [BarItemID],
+         showsAppIcon: Bool = false,
          workspaceFeed: WorkspaceFeed? = nil,
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
@@ -251,6 +255,14 @@ final class BarContentView: NSView, BarContentLifecycle {
         super.init(frame: .zero)
         wantsLayer = true
         configureVibrancy()
+        // The mark leads the left group only; the right group starts at the
+        // status items.
+        if side == .left, showsAppIcon {
+            let button = DivotAppIconButton(metrics: metrics, theme: theme)
+            button.onActivate = { [weak self] in self?.onActivate?(.openDivotSettings) }
+            appIconButton = button
+            addSubview(button)
+        }
         for id in items {
             if id == .workspaces, let workspaceFeed, let workspaceIcons {
                 let view = WorkspaceBarView(feed: workspaceFeed,
@@ -288,6 +300,7 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// Adopt a new theme without rebuilding the view tree.
     func apply(theme: BarTheme) {
         self.theme = theme
+        appIconButton?.apply(theme: theme)
         for view in itemViews.values { view.apply(theme: theme) }
         for view in workspaceViews.values { view.apply(theme: theme) }
         needsDisplay = true
@@ -334,8 +347,11 @@ final class BarContentView: NSView, BarContentLifecycle {
         let inset = metrics.rowInset
         let usableWidth = max(0, bounds.width - inset * 2)
 
-        var fixedTotal: CGFloat = 0
-        var fixedCount = 0
+        // The optional app mark leads the left group, so it is part of the fixed
+        // width and the gap count before the workspace row takes the remainder.
+        let appIconWidth = appIconButton?.intrinsicContentSize.width ?? 0
+        var fixedTotal: CGFloat = appIconWidth
+        var fixedCount = appIconButton == nil ? 0 : 1
         for id in items where itemViews[id] != nil {
             fixedTotal += itemViews[id]?.intrinsicContentSize.width ?? 0
             fixedCount += 1
@@ -350,6 +366,12 @@ final class BarContentView: NSView, BarContentLifecycle {
         var x = side == .left
             ? inset
             : max(inset, bounds.width - inset - (fixedTotal + elasticWidth + spacingTotal))
+        if let appIconButton {
+            let width = appIconButton.intrinsicContentSize.width
+            let height = min(bounds.height, appIconButton.intrinsicContentSize.height)
+            appIconButton.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
+            x += width + metrics.itemSpacing
+        }
         for id in items {
             if let workspace = workspaceViews[id] {
                 workspace.frame = CGRect(x: x, y: 0, width: perWorkspace, height: bounds.height)

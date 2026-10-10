@@ -128,6 +128,18 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('menuBar.trustAccessibilityProbe: expected boolean')
   })
 
+  test('accepts the app-icon opt-in', () => {
+    const config = base()
+    config.showAppIcon = true
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects a non-boolean app-icon opt-in', () => {
+    const config = base()
+    config.showAppIcon = 'yes'
+    expect(() => validate(config)).toThrow('showAppIcon: expected boolean')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }

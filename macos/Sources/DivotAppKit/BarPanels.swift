@@ -72,6 +72,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         let theme = Self.currentTheme(for: configuration)
         self.leftContent = BarContentView(side: .left,
                                           items: layout.left,
+                                          showsAppIcon: configuration.showAppIcon,
                                           workspaceFeed: workspaceFeed,
                                           workspaceIcons: workspaceIcons,
                                           displayScreensID: displayScreensID,

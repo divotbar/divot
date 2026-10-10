@@ -54,7 +54,7 @@ public enum ConfigurationParser {
 
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
-                             optional: ["text", "widgets", "keepAwake", "menuBar"], path: "root")
+                             optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
@@ -64,6 +64,8 @@ public enum ConfigurationParser {
         let widgets = try widgetOptions(root["widgets"], placed: Set(left + right))
         let keepAwake = try keepAwakeOptions(root["keepAwake"])
         let menuBar = try menuBarOptions(root["menuBar"])
+        var showAppIcon = false
+        if let raw = root["showAppIcon"] { showAppIcon = try boolean(raw, path: "showAppIcon") }
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
@@ -72,7 +74,8 @@ public enum ConfigurationParser {
                                   right: right,
                                   widgets: widgets,
                                   keepAwake: keepAwake,
-                                  menuBar: menuBar)
+                                  menuBar: menuBar,
+                                  showAppIcon: showAppIcon)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {

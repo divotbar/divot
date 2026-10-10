@@ -200,6 +200,9 @@ public extension DivotConfiguration {
         if !keepAwake.isEmpty { object["keepAwake"] = keepAwake }
         let menuBar = menuBar.jsonObject
         if !menuBar.isEmpty { object["menuBar"] = menuBar }
+        // Only the non-default opt-in is written, so a document that leaves the
+        // icon off stays identical to the first-launch shape.
+        if showAppIcon { object["showAppIcon"] = true }
         return object
     }
 }

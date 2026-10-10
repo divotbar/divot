@@ -141,6 +141,15 @@ public final class DivotSettingsModel {
         return items.indices.contains(index + delta)
     }
 
+    // MARK: Bar
+
+    /// Show or hide the Divot mark at the start of the left group. The bar
+    /// rebuilds live from the published snapshot; the setting also survives a
+    /// relaunch through the store.
+    public func setShowAppIcon(_ enabled: Bool) {
+        update { $0.showAppIcon = enabled }
+    }
+
     // MARK: Text
 
     /// The font picker selection: the configured family when it is installed,
