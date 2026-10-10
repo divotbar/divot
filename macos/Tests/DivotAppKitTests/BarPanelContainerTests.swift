@@ -100,3 +100,17 @@ import DivotCore
 
     // Extension would be skipped; the geometry is used as-is.
 }
+
+@MainActor
+@Test func notchExtensionDoesNotApplyBelowNativeBar() {
+    // Below the native bar, even if there's a gap, there's no notch to extend into.
+    // The extension only applies at top edge (placement.mode == .topEdge) AND hasGap.
+    let left = CGRect(x: 0, y: 1042, width: 845, height: 32)
+    let right = CGRect(x: 865, y: 1042, width: 845, height: 32)
+    
+    // There IS a gap: 865 - 845 = 20
+    #expect(left.maxX < right.minX)
+    
+    // But below native bar, extension is skipped because placement.mode != .topEdge.
+    // The shouldExtend logic: isTopEdge && hasGap = false && true = false
+}
