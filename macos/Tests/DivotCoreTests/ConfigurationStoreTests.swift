@@ -113,6 +113,32 @@ private func write(_ json: String, to url: URL) throws {
     #expect((object?["menuBar"] as? [String: Any])?["trustAccessibilityProbe"] as? Bool == true)
 }
 
+@Test func savePersistsCursorRevealAndFallbackOnlyWhenNonDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // The pointer-reveal default writes no menu-bar object on its own.
+    var configuration = DivotConfiguration.default
+    try store.save(configuration)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(object?["menuBar"] == nil)
+
+    // Turning the reveal off and the fallback on writes just those two fields.
+    configuration.menuBar.moveBelowOnCursorReveal = false
+    configuration.menuBar.alwaysBelow = true
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(!reloaded.current.menuBar.moveBelowOnCursorReveal)
+    #expect(reloaded.current.menuBar.alwaysBelow)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let menuBar = try #require(object?["menuBar"] as? [String: Any])
+    #expect(menuBar["moveBelowOnCursorReveal"] as? Bool == false)
+    #expect(menuBar["alwaysBelow"] as? Bool == true)
+}
+
 @Test func savePersistsTextSizeAndFontAndOmitsThemWhenDefault() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")

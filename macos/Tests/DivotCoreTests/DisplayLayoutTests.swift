@@ -361,3 +361,66 @@ private func aBarNotchedScreen() -> ScreenGeometry {
     #expect(update.cancelAnimations == true)
     #expect(update.animated == false)
 }
+
+// MARK: - Cursor reveal (#0023)
+
+/// The masked display's visibility comes from the pointer observation only, so
+/// the geometry is identical across the transition and the signal is the only
+/// input that changes.
+private func cursorReading(_ engaged: Bool) -> DisplayReading {
+    DisplayReading(id: notchedID, geometry: notchedScreen(),
+                   signal: NativeMenuBarSignal(cursorRevealsMenuBar: engaged))
+}
+
+@Test func cursorRevealEntersDwellsAndLeavesOnAMaskedDisplay() {
+    var coordinator = DisplayBarCoordinator()  // default settle delay (dwell)
+
+    // The pointer is away: Divot rests at the top edge.
+    let resting = try! #require(coordinator.update(readings: [cursorReading(false)], at: 0).first)
+    #expect(resting.visibility == .hidden)
+    #expect(resting.placement?.mode == .topEdge)
+
+    // Enter: a pending observation cancels any in-flight transition.
+    let entering = coordinator.update(readings: [cursorReading(true)], at: 0.10)
+    #expect(entering.contains { $0.cancelAnimations })
+    #expect(coordinator.isSettling(notchedID))
+
+    // Dwell: nothing commits before the settle deadline.
+    #expect(coordinator.advance(at: 0.20).isEmpty)
+    let revealed = try! #require(coordinator.advance(at: 0.30).first)
+    #expect(revealed.visibility == .visible(inset: 33))
+    #expect(revealed.placement?.mode == .belowNativeBar(inset: 33))
+    #expect(revealed.animated == true)
+
+    // Leave: back to the top edge once the dwell passes.
+    _ = coordinator.update(readings: [cursorReading(false)], at: 0.40)
+    #expect(coordinator.advance(at: 0.50).isEmpty)
+    let hidden = try! #require(coordinator.advance(at: 0.60).first)
+    #expect(hidden.visibility == .hidden)
+    #expect(hidden.placement?.mode == .topEdge)
+}
+
+@Test func cursorRevealRespectsReducedMotion() {
+    var coordinator = DisplayBarCoordinator(menuBarPolicy: .init(reducedMotion: true))
+    _ = coordinator.update(readings: [cursorReading(false)], at: 0)
+    // With Reduced Motion on, the reveal commits immediately and without
+    // animation, like every other visibility change.
+    let updates = coordinator.update(readings: [cursorReading(true)], at: 0)
+    let update = try! #require(updates.first)
+    #expect(update.animated == false)
+    #expect(update.placement?.mode == .belowNativeBar(inset: 33))
+    #expect(!coordinator.isSettling(notchedID))
+}
+
+@Test func cursorRevealIsCrossCheckedByANotchFreeVisibleFrame() {
+    // Disagreement case: the pointer is in the top strip, but the notch-free
+    // display's own `visibleFrame` says the native bar is not there. The geometry
+    // corrects the reading, so Divot stays at the top edge rather than sliding
+    // below a bar that is not shown.
+    var coordinator = DisplayBarCoordinator()
+    let reading = DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false),
+                                 signal: NativeMenuBarSignal(cursorRevealsMenuBar: true))
+    let update = try! #require(coordinator.update(readings: [reading], at: 0).first)
+    #expect(update.visibility == .hidden)
+    #expect(update.placement?.mode == .topEdge)
+}

@@ -180,6 +180,19 @@ public final class DivotSettingsModel {
         loginItemStatus = loginItem.statusDescription
     }
 
+    // MARK: Menu bar
+
+    /// Follow the native menu bar's reveal/hide from the pointer reaching the
+    /// top strip. Off leaves Divot in its current placement.
+    public func setMoveBelowOnCursorReveal(_ enabled: Bool) {
+        update { $0.menuBar.moveBelowOnCursorReveal = enabled }
+    }
+
+    /// Fallback: always sit below the native menu bar.
+    public func setAlwaysBelowMenuBar(_ enabled: Bool) {
+        update { $0.menuBar.alwaysBelow = enabled }
+    }
+
     // MARK: Keep awake
 
     /// Turn the "remember across launches" policy on or off. Enabling captures

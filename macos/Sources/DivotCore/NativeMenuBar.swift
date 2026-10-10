@@ -125,15 +125,26 @@ public struct NativeMenuBarSignal: Equatable, Sendable {
     /// Whether the user configured the bar to always show. Undocumented
     /// defaults are deliberately not wired in here.
     public var configuredAlwaysVisible: Bool?
+    /// Whether the pointer has settled in this display's top strip, the direct
+    /// observation behind the "move below the menu bar when it appears" setting.
+    /// `nil` when that setting is off. It is only consulted for a masked
+    /// (notched) display, where `visibleFrame` cannot decide (#0023).
+    public var cursorRevealsMenuBar: Bool?
+    /// Fallback placement: always sit below the native menu bar. Explicit
+    /// configuration is authoritative, like `configuredAlwaysVisible`.
+    public var alwaysBelowMenuBar: Bool
     /// Nominal height of the platform's native menu bar used when geometry is
     /// clamped away (notch-free displays only). This is the native bar's ~24 pt,
     /// not Divot's own row height (`BarMetrics.default.height`).
     public var nominalMenuBarHeight: CGFloat
 
     public init(accessibilityVisible: Bool? = nil, configuredAlwaysVisible: Bool? = nil,
+                cursorRevealsMenuBar: Bool? = nil, alwaysBelowMenuBar: Bool = false,
                 nominalMenuBarHeight: CGFloat = 24) {
         self.accessibilityVisible = accessibilityVisible
         self.configuredAlwaysVisible = configuredAlwaysVisible
+        self.cursorRevealsMenuBar = cursorRevealsMenuBar
+        self.alwaysBelowMenuBar = alwaysBelowMenuBar
         self.nominalMenuBarHeight = nominalMenuBarHeight
     }
 }
@@ -144,26 +155,38 @@ public struct NativeMenuBarSignal: Equatable, Sendable {
 public enum NativeMenuBarDetector {
     public static func detect(geometry: ScreenGeometry,
                               signal: NativeMenuBarSignal = .init()) -> NativeMenuBarVisibility {
+        // An explicit "always below" fallback is authoritative and does not
+        // depend on any probe; it is the escape hatch for a Mac whose cursor
+        // reveal does not line up (#0023).
+        if signal.alwaysBelowMenuBar {
+            return .visible(inset: visibleInset(geometry, signal))
+        }
         // An explicit "always visible" choice is authoritative and does not
         // depend on any probe.
         if signal.configuredAlwaysVisible == true {
             return .visible(inset: visibleInset(geometry, signal))
         }
         // Notched hardware: the camera housing excludes the whole top band, so
-        // geometry cannot distinguish a hidden from a revealed bar. Only the
-        // Accessibility probe resolves it; absent that, stay indeterminate.
+        // geometry cannot distinguish a hidden from a revealed bar. The
+        // Accessibility probe resolves it when trusted; otherwise the direct
+        // pointer observation does. Absent both, stay indeterminate.
         // The housing is detected from either public signal, so a top band
         // shared with a third-party bar (a-bar) is never read as the native bar.
         if geometry.isNotched {
             if let visible = signal.accessibilityVisible {
                 return visible ? .visible(inset: visibleInset(geometry, signal)) : .hidden
             }
+            if let reveals = signal.cursorRevealsMenuBar {
+                return reveals ? .visible(inset: visibleInset(geometry, signal)) : .hidden
+            }
             return .indeterminate(.notchedHousingMasksMenuBar)
         }
-        // Notch-free: visibleFrame is the deciding geometry signal. A non-zero
-        // top band there is the native bar, because a third-party bar cannot
-        // shrink a display's `visibleFrame` and there is no housing to mask it.
-        // A system-wide Accessibility sample is deliberately ignored here so it
+        // Notch-free: visibleFrame is the deciding geometry signal and is also
+        // the cross-check for a cursor reading. A cursor observation that
+        // disagrees with it is corrected here rather than followed. A non-zero
+        // top band is the native bar, because a third-party bar cannot shrink a
+        // display's `visibleFrame` and there is no housing to mask it. A
+        // system-wide Accessibility sample is deliberately ignored here so it
         // can never override this display's own reading.
         return geometry.menuBarInset > 0.5
             ? .visible(inset: geometry.menuBarInset)

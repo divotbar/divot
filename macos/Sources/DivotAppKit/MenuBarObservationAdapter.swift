@@ -43,14 +43,28 @@ public final class MenuBarObservationAdapter {
     /// holds the top edge rather than moving below an unconfirmed bar (#0021).
     public var trustsAccessibilityProbe: Bool
 
+    /// Displays whose top strip the pointer is currently in, or `nil` when the
+    /// "move below on cursor reveal" setting is off. Only a masked display
+    /// consults it; a notch-free display's `visibleFrame` cross-checks and
+    /// overrides it (#0023).
+    public var cursorEngagedDisplays: Set<DisplayBarID>?
+
+    /// Fallback placement from `menuBar.alwaysBelow`: sit below the native bar
+    /// regardless of any observation.
+    public var alwaysBelowMenuBar: Bool
+
     public init(provider: ScreenGeometryProviding,
                 probe: SystemMenuBarProbing,
                 nominalMenuBarHeight: CGFloat = 24,
-                trustsAccessibilityProbe: Bool = false) {
+                trustsAccessibilityProbe: Bool = false,
+                cursorEngagedDisplays: Set<DisplayBarID>? = nil,
+                alwaysBelowMenuBar: Bool = false) {
         self.provider = provider
         self.probe = probe
         self.nominalMenuBarHeight = nominalMenuBarHeight
         self.trustsAccessibilityProbe = trustsAccessibilityProbe
+        self.cursorEngagedDisplays = cursorEngagedDisplays
+        self.alwaysBelowMenuBar = alwaysBelowMenuBar
     }
 
     public func observe() -> MenuBarObservation {
@@ -73,8 +87,11 @@ public final class MenuBarObservationAdapter {
         let attributedID: DisplayBarID? = (screens.count == 1 && sample != nil) ? maskedIDs.first : nil
 
         let readings = screens.map { screen in
+            let cursor = cursorEngagedDisplays.map { $0.contains(screen.id) }
             let signal = NativeMenuBarSignal(accessibilityVisible: screen.id == attributedID ? sample : nil,
                                              configuredAlwaysVisible: nil,
+                                             cursorRevealsMenuBar: cursor,
+                                             alwaysBelowMenuBar: alwaysBelowMenuBar,
                                              nominalMenuBarHeight: nominalMenuBarHeight)
             return DisplayReading(id: screen.id, geometry: screen.geometry, signal: signal)
         }

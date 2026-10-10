@@ -14,6 +14,7 @@ import DivotCore
 @MainActor
 public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: DisplayCoordinator?
+    private var cursorMonitor: TopStripCursorMonitor?
     private var pipeline: WidgetPipeline?
     private var pipelineTask: Task<Void, Never>?
     private var workspaceFeed: WorkspaceFeed?
@@ -70,6 +71,17 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         }
         coordinator.start()
         self.coordinator = coordinator
+
+        // The pointer reaching a display's top strip is what reveals an
+        // auto-hidden native menu bar. The monitor is event-driven (it reports
+        // only when the pointer enters or leaves a strip) and feeds the
+        // coordinator, which decides whether the engaged display slides (#0023).
+        let cursorMonitor = TopStripCursorMonitor()
+        cursorMonitor.onChange = { [weak coordinator] displays in
+            coordinator?.setCursorInTopStrip(displays)
+        }
+        cursorMonitor.start()
+        self.cursorMonitor = cursorMonitor
 
         // A family theme is fixed hex per variant, so when `mode` is `system`
         // and the Mac toggles appearance the bar must repaint. Each surface's
@@ -261,6 +273,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         pipelineTask?.cancel()
         let pipeline = self.pipeline
         Task { await pipeline?.stop() }
+        cursorMonitor?.stop()
         coordinator?.stop()
         // Never leave a power assertion behind after the process exits.
         keepAwake?.releaseAll()

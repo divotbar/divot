@@ -90,10 +90,14 @@ function keepAwake(value: unknown) {
  * The menu-bar detection preference. `trustAccessibilityProbe` opts in to the
  * permission-gated Accessibility observation of the native menu bar; it is off
  * by default because the on-screen heuristic is hardware-sensitive.
+ * `moveBelowOnCursorReveal` (default `true`) follows an auto-hidden bar's reveal
+ * from the pointer reaching the top strip, and `alwaysBelow` (default `false`)
+ * is the fallback that keeps Divot below the bar where the reveal does not line
+ * up.
  */
 function menuBar(value: unknown) {
-  shape(value, [], ['trustAccessibilityProbe'], 'menuBar')
-  flags(value, ['trustAccessibilityProbe'], 'menuBar')
+  shape(value, [], ['trustAccessibilityProbe', 'moveBelowOnCursorReveal', 'alwaysBelow'], 'menuBar')
+  flags(value, ['trustAccessibilityProbe', 'moveBelowOnCursorReveal', 'alwaysBelow'], 'menuBar')
 }
 
 function workspacesOptions(value: unknown, path: string) {

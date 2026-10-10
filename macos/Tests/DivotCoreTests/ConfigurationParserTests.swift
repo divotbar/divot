@@ -109,10 +109,27 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(typeFailure?.path == "menuBar.trustAccessibilityProbe")
 
-    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"alwaysBelow":true}}"##)
+    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"followSystemSignal":true}}"##)
     let unknownFailure = error { try ConfigurationParser.parse(jsonObject: unknown) }
     #expect(unknownFailure?.path == "menuBar")
-    #expect(unknownFailure?.message == "unknown field alwaysBelow")
+    #expect(unknownFailure?.message == "unknown field followSystemSignal")
+}
+
+@Test func menuBarCursorRevealAndFallbackParseAndValidate() throws {
+    let configured = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"moveBelowOnCursorReveal":false,"alwaysBelow":true}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: configured)
+    #expect(parsed.configuration.menuBar.moveBelowOnCursorReveal == false)
+    #expect(parsed.configuration.menuBar.alwaysBelow == true)
+
+    // The default document follows the pointer reveal and leaves the fallback off.
+    let defaults = try ConfigurationParser.parse(jsonObject: try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[]}"##))
+    #expect(defaults.configuration.menuBar == .default)
+    #expect(defaults.configuration.menuBar.moveBelowOnCursorReveal)
+    #expect(!defaults.configuration.menuBar.alwaysBelow)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"alwaysBelow":"yes"}}"##)
+    let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(typeFailure?.path == "menuBar.alwaysBelow")
 }
 
 @Test func textSizeAndFontRoundTripAndDeriveTheBarMetrics() throws {

@@ -22,6 +22,9 @@ public final class DisplayCoordinator {
     private var surfaces: [DisplayBarID: BarDisplaySurface] = [:]
     private var tokens: [NSObjectProtocol] = []
     private var settleTimer: Timer?
+    /// Displays whose top strip the pointer is currently in, from the event
+    /// monitor. Empty until the first observation and while the setting is off.
+    private var cursorEngagedDisplays: Set<DisplayBarID> = []
     /// Latest widget state per item, replayed to a panel created after the batch
     /// that produced it (hot-plug, or a restart that rebuilds panels).
     private var widgetStates: [BarItemID: WidgetState] = [:]
@@ -44,6 +47,7 @@ public final class DisplayCoordinator {
         self.core = DisplayBarCoordinator(menuBarPolicy: menuBarPolicy,
                                           contentPolicy: configuration.layout.contentPolicy)
         self.makeSurface = surfaceFactory
+        syncObservationInputs()
     }
 
     /// Adopt a new validated configuration: update the placement policy and
@@ -59,7 +63,7 @@ public final class DisplayCoordinator {
         let detectionChanged = configuration.menuBar != newValue.menuBar
         configuration = newValue
         core.contentPolicy = newValue.layout.contentPolicy
-        adapter.trustsAccessibilityProbe = newValue.menuBar.trustAccessibilityProbe
+        syncObservationInputs()
         guard isRunning else { return }
         if barChanged {
             for surface in surfaces.values { surface.close() }
@@ -74,7 +78,13 @@ public final class DisplayCoordinator {
             refresh()
         } else if detectionChanged {
             // A detection-policy change renders the same bar, so the panels are
-            // not rebuilt, but the placement may change. Re-read and apply it.
+            // not rebuilt, but the placement may change. Clear the retained core
+            // state so every display re-emits a resting placement: an
+            // indeterminate state holds its current position, and without the
+            // reset turning the cursor reveal off while Divot sat below the bar
+            // would leave it stuck there with no further signal to return it
+            // (#0023).
+            core.reset()
             refresh()
         }
     }
@@ -106,6 +116,7 @@ public final class DisplayCoordinator {
 
     /// Re-read the platform and apply any resulting placement as one batch.
     public func refresh() {
+        syncObservationInputs()
         let observation = adapter.observe()
         lastObservation = observation
         // Propagate Reduced Motion to every existing per-display controller, not
@@ -115,6 +126,29 @@ public final class DisplayCoordinator {
         reconcileSurfaces()
         apply(updates)
         scheduleSettle()
+    }
+
+    /// Record which displays' top strips the pointer is in and re-evaluate
+    /// placement. Called by the event-driven cursor monitor; a no-op when the
+    /// set is unchanged, so pointer movement that stays inside or outside the
+    /// strip never re-reads the platform.
+    public func setCursorInTopStrip(_ displays: Set<DisplayBarID>) {
+        guard displays != cursorEngagedDisplays else { return }
+        cursorEngagedDisplays = displays
+        guard isRunning else { return }
+        refresh()
+    }
+
+    /// Push the placement inputs the configuration owns to the adapter. Called
+    /// before every observation so a settings toggle takes effect on the next
+    /// read; the cursor set is withheld entirely when the setting is off, which
+    /// makes a masked display fall back to indeterminate rather than guess.
+    private func syncObservationInputs() {
+        adapter.trustsAccessibilityProbe = configuration.menuBar.trustAccessibilityProbe
+        adapter.cursorEngagedDisplays = configuration.menuBar.moveBelowOnCursorReveal
+            ? cursorEngagedDisplays
+            : nil
+        adapter.alwaysBelowMenuBar = configuration.menuBar.alwaysBelow
     }
 
     /// Apply a batch of widget changes to every display. This comes from the

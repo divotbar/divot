@@ -152,6 +152,26 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func menuBarCursorRevealDefaultsOnAndTheFallbackOffThenPersist() throws {
+    let (model, controller) = try makeModel()
+
+    // The pointer reveal is on by default; the always-below fallback is off.
+    #expect(model.configuration.menuBar.moveBelowOnCursorReveal)
+    #expect(!model.configuration.menuBar.alwaysBelow)
+
+    model.setMoveBelowOnCursorReveal(false)
+    model.setAlwaysBelowMenuBar(true)
+    #expect(!model.configuration.menuBar.moveBelowOnCursorReveal)
+    #expect(model.configuration.menuBar.alwaysBelow)
+
+    // Both survive a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(!reloaded.current.menuBar.moveBelowOnCursorReveal)
+    #expect(reloaded.current.menuBar.alwaysBelow)
+}
+
+@MainActor
 @Test func anUninstalledConfiguredFontShowsTheSystemDefaultInThePicker() throws {
     let (model, _) = try makeModel()
     model.update { $0.text.font = "No Such Font 12345" }
