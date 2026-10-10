@@ -2,7 +2,7 @@
 id: "0025"
 title: "Flat bar chrome: square edges to the screen edges, no 3D, optional bottom shadow"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0024"]
@@ -72,4 +72,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:06:04Z · note: review pass 2: needs some work
 - 2026-10-10T11:06:04Z · status review→active
 - 2026-10-10T11:06:47Z · body: section Verification
-- 2026-10-10T11:07:08Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T11:07:08Z · status active→review
