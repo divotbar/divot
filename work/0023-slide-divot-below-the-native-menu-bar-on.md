@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T10:40:20Z"
+updated_at: "2026-10-10T10:42:06Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -40,7 +40,7 @@ Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new 
 ## Verification
 Automated (task branch, this run):
 
-- `swift test --package-path macos`: **415 tests pass**, including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, and the settings-model persistence.
+- `swift test --package-path macos`: **417 tests pass**, including the cursor enter → dwell → leave transition on a masked display, the notch-free `visibleFrame` cross-check disagreement case, per-display cursor attribution, the toggle-off and Reduced Motion behaviour, the config parse/round-trip, the settings-model persistence, and (round 2) two `TopStripCursorMonitor` integration tests that drive the tracking loop through a stub geometry provider and an injected pointer location.
 - `bun run check`: config schema, examples, and the website build pass.
 - `REPOOS_CHECK_CHANGED=main repoos check`: all steps pass (native-core, native-app, native-app-bundle, justfile). The bundled step runs `scripts/package-app.sh` and the packaged app's headless smoke checks (`--help`, `--report`, `--widgets`).
 
@@ -51,9 +51,15 @@ Implementation notes:
 - Settings carries "Move below the menu bar when it appears" (default on) and the "Always below the menu bar" fallback (default off), persisted through the store with `menuBar.moveBelowOnCursorReveal` / `menuBar.alwaysBelow`.
 - On a detection-policy change the coordinator resets its retained core state so an indeterminate state cannot leave the bar stuck below after the toggle is turned off.
 
+Review round 2:
+
+- Edge case (global monitor may be `nil`): `TopStripCursorMonitor.globalMonitorInstalled` is exposed and the app writes a one-line stderr warning when the global mouse monitor does not install, so support can tell "setting off" from "no global events". The local monitor still runs regardless.
+- Edge case (notch-free + auto-hide relies on `visibleFrame`): kept as the documented cross-check; the flat-display case is now called out in the `docs/local-preview.md` hardware checklist and covered by the detector disagreement tests. `menuBar.alwaysBelow` remains the fallback where that frame lies.
+- Edge case (default on for everyone): the spec default is kept (cursor reveal on), and the Settings caption now states it targets an auto-hidden menu bar; on a notch-free display the cursor reading is ignored in favour of `visibleFrame` anyway, so an always-visible setup is unaffected there.
+
 Human-only (NOT supplied here; do not treat as verified):
 
-- Visual confirmation that the bar slides below the native menu bar when the pointer reaches the top edge and returns when it leaves, on the maintainer's display. The screen capture the acceptance asks for was not produced from this agent process; a person must capture the top strip and confirm the feel. No run here claims it works visually.
+- Visual confirmation that the bar slides below the native menu bar when the pointer reaches the top edge and returns when it leaves, on the maintainer's display (notched built-in and a flat external display). The screen capture the acceptance asks for was not produced from this agent process; a `ui-verification/0023.json`/shot attachment must be added and the feel confirmed by a person before close-out. No run here claims it works visually.
 
 
 ## Activity
@@ -66,3 +72,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T10:39:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T10:40:20Z · note: review pass 1: needs some work
 - 2026-10-10T10:40:20Z · status review→active
+- 2026-10-10T10:42:06Z · body: section Verification
