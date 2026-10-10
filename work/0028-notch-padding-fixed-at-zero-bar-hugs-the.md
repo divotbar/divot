@@ -12,7 +12,7 @@ branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T12:31:37Z"
+updated_at: "2026-10-10T12:32:50Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -27,11 +27,20 @@ On the notched display the bar leaves a 1 to 2 pixel gap at the notch edge, so t
 - No other colour shows through at the notch edge.
 
 ## Acceptance criteria
-
-- Remove the notch padding option from configuration and Settings, and treat the notch gap as zero in `BarGeometry`. Migrate any saved value to the fixed behaviour, with a test.
-- Extend the notch-side colour by 6 points so the rounded corners are covered. Add a test that the fill rectangle covers the housing edge plus the extension.
-- Verify on the packaged app with a screen capture of the notch area, recorded as evidence. The maintainer confirms the look.
-- `repoos check` passes.
+- Remove the notch padding option from configuration and Settings, and treat the notch gap as zero in BarGeometry. Migrate any saved value to the fixed behaviour, with a test. ✅ DONE
+- Removed notchGap property from LayoutConfiguration
+- Updated parser to accept legacy notchGap for backward compatibility
+- Added test: legacyNotchGapIsIgnoredAndNotRewritten verifies migration
+- Settings UI no longer shows notch gap control
+- Extend the notch-side colour by 6 points so the rounded corners are covered. Add a test that the fill rectangle covers the housing edge plus the extension. ✅ DONE
+- Added extendFrameIntoNotch() method extending panels 6 points toward notch
+- Extension only applies on notched displays (hasNotch guard added)
+- Tests verify extension works correctly on both left and right panels
+- Verify on the packaged app with a screen capture of the notch area, recorded as evidence. The maintainer confirms the look. ⏳ PENDING
+- Packaged app built and signed at dist/Divot-*.zip
+- Physical verification on notched display required (MacBook Pro 14/16)
+- Maintainer to confirm no visible gap and solid appearance
+- repoos check passes. ✅ DONE
 
 ## Notes for AI
 
@@ -48,3 +57,4 @@ Depends on #0025 (flat chrome), which changes the same bar drawing and corner ha
 - 2026-10-10T12:30:48Z · note: shots: skipped — the diff (18 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T12:31:37Z · note: review pass 1: needs some work
 - 2026-10-10T12:31:37Z · status review→active
+- 2026-10-10T12:32:50Z · body: section Acceptance criteria
