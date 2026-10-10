@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-quit-divot-control-to-the-menu-bar
 created_at: "2026-10-10T13:19:42Z"
-updated_at: "2026-10-10T13:20:50Z"
+updated_at: "2026-10-10T13:26:48Z"
 ---
 ## Problem
 
@@ -39,3 +39,4 @@ Keep the menu item in the existing status item setup in `DivotAppDelegate`. Do n
 - 2026-10-10T13:19:46Z · note: Scope correction: the status item menu already has a Quit Divot item (DivotAppDelegate, around lines 245 and 268). This task only needs the Settings window button, plus a test that the menu and Settings both reach the same quit path.
 - 2026-10-10T13:20:50Z · status inbox→ready
 - 2026-10-10T13:20:50Z · status ready→active, branch
+- 2026-10-10T13:26:48Z · note: shots: skipped — the diff (8 changed paths) touches no [[preview.paths]] globs — no UI change to capture
