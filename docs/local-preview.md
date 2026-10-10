@@ -125,11 +125,15 @@ below the system menu bar (`mainMenu - 1`), so native menus stay above Divot.
 
 Disclosed limits (never hidden):
 
-- **Notched displays:** the camera housing masks the same band, so native-bar
-  visibility cannot be decided from public APIs without a validated
-  Accessibility observation. On this Mac the notched case currently reports
-  `indeterminate(notchedHousingMasksMenuBar)` and holds the top edge; it never
-  stacks below a phantom bar. This is the task 0015 fix.
+- **Notched displays:** the camera housing masks the same band, so
+  `visibleFrame` alone cannot decide native-bar visibility. The app uses the
+  permission-gated Accessibility observation — the bar's own on-screen frame,
+  not `kAXHiddenAttribute` (which stays `false` while auto-hidden) — and holds
+  the top edge when the probe is unavailable. Visual confirmation of the reveal
+  and of the top-edge placement on this Mac is still pending.
+- **AppKit's menu-bar frame clamp:** the nonactivating panels override
+  `constrainFrameRect(_:to:)` so a top-edge placement can occupy the camera
+  housing; the default clamp parks it at `visibleFrame.maxY`.
 - **A top band occupied by another bar** (for example a-bar under AeroSpace) is
   not treated as a revealed native bar, so Divot holds the top edge.
 - **Always-visible native menu bar:** the detector accepts the signal but the

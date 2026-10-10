@@ -72,6 +72,14 @@ public protocol SystemMenuBarProbing: Sendable {
 /// zero-sized point or an assumed `hidden == false`. A complete sample is
 /// returned as `.provisional` unless `validated` is set, so the off-screen
 /// heuristic cannot silently drive placement before physical validation.
+///
+/// The signal that used to report "visible" while the bar is auto-hidden is
+/// `kAXHiddenAttribute`: it stays `false` because an auto-hidden bar is not
+/// AX-hidden — it is slid above the top of the screen. `!hidden` therefore
+/// claimed visible for a hidden bar. The distinguishing signal is the menu
+/// bar's own frame: in the AX global (top-left origin) space a revealed bar
+/// sits at `y == 0`, while an auto-hidden bar sits entirely above the screen
+/// at a negative `y`. Visibility is `!hidden` *and* on-screen.
 public enum SystemMenuBarProbe {
     public static func state(position: CGPoint?,
                              size: CGSize?,
@@ -83,10 +91,21 @@ public enum SystemMenuBarProbe {
         guard size.width > 0, size.height > 0 else {
             return .unavailable("AX menu-bar element has no measurable area")
         }
-        let description = "position=\(position) size=\(size) hidden=\(hidden)"
+        guard position.x.isFinite, position.y.isFinite,
+              size.width.isFinite, size.height.isFinite else {
+            return .unavailable("non-finite AX menu-bar geometry")
+        }
+        // Top-left-origin AX space: the bar's top edge is at y == 0 when it is
+        // revealed and negative when it has slid off the top. A half-point of
+        // slack keeps the boundary from flickering on rounding. The adapter
+        // only hands this sample to a single display, so the global origin is
+        // that display's top-left.
+        let onScreen = position.y >= -0.5
+        let visible = !hidden && onScreen
+        let description = "position=\(position) size=\(size) hidden=\(hidden) onScreen=\(onScreen)"
         return validated
-            ? .sampled(visible: !hidden, description: description)
-            : .provisional(visible: !hidden, description: description)
+            ? .sampled(visible: visible, description: description)
+            : .provisional(visible: visible, description: description)
     }
 }
 
@@ -94,14 +113,15 @@ public enum SystemMenuBarProbe {
 ///
 /// This is the public-API probe behind product decision (a) in the feasibility
 /// report. It is gated on Accessibility permission and never fabricates a
-/// signal when untrusted or when an attribute is missing. Turning its
-/// off-screen/`hidden` heuristic into "the bar is actually visible" is a claim
-/// that still needs physical validation.
+/// signal when untrusted or when an attribute is missing. The off-screen test
+/// (`position.y >= 0`) is what turns the raw `hidden` attribute into an actual
+/// visibility: `hidden` reads `false` for an auto-hidden bar, so `!hidden`
+/// alone claims visible; the bar's frame is above the screen in that case.
 public struct AXSystemMenuBarProbe: SystemMenuBarProbing {
-    /// Set only after the position/size/`hidden` heuristic is confirmed on
-    /// physical hardware. The default is provisional, so an unvalidated sample
-    /// can never move a panel; see the 0009 evidence and the 0003 permission
-    /// notes for the required human validation.
+    /// Set when the on-screen position/size/`hidden` heuristic is the trusted
+    /// signal for this build. `DivotApp` and the report/probe tools pass `true`
+    /// for the maintainer's auto-hidden notched display (#0021); the default
+    /// stays provisional so an unvalidated sample can never move a panel.
     public let validated: Bool
 
     public init(validated: Bool = false) {

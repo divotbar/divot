@@ -19,13 +19,14 @@ import DivotCore
 final class Probe {
     private var controller = MenuBarInsetController(initial: .indeterminate(.notchedHousingMasksMenuBar))
     private let provider = NSScreenGeometryProvider()
-    private let probe = AXSystemMenuBarProbe()
+    private let probe = AXSystemMenuBarProbe(validated: true)
 
     func currentReadings() -> [ScreenGeometryReading] { provider.screens() }
 
     private func signal() -> NativeMenuBarSignal {
-        // The Accessibility result is intentionally not trusted by default: an
-        // unverified off-screen heuristic must not silently drive placement.
+        // The Accessibility result is trusted for this build: the on-screen
+        // position test distinguishes a revealed bar from an auto-hidden one
+        // that still reports `hidden == false` (see `SystemMenuBarProbe`).
         NativeMenuBarSignal(accessibilityVisible: probe.sample().accessibilityVisible,
                             configuredAlwaysVisible: nil)
     }

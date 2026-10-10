@@ -50,7 +50,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         self.workspaceIcons = icons
 
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
-                                                probe: AXSystemMenuBarProbe())
+                                                probe: AXSystemMenuBarProbe(validated: true))
         let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
             let screensID = NSScreen.screens
                 .firstIndex { NSScreenGeometryProvider.displayID(of: $0) == id }

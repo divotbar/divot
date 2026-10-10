@@ -11,8 +11,10 @@ import CoreGraphics
 /// text width, and this type owns the arithmetic (plus the no-truncation
 /// guarantee) so it is verifiable without a window server.
 public struct BarMetrics: Equatable, Sendable {
-    /// Default row height in points, matched to the macOS menu bar's compact
-    /// rhythm. This is the one place the default height is set.
+    /// Default row height in points, matched to the camera-housing band so the
+    /// row lines up with the notch: 32 pt is the ~64 px (2×) housing height.
+    /// This is the one place the default height is set; `layout.height` in the
+    /// configuration document still overrides it.
     public var height: CGFloat
     /// Gap between adjacent items in one group.
     public var itemSpacing: CGFloat
@@ -30,7 +32,7 @@ public struct BarMetrics: Equatable, Sendable {
     /// Gap between workspace chips.
     public var chipSpacing: CGFloat
 
-    public init(height: CGFloat = 24,
+    public init(height: CGFloat = 32,
                 itemSpacing: CGFloat = 8,
                 rowInset: CGFloat = 6,
                 iconSize: CGFloat = 14,

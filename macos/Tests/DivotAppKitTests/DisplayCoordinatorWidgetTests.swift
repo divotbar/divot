@@ -25,9 +25,9 @@ private struct ProbeStub: SystemMenuBarProbing {
     func sample() -> SystemMenuBarState { .notTrusted }
 }
 
-/// Permission granted, but the sample is only provisional (the app's actual
-/// probe is constructed with `validated: false`), so it carries no decisive
-/// visibility. This is exactly the "Accessibility granted" launch input.
+/// Permission granted, but the sample is only provisional, so it carries no
+/// decisive visibility. This models any transfer that has not been marked
+/// `validated`; the coordinator must still place the panels.
 private struct ProvisionalProbeStub: SystemMenuBarProbing {
     func sample() -> SystemMenuBarState { .provisional(visible: true, description: "notch fixture") }
 }

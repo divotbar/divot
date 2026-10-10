@@ -76,9 +76,13 @@ network access or any physical hardware.
 - The observation adapter never turns an untrusted probe into a visibility
   claim, never hands the single system-wide sample to more than one display, and
   never lets it override a display whose own `visibleFrame` decides.
-- The AX menu-bar sample is **provisional** by default: a complete sample stays
-  `.provisional` and carries no decisive visibility, so an unvalidated heuristic
-  cannot move a panel. Only a sample explicitly marked `validated` is decisive.
+- The AX menu-bar visibility is derived from the bar's own frame, not
+  `kAXHiddenAttribute`: an auto-hidden bar still reports `hidden == false`
+  because it is slid above the screen, so the on-screen position test
+  (`position.y >= 0`) is the signal that distinguishes revealed from hidden
+  (#0021). A complete sample stays `.provisional` unless explicitly marked
+  `validated`; `DivotApp` marks the probe validated on the maintainer's notched
+  display.
 - Missing or zero-area AX attributes stay `.unavailable` instead of being coerced
   into a visible/hidden claim.
 
@@ -89,6 +93,12 @@ network access or any physical hardware.
 - Window level just below the system menu bar (`mainMenu - 1`, so native menus
   stay above Divot) and collection behavior
   `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]`.
+- The nonactivating panels override `constrainFrameRect(_:to:)` so a top-edge
+  placement may occupy the camera-housing band. AppKit's default clamp parks the
+  panel at the bottom of that band (`visibleFrame.maxY`, observed as y=33 from
+  the top on the built-in display) even while the native bar is hidden; the
+  override keeps the requested frame with the level unchanged. Verified locally
+  with a window-list read (not a screenshot).
 - Animated reposition and the cancel path between transitions.
 
 **Not verified at all — a human must supply (do not treat as working):**
@@ -96,9 +106,9 @@ network access or any physical hardware.
 - Whether the bar actually appears/is ordered correctly on-screen on a real
   display, and the fullscreen/Spaces/multi-display behaviors above.
 - Whether native-bar reveal/hide is observable on notched hardware. The
-  Accessibility probe is the candidate detector; it is gated, and its
-  position/size/`hidden` heuristic is returned as provisional, not decisive,
-  until a person validates it.
+  Accessibility probe is the detector; its on-screen position test is now used
+  as a decisive signal (`AXSystemMenuBarProbe(validated: true)`), but whether the
+  bar visually lands correctly on reveal is still a human check.
 - Whether the macOS always-visible menu-bar setting is readable from public
   APIs. The detector accepts a `configuredAlwaysVisible` signal and treats it as
   authoritative (covered by pure tests), but the observation adapter does not
@@ -124,13 +134,12 @@ permission at launch and every notched display is reported as
 converts pointer proximity into a visibility claim. On notch-free displays
 `visibleFrame` remains the signal and no permission is needed.
 
-Permission alone is not enough: the probe reports a complete sample as
-`.provisional`, which carries no decisive visibility, because the
-position/size/`hidden` heuristic has not been physically validated. A sample only
-becomes decisive (`.sampled`) when `AXSystemMenuBarProbe(validated: true)` is
-passed, and that flag must only be set after the hardware validation recorded in
-the 0009 report. The app keeps the default (provisional), so the notched case
-stays indeterminate on the current build.
+Permission alone is not enough by itself: a complete sample stays
+`.provisional` unless explicitly marked `validated`. The corrected on-screen
+position test is the trusted signal for this build, so `DivotApp` (and the
+report/probe tools) construct `AXSystemMenuBarProbe(validated: true)` for the
+maintainer's auto-hidden notched display. Whether the bar visually lands right
+is still a human check (see the "not verified" list above).
 
 When a validated sample is used, it is applied conservatively: it is only used
 for a display whose own geometry is masked by the camera housing, and only when

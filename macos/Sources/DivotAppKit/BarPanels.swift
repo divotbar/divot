@@ -30,6 +30,19 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     private final class NonActivatingPanel: NSPanel {
         override var canBecomeKey: Bool { false }
         override var canBecomeMain: Bool { false }
+
+        /// Let the panel occupy the camera-housing band beside the notch.
+        ///
+        /// AppKit's default constraint clamps a window so its frame stays below
+        /// the menu-bar band — `visibleFrame.maxY` — even while the native bar
+        /// is auto-hidden. On the built-in notched display that parked the
+        /// top-edge bar at the *bottom* of the housing band (observed as y=33
+        /// from the top) instead of the top edge, which is the reported bug.
+        /// The panel level stays just under the system menu bar, so native menus
+        /// still draw above Divot; only the frame clamp is bypassed (#0021).
+        override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
+            frameRect
+        }
     }
 
     public let id: DisplayBarID

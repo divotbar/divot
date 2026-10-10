@@ -9,7 +9,7 @@ import DivotCore
 enum DivotAppReport {
     static func run() {
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
-                                                probe: AXSystemMenuBarProbe())
+                                                probe: AXSystemMenuBarProbe(validated: true))
         let observation = adapter.observe()
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
 

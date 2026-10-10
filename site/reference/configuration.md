@@ -50,7 +50,7 @@ All sizes are logical points, not physical pixels.
 
 | Field | Range | Meaning |
 | --- | --- | --- |
-| `height` | 24–40 | Panel height; clamp to available safe top area |
+| `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
 | `notchGap` | 0–32 | Extra clearance beside the camera housing |
 
