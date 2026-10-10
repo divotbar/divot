@@ -113,6 +113,29 @@ private func write(_ json: String, to url: URL) throws {
     #expect((object?["menuBar"] as? [String: Any])?["trustAccessibilityProbe"] as? Bool == true)
 }
 
+@Test func savePersistsTextSizeAndFontAndOmitsThemWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // The defaults write no text object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    #expect(object?["text"] == nil)
+
+    var configuration = DivotConfiguration.default
+    configuration.text = TextConfiguration(size: 16, font: "Menlo")
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.text == TextConfiguration(size: 16, font: "Menlo"))
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let text = object?["text"] as? [String: Any]
+    #expect(text?["size"] as? Double == 16)
+    #expect(text?["font"] as? String == "Menlo")
+}
+
 @Test func saveRefusesAnInvalidConfiguration() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")

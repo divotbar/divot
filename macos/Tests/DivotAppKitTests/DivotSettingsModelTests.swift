@@ -112,6 +112,47 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func textSizeAndFontApplyAndPersist() throws {
+    let (model, controller) = try makeModel()
+
+    model.setTextSize(18)
+    model.setTextFont("Menlo")
+
+    #expect(model.configuration.text == TextConfiguration(size: 18, font: "Menlo"))
+    // The icon follows the text size, so the bar stays in proportion.
+    #expect(model.configuration.barMetrics.textFontSize == 18)
+    #expect(model.configuration.barMetrics.iconSize == 20)
+
+    // Both survive a reload from disk, like the theme picker.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.text == TextConfiguration(size: 18, font: "Menlo"))
+}
+
+@MainActor
+@Test func anUninstalledConfiguredFontShowsTheSystemDefaultInThePicker() throws {
+    let (model, _) = try makeModel()
+    model.update { $0.text.font = "No Such Font 12345" }
+
+    // The document keeps the honest value; the picker shows the fallback rather
+    // than a blank row, and the bar resolves the system font at the configured size.
+    #expect(model.configuration.text.font == "No Such Font 12345")
+    #expect(model.selectedFontFamily == "")
+    #expect(model.configuration.barMetrics.textFontSize == 14)
+}
+
+@MainActor
+@Test func outOfRangeTextSizeIsRefusedAndReported() throws {
+    let (model, _) = try makeModel()
+    let good = model.configuration.text.size
+
+    model.setTextSize(99)
+
+    #expect(model.errorMessage?.contains("text.size") == true)
+    #expect(model.configuration.text.size == good)
+}
+
+@MainActor
 @Test func modelFollowsChangesPublishedByTheSharedController() throws {
     let (model, controller) = try makeModel()
 

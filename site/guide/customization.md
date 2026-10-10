@@ -22,6 +22,7 @@ The intended location is `~/.config/divot/config.json`. Settings and file custom
     "material": "native"
   },
   "layout": { "height": 24, "padding": 6, "notchGap": 10 },
+  "text": { "size": 14, "font": "" },
   "left": ["workspaces", "front-app"],
   "right": ["battery", "clock", "network", "volume"]
 }
@@ -34,6 +35,14 @@ The bar has two ordered groups, `left` and `right`. Each lists supported items, 
 ## A smaller bar
 
 For a distraction-free setup, use `examples/focus.json`: a 28-point opaque bar with occupied workspaces only and a minute clock without the day of week. For an opaque themed layout, use `examples/opaque.json`.
+
+## Your own type
+
+The optional `text` object sets the bar's `size` (10–20 points, default 14) and `font` (an installed family name, or `""` for the system font). The icon scales with the text so the two stay in proportion, and Settings exposes both controls with the same live, validated behavior as the file. A font that is not installed falls back to the system font rather than failing the load.
+
+```json
+"text": { "size": 16, "font": "Helvetica" }
+```
 
 ## Your own palette
 

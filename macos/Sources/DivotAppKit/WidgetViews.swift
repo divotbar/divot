@@ -28,7 +28,7 @@ final class BarItemView: NSView {
         indicatorView.imageScaling = .scaleProportionallyDown
         indicatorView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(indicatorView)
-        textField.font = .monospacedDigitSystemFont(ofSize: metrics.textFontSize, weight: .medium)
+        textField.font = BarFont.text(metrics)
         // Truncation is a safety net for genuinely constrained layouts, never the
         // normal case: the item is sized to the measured text so nothing clips at
         // the default width.

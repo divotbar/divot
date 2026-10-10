@@ -117,6 +117,37 @@ public struct LayoutConfiguration: Equatable, Sendable {
     }
 }
 
+// MARK: - Text
+
+/// `text`: the bar's text size and font.
+///
+/// `size` is the single knob: icon and chip sizes are derived from it in
+/// `BarMetrics.scaled`, so the row stays in proportion as the text grows.
+/// `font` is an installed font family name; an empty string means the system
+/// font, and a name that is not installed falls back to the system font when
+/// the bar resolves it (`BarFontResolver`). The parser validates the size range
+/// but never rejects a font name — the fallback is at render time, not load
+/// time.
+public struct TextConfiguration: Equatable, Sendable {
+    public static let sizeRange: ClosedRange<Double> = 10...20
+
+    /// Text size in points. Defaults to `BarMetrics.defaultTextSize`, larger
+    /// than the originally fixed 12 pt.
+    public var size: Double
+    /// Font family name, or `""` for the system font.
+    public var font: String
+
+    public init(size: Double = Double(BarMetrics.defaultTextSize), font: String = "") {
+        self.size = size
+        self.font = font
+    }
+
+    public static let `default` = TextConfiguration()
+
+    /// The font family to draw with, or `nil` for the system font.
+    public var fontFamily: String? { font.isEmpty ? nil : font }
+}
+
 // MARK: - Per-widget options
 
 /// `widgets.workspaces`: the workspace row's display options plus the adapter.
@@ -276,6 +307,7 @@ public struct DivotConfiguration: Equatable, Sendable {
     public var version: Int
     public var appearance: AppearanceConfiguration
     public var layout: LayoutConfiguration
+    public var text: TextConfiguration
     public var left: [BarItemID]
     public var right: [BarItemID]
     public var widgets: WidgetOptions
@@ -285,6 +317,7 @@ public struct DivotConfiguration: Equatable, Sendable {
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
                 layout: LayoutConfiguration = .default,
+                text: TextConfiguration = .default,
                 left: [BarItemID] = DivotConfiguration.defaultLeft,
                 right: [BarItemID] = DivotConfiguration.defaultRight,
                 widgets: WidgetOptions = .default,
@@ -293,6 +326,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.version = version
         self.appearance = appearance
         self.layout = layout
+        self.text = text
         self.left = left
         self.right = right
         self.widgets = widgets
@@ -330,6 +364,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         left == other.left
             && right == other.right
             && layout == other.layout
+            && text == other.text
             && widgets == other.widgets
             && appearance == other.appearance
     }
@@ -344,11 +379,15 @@ public struct DivotConfiguration: Equatable, Sendable {
                                   frontApp: widgets.frontApp.formatOptions)
     }
 
-    /// The compact render rhythm derived from the configured layout. Fonts,
-    /// icon size, item spacing, and the row inset come from `BarMetrics`; only
-    /// the height and padding are user-configurable here.
+    /// The compact render rhythm derived from the configured layout and text.
+    /// Item spacing and the icon/text gap come from `BarMetrics`; the height,
+    /// padding, text size, and font are user-configurable here, and the icon and
+    /// chip sizes follow the text size so the row stays in proportion.
     public var barMetrics: BarMetrics {
-        BarMetrics(height: CGFloat(layout.height), rowInset: CGFloat(layout.padding))
+        BarMetrics.scaled(textSize: CGFloat(text.size),
+                          height: CGFloat(layout.height),
+                          rowInset: CGFloat(layout.padding),
+                          fontFamily: text.fontFamily)
     }
 
     // MARK: Editing
