@@ -118,6 +118,28 @@ private func aBarNotchedScreen() -> ScreenGeometry {
     #expect(update.ambiguity == .notchedHousingMasksMenuBar)
 }
 
+@Test func grantedAccessibilityOnANotchedDisplayStillYieldsAPlacement() {
+    // Regression for #0020. Accessibility is granted, but the app's probe is
+    // provisional (`AXSystemMenuBarProbe(validated: false)`), so the decisive
+    // `accessibilityVisible` is nil and a notched display stays indeterminate.
+    // That indeterminate visibility is the input that makes the raw resolver
+    // return nil; the coordinator must still place the bar at the top edge so
+    // the panels get a frame. A silent hold here is the bug.
+    let signal = NativeMenuBarSignal(accessibilityVisible: nil)
+    let visibility = NativeMenuBarDetector.detect(geometry: notchedScreen(), signal: signal)
+    #expect(visibility == .indeterminate(.notchedHousingMasksMenuBar))
+    #expect(BarPlacementResolver.placement(screen: notchedScreen(), visibility: visibility) == nil)
+
+    var coordinator = DisplayBarCoordinator()
+    let update = try! #require(coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen(), signal: signal)
+    ], at: 0).first)
+    #expect(update.placement != nil)
+    #expect(update.placement?.mode == .topEdge)
+    #expect(update.ambiguity == .notchedHousingMasksMenuBar)
+    #expect(update.animated == false)
+}
+
 @Test func rapidTogglesConvergePerDisplayWithoutDraggingOthers() {
     var coordinator = DisplayBarCoordinator()  // default settle delay
     _ = coordinator.update(readings: [

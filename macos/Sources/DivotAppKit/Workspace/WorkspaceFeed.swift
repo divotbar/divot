@@ -24,6 +24,11 @@ public final class WorkspaceFeed {
     /// Produces a fresh event source per subscription attempt so a dropped
     /// connection can be re-established.
     private var eventSourceProvider: (@MainActor () -> WorkspaceEventSource?)?
+    /// The generation whose capability probe has produced a real availability.
+    /// Until it matches `machine.generation`, the state still carries the
+    /// pre-probe placeholder and must not be announced as if it were a manager
+    /// that was not found.
+    private var probedGeneration: UInt64?
     private var probeTask: Task<Void, Never>?
     private var watchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
@@ -90,9 +95,11 @@ public final class WorkspaceFeed {
         teardown(superseded)
         machine.setOptions(options)
         let generation = machine.begin()
+        probedGeneration = nil
 
         guard let adapter else {
             machine.accept(availability: .unavailable(.managerNotInstalled), generation: generation)
+            probedGeneration = generation
             announce()
             return
         }
@@ -100,6 +107,7 @@ public final class WorkspaceFeed {
         probeTask = Task { [weak self] in
             let availability = await adapter.capabilities()
             guard let self, self.machine.isCurrent(generation) else { return }
+            self.probedGeneration = generation
             self.machine.accept(availability: availability, generation: generation)
             self.announce()
             guard availability.isAvailable else { return }
@@ -115,6 +123,14 @@ public final class WorkspaceFeed {
     /// Update the display options without re-probing the manager.
     public func setOptions(_ options: WorkspaceDisplayOptions) {
         machine.setOptions(options)
+        // Before the capability probe settles, the state still holds the
+        // pre-probe placeholder availability. Announcing it would report
+        // `managerNotInstalled` for a manager that is installed but whose probe
+        // has not returned yet — the config reload at launch does exactly this,
+        // which is why the log said no manager was found while AeroSpace was
+        // running. The probe's own announce publishes the options and the real
+        // availability together.
+        guard probedGeneration == machine.generation else { return }
         announce()
     }
 
