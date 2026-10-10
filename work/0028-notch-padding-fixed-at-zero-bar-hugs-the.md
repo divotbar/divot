@@ -14,7 +14,7 @@ model_override: big pickle
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T15:06:59Z"
+updated_at: "2026-10-10T15:07:20Z"
 review_passes: 10
 review_rounds: 2
 ---
