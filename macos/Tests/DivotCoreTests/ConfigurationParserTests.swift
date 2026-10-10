@@ -219,6 +219,13 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "expected 0–32")
 }
 
+@Test func legacyNotchGapIsIgnoredAndNotRewritten() throws {
+    let legacy = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":15},"left":["clock"],"right":[]}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: legacy)
+    #expect(parsed.configuration.layout == LayoutConfiguration(height: 32, padding: 12))
+    #expect(parsed.configuration.layout.contentPolicy.clearance == 0)
+}
+
 @Test func eitherSupportedWorkspaceAdapterParses() throws {
     let yabai = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"widgets":{"workspaces":{"adapter":"yabai"}}}"##)
     #expect(try ConfigurationParser.parse(jsonObject: yabai)

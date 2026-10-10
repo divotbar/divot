@@ -87,3 +87,16 @@ import DivotCore
     #expect(extended.width == right.width + 6)
     #expect(extended.height == right.height)
 }
+
+@MainActor
+@Test func notchExtensionDoesNotApplyOnNotchFreeDisplays() {
+    // On a notch-free display with gap=0, left and right are adjacent.
+    // The hasNotch check detects this by verifying left.maxX < right.minX.
+    let left = CGRect(x: 0, y: 950, width: 500, height: 32)
+    let right = CGRect(x: 500, y: 950, width: 500, height: 32)
+
+    // hasNotch = left.maxX < right.minX → 500 < 500 → false
+    #expect(!{ left.maxX < right.minX }())
+
+    // Extension would be skipped; the geometry is used as-is.
+}

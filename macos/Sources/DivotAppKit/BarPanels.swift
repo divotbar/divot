@@ -132,8 +132,9 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         }
         guard let placement = update.placement else { return }
         let animate = update.animated && !reduceMotion
-        move(left, to: placement.geometry.left, side: .left, animated: animate)
-        move(right, to: placement.geometry.right, side: .right, animated: animate)
+        let hasNotch = placement.geometry.left.maxX < placement.geometry.right.minX
+        move(left, to: placement.geometry.left, side: .left, hasNotch: hasNotch, animated: animate)
+        move(right, to: placement.geometry.right, side: .right, hasNotch: hasNotch, animated: animate)
     }
 
     public func apply(widgetChanges: [WidgetChange]) {
@@ -176,11 +177,12 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         return panel
     }
 
-    private func move(_ panel: NSPanel, to frame: CGRect, side: BarSide, animated: Bool) {
+    private func move(_ panel: NSPanel, to frame: CGRect, side: BarSide, hasNotch: Bool, animated: Bool) {
         // Reserve the shadow strip below the bar when the shadow is on, so the
         // gradient draws over the desktop rather than over the bar content.
-        // Extend the notch-side edge by 6 points to cover the notch corner (#0028).
-        let extendedFrame = Self.extendFrameIntoNotch(frame, side: side)
+        // On a notched display, extend the notch-side edge by 6 points to cover
+        // the notch corner (#0028). On notch-free displays, keep the geometry as-is.
+        let extendedFrame = hasNotch ? Self.extendFrameIntoNotch(frame, side: side) : frame
         let target = Self.panelFrame(for: extendedFrame, shadowHeight: shadowHeight)
         targets[ObjectIdentifier(panel)] = target
         guard animated else {
