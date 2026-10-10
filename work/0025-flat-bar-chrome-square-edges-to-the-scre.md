@@ -2,7 +2,7 @@
 id: "0025"
 title: "Flat bar chrome: square edges to the screen edges, no 3D, optional bottom shadow"
 type: bug
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -92,4 +92,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:29:56Z · review_model_override
 - 2026-10-10T11:30:01Z · status review→active
 - 2026-10-10T11:31:01Z · body: section Notes for AI
-- 2026-10-10T11:31:29Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T11:31:29Z · status active→review
