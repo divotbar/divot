@@ -31,6 +31,8 @@ public enum WidgetAction: Equatable, Sendable {
     case activateApplication(bundleIdentifier: String)
     /// Open the matching System Settings pane.
     case openSettings(WidgetSettingsPane)
+    /// Toggle the keep-awake power assertion (the battery item's click).
+    case toggleKeepAwake
     /// The item has no activation behavior.
     case none
 }
@@ -52,7 +54,9 @@ public enum WidgetActions {
             }
             return .none
         case .battery:
-            return .openSettings(.battery)
+            // Clicking the battery item toggles the Caffeine-style keep-awake
+            // assertion (task 0018). The state rides on the battery snapshot.
+            return .toggleKeepAwake
         case .network:
             return .openSettings(.network)
         case .volume:

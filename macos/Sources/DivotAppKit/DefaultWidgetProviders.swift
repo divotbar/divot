@@ -14,11 +14,13 @@ public enum DefaultWidgetProviders {
     }
 
     /// The providers enabled by `configuration`, in a stable order.
-    public static func make(for configuration: DivotConfiguration) -> [any WidgetProvider] {
+    public static func make(for configuration: DivotConfiguration,
+                            keepAwake: (any KeepAwakeObserving)? = nil) -> [any WidgetProvider] {
         var providers: [any WidgetProvider] = []
         for id in placedProviderIDs(in: configuration) {
             switch id {
-            case .battery: providers.append(BatteryProvider(reading: IOKitBatteryReading()))
+            case .battery: providers.append(BatteryProvider(reading: IOKitBatteryReading(),
+                                                            keepAwake: keepAwake))
             case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
             case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading()))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))

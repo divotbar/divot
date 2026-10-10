@@ -161,12 +161,20 @@ import Testing
 // MARK: - Actions
 
 @Test func defaultActionsOpenHonestSettingsLinks() {
-    #expect(WidgetActions.defaultAction(for: .battery) == .openSettings(.battery))
+    // The battery item toggles keep-awake (task 0018) instead of opening a pane.
+    #expect(WidgetActions.defaultAction(for: .battery) == .toggleKeepAwake)
     #expect(WidgetActions.defaultAction(for: .network) == .openSettings(.network))
     #expect(WidgetActions.defaultAction(for: .volume) == .openSettings(.sound))
     #expect(WidgetActions.defaultAction(for: .clock) == .openSettings(.dateTime))
     // Workspaces are the adapter milestone's actions, never a fake sample.
     #expect(WidgetActions.defaultAction(for: .workspaces) == .none)
+}
+
+@Test func keepAwakeToggleDoesNotDependOnTheBatteryReading() {
+    let charging = WidgetContent.battery(.init(presence: .internalBattery, percentage: 80, isCharging: true))
+    let none = WidgetContent.battery(.noBattery)
+    #expect(WidgetActions.defaultAction(for: .battery, content: charging) == .toggleKeepAwake)
+    #expect(WidgetActions.defaultAction(for: .battery, content: none) == .toggleKeepAwake)
 }
 
 @Test func frontAppActionNeedsALiveBundleIdentifier() {

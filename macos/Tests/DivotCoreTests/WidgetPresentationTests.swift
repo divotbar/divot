@@ -36,6 +36,27 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(presentation.accessibilityLabel.contains("No battery"))
 }
 
+@Test func keepAwakeAddsTheIndicatorAndNeverChangesThePowerReading() {
+    let on = WidgetPresenter.present(
+        id: .battery,
+        state: state(.battery, .battery(.init(presence: .internalBattery,
+                                              percentage: 42,
+                                              isKeepingAwake: true))),
+        options: options)
+    #expect(on.text == "42%")
+    #expect(on.symbolName == "battery.50")
+    #expect(on.indicator?.symbolName == "cup.and.saucer.fill")
+    #expect(on.indicator?.role == .keepAwakeActive)
+    #expect(on.accessibilityLabel.contains("keep awake on"))
+
+    let off = WidgetPresenter.present(
+        id: .battery,
+        state: state(.battery, .battery(.init(presence: .internalBattery, percentage: 42))),
+        options: options)
+    #expect(off.indicator == nil)
+    #expect(!off.accessibilityLabel.contains("keep awake"))
+}
+
 @Test func networkPresentationReflectsTransportAndConnection() {
     let wifi = WidgetPresenter.present(id: .network,
                                        state: state(.network, .network(.init(isConnected: true, kind: .wifi))),
