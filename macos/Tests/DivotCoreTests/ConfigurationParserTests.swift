@@ -109,10 +109,10 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let typeFailure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
     #expect(typeFailure?.path == "menuBar.trustAccessibilityProbe")
 
-    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"alwaysBelow":true}}"##)
+    let unknown = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":[],"menuBar":{"unknownField":true}}"##)
     let unknownFailure = error { try ConfigurationParser.parse(jsonObject: unknown) }
     #expect(unknownFailure?.path == "menuBar")
-    #expect(unknownFailure?.message == "unknown field followSystemSignal")
+    #expect(unknownFailure?.message == "unknown field unknownField")
 }
 
 @Test func menuBarCursorRevealAndFallbackParseAndValidate() throws {
