@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T04:16:33Z"
+review_passes: 1
 id: "0020"
 title: "Bar panels never get placed: placement stays undecided on the notched display even with Accessibility granted"
 type: bug
@@ -9,7 +11,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/bar-panels-never-get-placed-placement-st
 created_at: "2026-10-10T04:02:13Z"
-updated_at: "2026-10-10T04:16:33Z"
 ---
 ## Problem
 
@@ -41,3 +42,4 @@ The maintainer confirmed Accessibility is on for `dist/Divot.app` and the log ha
 - 2026-10-10T04:15:46Z · status active→review
 - 2026-10-10T04:15:46Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T04:16:33Z · note: review pass 1: needs some work
+
