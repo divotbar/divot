@@ -2,14 +2,14 @@
 id: "0019"
 title: Use the landing-page mark as the Divot menu bar icon
 type: chore
-status: inbox
+status: ready
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-10T02:10:26Z"
-updated_at: "2026-10-10T02:10:26Z"
+updated_at: "2026-10-10T02:24:58Z"
 ---
 ## Problem
 
@@ -33,3 +33,4 @@ The landing mark is a rounded square with a cream fill and a teal glyph. For a t
 ## Activity
 
 - 2026-10-10T02:10:26Z · created · njachowski@gmail.com
+- 2026-10-10T02:24:58Z · status inbox→ready
