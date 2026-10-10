@@ -27,3 +27,6 @@ site/.vitepress/dist/
 site/.vitepress/cache/
 macos/.build/
 macos/.swiftpm/
+
+# Local preview packaging output
+dist/

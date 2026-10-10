@@ -2,11 +2,11 @@
 
 ## I can't find an installer
 
-There isn't one yet. Divot is pre-alpha. [Build the website and core tests](./build) or check the [roadmap](./roadmap).
+There isn't one yet. Divot is pre-alpha, and there is no signed public download. You can [build and run a local preview from source](./build) (ad-hoc signed, not notarized) or check the [roadmap](./roadmap).
 
 ## The configuration doesn't change my menu bar
 
-The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding/notch gap, the System/Light/Dark variant, and the theme family all apply, and the settings window writes the same file. Theme family colors and custom palettes are resolved to semantic tokens and repaint the bar. There is no packaged release yet, so there is nothing to install; the examples and the browser preview remain design artifacts and do not modify macOS.
+The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding/notch gap, the System/Light/Dark variant, and the theme family all apply, and the settings window writes the same file. Theme family colors and custom palettes are resolved to semantic tokens and repaint the bar. You can run the native app as a local preview (`just app-run`); there is still no signed public download to install. The browser examples and preview remain design artifacts and do not modify macOS.
 
 ## Website build fails on a link
 
@@ -26,7 +26,7 @@ yabai is the second adapter, chosen by the same policy as AeroSpace. Divot needs
 
 ## A theme or side doesn't change anything
 
-Both configurable sides, per-item options, layout, the System/Light/Dark variant, and the theme family are implemented and applied by the native app. Theme family colors and custom palettes are validated, saved, and resolved to the bar's semantic tokens. There is no packaged release, so current examples and the browser preview remain design artifacts.
+Both configurable sides, per-item options, layout, the System/Light/Dark variant, and the theme family are implemented and applied by the native app. Theme family colors and custom palettes are validated, saved, and resolved to the bar's semantic tokens. The browser examples and preview remain design artifacts; the local preview runs the real app from source but is not a public release.
 
 ## Report a problem
 

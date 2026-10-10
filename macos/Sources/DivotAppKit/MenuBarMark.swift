@@ -16,8 +16,12 @@ public enum DivotMenuBarMark {
     /// a blank item.
     @MainActor
     public static func image(pointSize: CGFloat = 18) -> NSImage? {
-        guard let url = Bundle.module.url(forResource: "menubar-mark", withExtension: "pdf"),
-              let image = NSImage(contentsOf: url) else {
+        // A packaged .app carries the mark in `Contents/Resources`, so it is
+        // found through `Bundle.main`. `Bundle.module` is only the SwiftPM
+        // build/`swift run` fallback; the packaged bundle never needs it.
+        let url = Bundle.main.url(forResource: "menubar-mark", withExtension: "pdf")
+            ?? Bundle.module.url(forResource: "menubar-mark", withExtension: "pdf")
+        guard let url, let image = NSImage(contentsOf: url) else {
             return nil
         }
         image.isTemplate = true

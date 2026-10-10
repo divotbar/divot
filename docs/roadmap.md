@@ -12,7 +12,7 @@ RepoOS initialization, requirements, architecture ADR, performance protocol, sta
 4. Versioned configuration (left/right item groups, namespaced options), atomic reload, settings, launch at login — implemented (task 0006).
 5. Appearance: native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night families with light/dark variants — implemented (task 0011): upstream-attributed palettes, semantic tokens, palette overrides, live switching, and per-role contrast fixtures. Physical readability/accessibility QA remains.
 6. Performance harness and accessibility regression checks: the in-process `divot --bench` harness and the automated accessibility/contrast contract are in place (task 0007); the Release reference-machine measurements and the physical VoiceOver/display/fullscreen checks still require a person ([protocol](performance.md), [physical checks](accessibility-physical-checks.md)).
-7. Developer ID signing/notarization and source/build release instructions.
+7. Developer ID signing/notarization and source/build release instructions. A local, ad-hoc-signed `Divot.app` preview (`just app-package` / `just app-run`, version `0.1.0-preview.1`) now packages from source with a versioned archive, commit, and checksum; it is not the signed public release ([local preview](local-preview.md)).
 
 ## 0.2 · personal workflows
 

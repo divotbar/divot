@@ -27,10 +27,12 @@ swift test --package-path macos
 swift build --package-path macos --product divot
 swift build --package-path macos -c release --product divot
 macos/.build/release/divot --bench
+scripts/package-app.sh        # assemble + ad-hoc sign the local Divot.app preview
+scripts/smoke-app-bundle.sh   # package + verify + launch the bundled executable
 repoos check
 ```
 
-The RepoOS plan declares web configuration validation/static build, native core tests, and an app build gate (`native-app`). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md).
+The RepoOS plan declares web configuration validation/static build, native core tests, an app build gate (`native-app`), and a local preview package-and-launch gate (`native-app-bundle`). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md) and the [local preview](local-preview.md).
 
 ## Continuous integration
 
@@ -42,7 +44,7 @@ Deploy only `site/.vitepress/dist/` after a successful build. A root domain need
 
 ## Native distribution (planned)
 
-Developer ID signed and notarized universal or arm64 app (arm64 first); hardened runtime; staple notarization proof; versioned archive and checksums. Keep signing credentials in the CI secret store/keychain. Do not distribute instructions to remove quarantine. Start with direct downloadable releases; evaluate a signed update mechanism after the first stable release. Mac App Store/sandbox support is not promised: CLI integration and future scripts require a deliberate entitlement/distribution assessment.
+Developer ID signed and notarized universal or arm64 app (arm64 first); hardened runtime; staple notarization proof; versioned archive and checksums. Keep signing credentials in the CI secret store/keychain. Do not distribute instructions to remove quarantine. Start with direct downloadable releases; evaluate a signed update mechanism after the first stable release. Mac App Store/sandbox support is not promised: CLI integration and future scripts require a deliberate entitlement/distribution assessment. A **local, ad-hoc-signed** preview bundle is now produced by `scripts/package-app.sh` for the maintainer's Mac; it is explicitly not the public release. See the [local preview](local-preview.md).
 
 ## Security/privacy
 
@@ -50,4 +52,4 @@ No telemetry by default. Native built-ins collect locally. Weather/network integ
 
 ## Just recipes
 
-Run `just` for documented, grouped commands. Common entry points: `just install`, `just dev`, `just web-check`, `just macos-test`, `just check`, and `just list`. `just serve` is a foreground, human-operated RepoOS server. `just review <id>` and `just done <id>` use the supported control plane; done still requires human approval. There is no blanket staging/commit recipe.
+Run `just` for documented, grouped commands. Common entry points: `just install`, `just dev`, `just web-check`, `just macos-test`, `just check`, and `just list`. The local preview recipes are `just app-package` (assemble + ad-hoc sign `dist/Divot.app` and the versioned archive), `just app-smoke` (package + verify + launch), and `just app-run` (build and open the app). `just serve` is a foreground, human-operated RepoOS server. `just review <id>` and `just done <id>` use the supported control plane; done still requires human approval. There is no blanket staging/commit recipe.
