@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 40335
-last_close_out_gate_at: "2026-10-10T04:23:46.387Z"
 id: "0020"
 title: "Bar panels never get placed: placement stays undecided on the notched display even with Accessibility granted"
 type: bug
-status: review
+status: done
 priority: p0
 area: macos
+merged_commit: edd51cd1797178375d659e857b7b674b8ea5b143
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/bar-panels-never-get-placed-placement-st
 created_at: "2026-10-10T04:02:13Z"
-updated_at: "2026-10-10T04:23:46Z"
+updated_at: "2026-10-10T04:23:48Z"
+last_close_out_gate_ms: 40335
+last_close_out_gate_at: "2026-10-10T04:23:46.387Z"
 review_passes: 2
 review_rounds: 1
 ---
@@ -60,4 +61,4 @@ Human-only (NOT supplied here):
 - 2026-10-10T04:18:59Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T04:19:53Z · note: review pass 2: good to go
 - 2026-10-10T04:23:46Z · close-out gate completed in 40s
-
+- 2026-10-10T04:23:48Z · status review→done, release:success
