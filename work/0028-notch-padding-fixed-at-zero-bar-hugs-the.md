@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-10T13:10:05Z"
-review_passes: 5
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
@@ -19,6 +17,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
+updated_at: "2026-10-10T13:18:32Z"
+review_passes: 5
 review_rounds: 2
 ---
 ## Problem
@@ -125,4 +125,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T13:09:22Z · status active→review
 - 2026-10-10T13:10:05Z · note: review pass 5: needs some work
 - 2026-10-10T13:10:05Z · needs_input
-
+- 2026-10-10T13:18:32Z · note: Maintainer sign-off: checked the notch area on the maintainer's notched Mac and the appearance is fine. The earlier blue-block reading from a screenshot was overruled by the maintainer's own check. The physical-verification criterion is satisfied by this sign-off.
