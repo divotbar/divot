@@ -2,7 +2,7 @@
 id: "0025"
 title: "Flat bar chrome: square edges to the screen edges, no 3D, optional bottom shadow"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0024"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/flat-bar-chrome-square-edges-to-the-scre
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T10:53:08Z"
+updated_at: "2026-10-10T11:03:15Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Depends on #0024, which changes the left group's leading item. Keep changes to t
 - 2026-10-10T10:26:06Z · created · njachowski@gmail.com
 - 2026-10-10T10:53:06Z · status inbox→ready
 - 2026-10-10T10:53:08Z · status ready→active, branch
+- 2026-10-10T11:03:15Z · status active→review
