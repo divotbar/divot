@@ -2,7 +2,7 @@
 id: "0011"
 title: "Implement Gruvbox, Ayu, Dracula and Tokyo Night theme families"
 type: feature
-status: active
+status: review
 priority: p1
 area: [macos, docs]
 story: Choose a hacker theme in light or dark
@@ -11,7 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/implement-gruvbox-ayu-dracula-and-tokyo-
 created_at: "2026-10-09T16:41:12Z"
-updated_at: "2026-10-10T00:41:59Z"
+updated_at: "2026-10-10T00:49:54Z"
 ---
 ## Problem
 
@@ -33,10 +33,10 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 ```json
 [
 {
-  "label": "Theme guide: delivered families, attribution, contrast, materials",
-  "target": "website",
-  "route": "/guide/themes",
-  "highlight": "main h2 + table"
+"label": "Theme guide: delivered families, attribution, contrast, materials",
+"target": "website",
+"route": "/guide/themes",
+"highlight": "main h2 + table"
 }
 ]
 ```
@@ -47,3 +47,4 @@ Depends on shared settings/config and provider views. Do not label unofficial li
 - 2026-10-09T17:20:39Z · status inbox→ready
 - 2026-10-09T23:51:00Z · status ready→active, branch
 - 2026-10-10T00:41:59Z · body: section Shots
+- 2026-10-10T00:49:54Z · status active→review
