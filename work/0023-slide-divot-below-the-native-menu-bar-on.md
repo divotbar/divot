@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
@@ -9,8 +10,15 @@ depends_on: ["0021", "0022"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/slide-divot-below-the-native-menu-bar-on
+cli_override: claude code
+model_override: haiku
+review_cli_override: github copilot
+review_model_override: default
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T12:23:03Z"
+updated_at: "2026-10-10T12:24:38Z"
+review_passes: 6
+review_rounds: 2
+incomplete_review_retries: 1
 ---
 ## Problem
 
@@ -35,11 +43,15 @@ Divot sits at the top edge while the native macOS menu bar is auto-hidden. When 
 
 Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new setting lands in the same settings window and metrics code. Do not start until both are done. Keep the cursor monitoring in its own type in `DivotAppKit`, not in the widget views.
 
+## Verification
+test
+
 ## Activity
 
 - 2026-10-10T08:46:31Z · created · njachowski@gmail.com
 - 2026-10-10T10:26:10Z · status inbox→ready
 - 2026-10-10T10:26:12Z · status ready→active, branch
+<<<<<<< HEAD
 - 2026-10-10T10:39:42Z · status active→review
 - 2026-10-10T10:52:55Z · status review→active
 - 2026-10-10T11:04:18Z · status active→review
@@ -47,3 +59,56 @@ Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new 
 - 2026-10-10T11:33:08Z · status active→review
 - 2026-10-10T12:17:53Z · status review→active
 - 2026-10-10T12:23:03Z · status active→review
+=======
+- 2026-10-10T10:37:44Z · body: section Verification
+- 2026-10-10T10:39:43Z · status active→review
+- 2026-10-10T10:39:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T10:40:20Z · note: review pass 1: needs some work
+- 2026-10-10T10:40:20Z · status review→active
+- 2026-10-10T10:42:06Z · body: section Verification
+- 2026-10-10T10:42:31Z · status active→review
+- 2026-10-10T10:42:31Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T10:43:05Z · note: review pass 2: needs some work
+- 2026-10-10T10:43:05Z · status review→active
+- 2026-10-10T10:44:40Z · body: section Verification
+- 2026-10-10T10:45:03Z · status active→review
+- 2026-10-10T10:45:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T10:45:32Z · note: review pass 3: needs some work
+- 2026-10-10T10:45:33Z · needs_input
+- 2026-10-10T10:52:55Z · status review→active
+- 2026-10-10T11:03:09Z · body: section Verification
+- 2026-10-10T11:04:18Z · status active→review
+- 2026-10-10T11:04:18Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T11:04:54Z · note: review pass 4: needs some work
+- 2026-10-10T11:04:54Z · needs_input
+- 2026-10-10T11:04:54Z · needs_input
+- 2026-10-10T11:30:17Z · review_cli_override, review_model_override
+- 2026-10-10T11:30:19Z · review_model_override
+- 2026-10-10T11:30:25Z · cli_override, model_override
+- 2026-10-10T11:30:27Z · model_override
+- 2026-10-10T11:30:40Z · status review→active
+- 2026-10-10T11:32:19Z · body: section Verification
+- 2026-10-10T11:32:42Z · body: section Verification
+- 2026-10-10T11:33:08Z · status active→review
+- 2026-10-10T11:33:08Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T11:33:09Z · note: review pass 5: incomplete — no verdict in report
+- 2026-10-10T11:33:14Z · note: review pass 6: incomplete — no verdict in report
+- 2026-10-10T11:36:31Z · needs_input (review-rounds-exhausted) cleared for review again by human
+- 2026-10-10T11:39:14Z · note: review pass 7: needs some work
+- 2026-10-10T11:39:14Z · needs_input
+- 2026-10-10T12:17:24Z · cli_override, model_override
+- 2026-10-10T12:17:25Z · cli_override, model_override
+- 2026-10-10T12:17:26Z · model_override
+- 2026-10-10T12:17:35Z · review_cli_override, review_model_override
+- 2026-10-10T12:17:53Z · status review→active
+- 2026-10-10T12:21:28Z · needs_input
+- 2026-10-10T12:23:03Z · note: handoff requested (board)
+- 2026-10-10T12:23:03Z · status active→review
+- 2026-10-10T12:23:03Z · note: review without checks by human
+- 2026-10-10T12:23:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T12:24:03Z · note: review pass 8: needs some work
+- 2026-10-10T12:24:03Z · needs_input
+- 2026-10-10T12:24:38Z · status review→active, needs_input
+- 2026-10-10T12:24:38Z · note: close-out repair: merge-conflict
+
+>>>>>>> main

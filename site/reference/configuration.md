@@ -17,6 +17,9 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `widgets` | Object | Optional; namespaced per-item options |
 | `keepAwake` | Object | Optional; keep-awake persistence (see below) |
 | `showAppIcon` | Boolean | Optional; show the Divot mark before the workspaces (default `false`) |
+| `showOccupiedDot` | Boolean | Optional; show the occupied marker on workspace chips (default `true`) |
+| `showEmptyDot` | Boolean | Optional; show the empty marker on workspace chips (default `true`) |
+| `bottomShadow` | Boolean | Optional; draw a drop shadow along the bar's bottom edge (default `false`) |
 
 The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
@@ -30,7 +33,7 @@ The starter validator rejects missing fields, unknown fields, wrong types, and i
 | `material` | `native`, `opaque` |
 | `palette` | Optional object; semantic color token overrides (see below) |
 
-`family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance. The root `accent` defaults to `#D6F58A`; while it is left at that default a family uses its own signature accent, and any other value overrides the family.
+`family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance. The root `accent` defaults to `#D6F58A`; while it is left at that default a family uses its own signature accent, and any other value overrides the family. `material` is kept in the configuration contract, but the flat chrome always draws the solid `background` token, so `native` and `opaque` no longer change the bar fill.
 
 ## Palette overrides
 
@@ -83,6 +86,35 @@ The mark is the same template image as the menu-bar item, so it follows the bar'
 
 ```json
 "showAppIcon": true
+```
+
+## Workspace markers
+
+Each non-focused workspace chip carries a small non-color occupancy marker: a filled dot for an occupied workspace and a hollow ring for an empty one (an uninspectable workspace keeps its own ring and has no toggle). Both markers are optional root booleans, on by default so the first-launch bar is unchanged. They are root fields rather than `widgets.workspaces` options because they change only the marker drawing, not the workspace feed.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `showOccupiedDot` | Boolean | `true` | Draw the filled dot on an occupied workspace chip |
+| `showEmptyDot` | Boolean | `true` | Draw the hollow ring on an empty workspace chip |
+
+Hiding a marker leaves the workspace name and the focused highlight, so a workspace stays identifiable. Settings has a matching toggle for each, and toggling one updates the bar live and survives a relaunch.
+
+```json
+"showOccupiedDot": false
+```
+
+## Flat chrome
+
+The bar draws one flat colour from the left screen edge to the right, with square corners and no highlight, bevel, or gradient. The workspace and item chips are flat too; the focused chip keeps a flat accent stroke. A subtle drop shadow along the bottom edge is optional and off by default.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `bottomShadow` | Boolean | `false` | Draw a drop shadow along the bar's bottom edge |
+
+The shadow is a soft gradient drawn just below the bar, so it runs along the bottom edge only and never rims the other edges. Settings has a matching toggle, and toggling it updates the bar live.
+
+```json
+"bottomShadow": true
 ```
 
 ## Keep awake

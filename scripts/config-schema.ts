@@ -127,7 +127,7 @@ function options(id: string, value: unknown) {
 }
 
 export function validate(value: unknown) {
-  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar', 'showAppIcon'], 'root')
+  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar', 'showAppIcon', 'showOccupiedDot', 'showEmptyDot', 'bottomShadow'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
   appearance(value.appearance)
   layout(value.layout)
@@ -137,6 +137,9 @@ export function validate(value: unknown) {
   if ('keepAwake' in value) keepAwake(value.keepAwake)
   if ('menuBar' in value) menuBar(value.menuBar)
   if ('showAppIcon' in value) boolean(value.showAppIcon, 'showAppIcon')
+  if ('showOccupiedDot' in value) boolean(value.showOccupiedDot, 'showOccupiedDot')
+  if ('showEmptyDot' in value) boolean(value.showEmptyDot, 'showEmptyDot')
+  if ('bottomShadow' in value) boolean(value.bottomShadow, 'bottomShadow')
   if ('widgets' in value) {
     shape(value.widgets, [], ITEMS, 'widgets')
     for (const id of Object.keys(value.widgets)) {

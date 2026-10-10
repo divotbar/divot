@@ -41,12 +41,21 @@ public struct DivotSettingsView: View {
             Text("Clicking the icon opens Divot settings. The mark follows the bar's theme and text size.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Toggle("Bottom shadow", isOn: bottomShadowBinding)
+            Text("Draws a subtle drop shadow along the bar's bottom edge. Off by default; the bar stays a flat colour.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
     private var showAppIconBinding: Binding<Bool> {
         Binding(get: { model.configuration.showAppIcon },
                 set: { model.setShowAppIcon($0) })
+    }
+
+    private var bottomShadowBinding: Binding<Bool> {
+        Binding(get: { model.configuration.bottomShadow },
+                set: { model.setBottomShadow($0) })
     }
 
     // MARK: Menu bar
@@ -101,7 +110,7 @@ public struct DivotSettingsView: View {
             Button {
                 model.moveWithinSide(id, delta: -1)
             } label: {
-                Image(systemName: "arrow.up")
+                Image(systemName: "arrow.left")
             }
             .disabled(!model.canMove(id, delta: -1))
             .help("Move \(id.displayName) earlier")
@@ -110,7 +119,7 @@ public struct DivotSettingsView: View {
             Button {
                 model.moveWithinSide(id, delta: 1)
             } label: {
-                Image(systemName: "arrow.down")
+                Image(systemName: "arrow.right")
             }
             .disabled(!model.canMove(id, delta: 1))
             .help("Move \(id.displayName) later")
@@ -146,6 +155,13 @@ public struct DivotSettingsView: View {
             Stepper(value: maxAppIconsBinding, in: 0...32) {
                 Text("Max app icons per workspace: \(maxAppIconsDescription)")
             }
+            Toggle("Show the occupied dot",
+                   isOn: binding(\.showOccupiedDot))
+            Toggle("Show the empty dot",
+                   isOn: binding(\.showEmptyDot))
+            Text("The dots mark occupied and empty workspaces. Hiding one leaves the workspace names and the focused highlight.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -251,6 +267,9 @@ public struct DivotSettingsView: View {
                 Text("Native").tag(AppearanceConfiguration.Material.native)
                 Text("Opaque").tag(AppearanceConfiguration.Material.opaque)
             }
+            Text("The bar draws one flat colour, so Material is kept in the configuration but no longer changes the bar fill.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             TextField("Accent (hex)", text: binding(\.appearance.accent))
                 .textFieldStyle(.roundedBorder)
             LabeledContent("Resolved accent") {

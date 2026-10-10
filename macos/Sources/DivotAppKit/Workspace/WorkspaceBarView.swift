@@ -28,6 +28,11 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     private var lastWidth: CGFloat = -1
     private var theme: BarTheme
     private let metrics: BarMetrics
+    /// Whether the filled-dot and hollow-ring occupancy markers are drawn
+    /// (#0026). Root configuration, applied when the panel is built; the name
+    /// and focus highlight stay either way.
+    private let showOccupiedDot: Bool
+    private let showEmptyDot: Bool
 
     private let horizontalInset: CGFloat
     private let chipSpacing: CGFloat
@@ -42,13 +47,17 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                 displayScreensID: Int?,
                 showsFrontApp: Bool = true,
                 theme: BarTheme = .systemDefault,
-                metrics: BarMetrics = .default) {
+                metrics: BarMetrics = .default,
+                showOccupiedDot: Bool = true,
+                showEmptyDot: Bool = true) {
         self.feed = feed
         self.icons = icons
         self.displayScreensID = displayScreensID
         self.showsFrontApp = showsFrontApp
         self.theme = theme
         self.metrics = metrics
+        self.showOccupiedDot = showOccupiedDot
+        self.showEmptyDot = showEmptyDot
         self.horizontalInset = metrics.rowInset
         self.chipSpacing = metrics.chipSpacing
         super.init(frame: .zero)
@@ -210,7 +219,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // never color alone.
         button.isBordered = false
         button.wantsLayer = true
-        button.layer?.cornerRadius = 4
+        // Flat chrome (#0025): square corners, a flat selected fill, and a flat
+        // focused stroke. No rounded corners or bevel.
+        button.layer?.cornerRadius = 0
         button.layer?.backgroundColor = workspace.isFocused ? theme.selected.cgColor : NSColor.clear.cgColor
         // The accent is the interactive focus emphasis: a restrained border on
         // the focused chip, on top of the selected background.
@@ -253,10 +264,10 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
     /// The chip title: the workspace name plus one attachment per deduplicated
     /// app icon, so enabling icons shows every app rather than only the first,
-    /// then a non-color occupancy marker for every non-focused workspace. The
-    /// marker carries the `occupied`/`disabled` role; the name stays in the
-    /// foreground (or the selected foreground) so occupancy is never conveyed by
-    /// text tint alone.
+    /// then a non-color occupancy marker for every non-focused workspace whose
+    /// marker is enabled (#0026). The marker carries the `occupied`/`disabled`
+    /// role; the name stays in the foreground (or the selected foreground) so
+    /// occupancy is never conveyed by text tint alone.
     private func chipTitle(for workspace: Workspace,
                            options: WorkspaceDisplayOptions,
                            occupancy: WorkspaceOccupancy,
@@ -276,12 +287,24 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
             title.append(NSAttributedString(string: " ", attributes: nameAttributes))
             title.append(NSAttributedString(attachment: attachment))
         }
-        if !workspace.isFocused {
+        if !workspace.isFocused, showsMarker(for: occupancy) {
             title.append(NSAttributedString(string: " ", attributes: markerAttributes))
             title.append(NSAttributedString(string: Self.occupancyMarker(for: occupancy),
                                             attributes: markerAttributes))
         }
         return title
+    }
+
+    /// Whether the configured marker for this occupancy is drawn. An occupied
+    /// chip's filled dot and an empty chip's ring are each optional (#0026); the
+    /// unknown ring has no toggle and stays as the honest "could not inspect"
+    /// cue.
+    private func showsMarker(for occupancy: WorkspaceOccupancy) -> Bool {
+        switch occupancy {
+        case .occupied: return showOccupiedDot
+        case .empty: return showEmptyDot
+        case .unknown: return true
+        }
     }
 
     private func makeOverflowButton(hidden: [Workspace],

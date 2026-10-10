@@ -80,6 +80,35 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func reorderIsDisabledAtTheEndsAndKeepsTheBarOrderInSync() throws {
+    let (model, _) = try makeModel()
+
+    // The default left group is [workspaces, front-app]: the first item can
+    // only move later (right), and the last only earlier (left).
+    let left = model.configuration.items(on: .left)
+    let first = try #require(left.first)
+    let last = try #require(left.last)
+    #expect(!model.canMove(first, delta: -1))
+    #expect(model.canMove(first, delta: 1))
+    #expect(model.canMove(last, delta: -1))
+    #expect(!model.canMove(last, delta: 1))
+
+    // Pressing the disabled direction at either end is a no-op.
+    model.moveWithinSide(first, delta: -1)
+    model.moveWithinSide(last, delta: 1)
+    #expect(model.configuration.items(on: .left) == left)
+
+    // A middle item moves one slot, and the ordered configuration the bar
+    // renders with follows it (right default is [battery, clock, network, volume]).
+    model.moveWithinSide(.clock, delta: -1)
+    #expect(model.configuration.items(on: .right) == [.clock, .battery, .network, .volume])
+    #expect(model.configuration.barLayout.items(on: .right) == model.configuration.right)
+
+    // The moved item is now first, so it cannot move earlier again.
+    #expect(!model.canMove(.clock, delta: -1))
+}
+
+@MainActor
 @Test func loginItemToggleRoutesThroughTheControl() throws {
     let stub = StubLoginItem()
     let (model, _) = try makeModel(loginItem: stub)
@@ -169,6 +198,48 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
     #expect(reloaded.load() == .loaded)
     #expect(!reloaded.current.menuBar.moveBelowOnCursorReveal)
     #expect(reloaded.current.menuBar.alwaysBelow)
+}
+
+@MainActor
+@Test func workspaceDotTogglesStartOnAndPersist() throws {
+    let (model, controller) = try makeModel()
+
+    // Both markers are on by default, so settings opens with both toggles on.
+    #expect(model.configuration.showOccupiedDot)
+    #expect(model.configuration.showEmptyDot)
+
+    model.update { $0.showOccupiedDot = false }
+    #expect(!model.configuration.showOccupiedDot)
+    // Hiding one marker leaves the other untouched.
+    #expect(model.configuration.showEmptyDot)
+
+    // The change survives a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(!reloaded.current.showOccupiedDot)
+    #expect(reloaded.current.showEmptyDot)
+}
+
+@MainActor
+@Test func bottomShadowStartsOffAndTogglesAndPersists() throws {
+    let (model, controller) = try makeModel()
+
+    // The shadow is off by default, so settings opens with the toggle off.
+    #expect(!model.configuration.bottomShadow)
+
+    model.setBottomShadow(true)
+    #expect(model.configuration.bottomShadow)
+
+    // The change survives a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.bottomShadow)
+
+    // And it can be turned back off, writing the default shape again.
+    model.setBottomShadow(false)
+    #expect(!model.configuration.bottomShadow)
+    let reread = try ConfigurationParser.parse(Data(contentsOf: controller.configURL))
+    #expect(!reread.configuration.bottomShadow)
 }
 
 @MainActor

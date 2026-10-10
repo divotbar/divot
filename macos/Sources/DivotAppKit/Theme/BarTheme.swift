@@ -7,8 +7,9 @@ import DivotCore
 ///
 /// The native family uses macOS semantic colors (`labelColor`,
 /// `windowBackgroundColor`, `selectedContentBackgroundColor`, …) so it keeps
-/// appearance, vibrancy, and accessibility behavior. The four families use the
-/// resolved hex tokens. Both honor increased contrast and reduced transparency.
+/// appearance and accessibility behavior. The four families use the resolved
+/// hex tokens. Both honor increased contrast and reduced transparency. The bar
+/// chrome itself is flat (#0025): the fill is the solid `background` token.
 @MainActor
 public struct BarTheme: Equatable {
     public let foreground: NSColor
@@ -28,22 +29,27 @@ public struct BarTheme: Equatable {
     public let increasedContrast: Bool
     public let reduceTransparency: Bool
 
-    /// Solid background when the user asked for opaque, asked to reduce
-    /// transparency, or (for readability) increased contrast.
+    /// Whether the resolved material would have been opaque, before the flat
+    /// chrome (#0025) made every fill solid. Kept so the theme still reports the
+    /// user's material decision; it no longer changes the drawn fill.
     public var isOpaque: Bool {
         material == .opaque || reduceTransparency || increasedContrast
     }
 
-    /// The layer fill. Opaque requests (including reduced transparency and
-    /// increased contrast) get the solid background. A translucent native
-    /// material gets a family-tinted fill over the vibrancy blur, or clear for
-    /// the native family, whose background already comes from the system.
+    /// The layer fill: the theme's flat `background` token.
+    ///
+    /// The bar chrome is flat (#0025): one solid colour edge to edge with square
+    /// corners and no material bevel, so the fill never falls back to clear or a
+    /// translucent tint. `isOpaque` still reports whether the resolved material
+    /// would have been translucent; it no longer changes the drawn fill.
     public var layerBackground: NSColor {
-        if isOpaque { return background }
-        return usesSystemColors ? .clear : background.withAlphaComponent(0.55)
+        background
     }
 
-    public var borderWidth: CGFloat { increasedContrast ? 2 : 1 }
+    /// The chrome stroke width. The flat default has no border; increased
+    /// contrast keeps an explicit stroke so the bar stays separable from a busy
+    /// wallpaper.
+    public var borderWidth: CGFloat { increasedContrast ? 2 : 0 }
 
     public var borderColor: NSColor {
         increasedContrast ? foreground.withAlphaComponent(0.55) : border

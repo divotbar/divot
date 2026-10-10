@@ -203,6 +203,13 @@ public extension DivotConfiguration {
         // Only the non-default opt-in is written, so a document that leaves the
         // icon off stays identical to the first-launch shape.
         if showAppIcon { object["showAppIcon"] = true }
+        // The dots default on, so only a hidden marker is written; both on (the
+        // default) leaves the first-launch document unchanged (#0026).
+        if !showOccupiedDot { object["showOccupiedDot"] = false }
+        if !showEmptyDot { object["showEmptyDot"] = false }
+        // The shadow is off by default, so only the opt-in is written; the
+        // first-launch document stays identical (#0025).
+        if bottomShadow { object["bottomShadow"] = true }
         return object
     }
 }

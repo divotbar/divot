@@ -2,15 +2,19 @@
 id: "0027"
 title: Bar item reorder arrows point left and right
 type: bug
-status: inbox
+status: done
 priority: p2
 area: macos
 depends_on: ["0024"]
+merged_commit: 27b2fbc358424c1822512fcdc3bd6e8f26e39347
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/bar-item-reorder-arrows-point-left-and-r
 created_at: "2026-10-10T10:26:07Z"
-updated_at: "2026-10-10T10:26:07Z"
+updated_at: "2026-10-10T10:31:59Z"
+last_close_out_gate_ms: 49552
+last_close_out_gate_at: "2026-10-10T10:31:57.480Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -34,3 +38,10 @@ Depends on #0024. Only the reorder controls change; do not alter the left/right 
 ## Activity
 
 - 2026-10-10T10:26:07Z · created · njachowski@gmail.com
+- 2026-10-10T10:26:33Z · status inbox→ready
+- 2026-10-10T10:26:34Z · status ready→active, branch
+- 2026-10-10T10:28:28Z · status active→review
+- 2026-10-10T10:28:28Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-10T10:28:55Z · note: review pass 1: good to go
+- 2026-10-10T10:31:57Z · close-out gate completed in 50s
+- 2026-10-10T10:31:59Z · status review→done, release:success

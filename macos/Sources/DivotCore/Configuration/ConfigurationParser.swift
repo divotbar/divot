@@ -54,7 +54,8 @@ public enum ConfigurationParser {
 
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
-                             optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon"], path: "root")
+                             optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon",
+                                        "showOccupiedDot", "showEmptyDot", "bottomShadow"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
@@ -66,6 +67,16 @@ public enum ConfigurationParser {
         let menuBar = try menuBarOptions(root["menuBar"])
         var showAppIcon = false
         if let raw = root["showAppIcon"] { showAppIcon = try boolean(raw, path: "showAppIcon") }
+        // The workspace markers are on by default, so an omitted key keeps
+        // today's look and only an explicit `false` hides one (#0026).
+        var showOccupiedDot = true
+        if let raw = root["showOccupiedDot"] { showOccupiedDot = try boolean(raw, path: "showOccupiedDot") }
+        var showEmptyDot = true
+        if let raw = root["showEmptyDot"] { showEmptyDot = try boolean(raw, path: "showEmptyDot") }
+        // The bottom shadow is off by default, so an omitted key keeps the
+        // first-launch look and only an explicit `true` turns it on (#0025).
+        var bottomShadow = false
+        if let raw = root["bottomShadow"] { bottomShadow = try boolean(raw, path: "bottomShadow") }
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
@@ -75,7 +86,10 @@ public enum ConfigurationParser {
                                   widgets: widgets,
                                   keepAwake: keepAwake,
                                   menuBar: menuBar,
-                                  showAppIcon: showAppIcon)
+                                  showAppIcon: showAppIcon,
+                                  showOccupiedDot: showOccupiedDot,
+                                  showEmptyDot: showEmptyDot,
+                                  bottomShadow: bottomShadow)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {

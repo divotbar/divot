@@ -150,6 +150,13 @@ public final class DivotSettingsModel {
         update { $0.showAppIcon = enabled }
     }
 
+    /// Turn the subtle bottom drop shadow on or off. Off by default; the bar
+    /// rebuilds live from the published snapshot and the setting survives a
+    /// relaunch through the store.
+    public func setBottomShadow(_ enabled: Bool) {
+        update { $0.bottomShadow = enabled }
+    }
+
     // MARK: Text
 
     /// The font picker selection: the configured family when it is installed,
