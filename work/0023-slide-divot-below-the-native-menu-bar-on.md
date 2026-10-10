@@ -2,7 +2,7 @@
 id: "0023"
 title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
 type: feature
-status: review
+status: active
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -17,7 +17,7 @@ model_override: composer-2.5
 review_cli_override: claude code
 review_model_override: haiku
 created_at: "2026-10-10T08:46:31Z"
-updated_at: "2026-10-10T11:30:27Z"
+updated_at: "2026-10-10T11:30:40Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -104,3 +104,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:30:19Z · review_model_override
 - 2026-10-10T11:30:25Z · cli_override, model_override
 - 2026-10-10T11:30:27Z · model_override
+- 2026-10-10T11:30:40Z · status review→active
