@@ -13,7 +13,8 @@ let package = Package(
     ],
     targets: [
         .target(name: "DivotCore"),
-        .target(name: "DivotAppKit", dependencies: ["DivotCore"]),
+        .target(name: "DivotAppKit", dependencies: ["DivotCore"],
+                resources: [.process("Resources")]),
         .executableTarget(name: "DivotApp", dependencies: ["DivotCore", "DivotAppKit"]),
         .executableTarget(name: "DivotMenuBarProbe", dependencies: ["DivotCore", "DivotAppKit"]),
         .executableTarget(name: "DivotSpacesProbe", dependencies: ["DivotCore"]),

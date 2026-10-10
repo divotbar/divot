@@ -221,8 +221,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// never mirrors another application's menu extras.
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: "rectangle.topthird.inset.filled",
-                                     accessibilityDescription: "Divot")
+        // The landing-page mark, drawn as a template image so it follows the
+        // light and dark menu bar. The SF Symbol only covers a missing asset.
+        item.button?.image = DivotMenuBarMark.image()
+            ?? NSImage(systemSymbolName: "rectangle.topthird.inset.filled",
+                       accessibilityDescription: "Divot")
         item.button?.toolTip = "Divot"
         let menu = NSMenu()
         let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
