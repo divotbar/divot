@@ -82,3 +82,4 @@ test
 - 2026-10-10T11:32:19Z · body: section Verification
 - 2026-10-10T11:32:42Z · body: section Verification
 - 2026-10-10T11:33:08Z · status active→review
+- 2026-10-10T11:33:08Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
