@@ -11,7 +11,7 @@ RepoOS initialization, requirements, architecture ADR, performance protocol, sta
 3. Workspace adapter: the AeroSpace adapter layer — capability detection, documented-CLI reads, event-driven refresh with reconnect, async actions, deduplicated app identities, per-monitor/overflow rules, and the left-panel workspace row — is implemented (task 0005); the yabai adapter behind the same interface is implemented and fixture-tested (task 0012); on-device appearance, click activation, app-icon rendering, and live yabai behavior remain to be physically validated.
 4. Versioned configuration (left/right item groups, namespaced options), atomic reload, settings, launch at login — implemented (task 0006).
 5. Appearance: native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night families with light/dark variants — implemented (task 0011): upstream-attributed palettes, semantic tokens, palette overrides, live switching, and per-role contrast fixtures. Physical readability/accessibility QA remains.
-6. Physical device QA and performance evidence.
+6. Performance harness and accessibility regression checks: the in-process `divot --bench` harness and the automated accessibility/contrast contract are in place (task 0007); the Release reference-machine measurements and the physical VoiceOver/display/fullscreen checks still require a person ([protocol](performance.md), [physical checks](accessibility-physical-checks.md)).
 7. Developer ID signing/notarization and source/build release instructions.
 
 ## 0.2 · personal workflows

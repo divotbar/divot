@@ -25,10 +25,12 @@ bun install --frozen-lockfile
 bun run check
 swift test --package-path macos
 swift build --package-path macos --product divot
+swift build --package-path macos -c release --product divot
+macos/.build/release/divot --bench
 repoos check
 ```
 
-The RepoOS plan declares web configuration validation/static build, native core tests, and an app build gate (`native-app`). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior.
+The RepoOS plan declares web configuration validation/static build, native core tests, and an app build gate (`native-app`). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md).
 
 ## Continuous integration
 
