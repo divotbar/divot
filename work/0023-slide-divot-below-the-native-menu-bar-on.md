@@ -1,0 +1,40 @@
+---
+id: "0023"
+title: "Slide Divot below the native menu bar on cursor reveal, with a Settings toggle"
+type: feature
+status: inbox
+priority: p1
+area: macos
+depends_on: ["0021", "0022"]
+assigned_to: ""
+created_by: njachowski@gmail.com
+branch: ""
+created_at: "2026-10-10T08:46:31Z"
+updated_at: "2026-10-10T08:46:31Z"
+---
+## Problem
+
+Divot sits at the top edge while the native macOS menu bar is auto-hidden. When the maintainer moves the cursor to the top edge, macOS reveals the native bar, but Divot doesn't move down, so the two overlap. Public APIs don't reliably report whether the native bar is currently showing, so Divot can't react to the reveal from the system signal alone.
+
+## Desired UX
+
+- When the cursor enters the top strip of the display, Divot slides down to sit below where the native bar will appear. When the cursor leaves that strip, Divot slides back up to the top edge.
+- Settings has a toggle, "Move below the menu bar when it appears", on by default for auto-hide users, with the cursor behaviour as its only mode. When it is off, Divot keeps its current placement.
+- A small fallback setting, "Always below the menu bar", is available for Macs where the cursor reveal does not line up.
+
+## Acceptance criteria
+
+- Cursor movement into the top strip and out of it drives the slide, using event-driven monitoring (no unbounded polling). Add a test for the state transition: enter, dwell, leave.
+- Use the screen's visible frame as a cross-check when it is available, so Divot corrects itself if the two disagree. Add a test for the disagreement case.
+- The toggle and fallback option live in Settings, persisted through the configuration store (0006), with a clear label and default. Route them through the existing settings window pattern from 0017.
+- Behaviour is off when the toggle is off, and the slide respects the reduce-motion setting.
+- Verify on the packaged app with `scripts/package-app.sh` and record a screen capture as evidence. The maintainer confirms the feel; do not claim it works without that.
+- `repoos check` passes.
+
+## Notes for AI
+
+Depends on #0021 (top-edge placement) and #0022 (settings additions) so the new setting lands in the same settings window and metrics code. Do not start until both are done. Keep the cursor monitoring in its own type in `DivotAppKit`, not in the widget views.
+
+## Activity
+
+- 2026-10-10T08:46:31Z · created · njachowski@gmail.com
