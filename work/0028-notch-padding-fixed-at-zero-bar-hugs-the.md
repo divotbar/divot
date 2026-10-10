@@ -9,12 +9,12 @@ depends_on: ["0025"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/notch-padding-fixed-at-zero-bar-hugs-the
-cli_override: claude code
-model_override: haiku
+cli_override: opencode
+model_override: big pickle
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T14:17:09Z"
+updated_at: "2026-10-10T15:04:21Z"
 review_passes: 10
 review_rounds: 2
 ---
@@ -155,3 +155,4 @@ Capture with macOS screenshot tool (Cmd+Shift+4, then spacebar).
 - 2026-10-10T14:17:09Z · needs_input
 - 2026-10-10T14:17:09Z · status review→active
 - 2026-10-10T14:17:09Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T15:04:21Z · cli_override, model_override
