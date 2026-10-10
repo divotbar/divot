@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-10T10:28:55Z"
-review_passes: 1
+last_close_out_gate_ms: 49552
+last_close_out_gate_at: "2026-10-10T10:31:57.480Z"
 id: "0027"
 title: Bar item reorder arrows point left and right
 type: bug
@@ -12,6 +12,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/bar-item-reorder-arrows-point-left-and-r
 created_at: "2026-10-10T10:26:07Z"
+updated_at: "2026-10-10T10:31:57Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -40,4 +42,5 @@ Depends on #0024. Only the reorder controls change; do not alter the left/right 
 - 2026-10-10T10:28:28Z · status active→review
 - 2026-10-10T10:28:28Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-10T10:28:55Z · note: review pass 1: good to go
+- 2026-10-10T10:31:57Z · close-out gate completed in 50s
 
