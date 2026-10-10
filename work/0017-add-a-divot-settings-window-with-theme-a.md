@@ -2,15 +2,15 @@
 id: "0017"
 title: Add a Divot settings window with theme and appearance pickers
 type: feature
-status: ready
+status: active
 priority: p1
 area: macos
 depends_on: ["0006", "0011"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/add-a-divot-settings-window-with-theme-a
 created_at: "2026-10-09T20:26:49Z"
-updated_at: "2026-10-10T02:12:56Z"
+updated_at: "2026-10-10T02:18:09Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Depends on 0006 (config, settings, appearance modes) and 0011 (theme families). 
 
 - 2026-10-09T20:26:49Z · created · njachowski@gmail.com
 - 2026-10-10T02:12:56Z · status inbox→ready
+- 2026-10-10T02:18:09Z · status ready→active, branch
