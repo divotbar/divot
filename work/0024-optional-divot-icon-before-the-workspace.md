@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-divot-icon-before-the-workspace
 created_at: "2026-10-10T09:48:56Z"
-updated_at: "2026-10-10T09:49:00Z"
+updated_at: "2026-10-10T09:54:43Z"
 ---
 ## Problem
 
@@ -41,3 +41,4 @@ Depends on #0022, which changes the text and icon size metrics this icon must fo
 - 2026-10-10T09:48:56Z · created · njachowski@gmail.com
 - 2026-10-10T09:48:59Z · status inbox→ready
 - 2026-10-10T09:49:00Z · status ready→active, branch
+- 2026-10-10T09:54:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
