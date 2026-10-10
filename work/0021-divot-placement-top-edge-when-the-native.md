@@ -2,7 +2,7 @@
 id: "0021"
 title: "Divot placement: top edge when the native menu bar is hidden, below only while it is revealed; bar height 32pt"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -71,4 +71,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T05:23:26Z · status inbox→ready
 - 2026-10-10T05:23:27Z · status ready→active, branch
 - 2026-10-10T06:03:05Z · body: section Verification
-- 2026-10-10T06:06:04Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-10T06:06:04Z · status active→review
