@@ -152,6 +152,26 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
+@Test func workspaceDotTogglesStartOnAndPersist() throws {
+    let (model, controller) = try makeModel()
+
+    // Both markers are on by default, so settings opens with both toggles on.
+    #expect(model.configuration.showOccupiedDot)
+    #expect(model.configuration.showEmptyDot)
+
+    model.update { $0.showOccupiedDot = false }
+    #expect(!model.configuration.showOccupiedDot)
+    // Hiding one marker leaves the other untouched.
+    #expect(model.configuration.showEmptyDot)
+
+    // The change survives a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(!reloaded.current.showOccupiedDot)
+    #expect(reloaded.current.showEmptyDot)
+}
+
+@MainActor
 @Test func anUninstalledConfiguredFontShowsTheSystemDefaultInThePicker() throws {
     let (model, _) = try makeModel()
     model.update { $0.text.font = "No Such Font 12345" }

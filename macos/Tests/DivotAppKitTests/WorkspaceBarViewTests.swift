@@ -221,6 +221,81 @@ private func uniqueColors(in image: NSImage) -> Int {
 }
 
 @MainActor
+@Test func occupiedAndEmptyDotsShowByDefault() async {
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true, apps: [app("Safari")]),
+                                                  Workspace(id: WorkspaceID("2"), apps: [app("Safari")]),
+                                                  Workspace(id: WorkspaceID("3"))])
+
+    let feed = WorkspaceFeed()
+    // Both markers default on, so the row keeps today's look.
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .default)
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let occupied = try! #require(firstChip("2", in: view))
+    let empty = try! #require(firstChip("3", in: view))
+    #expect(occupied.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .occupied)))
+    #expect(empty.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .empty)))
+}
+
+@MainActor
+@Test func hidingTheOccupiedDotRemovesOnlyThatMarker() async {
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
+                                                  Workspace(id: WorkspaceID("2"), apps: [app("Safari")]),
+                                                  Workspace(id: WorkspaceID("3"))])
+
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil,
+                                showOccupiedDot: false)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .default)
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let occupied = try! #require(firstChip("2", in: view))
+    let empty = try! #require(firstChip("3", in: view))
+    // The occupied marker is gone, but the name still identifies the workspace.
+    #expect(!occupied.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .occupied)))
+    #expect(occupied.attributedTitle.string.contains("2"))
+    // The empty ring is untouched.
+    #expect(empty.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .empty)))
+}
+
+@MainActor
+@Test func hidingTheEmptyDotRemovesOnlyThatMarker() async {
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
+                                                  Workspace(id: WorkspaceID("2"), apps: [app("Safari")]),
+                                                  Workspace(id: WorkspaceID("3"))])
+
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil,
+                                showEmptyDot: false)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .default)
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let occupied = try! #require(firstChip("2", in: view))
+    let empty = try! #require(firstChip("3", in: view))
+    // The empty ring is gone, but the name still identifies the workspace.
+    #expect(!empty.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .empty)))
+    #expect(empty.attributedTitle.string.contains("3"))
+    // The occupied dot is untouched.
+    #expect(occupied.attributedTitle.string.contains(WorkspaceBarView.occupancyMarker(for: .occupied)))
+}
+
+@MainActor
 @Test func unknownOccupancyChipsGetTheirOwnMarkerAndDescription() async {
     let snapshot = WorkspaceSnapshot(manager: .aerospace,
                                      workspaces: [Workspace(id: WorkspaceID("1"), apps: [app("Safari")])],

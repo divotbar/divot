@@ -17,6 +17,8 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `widgets` | Object | Optional; namespaced per-item options |
 | `keepAwake` | Object | Optional; keep-awake persistence (see below) |
 | `showAppIcon` | Boolean | Optional; show the Divot mark before the workspaces (default `false`) |
+| `showOccupiedDot` | Boolean | Optional; show the occupied marker on workspace chips (default `true`) |
+| `showEmptyDot` | Boolean | Optional; show the empty marker on workspace chips (default `true`) |
 
 The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
@@ -83,6 +85,21 @@ The mark is the same template image as the menu-bar item, so it follows the bar'
 
 ```json
 "showAppIcon": true
+```
+
+## Workspace markers
+
+Each non-focused workspace chip carries a small non-color occupancy marker: a filled dot for an occupied workspace and a hollow ring for an empty one (an uninspectable workspace keeps its own ring and has no toggle). Both markers are optional root booleans, on by default so the first-launch bar is unchanged. They are root fields rather than `widgets.workspaces` options because they change only the marker drawing, not the workspace feed.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `showOccupiedDot` | Boolean | `true` | Draw the filled dot on an occupied workspace chip |
+| `showEmptyDot` | Boolean | `true` | Draw the hollow ring on an empty workspace chip |
+
+Hiding a marker leaves the workspace name and the focused highlight, so a workspace stays identifiable. Settings has a matching toggle for each, and toggling one updates the bar live and survives a relaunch.
+
+```json
+"showOccupiedDot": false
 ```
 
 ## Keep awake

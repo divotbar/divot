@@ -120,6 +120,13 @@ public struct DivotSettingsView: View {
             Stepper(value: maxAppIconsBinding, in: 0...32) {
                 Text("Max app icons per workspace: \(maxAppIconsDescription)")
             }
+            Toggle("Show the occupied dot",
+                   isOn: binding(\.showOccupiedDot))
+            Toggle("Show the empty dot",
+                   isOn: binding(\.showEmptyDot))
+            Text("The dots mark occupied and empty workspaces. Hiding one leaves the workspace names and the focused highlight.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 

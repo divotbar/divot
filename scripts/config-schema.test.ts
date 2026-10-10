@@ -140,6 +140,19 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('showAppIcon: expected boolean')
   })
 
+  test('accepts the workspace dot toggles', () => {
+    const config = base()
+    config.showOccupiedDot = false
+    config.showEmptyDot = true
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects a non-boolean workspace dot toggle', () => {
+    const config = base()
+    config.showOccupiedDot = 'no'
+    expect(() => validate(config)).toThrow('showOccupiedDot: expected boolean')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }
