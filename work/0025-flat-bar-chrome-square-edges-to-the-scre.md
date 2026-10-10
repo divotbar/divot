@@ -2,7 +2,7 @@
 id: "0025"
 title: "Flat bar chrome: square edges to the screen edges, no 3D, optional bottom shadow"
 type: bug
-status: review
+status: active
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -17,7 +17,7 @@ model_override: composer-2.5
 review_cli_override: claude code
 review_model_override: haiku
 created_at: "2026-10-10T10:26:06Z"
-updated_at: "2026-10-10T11:29:56Z"
+updated_at: "2026-10-10T11:30:01Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -87,3 +87,4 @@ Human-only (NOT supplied here; do not treat as verified):
 - 2026-10-10T11:29:48Z · model_override
 - 2026-10-10T11:29:55Z · review_cli_override, review_model_override
 - 2026-10-10T11:29:56Z · review_model_override
+- 2026-10-10T11:30:01Z · status review→active
