@@ -10,7 +10,7 @@ The native providers below are implemented and unit-tested in the Swift package,
 
 | Identifier | Default side | Role | Update strategy |
 | --- | --- | --- | --- |
-| `workspaces` | left | Window-manager workspaces | Manager events or bounded refresh (workspace-adapter milestone) |
+| `workspaces` | left | Window-manager workspaces | Manager events or bounded refresh (AeroSpace and yabai adapters delivered; not physically validated) |
 | `front-app` | left | Frontmost application | Workspace/application notifications |
 | `battery` | right | Charge and power state | System power notifications |
 | `clock` | right | Local time with weekday and date | Next minute boundary by default |

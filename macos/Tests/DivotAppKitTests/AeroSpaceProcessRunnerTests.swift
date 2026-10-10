@@ -29,6 +29,19 @@ import DivotCore
     #expect(found == nil)
 }
 
+@Test func yabaiLocatorUsesTheSamePathDiscipline() {
+    let candidates = YabaiBinaryLocator.candidatePaths(environment: ["PATH": "/usr/bin"],
+                                                       homeDirectory: "/Users/x")
+    #expect(candidates.first == "/usr/bin/yabai")
+    #expect(candidates.contains("/opt/homebrew/bin/yabai"))
+    #expect(candidates.last == "/Users/x/.local/bin/yabai")
+
+    let found = YabaiBinaryLocator.locate(fileExists: { $0 == "/usr/local/bin/yabai" },
+                                          environment: [:],
+                                          homeDirectory: "/Users/x")
+    #expect(found == "/usr/local/bin/yabai")
+}
+
 // MARK: - Subscription line buffering
 
 @Test func lineBufferReassemblesALineSplitAcrossChunks() {
