@@ -14,7 +14,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T13:07:22Z"
+updated_at: "2026-10-10T13:09:10Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -68,6 +68,18 @@ open Divot.app
 4. Use this command to add the shot to the task:
 repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","label":"Notch area verification"}]'
 
+## Shots
+```json
+[
+{
+  "label": "Notch area verification - bar extends to fully cover housing gap",
+  "target": "default",
+  "route": "/",
+  "highlight": "body"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-10T12:20:56Z · created · njachowski@gmail.com
@@ -101,3 +113,4 @@ repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","
 - 2026-10-10T13:07:22Z · needs_input
 - 2026-10-10T13:07:22Z · status review→active
 - 2026-10-10T13:07:22Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-10T13:09:10Z · body: section Shots
