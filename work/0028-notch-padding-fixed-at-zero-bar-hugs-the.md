@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-10T13:00:47Z"
+review_passes: 4
 id: "0028"
 title: "Notch padding fixed at zero: bar hugs the notch with a 6pt colour extension"
 type: bug
@@ -17,8 +19,6 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-10T12:20:56Z"
-updated_at: "2026-10-10T13:00:47Z"
-review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -101,3 +101,4 @@ repoos update 0028 --shots '[{"target":"default","route":"/","selector":"body","
 - 2026-10-10T12:59:26Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-10T13:00:47Z · note: review pass 4: needs some work
 - 2026-10-10T13:00:47Z · needs_input
+
