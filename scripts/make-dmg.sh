@@ -86,13 +86,6 @@ cp -a "$APP_PATH" "$SOURCE_DIR/Divot.app"
 ln -s /Applications "$SOURCE_DIR/Applications"
 
 # Create the DMG from the source directory using hdiutil.
-# We create a temporary read-write DMG, configure it, then convert to compressed.
-TEMP_DMG="$TEMP_DIR/Divot-temp.dmg"
-
-# Create a read-write DMG large enough to hold the app plus padding for filesystem overhead.
-# App size plus 10 MB padding should be sufficient.
-APP_SIZE=$(du -sk "$SOURCE_DIR" | awk '{print $1}')
-DMG_SIZE=$((APP_SIZE + 10240))
 
 hdiutil create -volname "$VOLUME_NAME" \
   -srcfolder "$SOURCE_DIR" \
