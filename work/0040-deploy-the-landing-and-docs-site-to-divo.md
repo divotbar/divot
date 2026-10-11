@@ -2,14 +2,14 @@
 id: "0040"
 title: Deploy the landing and docs site to divotbar.app with GitHub Actions and Cloudflare Pages
 type: feature
-status: active
+status: review
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/deploy-the-landing-and-docs-site-to-divo
 created_at: "2026-10-11T12:47:04Z"
-updated_at: "2026-10-11T13:18:11Z"
+updated_at: "2026-10-11T13:18:46Z"
 incomplete_review_retries: 1
 ---
 ## Problem
@@ -44,3 +44,4 @@ The maintainer will create the Cloudflare token and account secrets; do not gues
 - 2026-10-11T12:59:48Z · note: review pass 2: incomplete — no verdict in report
 - 2026-10-11T13:18:11Z · status review→active
 - 2026-10-11T13:18:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T13:18:46Z · status active→review
