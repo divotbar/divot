@@ -223,9 +223,20 @@ public struct DivotSettingsView: View {
     private var networkSection: some View {
         Section("Network") {
             Toggle("Show Wi-Fi network name", isOn: binding(\.widgets.network.showWifiName))
-            Text("When on, the network item displays the current Wi-Fi network name beside the icon. The name appears only when connected to Wi-Fi and location permission is available.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            if model.configuration.widgets.network.showWifiName && model.locationAuthorizationStatus == .denied {
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Location permission is needed to show the Wi-Fi name")
+                        Button(action: { model.openLocationServices() }) {
+                            Text("Open Location Services")
+                        }
+                    }
+                }
+            } else {
+                Text("When on, the network item displays the current Wi-Fi network name beside the icon. The name appears only when connected to Wi-Fi and location permission is available.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 

@@ -147,6 +147,32 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(ethernet.symbolName == "cable.connector")
 }
 
+@Test func networkPresentationShowsErrorWhenLocationPermissionDenied() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let denied = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, locationAuthorizationStatus: "denied"))),
+        options: optionsOn)
+    #expect(denied.text.isEmpty)
+    #expect(denied.isError)
+    #expect(denied.accessibilityLabel.contains("Location permission is needed"))
+}
+
+@Test func networkPresentationShowsWifiNameWhenLocationAuthorized() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let authorized = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork", locationAuthorizationStatus: "authorizedWhenInUse"))),
+        options: optionsOn)
+    #expect(authorized.text == "MyNetwork")
+    #expect(!authorized.isError)
+    #expect(authorized.accessibilityLabel.contains("Wi-Fi network: MyNetwork"))
+}
+
 @Test func volumePresentationCoversMuteAndNoOutput() {
     let muted = WidgetPresenter.present(id: .volume,
                                         state: state(.volume, .volume(.init(hasOutputDevice: true, level: 0.4, isMuted: true))),

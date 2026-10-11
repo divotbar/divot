@@ -277,6 +277,58 @@ private final class MockFrontAppReading: FrontAppReading {
     #expect(reading.cancelCount == 1)
 }
 
+@Test func networkProviderShowsWifiNameWhenAuthorized() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: "MyNetwork", locationAuthorizationStatus: "authorizedWhenInUse"))
+    #expect(collector.contents.count == 1)
+    guard case .network(let snapshot)? = collector.contents.last else {
+        Issue.record("expected a network snapshot")
+        return
+    }
+    #expect(snapshot.wifiName == "MyNetwork")
+    #expect(snapshot.locationAuthorizationStatus == "authorizedWhenInUse")
+
+    subscription.cancel()
+    #expect(reading.cancelCount == 1)
+}
+
+@Test func networkProviderHidesWifiNameWhenDenied() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: nil, locationAuthorizationStatus: "denied"))
+    #expect(collector.contents.count == 1)
+    guard case .network(let snapshot)? = collector.contents.last else {
+        Issue.record("expected a network snapshot")
+        return
+    }
+    #expect(snapshot.wifiName == nil)
+    #expect(snapshot.locationAuthorizationStatus == "denied")
+
+    subscription.cancel()
+}
+
+@Test func networkProviderShowsNotDeterminedState() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: nil, locationAuthorizationStatus: "notDetermined"))
+    #expect(collector.contents.count == 1)
+    guard case .network(let snapshot)? = collector.contents.last else {
+        Issue.record("expected a network snapshot")
+        return
+    }
+    #expect(snapshot.wifiName == nil)
+    #expect(snapshot.locationAuthorizationStatus == "notDetermined")
+
+    subscription.cancel()
+}
+
 @Test func volumeProviderEmitsAndFollowsChanges() {
     let reading = MockVolumeReading()
     reading.snapshotValue = .init(hasOutputDevice: true, level: 0.3)

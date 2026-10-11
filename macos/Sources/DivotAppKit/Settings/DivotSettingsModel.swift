@@ -21,6 +21,8 @@ public final class DivotSettingsModel {
     /// Installed font families, sorted, for the bar font picker. The system
     /// default is offered separately as an empty selection.
     public let availableFontFamilies: [String]
+    /// Current location authorization status for showing Wi-Fi name.
+    public private(set) var locationAuthorizationStatus: LocationAuthorizationStatus = .notDetermined
 
     private let controller: ConfigurationController
     private let loginItem: LoginItemControlling
@@ -31,26 +33,39 @@ public final class DivotSettingsModel {
     /// The single quit path shared with the menu-bar menu. Kept as a closure so
     /// the model never owns the application lifecycle and a test can observe it.
     private let requestQuit: () -> Void
+    private let locationTracker: LocationAuthorizationTracker
+    private var locationSubscription: (any ProviderSubscription)?
 
     public init(controller: ConfigurationController,
                 loginItem: LoginItemControlling = SMAppServiceLoginItem(),
                 keepAwakeIsActive: @escaping () -> Bool = { false },
-                requestQuit: @escaping () -> Void = {}) {
+                requestQuit: @escaping () -> Void = {},
+                locationTracker: LocationAuthorizationTracker = LocationAuthorizationTracker()) {
         self.controller = controller
         self.loginItem = loginItem
         self.keepAwakeIsActive = keepAwakeIsActive
         self.requestQuit = requestQuit
+        self.locationTracker = locationTracker
         self.configuration = controller.configuration
         self.errorMessage = controller.lastError?.description
         self.loginItemEnabled = loginItem.isEnabled
         self.loginItemStatus = loginItem.statusDescription
         self.availableFontFamilies = BarFont.installedFamilies()
+        self.locationAuthorizationStatus = locationTracker.currentStatus()
+
         // Keep the window in step with external edits (the file watcher) and with
         // the bar's own reloads. Values are equal after our own save, so this is
         // idempotent; there is no second copy of the truth.
         controller.addObserver { [weak self] configuration in
             self?.configuration = configuration
             self?.errorMessage = nil
+        }
+
+        // Observe location authorization status changes.
+        locationSubscription = locationTracker.requestAuthorizationAndObserve { [weak self] status in
+            DispatchQueue.main.async {
+                self?.locationAuthorizationStatus = status
+            }
         }
     }
 
@@ -218,6 +233,13 @@ public final class DivotSettingsModel {
     /// only calls this after the user confirms through the shared dialog.
     public func quit() {
         requestQuit()
+    }
+
+    /// Open the Location Services pane in System Settings.
+    public func openLocationServices() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     // MARK: Keep awake
