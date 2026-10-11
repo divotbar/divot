@@ -2,14 +2,14 @@
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: inbox
+status: ready
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T14:25:56Z"
+updated_at: "2026-10-11T14:25:57Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Relevant code: macos/Sources/DivotAppKit/DefaultWidgetProviders.swift and Widget
 ## Activity
 
 - 2026-10-11T14:25:56Z · created · njachowski@gmail.com
+- 2026-10-11T14:25:57Z · status inbox→ready
