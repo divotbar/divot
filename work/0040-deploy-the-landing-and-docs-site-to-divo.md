@@ -10,6 +10,7 @@ created_by: njachowski@gmail.com
 branch: feat/deploy-the-landing-and-docs-site-to-divo
 created_at: "2026-10-11T12:47:04Z"
 updated_at: "2026-10-11T12:54:06Z"
+incomplete_review_retries: 1
 ---
 ## Problem
 
@@ -40,3 +41,4 @@ The maintainer will create the Cloudflare token and account secrets; do not gues
 - 2026-10-11T12:47:15Z · status ready→active, branch
 - 2026-10-11T12:49:40Z · status active→review
 - 2026-10-11T12:54:06Z · note: review pass 1: incomplete — no verdict in report
+
