@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-11T14:09:18Z"
-review_passes: 2
+last_close_out_gate_ms: 43379
+last_close_out_gate_at: "2026-10-11T14:10:33.396Z"
 id: "0047"
 title: "Make the selected workspace chip match the other chips, and add a chip opacity setting (0 to 100)"
 type: feature
@@ -12,6 +12,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/make-the-selected-workspace-chip-match-t
 created_at: "2026-10-11T13:57:41Z"
+updated_at: "2026-10-11T14:10:33Z"
+review_passes: 2
 review_rounds: 1
 ---
 ## Problem
@@ -48,4 +50,5 @@ Depends on #0030 (chips). Keep changes to the chip drawing and the focus cue, no
 - 2026-10-11T14:08:27Z · status active→review
 - 2026-10-11T14:08:27Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:09:18Z · note: review pass 2: good to go
+- 2026-10-11T14:10:33Z · close-out gate completed in 43s
 
