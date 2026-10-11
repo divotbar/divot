@@ -45,3 +45,4 @@ The location permission prompt only appears when the packaged app (dist/Divot.ap
 - 2026-10-11T11:54:35Z · status ready→active, branch
 - 2026-10-11T12:02:43Z · body: section Notes for AI
 - 2026-10-11T12:03:16Z · status active→review
+- 2026-10-11T12:03:16Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
