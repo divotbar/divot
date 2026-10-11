@@ -1,5 +1,16 @@
 import Foundation
 
+/// Whether the battery item shows its percentage.
+public struct BatteryFormatOptions: Equatable, Sendable {
+    public var showPercentage: Bool
+
+    public init(showPercentage: Bool = true) {
+        self.showPercentage = showPercentage
+    }
+
+    public static let `default` = BatteryFormatOptions()
+}
+
 /// Whether the frontmost-application item shows its icon and/or its name.
 public struct FrontAppFormatOptions: Equatable, Sendable {
     public var showIcon: Bool
@@ -30,17 +41,20 @@ public struct VolumeFormatOptions: Equatable, Sendable {
 public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var frontApp: FrontAppFormatOptions
+    public var battery: BatteryFormatOptions
     public var volume: VolumeFormatOptions
     public var locale: Locale
     public var timeZone: TimeZone
 
     public init(clock: ClockFormatOptions = .default,
                 frontApp: FrontAppFormatOptions = .default,
+                battery: BatteryFormatOptions = .default,
                 volume: VolumeFormatOptions = .default,
                 locale: Locale = .current,
                 timeZone: TimeZone = .current) {
         self.clock = clock
         self.frontApp = frontApp
+        self.battery = battery
         self.volume = volume
         self.locale = locale
         self.timeZone = timeZone
@@ -124,7 +138,7 @@ public enum WidgetPresenter {
         case .frontApp(let snapshot):
             return frontAppPresentation(snapshot, options: options.frontApp)
         case .battery(let snapshot):
-            return batteryPresentation(snapshot)
+            return batteryPresentation(snapshot, options: options.battery)
         case .network(let snapshot):
             return networkPresentation(snapshot)
         case .volume(let snapshot):
@@ -170,7 +184,8 @@ public enum WidgetPresenter {
                                   isError: isError)
     }
 
-    private static func batteryPresentation(_ snapshot: BatterySnapshot) -> WidgetPresentation {
+    private static func batteryPresentation(_ snapshot: BatterySnapshot,
+                                            options: BatteryFormatOptions) -> WidgetPresentation {
         let indicator = snapshot.isKeepingAwake
             ? WidgetIndicator(symbolName: "cup.and.saucer.fill",
                               role: .keepAwakeActive,
@@ -186,8 +201,9 @@ public enum WidgetPresenter {
                                       indicator: indicator)
         case .internalBattery:
             let symbol = batterySymbol(percentage: snapshot.percentage, charging: snapshot.isCharging)
-            let text = snapshot.percentage.map { "\($0)%" } ?? ""
-            var description = "Battery \(text.isEmpty ? "state unknown" : text)"
+            let text = options.showPercentage ? (snapshot.percentage.map { "\($0)%" } ?? "") : ""
+            let percentageText = snapshot.percentage.map { "\($0)%" } ?? "state unknown"
+            var description = "Battery \(percentageText)"
             if snapshot.isCharging { description += ", charging" }
             else if snapshot.isPluggedIn { description += ", plugged in" }
             else if snapshot.isFullyCharged { description += ", charged" }

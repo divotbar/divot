@@ -21,6 +21,7 @@ public struct DivotSettingsView: View {
             barItemsSection
             workspacesSection
             frontAppSection
+            batterySection
             clockSection
             volumeSection
             keepAwakeSection
@@ -201,6 +202,12 @@ public struct DivotSettingsView: View {
         Section("Front app") {
             Toggle("Show app icon", isOn: binding(\.widgets.frontApp.showIcon))
             Toggle("Show app name", isOn: binding(\.widgets.frontApp.showName))
+        }
+    }
+
+    private var batterySection: some View {
+        Section("Battery") {
+            Toggle("Show battery percentage", isOn: binding(\.widgets.battery.showPercentage))
         }
     }
 
