@@ -51,3 +51,4 @@ The maintainer will create the Cloudflare token and account secrets; do not gues
 - 2026-10-11T13:19:34Z · note: review pass 3: needs some work
 - 2026-10-11T13:19:34Z · status review→active
 - 2026-10-11T13:21:35Z · status active→review
+- 2026-10-11T13:21:35Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (75663a2) during finalization (#0734)
