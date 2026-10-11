@@ -1,0 +1,52 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+permissions:
+  contents: write
+jobs:
+  build-and-release:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcodebuild -version && swift --version
+      # Build the Release configuration of the Swift app and package it.
+      # This produces Divot.app, a versioned zip archive, and checksums.
+      - run: ./scripts/package-app.sh --configuration release --no-build
+        env:
+          VERSION: ${{ github.ref_name }}
+      # Create the DMG from the packaged app. The DMG includes an Applications
+      # symlink for drag-to-install.
+      - run: ./scripts/make-dmg.sh
+      # Extract tag name and build markdown release notes.
+      - name: Prepare release notes
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          cat > /tmp/release_notes.md <<'NOTES'
+          # Divot ${{ github.ref_name }}
+
+          **Note:** This is an unsigned build. To open Divot on your Mac:
+          1. Mount the DMG: double-click `Divot.dmg`
+          2. Right-click the Divot app and select "Open"
+          3. Click "Open" in the dialog (you only need to do this once)
+          4. Drag Divot to your Applications folder
+
+          **Build info:**
+          - Configuration: Release
+          - Signing: Ad-hoc (unsigned; not Developer ID signed or notarized)
+          - Commit: ${{ github.sha }}
+
+          Signed and notarized builds are planned for a future release.
+          NOTES
+      # Create the GitHub Release with the DMG and checksum files.
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: /tmp/release_notes.md
+          files: |
+            dist/Divot.dmg
+            dist/Divot.dmg.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
