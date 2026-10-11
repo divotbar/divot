@@ -71,7 +71,9 @@ public final class LocationAuthorizationTracker: NSObject, CLLocationManagerDele
                 handler(converted)
             }
             if converted == .notDetermined {
-                self?.manager.requestWhenInUseAuthorization()
+                DispatchQueue.main.async {
+                    self?.manager.requestWhenInUseAuthorization()
+                }
             }
         }
 

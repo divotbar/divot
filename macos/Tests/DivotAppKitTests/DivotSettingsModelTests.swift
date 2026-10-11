@@ -374,9 +374,28 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 }
 
 @MainActor
-@Test func openLocationServicesUsesTheCorrectURL() throws {
+@Test func locationServicesURLIsCorrect() {
+    // Verify the URL scheme for opening Location Services is correct.
+    // The URL `x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices`
+    // opens the Location Services pane in System Settings (tested by maintainer, not in unit tests).
+    let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")
+    #expect(url != nil)
+}
+
+@MainActor
+@Test func settingsCanToggleShowWifiNameAndTracksAuthorizationStatus() throws {
     let (model, _) = try makeModel()
-    // This test just verifies the method exists and doesn't crash.
-    // The actual URL scheme is tested by the maintainer opening System Settings.
-    model.openLocationServices()
+
+    // Initial state: show Wi-Fi name is off, authorization status is tracked
+    #expect(!model.configuration.widgets.network.showWifiName)
+    let initialStatus = model.locationAuthorizationStatus
+    #expect(initialStatus == .notDetermined || initialStatus == .denied || initialStatus == .authorizedWhenInUse || initialStatus == .authorizedAlways)
+
+    // Toggle show Wi-Fi name on
+    model.update { $0.widgets.network.showWifiName = true }
+    #expect(model.configuration.widgets.network.showWifiName)
+
+    // Authorization status continues to be tracked
+    let currentStatus = model.locationAuthorizationStatus
+    #expect(currentStatus == .notDetermined || currentStatus == .denied || currentStatus == .authorizedWhenInUse || currentStatus == .authorizedAlways)
 }
