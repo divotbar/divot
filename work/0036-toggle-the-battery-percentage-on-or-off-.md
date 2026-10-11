@@ -1,5 +1,4 @@
 ---
-close_out_repair_count: 1
 id: "0036"
 title: Toggle the battery percentage on or off in Settings
 type: feature
@@ -11,7 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/toggle-the-battery-percentage-on-or-off-
 created_at: "2026-10-11T00:41:47Z"
-updated_at: "2026-10-11T01:11:28Z"
+updated_at: "2026-10-11T01:14:29Z"
+close_out_repair_count: 1
 review_passes: 2
 review_rounds: 1
 ---
@@ -49,4 +49,4 @@ Depends on #0028. Keep changes to the battery widget's label, not the battery re
 - 2026-10-11T00:56:38Z · note: review pass 2: good to go
 - 2026-10-11T01:11:28Z · status review→active
 - 2026-10-11T01:11:28Z · note: close-out repair: merge-conflict
-
+- 2026-10-11T01:14:29Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
