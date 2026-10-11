@@ -2,14 +2,14 @@
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
-status: ready
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/default-bar-height-matches-the-native-me
 created_at: "2026-10-11T13:13:19Z"
-updated_at: "2026-10-11T13:13:20Z"
+updated_at: "2026-10-11T13:13:21Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 
 - 2026-10-11T13:13:19Z · created · njachowski@gmail.com
 - 2026-10-11T13:13:20Z · status inbox→ready
+- 2026-10-11T13:13:21Z · status ready→active, branch
