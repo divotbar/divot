@@ -13,7 +13,16 @@ export default defineConfig({
     hostname: baseUrl.slice(0, -1)
   },
   transformHead({ pageData }) {
-    const canonicalUrl = baseUrl.slice(0, -1) + pageData.relativePath.replace(/README\.md$/, '').replace(/\.md$/, '')
+    let path = pageData.relativePath
+      .replace(/\.md$/, '')
+      .replace(/\/index$/, '')
+
+    if (path === 'index') {
+      path = ''
+    }
+
+    const route = path ? '/' + path : '/'
+    const canonicalUrl = baseUrl.slice(0, -1) + route
     return [
       ['link', { rel: 'canonical', href: canonicalUrl }]
     ]
