@@ -223,11 +223,31 @@ public struct DivotSettingsView: View {
 
     private var networkSection: some View {
         Section("Network") {
-            Toggle("Show Wi-Fi network name", isOn: binding(\.widgets.network.showWifiName))
-            Text("When on, the network item displays the current Wi-Fi network name beside the icon. The name appears only when connected to Wi-Fi and location permission is available.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Toggle("Show Wi-Fi network name", isOn: showWifiNameBinding)
+            if model.configuration.widgets.network.showWifiName {
+                if model.wifiNamePermissionOffersSettings {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(model.wifiNamePermissionMessage)
+                        Button(action: { model.openLocationServices() }) {
+                            Text("Open Location Services")
+                        }
+                    }
+                } else {
+                    Text(model.wifiNamePermissionMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Text("When on, the network item displays the current Wi-Fi network name beside the icon. Location permission is required.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
+    }
+
+    private var showWifiNameBinding: Binding<Bool> {
+        Binding(get: { model.configuration.widgets.network.showWifiName },
+                set: { model.setShowWifiName($0) })
     }
 
     private var volumeSection: some View {

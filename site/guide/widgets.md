@@ -27,7 +27,7 @@ A disabled provider removes its observers and cancels outstanding work. A failed
 
 ## Permissions
 
-The clock, battery, network, volume, and frontmost-app items need no special permission. Network status deliberately reads no SSID or other location-gated detail, so it never triggers a location prompt. Accessibility is only relevant to detecting the native menu bar on notched displays, not to these widgets.
+The clock, battery, volume, and frontmost-app items need no special permission. Accessibility is only relevant to detecting the native menu bar on notched displays, not to these widgets. The network item can optionally display the current Wi-Fi network name (SSID); this feature requires location permission on macOS and is only requested when the user explicitly enables it in Settings.
 
 ## Click behavior
 

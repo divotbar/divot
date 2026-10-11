@@ -200,6 +200,8 @@ cat > "$APP/Contents/Info.plist" <<EOF
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location permission is needed to show the Wi-Fi network name.</string>
 	<key>DivotPreviewVersion</key>
 	<string>$VERSION</string>
 	<key>DivotBuildCommit</key>

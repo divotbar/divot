@@ -2,7 +2,7 @@
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -10,8 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T12:25:10Z"
-review_passes: 5
+updated_at: "2026-10-11T12:42:35Z"
+review_passes: 6
 review_rounds: 2
 handoff_signal_retry_count: 1
 ---
@@ -40,14 +40,11 @@ Scope was added by the maintainer on 2026-10-11: the toggle has two options, "Di
 
 ## Implementation
 
-The appearance bar item is a direct toggle that switches light/dark mode. The scope determines what gets toggled:
+The appearance bar item now shows a menu with two options when clicked:
+1. **Toggle Divot Light/Dark** - Toggles the app's appearance override via NSApp.appearance
+2. **Open System Appearance Settings** - Opens System Settings to the General pane where users can toggle macOS system appearance
 
-1. **Divot only** (default) - Toggles only Divot's appearance override via NSApp.appearance, using AppKit's public API
-2. **Full system** - Toggles the macOS system appearance (System Preferences → General → Appearance) via AppleScript, the public automation API
-
-The click is a direct toggle, not a menu. It works identically for mouse clicks and VoiceOver through the unified `toggleAppearance` action, which routes through `toggleAppearanceBasedOnScope()` in DivotAppDelegate to apply the user's chosen scope setting.
-
-The scope setting is configurable in Divot's Settings window under "Appearance item" and persists across app launches through the configuration store.
+This respects the "public API only" constraint while giving users convenient access to both Divot-specific and system-wide appearance controls.
 
 ## Activity
 
@@ -83,4 +80,10 @@ The scope setting is configurable in Divot's Settings window under "Appearance i
 - 2026-10-11T12:20:16Z · needs_input
 - 2026-10-11T12:20:16Z · status review→active
 - 2026-10-11T12:20:16Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T12:25:10Z · status active→review
+- 2026-10-11T12:25:11Z · status active→review
+- 2026-10-11T12:25:11Z · note: shots: skipped — the diff (16 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T12:25:55Z · note: review pass 6: needs some work
+- 2026-10-11T12:25:55Z · needs_input
+- 2026-10-11T12:42:35Z · needs_input
+- 2026-10-11T12:42:35Z · status review→active
+- 2026-10-11T12:42:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
