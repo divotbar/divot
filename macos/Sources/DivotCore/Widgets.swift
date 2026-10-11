@@ -163,19 +163,23 @@ public struct NetworkSnapshot: Equatable, Sendable {
     public let isConstrained: Bool
     /// The current Wi-Fi network name (SSID), when connected to Wi-Fi and available.
     public let wifiName: String?
+    /// Location authorization status (for Wi-Fi name reading).
+    public let locationAuthorizationStatus: String?
 
     public init(isConnected: Bool,
                 kind: NetworkKind = .other,
                 interfaceName: String? = nil,
                 isExpensive: Bool = false,
                 isConstrained: Bool = false,
-                wifiName: String? = nil) {
+                wifiName: String? = nil,
+                locationAuthorizationStatus: String? = nil) {
         self.isConnected = isConnected
         self.kind = kind
         self.interfaceName = interfaceName
         self.isExpensive = isExpensive
         self.isConstrained = isConstrained
         self.wifiName = wifiName
+        self.locationAuthorizationStatus = locationAuthorizationStatus
     }
 }
 
