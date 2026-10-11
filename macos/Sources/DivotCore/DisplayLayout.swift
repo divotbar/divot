@@ -283,9 +283,10 @@ public struct DisplayBarCoordinator: Sendable {
                                                     cancelAnimations: true,
                                                     visibility: controller.committed))
                 case .reposition(_, let animated):
+                    let policy = effectivePolicy(for: reading.geometry, signal: reading.signal)
                     let placement = BarPlacementResolver.placement(screen: reading.geometry,
                                                                    visibility: controller.committed,
-                                                                   policy: contentPolicy)
+                                                                   policy: policy)
                     updates.append(DisplayBarUpdate(id: id, placement: placement, animated: animated,
                                                     cancelAnimations: false,
                                                     visibility: controller.committed))
@@ -313,9 +314,10 @@ public struct DisplayBarCoordinator: Sendable {
                 case .cancelAnimations:
                     break
                 case .reposition(_, let animated):
+                    let policy = effectivePolicy(for: reading.geometry, signal: reading.signal)
                     let placement = BarPlacementResolver.placement(screen: reading.geometry,
                                                                    visibility: controller.committed,
-                                                                   policy: contentPolicy)
+                                                                   policy: policy)
                     updates.append(DisplayBarUpdate(id: id, placement: placement, animated: animated,
                                                     cancelAnimations: false,
                                                     visibility: controller.committed))
@@ -329,15 +331,30 @@ public struct DisplayBarCoordinator: Sendable {
         return updates
     }
 
+    /// Compute the effective policy for a display, applying the computed default
+    /// height from the screen geometry when the configured height is the default.
+    private func effectivePolicy(for geometry: ScreenGeometry, signal: NativeMenuBarSignal) -> BarContentPolicy {
+        let configuredHeight = contentPolicy.height
+        let defaultHeight = CGFloat(BarMetrics.default.height)
+        if abs(configuredHeight - defaultHeight) < 0.1 {
+            let computedHeight = geometry.defaultBarHeight(nominalMenuBarHeight: signal.nominalMenuBarHeight)
+            return BarContentPolicy(height: computedHeight,
+                                    clearance: contentPolicy.clearance,
+                                    edgeMargin: contentPolicy.edgeMargin)
+        }
+        return contentPolicy
+    }
+
     /// An immediate, non-animated placement. `visibility` is what the caller
     /// should surface; the resting frames use the top edge for an undecidable
     /// state so the panels are still visible and never hidden.
     private func restingUpdate(for reading: DisplayReading,
                                visibility: NativeMenuBarVisibility) -> DisplayBarUpdate {
         let resting: NativeMenuBarVisibility = visibility.isIndeterminate ? .hidden : visibility
+        let policy = effectivePolicy(for: reading.geometry, signal: reading.signal)
         let placement = BarPlacementResolver.placement(screen: reading.geometry,
                                                        visibility: resting,
-                                                       policy: contentPolicy)
+                                                       policy: policy)
         return DisplayBarUpdate(id: reading.id, placement: placement, animated: false,
                                 cancelAnimations: true, visibility: visibility)
     }
