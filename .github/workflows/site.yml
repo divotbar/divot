@@ -1,0 +1,59 @@
+name: Deploy site to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-dist
+          path: site/.vitepress/dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-dist
+          path: site/.vitepress/dist
+      - name: Check for required secrets
+        id: check-secrets
+        run: |
+          if [[ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]] || [[ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⏭️  Skipping deploy: CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN not configured"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Deploy to Cloudflare Pages
+        if: steps.check-secrets.outputs.skip == 'false'
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: divotbar
+          directory: site/.vitepress/dist
+          gitHubToken: ${{ github.token }}
+      - name: Deployment skipped
+        if: steps.check-secrets.outputs.skip == 'true'
+        run: echo "⏭️  Skipping deploy: GitHub secrets not configured. See docs/infrastructure.md for setup instructions."

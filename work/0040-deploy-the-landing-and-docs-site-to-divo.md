@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-11T13:25:18Z"
-review_passes: 3
 id: "0040"
 title: Deploy the landing and docs site to divotbar.app with GitHub Actions and Cloudflare Pages
 type: feature
@@ -11,8 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/deploy-the-landing-and-docs-site-to-divo
 created_at: "2026-10-11T12:47:04Z"
-review_rounds: 2
-incomplete_review_retries: 1
+updated_at: "2026-10-11T12:49:40Z"
 ---
 ## Problem
 
@@ -42,21 +39,3 @@ The maintainer will create the Cloudflare token and account secrets; do not gues
 - 2026-10-11T12:47:15Z · status inbox→ready
 - 2026-10-11T12:47:15Z · status ready→active, branch
 - 2026-10-11T12:49:40Z · status active→review
-- 2026-10-11T12:54:06Z · note: review pass 1: incomplete — no verdict in report
-- 2026-10-11T12:59:48Z · note: review pass 2: incomplete — no verdict in report
-- 2026-10-11T13:18:11Z · status review→active
-- 2026-10-11T13:18:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T13:18:46Z · status active→review
-- 2026-10-11T13:18:46Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (29de07b) during finalization (#0734)
-- 2026-10-11T13:19:34Z · note: review pass 3: needs some work
-- 2026-10-11T13:19:34Z · status review→active
-- 2026-10-11T13:21:35Z · status active→review
-- 2026-10-11T13:21:35Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (75663a2) during finalization (#0734)
-- 2026-10-11T13:21:36Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (75663a2) during finalization (#0734)
-- 2026-10-11T13:22:15Z · note: review pass 4: needs some work
-- 2026-10-11T13:22:15Z · status review→active
-- 2026-10-11T13:24:10Z · status active→review
-- 2026-10-11T13:24:11Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (09f2665) during finalization (#0734)
-- 2026-10-11T13:24:11Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (09f2665) during finalization (#0734)
-- 2026-10-11T13:25:18Z · note: review pass 5: good to go
-
