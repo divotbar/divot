@@ -39,3 +39,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T00:43:53Z · status inbox→ready
 - 2026-10-11T00:43:54Z · status ready→active, branch
 - 2026-10-11T00:52:19Z · status active→review
+- 2026-10-11T00:52:19Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
