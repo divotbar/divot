@@ -72,9 +72,42 @@ The site builds to `site/.vitepress/dist/` and deploys to Cloudflare Pages at ht
 - Per-page canonical URLs are generated to `https://divotbar.app` in the HTML head via `transformHead`
 - Sitemap hostname is set to `https://divotbar.app` for absolute URLs in `sitemap.xml`
 
-## Native distribution (planned)
+## Native distribution
 
-Developer ID signed and notarized universal or arm64 app (arm64 first); hardened runtime; staple notarization proof; versioned archive and checksums. Keep signing credentials in the CI secret store/keychain. Do not distribute instructions to remove quarantine. Start with direct downloadable releases; evaluate a signed update mechanism after the first stable release. Mac App Store/sandbox support is not promised: CLI integration and future scripts require a deliberate entitlement/distribution assessment. A **local, ad-hoc-signed** preview bundle is now produced by `scripts/package-app.sh` for the maintainer's Mac; it is explicitly not the public release. See the [local preview](local-preview.md).
+### Release builds and artifacts
+
+Pushing a version tag (e.g., `v0.1.0`) triggers `.github/workflows/release.yml`, which:
+
+1. Checks out the tag
+2. Builds Divot in Release configuration using Swift Package Manager
+3. Packages it as `dist/Divot.app` using `scripts/package-app.sh`
+4. Creates `dist/Divot.dmg` using `scripts/make-dmg.sh` with a drag-to-Applications layout
+5. Generates `dist/Divot.dmg.sha256` for checksum verification
+6. Creates a GitHub Release with both files and release notes explaining that the build is unsigned
+
+The workflow runs on `macos-26` (Apple silicon) in GitHub Actions.
+
+### Unsigned builds (current)
+
+Current releases are **unsigned**: ad-hoc signed only, not Developer ID signed or notarized. Users must right-click the Divot app and select "Open" once to bypass Gatekeeper. The release notes include these instructions.
+
+To test locally:
+```sh
+./scripts/package-app.sh --configuration release    # assemble Divot.app
+./scripts/make-dmg.sh                               # create Divot.dmg
+hdiutil attach dist/Divot.dmg                       # mount the DMG
+open /Volumes/Divot/Divot.app                       # launch the app
+```
+
+The DMG includes a symlink to `/Applications` for drag-and-drop installation.
+
+### Signed distribution (planned)
+
+Developer ID signed and notarized universal or arm64 app (arm64 first) is planned as a separate task. Keep signing credentials in the CI secret store/keychain. Do not distribute instructions to remove quarantine. Start with direct downloadable releases; evaluate a signed update mechanism after the first stable release. Mac App Store/sandbox support is not promised: CLI integration and future scripts require a deliberate entitlement/distribution assessment.
+
+### Local preview
+
+A **local, ad-hoc-signed** preview bundle is produced by `scripts/package-app.sh` for the maintainer's Mac; it is explicitly not the public release. See the [local preview](local-preview.md).
 
 ## Security/privacy
 
