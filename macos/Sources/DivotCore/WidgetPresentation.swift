@@ -183,7 +183,8 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .time(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.time,
-                                        locale: options.locale, timeZone: options.timeZone)
+                                        locale: options.locale, timeZone: options.timeZone,
+                                        timeFormat: options.timeFormat, customTimePattern: options.customTimePattern)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .unavailable(let unavailable):
             return unavailablePresentation(unavailable)

@@ -111,6 +111,43 @@ public enum ClockText {
         return fields.joined(separator: " ")
     }
 
+    /// Format a time snapshot with optional time format and custom pattern.
+    public static func string(for snapshot: ClockSnapshot,
+                              options: ClockFormatOptions = .default,
+                              locale: Locale = .current,
+                              timeZone: TimeZone = .current,
+                              timeFormat: TimeConfiguration.Format? = nil,
+                              customTimePattern: String? = nil) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.timeZone = timeZone
+
+        // If custom pattern is provided and valid, use it
+        if let pattern = customTimePattern, ClockText.isValidCustomPattern(pattern) {
+            formatter.dateFormat = pattern
+            return formatter.string(from: snapshot.date)
+        }
+
+        // Otherwise use the time format
+        if let format = timeFormat {
+            let timeTemplate: String
+            switch format {
+            case .twentyFourHour:
+                timeTemplate = options.seconds ? "HHmms" : "HHmm"
+            case .ampm:
+                timeTemplate = options.seconds ? "jmms" : "jmm"
+            case .custom:
+                timeTemplate = options.seconds ? "jmms" : "jmm"
+            }
+            formatter.setLocalizedDateFormatFromTemplate(timeTemplate)
+        } else {
+            // Fall back to default time template
+            formatter.setLocalizedDateFormatFromTemplate(options.seconds ? "jmms" : "jmm")
+        }
+
+        return formatter.string(from: snapshot.date)
+    }
+
     /// Validate a custom date format pattern.
     /// Returns `true` if the pattern is valid and produces non-empty output, `false` otherwise.
     public static func isValidPattern(_ pattern: String) -> Bool {
@@ -119,6 +156,16 @@ public enum ClockText {
         formatter.dateFormat = pattern
         // Check if the pattern is not empty and produces a formatted date
         let testDate = Date(timeIntervalSince1970: 0) // 1970-01-01
+        let formatted = formatter.string(from: testDate)
+        return !formatted.isEmpty && formatted != pattern
+    }
+
+    /// Validate a custom time format pattern.
+    public static func isValidCustomPattern(_ pattern: String) -> Bool {
+        guard !pattern.isEmpty else { return false }
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        let testDate = Date(timeIntervalSince1970: 0)
         let formatted = formatter.string(from: testDate)
         return !formatted.isEmpty && formatted != pattern
     }

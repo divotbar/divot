@@ -263,21 +263,20 @@ public struct DateConfiguration: Equatable, Sendable {
     }
 
     /// Generate the date format pattern from the configuration options.
+    /// Default order is: weekday, day, month (e.g., "Sun 11 Oct")
     public var pattern: String {
         var components: [String] = []
 
         if weekday { components.append("EEE") }
 
-        if dayFirst {
-            components.append("d")
-        } else {
-            components.append("MMM")
-        }
-
+        // Default (dayFirst=false): day before month → "d MMM" → "11 Oct"
+        // dayFirst=true: month before day → "MMM d" → "Oct 11"
         if dayFirst {
             components.append("MMM")
+            components.append("d")
         } else {
             components.append("d")
+            components.append("MMM")
         }
 
         if year { components.append("yyyy") }
