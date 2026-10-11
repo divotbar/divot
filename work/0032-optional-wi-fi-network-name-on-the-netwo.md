@@ -51,3 +51,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T01:11:27Z · status review→active
 - 2026-10-11T01:11:27Z · note: close-out repair: merge-conflict
 - 2026-10-11T01:14:52Z · status active→review
+- 2026-10-11T01:14:52Z · note: shots: skipped — the diff (14 changed paths) touches no [[preview.paths]] globs — no UI change to capture
