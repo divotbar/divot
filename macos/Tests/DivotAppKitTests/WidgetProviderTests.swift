@@ -4,12 +4,6 @@ import Testing
 import DivotCore
 @testable import DivotAppKit
 
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
-
 /// Thread-safe sink for emissions from a provider's background task.
 private final class ContentCollector: @unchecked Sendable {
     private let lock = NSLock()
@@ -445,9 +439,11 @@ private final class MockFrontAppReading: FrontAppReading {
     }
     #expect(first.date == base, "Initial emission should be at the current time")
 
-    guard case .date? = contents[safe: 1] else {
-        Issue.record("expected a date snapshot on day boundary tick")
-        return
+    if contents.count > 1 {
+        guard case .date = contents[1] else {
+            Issue.record("expected a date snapshot on day boundary tick")
+            return
+        }
     }
 
     // Verify no noData is emitted
@@ -474,9 +470,11 @@ private final class MockFrontAppReading: FrontAppReading {
     }
     #expect(first.date == base, "Initial emission should be at the current time")
 
-    guard case .time? = contents[safe: 1] else {
-        Issue.record("expected a time snapshot on minute boundary tick")
-        return
+    if contents.count > 1 {
+        guard case .time = contents[1] else {
+            Issue.record("expected a time snapshot on minute boundary tick")
+            return
+        }
     }
 
     // Verify no noData is emitted

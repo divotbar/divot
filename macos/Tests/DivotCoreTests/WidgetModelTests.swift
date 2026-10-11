@@ -209,10 +209,26 @@ import Testing
 // MARK: - Content compatibility
 
 @Test func contentCompatibilityMatchesItem() {
+    let date = ClockSnapshot(date: Date())
+
+    // Matching content is compatible
     #expect(WidgetContent.battery(.noBattery).isCompatible(with: .battery))
+    #expect(WidgetContent.clock(date).isCompatible(with: .clock))
+    #expect(WidgetContent.date(date).isCompatible(with: .date))
+    #expect(WidgetContent.time(date).isCompatible(with: .time))
+
+    // Mismatched content is rejected
     #expect(!WidgetContent.battery(.noBattery).isCompatible(with: .clock))
-    #expect(WidgetContent.clock(ClockSnapshot(date: Date())).isCompatible(with: .clock))
+    #expect(!WidgetContent.clock(date).isCompatible(with: .battery))
+    #expect(!WidgetContent.date(date).isCompatible(with: .time))
+    #expect(!WidgetContent.time(date).isCompatible(with: .date))
+    #expect(!WidgetContent.date(date).isCompatible(with: .clock))
+    #expect(!WidgetContent.time(date).isCompatible(with: .clock))
+
+    // Unavailable is compatible with any item (contextual)
     #expect(WidgetContent.unavailable(.init(kind: .noData, message: "x")).isCompatible(with: .workspaces))
+    #expect(WidgetContent.unavailable(.init(kind: .noData, message: "x")).isCompatible(with: .date))
+    #expect(WidgetContent.unavailable(.init(kind: .noData, message: "x")).isCompatible(with: .time))
 }
 
 // MARK: - Battery states
