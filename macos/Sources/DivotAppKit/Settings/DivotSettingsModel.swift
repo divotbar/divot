@@ -184,6 +184,13 @@ public final class DivotSettingsModel {
         update { $0.chipStyle = enabled }
     }
 
+    /// Set the workspace chip background opacity (0–100). The bar rebuilds live
+    /// from the published snapshot and the setting survives a relaunch through
+    /// the store.
+    public func setChipOpacity(_ opacity: Int) {
+        update { $0.chipOpacity = max(0, min(opacity, 100)) }
+    }
+
     // MARK: Network
 
     /// Turn the Wi-Fi network name on or off. Turning it on from off is the one
