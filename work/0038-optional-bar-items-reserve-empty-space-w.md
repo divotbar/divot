@@ -2,14 +2,14 @@
 id: "0038"
 title: Optional bar items reserve empty space when their extra content is off
 type: bug
-status: ready
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/optional-bar-items-reserve-empty-space-w
 created_at: "2026-10-11T11:54:01Z"
-updated_at: "2026-10-11T11:54:04Z"
+updated_at: "2026-10-11T11:54:05Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Fix in the item width calculation and layout, not in the readings. Keep changes 
 
 - 2026-10-11T11:54:01Z · created · njachowski@gmail.com
 - 2026-10-11T11:54:04Z · status inbox→ready
+- 2026-10-11T11:54:05Z · status ready→active, branch
