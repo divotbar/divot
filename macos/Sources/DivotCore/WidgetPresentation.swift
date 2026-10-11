@@ -169,7 +169,7 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .date(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.date,
-                                        locale: options.locale, timeZone: options.timeZone)
+                                        locale: options.locale, timeZone: options.timeZone, includeTime: false)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .time(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.time,

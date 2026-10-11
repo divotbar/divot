@@ -67,21 +67,28 @@ public enum ClockText {
     public static func string(for snapshot: ClockSnapshot,
                               options: ClockFormatOptions = .default,
                               locale: Locale = .current,
-                              timeZone: TimeZone = .current) -> String {
+                              timeZone: TimeZone = .current,
+                              includeTime: Bool = true) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.timeZone = timeZone
-        formatter.setLocalizedDateFormatFromTemplate(template(options))
-        return formatter.string(from: snapshot.date)
+        formatter.setLocalizedDateFormatFromTemplate(template(options, includeTime: includeTime))
+        var result = formatter.string(from: snapshot.date)
+        if !includeTime {
+            result = result.replacingOccurrences(of: ",", with: "")
+        }
+        return result
     }
 
     /// The unlocalized template handed to `setLocalizedDateFormatFromTemplate`.
     /// Exposed so tests can assert component selection independent of locale.
-    static func template(_ options: ClockFormatOptions) -> String {
+    static func template(_ options: ClockFormatOptions, includeTime: Bool = true) -> String {
         var fields: [String] = []
         if options.weekday { fields.append("EEE") }
         if options.date { fields.append("MMMd") }
-        fields.append(options.seconds ? "jmms" : "jmm")
+        if includeTime {
+            fields.append(options.seconds ? "jmms" : "jmm")
+        }
         return fields.joined(separator: " ")
     }
 }
