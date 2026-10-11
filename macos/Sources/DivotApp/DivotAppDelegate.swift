@@ -188,15 +188,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// The appearance item's click. Toggles based on the configured scope setting.
-    private func toggleAppearanceBasedOnScope() {
-        guard let config = configurationController?.configuration else { return }
-        let scope = config.widgets.appearance.scope
-
-        if scope == .fullSystem {
-            appearanceReading?.toggleSystemAppearance()
-        } else {
-            appearanceReading?.toggleAppearance()
-        }
+    private func toggleAppearance() {
+        appearanceReading?.toggleAppearance()
     }
 
     /// Start, reconfigure, or stop the workspace row. When the item is not placed
@@ -347,7 +340,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         case .toggleKeepAwake:
             toggleKeepAwake()
         case .toggleAppearance:
-            toggleAppearanceBasedOnScope()
+            toggleAppearance()
         case .openDivotSettings:
             // The optional bar icon reuses the existing settings-window opener
             // (the same path as the menu and menu-bar items), never a new one.

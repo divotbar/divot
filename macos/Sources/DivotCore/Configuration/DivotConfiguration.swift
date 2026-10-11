@@ -231,29 +231,6 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
-/// `widgets.appearance`.
-public struct AppearanceItemConfiguration: Equatable, Sendable {
-    public enum Scope: String, CaseIterable, Codable, Sendable {
-        case divotOnly
-        case fullSystem
-
-        public var displayName: String {
-            switch self {
-            case .divotOnly: return "Divot only"
-            case .fullSystem: return "Full system"
-            }
-        }
-    }
-
-    public var scope: Scope
-
-    public init(scope: Scope = .divotOnly) {
-        self.scope = scope
-    }
-
-    public static let `default` = AppearanceItemConfiguration()
-}
-
 /// `widgets.network`.
 public struct NetworkConfiguration: Equatable, Sendable {
     public var showWifiName: Bool
@@ -355,13 +332,12 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public static let `default` = KeepAwakeConfiguration()
 }
 
-/// Namespaced per-item options. `battery` accepts none.
+/// Namespaced per-item options. `battery`, `appearance`, and items without options accept none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
     public var battery: BatteryConfiguration
     public var clock: ClockConfiguration
-    public var appearance: AppearanceItemConfiguration
     public var network: NetworkConfiguration
     public var volume: VolumeConfiguration
 
@@ -369,14 +345,12 @@ public struct WidgetOptions: Equatable, Sendable {
                 frontApp: FrontAppConfiguration = .default,
                 battery: BatteryConfiguration = .default,
                 clock: ClockConfiguration = .default,
-                appearance: AppearanceItemConfiguration = .default,
                 network: NetworkConfiguration = .default,
                 volume: VolumeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
         self.battery = battery
         self.clock = clock
-        self.appearance = appearance
         self.network = network
         self.volume = volume
     }
@@ -386,7 +360,8 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .battery, .clock, .network, .volume, .appearance: return true
+        case .workspaces, .frontApp, .clock, .network, .volume: return true
+        case .battery, .appearance: return false
         }
     }
 }

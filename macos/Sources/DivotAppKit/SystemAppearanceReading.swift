@@ -49,45 +49,12 @@ public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendab
     /// Toggle Divot's appearance between light and dark.
     ///
     /// Sets `NSApp.appearance` to override the effective appearance for Divot's rendering only.
-    /// This does not change the macOS system appearance; it's the app-level toggle
-    /// that Divot already supports via configuration.
     nonisolated public func toggleAppearance() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             let current = NSApplication.shared.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) ?? .aqua
             let newAppearance = current == .darkAqua ? NSAppearance(named: .aqua)! : NSAppearance(named: .darkAqua)!
             NSApp.appearance = newAppearance
-            // Notify the provider so the bar item updates immediately.
-            self.lock.lock()
-            let handler = self.changeHandler
-            self.lock.unlock()
-            if let handler {
-                Task { @MainActor in handler() }
-            }
-        }
-    }
-
-    /// Toggle the macOS system appearance between light and dark.
-    ///
-    /// Uses AppleScript to set the system appearance through the public API.
-    /// This affects the system-wide appearance setting, not just Divot.
-    nonisolated public func toggleSystemAppearance() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-
-            // Use AppleScript to toggle macOS system appearance
-            let script = """
-            tell application "System Events"
-                tell appearance preferences
-                    set dark mode to not dark mode
-                end tell
-            end tell
-            """
-
-            var error: NSDictionary?
-            guard let scriptObject = NSAppleScript(source: script) else { return }
-            scriptObject.executeAndReturnError(&error)
-
             // Notify the provider so the bar item updates immediately.
             self.lock.lock()
             let handler = self.changeHandler

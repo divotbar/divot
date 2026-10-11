@@ -25,7 +25,6 @@ public struct DivotSettingsView: View {
             clockSection
             networkSection
             volumeSection
-            appearanceItemSection
             keepAwakeSection
             layoutSection
             textSection
@@ -254,19 +253,6 @@ public struct DivotSettingsView: View {
         Section("Volume") {
             Toggle("Show percentage", isOn: binding(\.widgets.volume.showVolumePercent))
             Toggle("Show muted state", isOn: binding(\.widgets.volume.showVolumeMuted))
-        }
-    }
-
-    private var appearanceItemSection: some View {
-        Section("Appearance item") {
-            Picker("Scope", selection: binding(\.widgets.appearance.scope)) {
-                ForEach(AppearanceItemConfiguration.Scope.allCases, id: \.self) { scope in
-                    Text(scope.displayName).tag(scope)
-                }
-            }
-            Text("Divot only affects only the appearance of Divot's interface. Full system affects the system-wide appearance setting.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
     }
 
