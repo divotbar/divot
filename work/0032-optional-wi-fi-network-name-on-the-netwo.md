@@ -2,7 +2,7 @@
 id: "0032"
 title: Optional Wi-Fi network name on the network item in Settings
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -44,4 +44,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T00:52:19Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T00:53:00Z · note: review pass 1: needs some work
 - 2026-10-11T00:53:00Z · status review→active
-- 2026-10-11T00:59:06Z · note: shots: skipped — the diff (14 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:59:06Z · status active→review
