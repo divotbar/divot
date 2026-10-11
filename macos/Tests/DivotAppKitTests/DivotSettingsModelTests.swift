@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 import Testing
 import DivotCore
 @testable import DivotAppKit
@@ -18,13 +19,16 @@ private final class StubLoginItem: LoginItemControlling {
 }
 
 @MainActor
-private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
+private func makeModel(loginItem: LoginItemControlling = StubLoginItem(),
+                       locationTracker: any LocationAuthorizationTracking = LocationAuthorizationTracker())
     throws -> (DivotSettingsModel, ConfigurationController) {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     let store = ConfigurationStore(configURL: directory.appendingPathComponent("config.json"))
     let controller = ConfigurationController(store: store)
-    return (DivotSettingsModel(controller: controller, loginItem: loginItem), controller)
+    return (DivotSettingsModel(controller: controller,
+                               loginItem: loginItem,
+                               locationTracker: locationTracker), controller)
 }
 
 @MainActor
@@ -365,54 +369,96 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
 
 // MARK: - Location Authorization
 
+private let wifiNameDeniedMessage = "Location permission is needed to show the Wi-Fi name"
+
 @MainActor
-@Test func settingsModelInitializesWithLocationStatus() throws {
-    let (model, _) = try makeModel()
-    // Verify the model has a location authorization status property
-    let status = model.locationAuthorizationStatus
-    #expect(status == .notDetermined || status == .denied || status == .authorizedWhenInUse || status == .authorizedAlways)
+@Test func coreLocationStatusesMapToDivotAuthorizationStates() {
+    // `.restricted` has no Divot state of its own; it is treated as denied so
+    // the Settings row can explain and link out either way. macOS grants as
+    // `authorizedAlways`; `authorizedWhenInUse` is iOS-only.
+    #expect(CLAuthorizationStatus.notDetermined.toLocationAuthorizationStatus() == .notDetermined)
+    #expect(CLAuthorizationStatus.restricted.toLocationAuthorizationStatus() == .denied)
+    #expect(CLAuthorizationStatus.denied.toLocationAuthorizationStatus() == .denied)
+    #expect(CLAuthorizationStatus.authorizedAlways.toLocationAuthorizationStatus() == .authorizedAlways)
 }
 
 @MainActor
-@Test func locationServicesURLIsCorrect() {
-    // Verify the URL scheme for opening Location Services is correct.
-    // The URL `x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices`
-    // opens the Location Services pane in System Settings (tested by maintainer, not in unit tests).
-    let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")
-    #expect(url != nil)
+@Test func wifiNamePermissionMessageMatchesEachAuthorizationState() throws {
+    // not-determined and both granted flavors use caption copy; denied carries
+    // the message and the button to open Location Services.
+    let expectations: [(LocationAuthorizationStatus, String)] = [
+        (.notDetermined, "Asking for location permission when you turn this on."),
+        (.authorizedWhenInUse, "Location permission granted. Wi-Fi network name will appear when connected."),
+        (.authorizedAlways, "Location permission granted. Wi-Fi network name will appear when connected."),
+        (.denied, wifiNameDeniedMessage),
+    ]
+
+    for (status, message) in expectations {
+        let (model, _) = try makeModel(locationTracker: StubLocationTracker(status: status))
+        model.update { $0.widgets.network.showWifiName = true }
+
+        #expect(model.locationAuthorizationStatus == status)
+        #expect(model.wifiNamePermissionMessage == message)
+        #expect(model.wifiNamePermissionOffersSettings == (status == .denied))
+    }
 }
 
 @MainActor
-@Test func settingsCanToggleShowWifiNameAndTracksAuthorizationStatus() throws {
-    let (model, _) = try makeModel()
+@Test func restrictedLocationPermissionShowsTheDeniedSettingsMessage() throws {
+    // CoreLocation reports restricted as its own status; the Settings row must
+    // still show the denied message and the Location Services button.
+    let restricted = CLAuthorizationStatus.restricted.toLocationAuthorizationStatus()
+    let (model, _) = try makeModel(locationTracker: StubLocationTracker(status: restricted))
+    model.update { $0.widgets.network.showWifiName = true }
 
-    // Initial state: show Wi-Fi name is off, authorization status is tracked
+    #expect(model.locationAuthorizationStatus == .denied)
+    #expect(model.wifiNamePermissionMessage == wifiNameDeniedMessage)
+    #expect(model.wifiNamePermissionOffersSettings)
+}
+
+@MainActor
+@Test func settingsFollowsLocationAuthorizationChanges() async throws {
+    let tracker = StubLocationTracker(status: .notDetermined)
+    let (model, _) = try makeModel(locationTracker: tracker)
+
+    tracker.push(.authorizedWhenInUse)
+    try await Task.sleep(nanoseconds: 50_000_000)
+    #expect(model.locationAuthorizationStatus == .authorizedWhenInUse)
+    #expect(!model.wifiNamePermissionOffersSettings)
+
+    tracker.push(.denied)
+    try await Task.sleep(nanoseconds: 50_000_000)
+    #expect(model.locationAuthorizationStatus == .denied)
+    #expect(model.wifiNamePermissionOffersSettings)
+}
+
+@MainActor
+@Test func wifiNameToggleOnlyRequestsLocationPermissionWhenTurnedOn() throws {
+    let tracker = StubLocationTracker(status: .notDetermined)
+    let (model, _) = try makeModel(locationTracker: tracker)
+
+    // Opening Settings observes the status but must not prompt.
+    #expect(tracker.requestCount == 0)
+
+    // Writing the already-off toggle off stays silent.
+    model.setShowWifiName(false)
+    #expect(tracker.requestCount == 0)
+
+    // Turning the feature on from off asks exactly once.
+    model.setShowWifiName(true)
+    #expect(model.configuration.widgets.network.showWifiName)
+    #expect(tracker.requestCount == 1)
+
+    // Turning it back off, then on again, is a fresh request only on the on.
+    model.setShowWifiName(false)
     #expect(!model.configuration.widgets.network.showWifiName)
-    let initialStatus = model.locationAuthorizationStatus
-    #expect(initialStatus == .notDetermined || initialStatus == .denied || initialStatus == .authorizedWhenInUse || initialStatus == .authorizedAlways)
-
-    // Toggle show Wi-Fi name on
-    model.update { $0.widgets.network.showWifiName = true }
-    #expect(model.configuration.widgets.network.showWifiName)
-
-    // Authorization status continues to be tracked
-    let currentStatus = model.locationAuthorizationStatus
-    #expect(currentStatus == .notDetermined || currentStatus == .denied || currentStatus == .authorizedWhenInUse || currentStatus == .authorizedAlways)
+    #expect(tracker.requestCount == 1)
 }
 
 @MainActor
-@Test func settingsUIMessagesForEachAuthorizationState() throws {
-    let (model, _) = try makeModel()
-    model.update { $0.widgets.network.showWifiName = true }
-    
-    // Verify model is set up for the view to display authorization-specific messages:
-    // - .denied state: Shows "Location permission is needed to show the Wi-Fi name" with button
-    // - .notDetermined state: Shows "Asking for location permission when you turn this on."
-    // - .authorizedWhenInUse or .authorizedAlways: Shows "Location permission granted. Wi-Fi network name will appear when connected."
-    
-    // The Settings UI's networkSection uses a switch on model.locationAuthorizationStatus
-    // to display the appropriate message when showWifiName is true.
-    #expect(model.configuration.widgets.network.showWifiName)
-    let status = model.locationAuthorizationStatus
-    #expect(status == .notDetermined || status == .denied || status == .authorizedWhenInUse || status == .authorizedAlways)
+@Test func wifiNameLocationServicesURLOpensThePrivacyPane() {
+    // The denied row's button opens this pane; the string is asserted so the
+    // scheme cannot silently drift.
+    #expect(DivotSettingsModel.locationServicesURL.absoluteString
+        == "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")
 }

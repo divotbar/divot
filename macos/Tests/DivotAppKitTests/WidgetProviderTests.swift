@@ -557,6 +557,22 @@ private final class Counter: @unchecked Sendable {
     #expect(CoreAudioVolumeReading(backend: backend).snapshot() == .noOutput)
 }
 
+@Test func networkReadingRequestsLocationOnlyWhenWifiNameIsRead() {
+    // The permission request is tied to `readWifiName` — the same value as the
+    // Wi-Fi name toggle — so a provider that does not read the name never asks.
+    let off = StubLocationTracker(status: .notDetermined)
+    let readingOff = NWPathNetworkReading(locationTracker: off)
+    let offSubscription = readingOff.observe(readWifiName: false) { _ in }
+    #expect(off.requestCount == 0)
+    offSubscription.cancel()
+
+    let on = StubLocationTracker(status: .notDetermined)
+    let readingOn = NWPathNetworkReading(locationTracker: on)
+    let onSubscription = readingOn.observe(readWifiName: true) { _ in }
+    #expect(on.requestCount == 1)
+    onSubscription.cancel()
+}
+
 @Test func networkProviderTracksAllAuthorizationStates() {
     let reading = MockNetworkReading()
     let collector = ContentCollector()

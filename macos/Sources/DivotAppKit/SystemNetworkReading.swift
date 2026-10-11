@@ -10,9 +10,9 @@ import DivotCore
 /// reading is opt-in via `readWifiName` to avoid requesting location permission
 /// when the user has not explicitly enabled the feature.
 public final class NWPathNetworkReading: NetworkReading, @unchecked Sendable {
-    private let locationTracker: LocationAuthorizationTracker
+    private let locationTracker: any LocationAuthorizationTracking
 
-    public init(locationTracker: LocationAuthorizationTracker = LocationAuthorizationTracker()) {
+    public init(locationTracker: any LocationAuthorizationTracking = LocationAuthorizationTracker()) {
         self.locationTracker = locationTracker
     }
 

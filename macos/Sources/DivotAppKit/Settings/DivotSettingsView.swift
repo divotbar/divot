@@ -222,22 +222,17 @@ public struct DivotSettingsView: View {
 
     private var networkSection: some View {
         Section("Network") {
-            Toggle("Show Wi-Fi network name", isOn: binding(\.widgets.network.showWifiName))
+            Toggle("Show Wi-Fi network name", isOn: showWifiNameBinding)
             if model.configuration.widgets.network.showWifiName {
-                switch model.locationAuthorizationStatus {
-                case .denied:
+                if model.wifiNamePermissionOffersSettings {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Location permission is needed to show the Wi-Fi name")
+                        Text(model.wifiNamePermissionMessage)
                         Button(action: { model.openLocationServices() }) {
                             Text("Open Location Services")
                         }
                     }
-                case .notDetermined:
-                    Text("Asking for location permission when you turn this on.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                case .authorizedWhenInUse, .authorizedAlways:
-                    Text("Location permission granted. Wi-Fi network name will appear when connected.")
+                } else {
+                    Text(model.wifiNamePermissionMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -247,6 +242,11 @@ public struct DivotSettingsView: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private var showWifiNameBinding: Binding<Bool> {
+        Binding(get: { model.configuration.widgets.network.showWifiName },
+                set: { model.setShowWifiName($0) })
     }
 
     private var volumeSection: some View {
