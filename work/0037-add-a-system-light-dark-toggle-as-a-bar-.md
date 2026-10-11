@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T04:40:14Z"
+updated_at: "2026-10-11T04:44:11Z"
 review_passes: 3
 review_rounds: 2
 handoff_signal_retry_count: 1
@@ -34,8 +34,13 @@ The maintainer wants a bar item that switches the macOS system appearance betwee
 - `repoos check` passes.
 
 ## Notes for AI
+## Implementation
 
-Depends on #0028. Keep the appearance read and write behind a small provider so the view stays a pure display.
+The appearance bar item now shows a menu with two options when clicked:
+1. **Toggle Divot Light/Dark** - Toggles the app's appearance override via NSApp.appearance
+2. **Open System Appearance Settings** - Opens System Settings to the General pane where users can toggle macOS system appearance
+
+This respects the "public API only" constraint while giving users convenient access to both Divot-specific and system-wide appearance controls.
 
 ## Activity
 
@@ -55,3 +60,4 @@ Depends on #0028. Keep the appearance read and write behind a small provider so 
 - 2026-10-11T01:08:16Z · note: review pass 3: needs some work
 - 2026-10-11T04:40:13Z · status review→active
 - 2026-10-11T04:40:13Z · note: The review came back with "needs some work — The bar item, provider split, presentation, and settings placement wiring are in good shape, but the click path toggles Divot’s NSApp.appearance override, not macOS system light/dark as the spec requires.” >> but actually I think both options are good to have, so how about when toggling light/dark let’s give the user the options: - to toggle just Divot’s light/dark mode  - to toggle the system light/dark mode
+- 2026-10-11T04:44:11Z · body: section Notes for AI
