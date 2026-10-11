@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-11T13:23:56Z"
-review_passes: 3
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
@@ -15,6 +13,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
+updated_at: "2026-10-11T13:26:33Z"
+review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -28,11 +28,13 @@ The date uses a fixed format. The maintainer wants to choose it.
 - The format applies live and persists through the configuration store.
 
 ## Acceptance criteria
+- Settings has a date format section for the Date item with these options, each a toggle or choice: show the weekday (on by default), show the year (off by default), day-first or month-first order, and a separator (none by default).
+- The default output is "Sun 11 Oct" (no comma, no time).
+- A custom pattern option is available for advanced users; an invalid pattern falls back to the default with a visible note, not a crash.
+- The format applies live and persists through the configuration store.
+- Tests cover the default output, each option on and off, a valid custom pattern, and an invalid one.
+- repoos check passes.
 
-- Add a `dateFormat` configuration key with the default preset, persisted through the configuration store, with a settings control.
-- Validate custom patterns; fall back to the default on error.
-- Tests cover the presets, a valid custom pattern, and an invalid one.
-- `repoos check` passes.
 
 ## Notes for AI
 
@@ -55,4 +57,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:22:50Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T13:23:56Z · note: review pass 3: needs some work
 - 2026-10-11T13:23:56Z · needs_input
-
+- 2026-10-11T13:26:33Z · body: section Acceptance criteria
