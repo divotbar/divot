@@ -51,3 +51,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T12:28:50Z · note: review pass 1: needs some work
 - 2026-10-11T12:28:50Z · status review→active
 - 2026-10-11T12:36:18Z · status active→review
+- 2026-10-11T12:36:18Z · note: shots: skipped — the diff (30 changed paths) touches no [[preview.paths]] globs — no UI change to capture
