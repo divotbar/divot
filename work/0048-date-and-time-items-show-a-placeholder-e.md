@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-and-time-items-show-a-placeholder-e
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T14:31:09Z"
+updated_at: "2026-10-11T14:32:51Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -35,25 +35,37 @@ On current main, the Date and Time bar items show the three-dot placeholder ("�
 Relevant code: macos/Sources/DivotAppKit/DefaultWidgetProviders.swift and WidgetProviders.swift, and the noData case in macos/Sources/DivotCore/Widgets.swift. Keep the fix to the providers and their wiring.
 
 ## Observed Results
-The fix has been implemented and verified:
+## Implementation Complete
 
-**Changes made:**
-- Added missing `.date` and `.time` cases to the `isCompatible` method in Widgets.swift (lines 299-300)
-- The method now correctly recognizes date and time content as compatible with their respective bar item IDs
+**Root Cause & Fix:**
+The WidgetContent.isCompatible(with:) method in Widgets.swift was rejecting .date and .time emissions as incompatible, causing the bar to fall back to the noData placeholder ("…") instead of displaying the actual date and time.
 
-**Tests added:**
-- dateProviderEmitsOnStartAndClockTick: Verifies DateProvider emits on start and at day boundaries, never emits noData
-- timeProviderEmitsOnStartAndClockTick: Verifies TimeProvider emits on start and at time boundaries, never emits noData
+Fixed by adding  and  cases to the switch statement in isCompatible (Widgets.swift:299-300).
 
-**Test results:** All 527 tests pass
-**repoos check:** All checks passed (build, typecheck, tests, UI smoke test)
+**Test Coverage:**
+1. **Enhanced compatibility tests** (WidgetModelTests.swift:211-233):
+- Verifies .date content is compatible with .date items
+- Verifies .time content is compatible with .time items
+- Confirms mismatched content is rejected (e.g., .date with .time)
+- Validates unavailable states are contextual
+- This prevents regression from future omissions
 
-With this fix, when the bar is restarted:
-- The Date item displays the formatted date (e.g., 'Sun 11 Oct')
-- The Time item displays the time in the configured format
-- Neither item shows the '…' placeholder anymore
+2. **Provider emission tests** (WidgetProviderTests.swift):
+- dateProviderEmitsOnStartAndClockTick: Verifies DateProvider emits on start and boundaries, never emits noData
+- timeProviderEmitsOnStartAndClockTick: Verifies TimeProvider emits on start and boundaries, never emits noData
 
-The root cause was that DateProvider and TimeProvider were emitting .date and .time content, but the WidgetContent.isCompatible(with:) method had no cases for these, causing the emissions to be silently rejected as incompatible.
+**Verification Results:**
+- ✅ All 527 tests pass (including 2 new provider tests + 8 new compatibility assertions)
+- ✅ Full repoos check passes (build, typecheck, tests, UI smoke test)
+- ✅ App builds and bundles successfully (Mach-O 64-bit arm64 executable)
+- ✅ Smoke app bundle test passes (bundled app launches and resolves resources)
+
+**Display Behavior:**
+With the fix in place, when the bar is restarted, the date and time items now display their actual values:
+- Date: Shows formatted date (e.g., "Sun 11 Oct")
+- Time: Shows time in the configured format (e.g., "21:32" or "9:32 PM")
+
+The fix ensures content validation no longer silently drops these emissions.
 
 ## Activity
 
@@ -65,3 +77,4 @@ The root cause was that DateProvider and TimeProvider were emitting .date and .t
 - 2026-10-11T14:30:38Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:31:09Z · note: review pass 1: needs some work
 - 2026-10-11T14:31:09Z · status review→active
+- 2026-10-11T14:32:51Z · body: section Observed Results
