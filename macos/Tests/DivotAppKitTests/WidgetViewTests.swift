@@ -24,6 +24,47 @@ private func expectNoTruncation(_ field: NSTextField, _ label: String) {
             "\(label): frame \(field.frame.width) < cell \(needed)")
 }
 
+/// Every `NSImageView` in a view tree, so a rendering test can inspect the icon
+/// the bar item actually resolved.
+@MainActor
+private func imageViews(in view: NSView) -> [NSImageView] {
+    view.subviews.flatMap { subview -> [NSImageView] in
+        let nested = imageViews(in: subview)
+        return (subview as? NSImageView).map { [$0] + nested } ?? nested
+    }
+}
+
+@MainActor
+@Test func batteryItemShowsBoltWhileChargingAndPlainSymbolOtherwise() {
+    func presentation(charging: Bool) -> WidgetPresentation {
+        WidgetPresenter.present(
+            id: .battery,
+            state: WidgetState(id: .battery, revision: 1,
+                               content: .battery(BatterySnapshot(presence: .internalBattery,
+                                                                 percentage: 80,
+                                                                 isCharging: charging))))
+    }
+
+    // A charging snapshot resolves the bolt symbol on the bar item.
+    let charging = BarItemView()
+    charging.update(presentation(charging: true), action: .none)
+    #expect(charging.displayedSymbolName == "battery.100.bolt")
+    #expect(imageViews(in: charging).contains { !$0.isHidden && $0.image != nil })
+
+    // The same level without charging resolves the plain battery symbol.
+    let plain = BarItemView()
+    plain.update(presentation(charging: false), action: .none)
+    #expect(plain.displayedSymbolName == "battery.75")
+    #expect(imageViews(in: plain).contains { !$0.isHidden && $0.image != nil })
+
+    // A live switch on the same view re-resolves the icon, so the bolt appears
+    // and disappears with the power source.
+    charging.update(presentation(charging: false), action: .none)
+    #expect(charging.displayedSymbolName == "battery.75")
+    charging.update(presentation(charging: true), action: .none)
+    #expect(charging.displayedSymbolName == "battery.100.bolt")
+}
+
 @MainActor
 @Test func itemViewMeasuresTheWholeLabel() {
     let view = BarItemView()
