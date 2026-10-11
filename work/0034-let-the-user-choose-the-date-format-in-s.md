@@ -3,9 +3,6 @@ id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 depends_on: ["0028", "0033"]
@@ -58,3 +55,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:23:56Z · note: review pass 3: needs some work
 - 2026-10-11T13:23:56Z · needs_input
 - 2026-10-11T13:26:33Z · body: section Acceptance criteria
+- 2026-10-11T13:26:33Z · needs_input
