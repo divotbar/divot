@@ -303,6 +303,39 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(!presentation.text.contains(","))
 }
 
+@Test func clockFamilyItemsAlwaysCarryARolePrefixedAccessibilityLabel() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+
+    let clock = WidgetPresenter.present(id: .clock,
+                                        state: state(.clock, .clock(ClockSnapshot(date: date))),
+                                        options: options)
+    #expect(clock.accessibilityLabel.hasPrefix("Clock: "))
+    #expect(clock.accessibilityLabel.contains("Sun"))
+
+    let day = WidgetPresenter.present(id: .date,
+                                      state: state(.date, .date(ClockSnapshot(date: date))),
+                                      options: options)
+    #expect(day.accessibilityLabel.hasPrefix("Date: "))
+    #expect(day.accessibilityLabel.contains("Sun"))
+
+    let time = WidgetPresenter.present(id: .time,
+                                       state: state(.time, .time(ClockSnapshot(date: date))),
+                                       options: options)
+    #expect(time.accessibilityLabel.hasPrefix("Time: "))
+    #expect(time.accessibilityLabel.contains("12:26"))
+}
+
+@Test func clockFamilyItemsStillSpeakWhenTheFormatRendersNothing() {
+    // The label helper never returns an empty announcement, even when the
+    // configured format renders nothing at all.
+    let empty = WidgetPresenter.clockPresentation(role: "Date", text: "   ")
+    #expect(empty.accessibilityLabel == "Date")
+    #expect(empty.text == "   ")
+
+    let filled = WidgetPresenter.clockPresentation(role: "Time", text: "12:26")
+    #expect(filled.accessibilityLabel == "Time: 12:26")
+}
+
 @Test func frontAppPresentationUsesTheApplicationName() {
     let presentation = WidgetPresenter.present(
         id: .frontApp,

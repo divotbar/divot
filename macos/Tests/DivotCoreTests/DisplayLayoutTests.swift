@@ -437,3 +437,42 @@ private func cursorReading(_ engaged: Bool) -> DisplayReading {
     #expect(update.visibility == .hidden)
     #expect(update.placement?.mode == .topEdge)
 }
+
+// MARK: - Default bar height resolution
+
+@Test func defaultHeightComputedForNotchedDisplay() {
+    var coordinator = DisplayBarCoordinator()
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen())
+    ], at: 0)
+    let update = try! #require(updates.first)
+    let g = try! #require(update.placement?.geometry)
+    // Notched: height should be 33 (the housingTop), not the default 32.
+    #expect(g.left.height == 33)
+    #expect(g.right.height == 33)
+}
+
+@Test func defaultHeightComputedForNotchFreeDisplay() {
+    var coordinator = DisplayBarCoordinator()
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: flatID, geometry: flatScreen(menuBarShown: false))
+    ], at: 0)
+    let update = try! #require(updates.first)
+    let g = try! #require(update.placement?.geometry)
+    // Notch-free at top edge: height should be 24 (nominal menu bar), not the default 32.
+    #expect(g.left.height == 24)
+    #expect(g.right.height == 24)
+}
+
+@Test func configuredHeightOverridesComputedDefault() {
+    let policy = BarContentPolicy(height: 28, clearance: 0, edgeMargin: 0)
+    var coordinator = DisplayBarCoordinator(contentPolicy: policy)
+    let updates = coordinator.update(readings: [
+        DisplayReading(id: notchedID, geometry: notchedScreen())
+    ], at: 0)
+    let update = try! #require(updates.first)
+    let g = try! #require(update.placement?.geometry)
+    // Explicit configured height (28) should be used, not computed (33).
+    #expect(g.left.height == 28)
+    #expect(g.right.height == 28)
+}
