@@ -55,7 +55,7 @@ public enum ConfigurationParser {
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
                              optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon",
-                                        "showOccupiedDot", "showEmptyDot", "bottomShadow"], path: "root")
+                                        "showOccupiedDot", "showEmptyDot", "bottomShadow", "chipStyle"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
@@ -77,6 +77,10 @@ public enum ConfigurationParser {
         // first-launch look and only an explicit `true` turns it on (#0025).
         var bottomShadow = false
         if let raw = root["bottomShadow"] { bottomShadow = try boolean(raw, path: "bottomShadow") }
+        // Chip style is off by default, so an omitted key keeps items blended
+        // and only an explicit `true` draws them as distinct chips (#0030).
+        var chipStyle = false
+        if let raw = root["chipStyle"] { chipStyle = try boolean(raw, path: "chipStyle") }
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
@@ -89,7 +93,8 @@ public enum ConfigurationParser {
                                   showAppIcon: showAppIcon,
                                   showOccupiedDot: showOccupiedDot,
                                   showEmptyDot: showEmptyDot,
-                                  bottomShadow: bottomShadow)
+                                  bottomShadow: bottomShadow,
+                                  chipStyle: chipStyle)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {

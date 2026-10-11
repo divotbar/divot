@@ -430,6 +430,41 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(!configuration.rendersSameBar(as: .default))
 }
 
+@Test func chipStyleOptInDefaultsOffAndParsesExplicitly() throws {
+    // Absent keeps items blended.
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: without).configuration.chipStyle == false)
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipStyle":true}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.chipStyle)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipStyle":"yes"}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(failure?.path == "chipStyle")
+}
+
+@Test func chipStyleOptInRoundTripsThroughTheCanonicalJSON() throws {
+    var configuration = DivotConfiguration.default
+    configuration.chipStyle = true
+    let encoded = try JSONSerialization.data(withJSONObject: configuration.jsonObject,
+                                             options: [.sortedKeys])
+    let reparsed = try ConfigurationParser.parse(encoded)
+    #expect(reparsed.configuration == configuration)
+    #expect(reparsed.configuration.chipStyle)
+
+    // The default writes no key, so the first-launch document is identical.
+    #expect(DivotConfiguration.default.jsonObject["chipStyle"] == nil)
+}
+
+@Test func chipStyleChangesMakesTheBarsRenderDifferently() {
+    // Chip style changes item layout and drawing, so toggling it must rebuild
+    // the panels; `rendersSameBar` therefore has to see the change.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.chipStyle = true
+    #expect(!configuration.rendersSameBar(as: .default))
+}
+
 // MARK: - Version 1 migration fixtures
 
 @Test func starterV1DefaultMigratesToAVersionTwoDocument() throws {

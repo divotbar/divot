@@ -357,6 +357,11 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// Root-level because it changes only the panel chrome, not any item
     /// (#0025).
     public var bottomShadow: Bool
+    /// Draw each bar item in its own rounded chip with padding and theme
+    /// background. Off by default so the first-launch bar has items blend
+    /// together; when on, each item sits in its own chip with the same padding
+    /// and theme colours (#0030).
+    public var chipStyle: Bool
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -370,7 +375,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 showAppIcon: Bool = false,
                 showOccupiedDot: Bool = true,
                 showEmptyDot: Bool = true,
-                bottomShadow: Bool = false) {
+                bottomShadow: Bool = false,
+                chipStyle: Bool = false) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -384,6 +390,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.showOccupiedDot = showOccupiedDot
         self.showEmptyDot = showEmptyDot
         self.bottomShadow = bottomShadow
+        self.chipStyle = chipStyle
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -423,6 +430,7 @@ public struct DivotConfiguration: Equatable, Sendable {
             && showOccupiedDot == other.showOccupiedDot
             && showEmptyDot == other.showEmptyDot
             && bottomShadow == other.bottomShadow
+            && chipStyle == other.chipStyle
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
