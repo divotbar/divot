@@ -2,7 +2,7 @@
 id: "0049"
 title: Battery item does not show the charging state on the bar
 type: bug
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
@@ -34,3 +34,4 @@ Relevant code: macos/Sources/DivotAppKit/SystemBatteryReading.swift, macos/Sourc
 ## Activity
 
 - 2026-10-11T15:53:55Z · created · njachowski@gmail.com
+- 2026-10-11T15:53:55Z · status inbox→ready
