@@ -2,7 +2,7 @@
 id: "0041"
 title: Build an unsigned Divot.dmg and publish it on a GitHub Release from a version tag
 type: feature
-status: review
+status: active
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: No session found matching 'repoos-0041-engineer'
@@ -12,7 +12,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-an-unsigned-divot-dmg-and-publish-
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T14:40:51Z"
+updated_at: "2026-10-11T14:40:52Z"
 review_passes: 6
 review_rounds: 2
 dev_error_count: 1
