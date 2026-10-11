@@ -2,14 +2,14 @@
 id: "0040"
 title: Deploy the landing and docs site to divotbar.app with GitHub Actions and Cloudflare Pages
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T12:47:04Z"
-updated_at: "2026-10-11T12:47:04Z"
+updated_at: "2026-10-11T12:47:15Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ The maintainer will create the Cloudflare token and account secrets; do not gues
 ## Activity
 
 - 2026-10-11T12:47:04Z · created · njachowski@gmail.com
+- 2026-10-11T12:47:15Z · status inbox→ready
