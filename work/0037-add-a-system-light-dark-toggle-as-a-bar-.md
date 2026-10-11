@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
@@ -39,3 +40,4 @@ Depends on #0028. Keep the appearance read and write behind a small provider so 
 - 2026-10-11T00:41:48Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:56Z · status inbox→ready
 - 2026-10-11T00:43:57Z · status ready→active, branch
+
