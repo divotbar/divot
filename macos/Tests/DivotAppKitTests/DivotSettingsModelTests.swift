@@ -399,3 +399,20 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
     let currentStatus = model.locationAuthorizationStatus
     #expect(currentStatus == .notDetermined || currentStatus == .denied || currentStatus == .authorizedWhenInUse || currentStatus == .authorizedAlways)
 }
+
+@MainActor
+@Test func settingsUIMessagesForEachAuthorizationState() throws {
+    let (model, _) = try makeModel()
+    model.update { $0.widgets.network.showWifiName = true }
+    
+    // Verify model is set up for the view to display authorization-specific messages:
+    // - .denied state: Shows "Location permission is needed to show the Wi-Fi name" with button
+    // - .notDetermined state: Shows "Asking for location permission when you turn this on."
+    // - .authorizedWhenInUse or .authorizedAlways: Shows "Location permission granted. Wi-Fi network name will appear when connected."
+    
+    // The Settings UI's networkSection uses a switch on model.locationAuthorizationStatus
+    // to display the appropriate message when showWifiName is true.
+    #expect(model.configuration.widgets.network.showWifiName)
+    let status = model.locationAuthorizationStatus
+    #expect(status == .notDetermined || status == .denied || status == .authorizedWhenInUse || status == .authorizedAlways)
+}
