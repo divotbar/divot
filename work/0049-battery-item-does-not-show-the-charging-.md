@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-item-does-not-show-the-charging-
 created_at: "2026-10-11T15:53:55Z"
-updated_at: "2026-10-11T16:17:56Z"
+updated_at: "2026-10-11T16:19:32Z"
 ---
 ## Problem
 
@@ -46,3 +46,4 @@ Relevant code: macos/Sources/DivotAppKit/SystemBatteryReading.swift, macos/Sourc
 - 2026-10-11T15:53:55Z · status inbox→ready
 - 2026-10-11T15:53:56Z · status ready→active, branch
 - 2026-10-11T16:17:56Z · body: section Observed Results
+- 2026-10-11T16:19:32Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
