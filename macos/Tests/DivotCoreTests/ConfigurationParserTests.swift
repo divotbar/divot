@@ -278,6 +278,34 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "unknown field showIcon")
 }
 
+@Test func volumeOptionsParseAndValidate() throws {
+    let configured = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[],"widgets":{"volume":{"showVolumePercent":false,"showVolumeMuted":true}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: configured)
+    #expect(parsed.configuration.widgets.volume.showVolumePercent == false)
+    #expect(parsed.configuration.widgets.volume.showVolumeMuted == true)
+
+    // Defaults are both true
+    let defaults = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[]}"##)
+    let parsedDefaults = try ConfigurationParser.parse(jsonObject: defaults)
+    #expect(parsedDefaults.configuration.widgets.volume == VolumeConfiguration.default)
+    #expect(parsedDefaults.configuration.widgets.volume.showVolumePercent == true)
+    #expect(parsedDefaults.configuration.widgets.volume.showVolumeMuted == true)
+}
+
+@Test func volumeOptionsMustBeBoolean() throws {
+    let badType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[],"widgets":{"volume":{"showVolumePercent":"yes"}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: badType) }
+    #expect(failure?.path == "widgets.volume.showVolumePercent")
+    #expect(failure?.message == "expected boolean")
+}
+
+@Test func volumeUnknownOptionIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[],"widgets":{"volume":{"unknownField":true}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "widgets.volume")
+    #expect(failure?.message == "unknown field unknownField")
+}
+
 @Test func keepAwakePreferenceDefaultsOffAndParsesExplicitly() throws {
     let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":["battery"]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: without).configuration.keepAwake == .default)

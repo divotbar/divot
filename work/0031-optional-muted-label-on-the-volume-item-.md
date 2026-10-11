@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-11T00:56:04Z"
-review_passes: 2
 id: "0031"
 title: Optional %/muted label on the volume item in Settings
 type: feature
@@ -12,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-muted-label-on-the-volume-item-
 created_at: "2026-10-11T00:39:23Z"
-review_rounds: 1
+updated_at: "2026-10-11T00:50:16Z"
 ---
 ## Problem
 
@@ -40,10 +38,3 @@ Depends on #0028. Keep changes to the volume widget's label, not the volume read
 - 2026-10-11T00:43:52Z · status inbox→ready
 - 2026-10-11T00:43:52Z · status ready→active, branch
 - 2026-10-11T00:50:16Z · status active→review
-- 2026-10-11T00:50:17Z · note: shots: skipped — the diff (8 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T00:51:15Z · note: review pass 1: needs some work
-- 2026-10-11T00:51:16Z · status review→active
-- 2026-10-11T00:55:11Z · status active→review
-- 2026-10-11T00:55:12Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T00:56:04Z · note: review pass 2: good to go
-
