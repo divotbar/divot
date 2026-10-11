@@ -129,10 +129,20 @@ final class BarItemView: NSView {
     }
 
     override var intrinsicContentSize: NSSize {
-        let iconWidth = iconView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
+        let iconWidth = iconView.isHidden ? 0 : metrics.iconSize
         let textWidth = measuredTextWidth
-        let indicatorWidth = indicatorView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
-        let contentWidth = iconWidth + textWidth + indicatorWidth
+        let indicatorWidth = indicatorView.isHidden ? 0 : metrics.iconSize
+        var contentWidth = iconWidth + textWidth + indicatorWidth
+
+        // Add spacing between icon and text only if both exist
+        if !iconView.isHidden && textWidth > 0 {
+            contentWidth += metrics.iconSpacing
+        }
+        // Add spacing between text and indicator only if text exists or both icon and indicator exist
+        if !indicatorView.isHidden && (textWidth > 0 || !iconView.isHidden) {
+            contentWidth += metrics.iconSpacing
+        }
+
         let contentHeight = max(metrics.iconSize, textField.fittingSize.height)
         let chipPadding = enablesChipStyle ? 4.0 : 0.0
         return NSSize(width: contentWidth + chipPadding * 2,
