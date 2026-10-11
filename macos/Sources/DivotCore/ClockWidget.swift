@@ -104,10 +104,31 @@ public enum ClockText {
     /// The unlocalized template handed to `setLocalizedDateFormatFromTemplate`.
     /// Exposed so tests can assert component selection independent of locale.
     static func template(_ options: ClockFormatOptions) -> String {
+        template(options, timeFormat: .ampm, customTimePattern: nil, includeTime: true)
+    }
+
+    /// The unlocalized template for date and time formatting with optional time components.
+    static func template(_ options: ClockFormatOptions,
+                        timeFormat: TimeConfiguration.Format = .ampm,
+                        customTimePattern: String? = nil,
+                        includeTime: Bool = true) -> String {
         var fields: [String] = []
         if options.weekday { fields.append("EEE") }
         if options.date { fields.append("MMMd") }
-        fields.append(options.seconds ? "jmms" : "jmm")
+
+        if includeTime {
+            let timeField: String
+            switch timeFormat {
+            case .twentyFourHour:
+                timeField = options.seconds ? "HHmms" : "HHmm"
+            case .ampm:
+                timeField = options.seconds ? "jmms" : "jmm"
+            case .custom:
+                timeField = options.seconds ? "jmms" : "jmm"
+            }
+            fields.append(timeField)
+        }
+
         return fields.joined(separator: " ")
     }
 
