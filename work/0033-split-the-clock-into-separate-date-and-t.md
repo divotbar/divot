@@ -45,3 +45,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T12:20:12Z · cli_override, model_override
 - 2026-10-11T12:20:13Z · needs_input
 - 2026-10-11T12:27:45Z · status active→review
+- 2026-10-11T12:27:45Z · note: shots: skipped — the diff (27 changed paths) touches no [[preview.paths]] globs — no UI change to capture
