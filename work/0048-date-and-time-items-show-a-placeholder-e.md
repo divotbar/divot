@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-and-time-items-show-a-placeholder-e
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T14:35:29Z"
+updated_at: "2026-10-11T14:36:30Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -110,3 +110,4 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:34:32Z · note: review pass 2: needs some work
 - 2026-10-11T14:34:32Z · status review→active
 - 2026-10-11T14:35:29Z · body: section Observed Results
+- 2026-10-11T14:36:30Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
