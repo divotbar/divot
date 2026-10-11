@@ -210,6 +210,9 @@ public extension DivotConfiguration {
         // The shadow is off by default, so only the opt-in is written; the
         // first-launch document stays identical (#0025).
         if bottomShadow { object["bottomShadow"] = true }
+        // Chip style is off by default, so only the opt-in is written; the
+        // first-launch document stays identical (#0030).
+        if chipStyle { object["chipStyle"] = true }
         return object
     }
 }
