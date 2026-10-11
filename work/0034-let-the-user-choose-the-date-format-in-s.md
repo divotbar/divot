@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T13:23:56Z"
+review_passes: 3
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
@@ -13,9 +15,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
-updated_at: "2026-10-11T13:23:56Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 
@@ -55,3 +55,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:22:50Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T13:23:56Z · note: review pass 3: needs some work
 - 2026-10-11T13:23:56Z · needs_input
+
