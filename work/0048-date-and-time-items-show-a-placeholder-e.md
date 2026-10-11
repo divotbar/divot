@@ -2,7 +2,7 @@
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: review
+status: active
 priority: p0
 area: macos
 assigned_to: ""
@@ -115,3 +115,5 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:37:11Z · note: review pass 3: needs some work
 - 2026-10-11T14:37:11Z · needs_input
 - 2026-10-11T14:40:52Z · needs_input
+- 2026-10-11T14:40:52Z · status review→active
+- 2026-10-11T14:40:52Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
