@@ -2,14 +2,14 @@
 id: "0046"
 title: "Date item shows only the date, not the time"
 type: bug
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T13:26:29Z"
-updated_at: "2026-10-11T13:26:29Z"
+updated_at: "2026-10-11T13:58:14Z"
 ---
 ## Problem
 
@@ -33,3 +33,4 @@ The format options (weekday, year, presets) are in #0034. Keep this change to th
 ## Activity
 
 - 2026-10-11T13:26:29Z · created · njachowski@gmail.com
+- 2026-10-11T13:58:14Z · status inbox→ready
