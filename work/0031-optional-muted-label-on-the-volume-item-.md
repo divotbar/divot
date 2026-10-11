@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-muted-label-on-the-volume-item-
 created_at: "2026-10-11T00:39:23Z"
-updated_at: "2026-10-11T00:43:52Z"
+updated_at: "2026-10-11T00:50:16Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Depends on #0028. Keep changes to the volume widget's label, not the volume read
 - 2026-10-11T00:39:23Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:52Z · status inbox→ready
 - 2026-10-11T00:43:52Z · status ready→active, branch
+- 2026-10-11T00:50:16Z · note: shots: skipped — the diff (8 changed paths) touches no [[preview.paths]] globs — no UI change to capture
