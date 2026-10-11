@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T13:26:20Z"
+review_passes: 3
 id: "0041"
 title: Build an unsigned Divot.dmg and publish it on a GitHub Release from a version tag
 type: feature
@@ -12,9 +14,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-an-unsigned-divot-dmg-and-publish-
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T13:26:20Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 
@@ -61,3 +61,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T13:25:10Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T13:26:20Z · note: review pass 4: needs some work
 - 2026-10-11T13:26:20Z · needs_input
+
