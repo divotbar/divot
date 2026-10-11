@@ -79,3 +79,26 @@ private func expectNoTruncation(_ field: NSTextField, _ label: String) {
     #expect(field.frame.minX == 0)
     expectNoTruncation(field, "front app")
 }
+
+@MainActor
+@Test func chipStyleAddsContentPaddingToItemView() {
+    let presentation = WidgetPresentation(symbolName: "battery.25", text: "50%", accessibilityLabel: "Battery: 50%")
+
+    // Without chip style, view is compact with no padding.
+    let viewWithoutChip = BarItemView(enablesChipStyle: false)
+    viewWithoutChip.update(presentation, action: .none)
+    viewWithoutChip.frame = NSRect(origin: .zero, size: viewWithoutChip.intrinsicContentSize)
+    viewWithoutChip.layoutSubtreeIfNeeded()
+    let sizeWithoutChip = viewWithoutChip.intrinsicContentSize
+
+    // With chip style, view has padding around content.
+    let viewWithChip = BarItemView(enablesChipStyle: true)
+    viewWithChip.update(presentation, action: .none)
+    viewWithChip.frame = NSRect(origin: .zero, size: viewWithChip.intrinsicContentSize)
+    viewWithChip.layoutSubtreeIfNeeded()
+    let sizeWithChip = viewWithChip.intrinsicContentSize
+
+    // Chip style adds padding (4 points on each side = 8 points total per dimension).
+    #expect(sizeWithChip.width == sizeWithoutChip.width + 8)
+    #expect(sizeWithChip.height == sizeWithoutChip.height + 8)
+}

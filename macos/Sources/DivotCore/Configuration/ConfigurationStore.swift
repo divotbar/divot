@@ -210,6 +210,9 @@ public extension DivotConfiguration {
         // The shadow is off by default, so only the opt-in is written; the
         // first-launch document stays identical (#0025).
         if bottomShadow { object["bottomShadow"] = true }
+        // Chip style is off by default, so only the opt-in is written; the
+        // first-launch document stays identical (#0030).
+        if chipStyle { object["chipStyle"] = true }
         return object
     }
 }
@@ -284,6 +287,8 @@ private extension WidgetOptions {
         if !battery.isEmpty { object[BarItemID.battery.rawValue] = battery }
         let clock = clock.jsonObject
         if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
+        let volume = volume.jsonObject
+        if !volume.isEmpty { object[BarItemID.volume.rawValue] = volume }
         return object
     }
 }
@@ -327,6 +332,16 @@ private extension ClockConfiguration {
         if weekday != defaults.weekday { object["weekday"] = weekday }
         if date != defaults.date { object["date"] = date }
         if seconds != defaults.seconds { object["seconds"] = seconds }
+        return object
+    }
+}
+
+private extension VolumeConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = VolumeConfiguration.default
+        if showVolumePercent != defaults.showVolumePercent { object["showVolumePercent"] = showVolumePercent }
+        if showVolumeMuted != defaults.showVolumeMuted { object["showVolumeMuted"] = showVolumeMuted }
         return object
     }
 }
