@@ -270,3 +270,102 @@ import Testing
     #expect(text.contains("Sep"))
     #expect(text.contains("13"))
 }
+
+@Test func defaultDateFormatShowsWeekdayDayMonth() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let config = DateConfiguration()
+    let snapshot = ClockSnapshot(date: date)
+    let text = ClockText.string(for: snapshot,
+                               options: config.formatOptions,
+                               customPattern: config.pattern,
+                               locale: Locale(identifier: "en_US_POSIX"),
+                               timeZone: TimeZone(identifier: "UTC")!)
+    // Should show weekday, day, and month with default separator (space)
+    #expect(text.contains("Sun"))
+    #expect(text.contains("13"))
+    #expect(text.contains("Sep"))
+    #expect(!text.contains("2020"), "Year should not be included by default")
+    #expect(!text.contains(","), "No comma in default format")
+}
+
+@Test func dateYearToggleAddsYear() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let config = DateConfiguration(year: true)
+    let snapshot = ClockSnapshot(date: date)
+    let text = ClockText.string(for: snapshot,
+                               options: config.formatOptions,
+                               customPattern: config.pattern,
+                               locale: Locale(identifier: "en_US_POSIX"),
+                               timeZone: TimeZone(identifier: "UTC")!)
+    #expect(text.contains("2020"))
+    #expect(text.contains("Sun"))
+    #expect(text.contains("13"))
+}
+
+@Test func dateWeekdayToggleRemovesWeekday() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let config = DateConfiguration(weekday: false)
+    let snapshot = ClockSnapshot(date: date)
+    let text = ClockText.string(for: snapshot,
+                               options: config.formatOptions,
+                               customPattern: config.pattern,
+                               locale: Locale(identifier: "en_US_POSIX"),
+                               timeZone: TimeZone(identifier: "UTC")!)
+    #expect(!text.contains("Sun"))
+    #expect(text.contains("13"))
+    #expect(text.contains("Sep"))
+}
+
+@Test func dayFirstToggleReversesOrder() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+
+    // Default (dayFirst=false): day before month in pattern
+    let defaultConfig = DateConfiguration()
+    let defaultSnapshot = ClockSnapshot(date: date)
+    let defaultText = ClockText.string(for: defaultSnapshot,
+                                      options: defaultConfig.formatOptions,
+                                      customPattern: defaultConfig.pattern,
+                                      locale: Locale(identifier: "en_US_POSIX"),
+                                      timeZone: TimeZone(identifier: "UTC")!)
+
+    // With dayFirst=true: month before day in pattern
+    let dayFirstConfig = DateConfiguration(dayFirst: true)
+    let dayFirstSnapshot = ClockSnapshot(date: date)
+    let dayFirstText = ClockText.string(for: dayFirstSnapshot,
+                                       options: dayFirstConfig.formatOptions,
+                                       customPattern: dayFirstConfig.pattern,
+                                       locale: Locale(identifier: "en_US_POSIX"),
+                                       timeZone: TimeZone(identifier: "UTC")!)
+
+    // Both should contain the components, but the order should differ
+    #expect(defaultText.contains("13"))
+    #expect(defaultText.contains("Sep"))
+    #expect(dayFirstText.contains("13"))
+    #expect(dayFirstText.contains("Sep"))
+    // The actual text should be different due to component order
+    #expect(defaultText != dayFirstText)
+}
+
+@Test func separatorChangesDateFormat() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+
+    let spaceSeparator = DateConfiguration(separator: " ")
+    let spaceSnapshot = ClockSnapshot(date: date)
+    let spaceText = ClockText.string(for: spaceSnapshot,
+                                    options: spaceSeparator.formatOptions,
+                                    customPattern: spaceSeparator.pattern,
+                                    locale: Locale(identifier: "en_US_POSIX"),
+                                    timeZone: TimeZone(identifier: "UTC")!)
+
+    let dashSeparator = DateConfiguration(separator: "-")
+    let dashSnapshot = ClockSnapshot(date: date)
+    let dashText = ClockText.string(for: dashSnapshot,
+                                   options: dashSeparator.formatOptions,
+                                   customPattern: dashSeparator.pattern,
+                                   locale: Locale(identifier: "en_US_POSIX"),
+                                   timeZone: TimeZone(identifier: "UTC")!)
+
+    #expect(spaceText.contains(" "))
+    #expect(dashText.contains("-"))
+    #expect(spaceText != dashText)
+}

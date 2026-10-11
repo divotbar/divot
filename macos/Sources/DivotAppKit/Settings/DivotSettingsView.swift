@@ -284,9 +284,11 @@ public struct DivotSettingsView: View {
     }
 
     private var datePreview: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = model.configuration.widgets.date.pattern
-        return formatter.string(from: Date())
+        let snapshot = ClockSnapshot(date: Date())
+        let options = model.configuration.presentationOptions
+        return ClockText.string(for: snapshot, options: options.date,
+                               customPattern: options.dateFormatPattern,
+                               locale: options.locale, timeZone: options.timeZone)
     }
 
     private var customPatternBinding: Binding<String> {
