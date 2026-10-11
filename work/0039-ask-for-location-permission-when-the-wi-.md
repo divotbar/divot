@@ -52,3 +52,4 @@ The location permission prompt only appears when the packaged app (dist/Divot.ap
 - 2026-10-11T12:03:54Z · note: review pass 1: needs some work
 - 2026-10-11T12:03:54Z · status review→active
 - 2026-10-11T12:09:22Z · status active→review
+- 2026-10-11T12:09:22Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
