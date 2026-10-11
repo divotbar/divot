@@ -444,39 +444,47 @@ private func write(_ json: String, to url: URL) throws {
     #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
 }
 
-@Test func savePersistsTimeFormatAndOmitsItWhenDefault() throws {
-    let directory = try makeTempDirectory()
-    let url = directory.appendingPathComponent("config.json")
-    let store = ConfigurationStore(configURL: url)
+@Test func dateConfigurationOptionsRoundTrip() throws {
+    let tempDir = try makeTempDirectory()
+    let url = tempDir.appendingPathComponent("config.json")
+    var configuration = DivotConfiguration()
+    configuration.left = [.date]
+    configuration.widgets.date.year = true
+    configuration.widgets.date.separator = "-"
 
-    // A plain default configuration writes no time widget object at all.
-    try store.save(.default)
-    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
-    let widgets = object?["widgets"] as? [String: Any]
-    #expect(widgets?["time"] == nil)
-
-    // Changing to 24-hour format writes the time object.
-    var configuration = DivotConfiguration.default
-    configuration.widgets.time.timeFormat = .twentyFourHour
+    let store = ConfigurationStore(configURL: url, fileManager: .default)
     try store.save(configuration)
 
-    let reloaded = ConfigurationStore(configURL: url)
+    let reloaded = ConfigurationStore(configURL: url, fileManager: .default)
     #expect(reloaded.load() == .loaded)
-    #expect(reloaded.current.widgets.time.timeFormat == .twentyFourHour)
-    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
-    let timeOptions = (object?["widgets"] as? [String: Any])?["time"] as? [String: Any]
-    #expect(timeOptions?["timeFormat"] as? String == "24-hour")
+    #expect(reloaded.current.widgets.date.year == true)
+    #expect(reloaded.current.widgets.date.separator == "-")
 
-    // Custom pattern is also persisted.
-    configuration.widgets.time.customPattern = "HH:mm:ss"
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    let dateWidget = widgets?["date"] as? [String: Any]
+    #expect(dateWidget?["year"] as? Bool == true)
+    #expect(dateWidget?["separator"] as? String == "-")
+}
+
+@Test func dateCustomPatternRoundTrips() throws {
+    let tempDir = try makeTempDirectory()
+    let url = tempDir.appendingPathComponent("config.json")
+    var configuration = DivotConfiguration()
+    configuration.left = [.date]
+    configuration.widgets.date.customPattern = "dd MMM yyyy"
+
+    let store = ConfigurationStore(configURL: url, fileManager: .default)
     try store.save(configuration)
 
-    let reloaded2 = ConfigurationStore(configURL: url)
-    #expect(reloaded2.load() == .loaded)
-    #expect(reloaded2.current.widgets.time.customPattern == "HH:mm:ss")
-    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
-    let timeOptions2 = (object?["widgets"] as? [String: Any])?["time"] as? [String: Any]
-    #expect(timeOptions2?["customPattern"] as? String == "HH:mm:ss")
+    let reloaded = ConfigurationStore(configURL: url, fileManager: .default)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.date.customPattern == "dd MMM yyyy")
+
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    let dateWidget = widgets?["date"] as? [String: Any]
+    #expect(dateWidget?["customPattern"] as? String == "dd MMM yyyy")
 }
 
 @Test func defaultLocationHonorsXDGConfigHome() {

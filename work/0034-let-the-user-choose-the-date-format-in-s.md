@@ -1,6 +1,4 @@
 ---
-last_close_out_gate_ms: 47617
-last_close_out_gate_at: "2026-10-11T14:39:57.050Z"
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
@@ -12,8 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
-updated_at: "2026-10-11T14:39:57Z"
-review_passes: 7
+updated_at: "2026-10-11T14:01:31Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -67,22 +65,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:58:25Z · needs_input
 - 2026-10-11T13:58:25Z · status review→active
 - 2026-10-11T13:58:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T14:01:32Z · status active→review
-- 2026-10-11T14:01:32Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T14:02:32Z · note: review pass 5: needs some work
-- 2026-10-11T14:02:33Z · needs_input
-- 2026-10-11T14:17:47Z · needs_input
-- 2026-10-11T14:17:47Z · status review→active
-- 2026-10-11T14:17:47Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T14:23:34Z · status active→review
-- 2026-10-11T14:23:35Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T14:24:28Z · note: review pass 6: needs some work
-- 2026-10-11T14:24:28Z · needs_input
-- 2026-10-11T14:27:16Z · needs_input
-- 2026-10-11T14:27:16Z · status review→active
-- 2026-10-11T14:27:16Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T14:28:49Z · status active→review
-- 2026-10-11T14:28:50Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T14:30:06Z · note: review pass 7: good to go
-- 2026-10-11T14:39:57Z · close-out gate completed in 48s
-
+- 2026-10-11T14:01:31Z · status active→review

@@ -337,6 +337,10 @@ private extension DateConfiguration {
         var object: [String: Any] = [:]
         let defaults = DateConfiguration.default
         if weekday != defaults.weekday { object["weekday"] = weekday }
+        if year != defaults.year { object["year"] = year }
+        if dayFirst != defaults.dayFirst { object["dayFirst"] = dayFirst }
+        if separator != defaults.separator { object["separator"] = separator }
+        if customPattern != defaults.customPattern { object["customPattern"] = customPattern }
         return object
     }
 }
