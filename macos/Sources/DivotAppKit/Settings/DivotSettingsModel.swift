@@ -162,6 +162,13 @@ public final class DivotSettingsModel {
         update { $0.bottomShadow = enabled }
     }
 
+    /// Draw each item in its own rounded chip or blend them together. Off by
+    /// default; the bar rebuilds live from the published snapshot and the setting
+    /// survives a relaunch through the store.
+    public func setChipStyle(_ enabled: Bool) {
+        update { $0.chipStyle = enabled }
+    }
+
     // MARK: Text
 
     /// The font picker selection: the configured family when it is installed,

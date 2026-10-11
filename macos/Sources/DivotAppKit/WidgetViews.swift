@@ -17,9 +17,11 @@ final class BarItemView: NSView {
     private var presentation: WidgetPresentation?
     private var theme: BarTheme = .systemDefault
     private var indicatorRole: WidgetIndicator.Role?
+    private var enablesChipStyle: Bool = false
 
-    init(metrics: BarMetrics = .default) {
+    init(metrics: BarMetrics = .default, enablesChipStyle: Bool = false) {
         self.metrics = metrics
+        self.enablesChipStyle = enablesChipStyle
         super.init(frame: .zero)
         wantsLayer = true
         iconView.imageScaling = .scaleProportionallyDown
@@ -130,8 +132,11 @@ final class BarItemView: NSView {
         let iconWidth = iconView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
         let textWidth = measuredTextWidth
         let indicatorWidth = indicatorView.isHidden ? 0 : metrics.iconSize + metrics.iconSpacing
-        return NSSize(width: iconWidth + textWidth + indicatorWidth,
-                      height: max(metrics.iconSize, textField.fittingSize.height))
+        let contentWidth = iconWidth + textWidth + indicatorWidth
+        let contentHeight = max(metrics.iconSize, textField.fittingSize.height)
+        let chipPadding = enablesChipStyle ? 4.0 : 0.0
+        return NSSize(width: contentWidth + chipPadding * 2,
+                      height: contentHeight + chipPadding * 2)
     }
 
     /// The width the label cell actually draws. `NSTextField.intrinsicContentSize`
@@ -160,11 +165,12 @@ final class BarItemView: NSView {
 
     override func layout() {
         super.layout()
-        var x: CGFloat = 0
+        let chipPadding = enablesChipStyle ? 4.0 : 0.0
+        var x: CGFloat = chipPadding
         if !iconView.isHidden {
-            iconView.frame = CGRect(x: 0, y: (bounds.height - metrics.iconSize) / 2,
+            iconView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
                                     width: metrics.iconSize, height: metrics.iconSize)
-            x = metrics.iconSize + metrics.iconSpacing
+            x += metrics.iconSize + metrics.iconSpacing
         }
         if !textField.isHidden {
             let size = textField.fittingSize
@@ -173,7 +179,7 @@ final class BarItemView: NSView {
             x += size.width
         }
         if !indicatorView.isHidden {
-            if x > 0 { x += metrics.iconSpacing }
+            if x > chipPadding { x += metrics.iconSpacing }
             indicatorView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
                                          width: metrics.iconSize, height: metrics.iconSize)
         }
@@ -207,6 +213,15 @@ final class BarItemView: NSView {
             indicatorView.contentTintColor = indicatorColor(for: role)
         }
     }
+
+    override var wantsUpdateLayer: Bool { enablesChipStyle }
+
+    override func updateLayer() {
+        guard enablesChipStyle else { return }
+        layer?.backgroundColor = theme.selected.cgColor
+        layer?.cornerRadius = 4
+        layer?.borderWidth = 0
+    }
 }
 
 /// Arranges the item views for one side of the bar.
@@ -237,6 +252,7 @@ final class BarContentView: NSView, BarContentLifecycle {
          showsAppIcon: Bool = false,
          showOccupiedDot: Bool = true,
          showEmptyDot: Bool = true,
+         enablesChipStyle: Bool = false,
          workspaceFeed: WorkspaceFeed? = nil,
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
@@ -274,7 +290,7 @@ final class BarContentView: NSView, BarContentLifecycle {
                 addSubview(view)
                 continue
             }
-            let view = BarItemView(metrics: metrics)
+            let view = BarItemView(metrics: metrics, enablesChipStyle: enablesChipStyle)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
             view.apply(theme: theme)
             itemViews[id] = view

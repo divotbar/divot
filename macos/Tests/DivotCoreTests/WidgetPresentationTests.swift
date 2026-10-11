@@ -142,6 +142,56 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(none.accessibilityLabel.contains("No audio output"))
 }
 
+@Test func volumeOptionsControlPercentageAndMutedLabelIndependently() {
+    let snapshot = VolumeSnapshot(hasOutputDevice: true, level: 0.5)
+
+    // Both enabled (default)
+    let both = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(snapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: true)))
+    #expect(both.text == "50%")
+
+    // Percentage disabled
+    let noPercent = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(snapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: false, showMuted: true)))
+    #expect(noPercent.text == "")
+
+    // Muted disabled (but volume is not muted)
+    let noMutedLabel = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(snapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: false)))
+    #expect(noMutedLabel.text == "50%")
+}
+
+@Test func volumeOptionsHideMutedStateWhenDisabled() {
+    let mutedSnapshot = VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: true)
+
+    // Muted label enabled (default)
+    let showMuted = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(mutedSnapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: true)))
+    #expect(showMuted.text == "Muted")
+
+    // Muted label disabled
+    let hideMuted = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(mutedSnapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: false, showMuted: false)))
+    #expect(hideMuted.text == "")
+
+    // Show percentage but muted - still shows percentage when muted
+    let muteShowPercent = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(mutedSnapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: false)))
+    #expect(muteShowPercent.text == "")
+}
+
 @Test func clockPresentationUsesTheConfiguredLocaleAndZone() {
     let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
     let presentation = WidgetPresenter.present(id: .clock,

@@ -287,6 +287,34 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "unknown field showIcon")
 }
 
+@Test func volumeOptionsParseAndValidate() throws {
+    let configured = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[],"widgets":{"volume":{"showVolumePercent":false,"showVolumeMuted":true}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: configured)
+    #expect(parsed.configuration.widgets.volume.showVolumePercent == false)
+    #expect(parsed.configuration.widgets.volume.showVolumeMuted == true)
+
+    // Defaults are both true
+    let defaults = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[]}"##)
+    let parsedDefaults = try ConfigurationParser.parse(jsonObject: defaults)
+    #expect(parsedDefaults.configuration.widgets.volume == VolumeConfiguration.default)
+    #expect(parsedDefaults.configuration.widgets.volume.showVolumePercent == true)
+    #expect(parsedDefaults.configuration.widgets.volume.showVolumeMuted == true)
+}
+
+@Test func volumeOptionsMustBeBoolean() throws {
+    let badType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[],"widgets":{"volume":{"showVolumePercent":"yes"}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: badType) }
+    #expect(failure?.path == "widgets.volume.showVolumePercent")
+    #expect(failure?.message == "expected boolean")
+}
+
+@Test func volumeUnknownOptionIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"right":["volume"],"left":[],"widgets":{"volume":{"unknownField":true}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "widgets.volume")
+    #expect(failure?.message == "unknown field unknownField")
+}
+
 @Test func keepAwakePreferenceDefaultsOffAndParsesExplicitly() throws {
     let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":["battery"]}"##)
     #expect(try ConfigurationParser.parse(jsonObject: without).configuration.keepAwake == .default)
@@ -436,6 +464,41 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     var configuration = DivotConfiguration.default
     #expect(configuration.rendersSameBar(as: .default))
     configuration.bottomShadow = true
+    #expect(!configuration.rendersSameBar(as: .default))
+}
+
+@Test func chipStyleOptInDefaultsOffAndParsesExplicitly() throws {
+    // Absent keeps items blended.
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: without).configuration.chipStyle == false)
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipStyle":true}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.chipStyle)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipStyle":"yes"}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(failure?.path == "chipStyle")
+}
+
+@Test func chipStyleOptInRoundTripsThroughTheCanonicalJSON() throws {
+    var configuration = DivotConfiguration.default
+    configuration.chipStyle = true
+    let encoded = try JSONSerialization.data(withJSONObject: configuration.jsonObject,
+                                             options: [.sortedKeys])
+    let reparsed = try ConfigurationParser.parse(encoded)
+    #expect(reparsed.configuration == configuration)
+    #expect(reparsed.configuration.chipStyle)
+
+    // The default writes no key, so the first-launch document is identical.
+    #expect(DivotConfiguration.default.jsonObject["chipStyle"] == nil)
+}
+
+@Test func chipStyleChangesMakesTheBarsRenderDifferently() {
+    // Chip style changes item layout and drawing, so toggling it must rebuild
+    // the panels; `rendersSameBar` therefore has to see the change.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.chipStyle = true
     #expect(!configuration.rendersSameBar(as: .default))
 }
 
