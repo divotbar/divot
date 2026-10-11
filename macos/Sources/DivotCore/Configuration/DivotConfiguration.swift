@@ -264,13 +264,14 @@ public struct TimeConfiguration: Equatable, Sendable {
 
     public var seconds: Bool
     public var timeFormat: Format
-    /// Custom time pattern for Format.custom; ignored for other formats.
+    /// Custom time pattern for Format.custom; only meaningful when timeFormat is .custom.
     public var customPattern: String?
 
-    public init(seconds: Bool = false, timeFormat: Format = .twentyFourHour, customPattern: String? = nil) {
+    public init(seconds: Bool = false, timeFormat: Format = .ampm, customPattern: String? = nil) {
         self.seconds = seconds
         self.timeFormat = timeFormat
-        self.customPattern = customPattern
+        // Only keep customPattern if timeFormat is custom
+        self.customPattern = timeFormat == .custom ? customPattern : nil
     }
 
     public static let `default` = TimeConfiguration()

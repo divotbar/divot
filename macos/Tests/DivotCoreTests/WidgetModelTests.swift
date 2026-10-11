@@ -102,6 +102,30 @@ import Testing
     #expect(text == "12:26:40")
 }
 
+@Test func invalidCustomPatternFallsBackToLocalized() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: false, date: false, seconds: false),
+                                locale: Locale(identifier: "en_US"),
+                                timeZone: TimeZone(identifier: "UTC")!,
+                                timeFormat: .custom,
+                                customTimePattern: "invalid %%%")
+    // Invalid pattern falls back to locale-aware jmm format
+    #expect(text.contains("12:26"))
+    #expect(text.contains("PM"))
+}
+
+@Test func customPatternIsOnlyRetainedForCustomFormat() {
+    let customTime = TimeConfiguration(seconds: false, timeFormat: .custom, customPattern: "HH:mm")
+    #expect(customTime.customPattern == "HH:mm")
+
+    let twentyFourHour = TimeConfiguration(seconds: false, timeFormat: .twentyFourHour, customPattern: "HH:mm")
+    #expect(twentyFourHour.customPattern == nil)
+
+    let ampm = TimeConfiguration(seconds: false, timeFormat: .ampm, customPattern: "HH:mm")
+    #expect(ampm.customPattern == nil)
+}
+
 // MARK: - Store
 
 @Test func storeRejectsStaleGenerations() {

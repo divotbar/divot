@@ -62,13 +62,13 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.configuration.widgets.network.showWifiName == true)
 }
 
-@Test func timeFormatOptionsDefaultTo24HourAndParseExplicitly() throws {
+@Test func timeFormatOptionsDefaultToLocaleAwareAndParseExplicitly() throws {
     let defaults = try ConfigurationParser.parse(try exampleData("default.json"))
-    #expect(defaults.configuration.widgets.time.timeFormat == .twentyFourHour)
+    #expect(defaults.configuration.widgets.time.timeFormat == .ampm)
 
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"AM/PM"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"24-hour"}}}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: value)
-    #expect(parsed.configuration.widgets.time.timeFormat == .ampm)
+    #expect(parsed.configuration.widgets.time.timeFormat == .twentyFourHour)
 }
 
 @Test func customTimePatternOptionParsesExplicitly() throws {
