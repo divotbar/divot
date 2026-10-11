@@ -3,9 +3,10 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Divot',
   description: 'A quieter edge for your Mac. An open-source native macOS bar, designed around the notch.',
+  base: '/',
   cleanUrls: true,
   appearance: 'dark',
-  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/mark.svg' }], ['meta', { name: 'theme-color', content: '#183d43' }]],
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/mark.svg' }], ['link', { rel: 'canonical', href: 'https://divotbar.app/' }], ['meta', { name: 'theme-color', content: '#183d43' }]],
   themeConfig: {
     logo: '/mark.svg',
     nav: [{ text: 'Guide', link: '/guide/getting-started' }, { text: 'Customize', link: '/guide/customization' }, { text: 'Contribute', link: '/contributing/' }],

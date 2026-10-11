@@ -38,9 +38,39 @@ The RepoOS plan declares web configuration validation/static build, native core 
 
 Web CI runs on Linux with Bun and uploads the static output. Core CI runs on a macOS runner with Xcode 26 selected. The workflow checks toolchain availability instead of silently skipping. No signing secrets are required for pull-request checks. Update the runner label if GitHub changes image availability.
 
-## Static hosting
+## Static hosting and deployment
 
-Deploy only `site/.vitepress/dist/` after a successful build. A root domain needs no base override; a subpath deployment must set VitePress `base` and test all asset/deep-link URLs. Choose the public URL before adding canonical tags, sitemap, repository links, or social share images. No deployment has been created by this starter. Repository source and deployment remain separate; publishing needs maintainer approval.
+The site builds to `site/.vitepress/dist/` and deploys to Cloudflare Pages at https://divotbar.app via GitHub Actions. The workflow (`.github/workflows/site.yml`) runs on pushes to main and can be triggered manually. Pull requests trigger a dry-run build without deployment.
+
+### One-time setup (maintainer only)
+
+1. **Create a Cloudflare Pages project:**
+   - Log in to https://dash.cloudflare.com
+   - Go to Workers & Pages
+   - Create a new Pages project named `divotbar`
+   - Select "Direct upload" and upload the built `site/.vitepress/dist/` directory once to initialize the project
+
+2. **Add the custom domain:**
+   - In the Pages project settings, add the custom domain `divotbar.app`
+   - Follow Cloudflare's DNS configuration steps (or update the nameservers if the domain's registrar is Cloudflare)
+
+3. **Create GitHub secrets:**
+   - Go to the repository Settings → Secrets and variables → Actions
+   - Add `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID (visible in the dash.cloudflare.com URL or account settings)
+   - Add `CLOUDFLARE_API_TOKEN`: a scoped API token with Cloudflare Pages access
+     - Create at https://dash.cloudflare.com/profile/api-tokens
+     - Use the "Edit Cloudflare Workers" template or create a custom token with `Pages:Edit` permission
+   - The workflow will skip deploy with a clear message if these secrets are missing
+
+4. **Verify the deployment:**
+   - After the first push to main, the workflow will deploy to https://divotbar.app
+   - Check the Actions tab to monitor the build and deploy job
+
+### Configuration
+
+- VitePress `base` is set to `/` (root domain, no subpath)
+- Canonical URLs are set to `https://divotbar.app` in the HTML head
+- Sitemap generation and social share images use the canonical domain
 
 ## Native distribution (planned)
 
