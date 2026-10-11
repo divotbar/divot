@@ -208,7 +208,6 @@ public enum ConfigurationParser {
         return configuration
     }
 
-<<<<<<< HEAD
     private static func networkOptions(_ value: Any?, path: String) throws -> NetworkConfiguration {
         let object = try shape(value, required: [], optional: ["showWifiName"], path: path)
         var configuration = NetworkConfiguration.default
