@@ -57,3 +57,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T12:39:00Z · status review→active
 - 2026-10-11T12:39:00Z · note: close-out repair: merge-conflict
 - 2026-10-11T12:47:23Z · status active→review
+- 2026-10-11T12:47:23Z · note: shots: skipped — the diff (30 changed paths) touches no [[preview.paths]] globs — no UI change to capture
