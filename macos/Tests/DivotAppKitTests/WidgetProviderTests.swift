@@ -219,6 +219,12 @@ private final class MockFrontAppReading: FrontAppReading {
     reading.snapshotValue = .init(presence: .internalBattery, percentage: 41, isCharging: true)
     reading.fire()
     #expect(collector.contents.count == 2)
+    guard case .battery(let charging)? = collector.contents.last else {
+        Issue.record("expected a charging battery snapshot")
+        return
+    }
+    #expect(charging.isCharging)
+    #expect(charging.percentage == 41)
 
     subscription.cancel()
     #expect(reading.cancelCount == 1)
