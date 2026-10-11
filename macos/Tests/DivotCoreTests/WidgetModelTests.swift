@@ -31,6 +31,12 @@ import Testing
     #expect(ClockText.template(ClockFormatOptions(weekday: false, date: true)) == "MMMd jmm")
 }
 
+@Test func dateTemplateOmitsTime() {
+    let dateOptions = ClockFormatOptions(weekday: true, date: true, seconds: false)
+    #expect(ClockText.template(dateOptions, includeTime: false) == "EEE MMMd")
+    #expect(ClockText.template(dateOptions, includeTime: true) == "EEE MMMd jmm")
+}
+
 @Test func clockTextIsALocalizedDatePlusTime() {
     let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
     let text = ClockText.string(for: ClockSnapshot(date: date),
