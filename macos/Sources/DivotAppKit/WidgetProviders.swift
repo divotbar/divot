@@ -58,6 +58,78 @@ public struct ClockProvider: WidgetProvider {
     }
 }
 
+/// Emits the local date immediately, then at each day boundary.
+///
+/// A date provider emits once per day by default, waking the process at midnight.
+/// The loop runs in a detached task: the clock is a pure value read, not main-thread I/O.
+public struct DateProvider: WidgetProvider {
+    public let id = BarItemID.date
+    private let source: any ClockSource
+
+    public init(source: any ClockSource = SystemClockSource()) {
+        self.source = source
+    }
+
+    /// The date provider has no configuration, so activation is static.
+    public var activationKey: String { "date" }
+
+    public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
+        let source = self.source
+        let task = Task.detached {
+            emit(.date(ClockSnapshot(date: source.now())))
+            while !Task.isCancelled {
+                let delay = ClockSchedule.secondsUntilNextBoundary(after: source.now(), seconds: false)
+                do {
+                    try await source.sleep(seconds: delay)
+                } catch {
+                    break
+                }
+                if Task.isCancelled { break }
+                emit(.date(ClockSnapshot(date: source.now())))
+            }
+        }
+        return TaskSubscription(task)
+    }
+}
+
+/// Emits the local time immediately, then at each boundary.
+///
+/// A time provider emits at minute boundaries by default, or at second boundaries
+/// if the `seconds` option is enabled. The loop runs in a detached task.
+public struct TimeProvider: WidgetProvider {
+    public let id = BarItemID.time
+    private let seconds: Bool
+    private let source: any ClockSource
+
+    public init(seconds: Bool = false, source: any ClockSource = SystemClockSource()) {
+        self.seconds = seconds
+        self.source = source
+    }
+
+    /// The time's only configuration is its resolution, so a changed `seconds`
+    /// option must restart the provider rather than keep the old minute ticker.
+    public var activationKey: String { "time(seconds: \(seconds))" }
+
+    public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
+        let source = self.source
+        let seconds = self.seconds
+        let task = Task.detached {
+            emit(.time(ClockSnapshot(date: source.now())))
+            while !Task.isCancelled {
+                let delay = ClockSchedule.secondsUntilNextBoundary(after: source.now(), seconds: seconds)
+                do {
+                    try await source.sleep(seconds: delay)
+                } catch {
+                    break
+                }
+                if Task.isCancelled { break }
+                emit(.time(ClockSnapshot(date: source.now())))
+            }
+        }
+        return TaskSubscription(task)
+    }
+}
+
 // MARK: - Front app
 
 /// Reads the frontmost application. Main-actor only: `NSWorkspace` and its

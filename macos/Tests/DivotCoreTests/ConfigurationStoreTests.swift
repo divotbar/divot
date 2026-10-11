@@ -22,10 +22,10 @@ private func write(_ json: String, to url: URL) throws {
 @Test func aValidFileBecomesCurrent() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"dark","accent":"#D6F58A","material":"native"},"layout":{"height":30,"padding":10,"notchGap":8},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"dark","accent":"#D6F58A","material":"native"},"layout":{"height":30,"padding":10,"notchGap":8},"left":["time"],"right":["battery"]}"##, to: url)
     let store = ConfigurationStore(configURL: url)
     #expect(store.load() == .loaded)
-    #expect(store.current.left == [.clock])
+    #expect(store.current.left == [.time])
     #expect(store.current.right == [.battery])
     #expect(store.current.appearance.mode == .dark)
     #expect(store.current.layout.height == 30)
@@ -34,13 +34,13 @@ private func write(_ json: String, to url: URL) throws {
 @Test func invalidReloadPreservesTheLastGoodSnapshot() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##, to: url)
     let store = ConfigurationStore(configURL: url)
     #expect(store.load() == .loaded)
     let good = store.current
 
     // An out-of-range height must not blank the bar or silently clamp.
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":900,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":900,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##, to: url)
     guard case .invalid(let error) = store.load() else {
         Issue.record("expected an invalid outcome")
         return
@@ -49,7 +49,7 @@ private func write(_ json: String, to url: URL) throws {
     #expect(store.current == good)
 
     // A later good write recovers.
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":34,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":34,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##, to: url)
     #expect(store.load() == .loaded)
     #expect(store.current.layout.height == 34)
 }
@@ -59,7 +59,7 @@ private func write(_ json: String, to url: URL) throws {
     let url = directory.appendingPathComponent("config.json")
     let store = ConfigurationStore(configURL: url)
     var configuration = DivotConfiguration.default
-    configuration.widgets.clock.seconds = true
+    configuration.widgets.time.seconds = true
     configuration.left = [.frontApp, .workspaces]
     try store.save(configuration)
 
@@ -259,7 +259,7 @@ private func write(_ json: String, to url: URL) throws {
     #expect(FileManager.default.fileExists(atPath: backupURL.path))
     #expect(backupURL.lastPathComponent == "config-v1-backup.json")
     #expect(store.current.version == 2)
-    #expect(store.current.right == [.battery, .clock])
+    #expect(store.current.right == [.battery, .time])
 
     // The rewritten file is now a plain version 2 document.
     let rewritten = try ConfigurationParser.parse(Data(contentsOf: url))

@@ -220,6 +220,36 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// `widgets.date`.
+public struct DateConfiguration: Equatable, Sendable {
+    public var weekday: Bool
+
+    public init(weekday: Bool = true) {
+        self.weekday = weekday
+    }
+
+    public static let `default` = DateConfiguration()
+
+    public var formatOptions: ClockFormatOptions {
+        ClockFormatOptions(weekday: weekday, date: true, seconds: false)
+    }
+}
+
+/// `widgets.time`.
+public struct TimeConfiguration: Equatable, Sendable {
+    public var seconds: Bool
+
+    public init(seconds: Bool = false) {
+        self.seconds = seconds
+    }
+
+    public static let `default` = TimeConfiguration()
+
+    public var formatOptions: ClockFormatOptions {
+        ClockFormatOptions(weekday: false, date: false, seconds: seconds)
+    }
+}
+
 /// The document-level menu-bar detection preference.
 ///
 /// On notched hardware the camera housing masks the same top band whether the
@@ -295,13 +325,19 @@ public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
     public var clock: ClockConfiguration
+    public var date: DateConfiguration
+    public var time: TimeConfiguration
 
     public init(workspaces: WorkspacesConfiguration = .default,
                 frontApp: FrontAppConfiguration = .default,
-                clock: ClockConfiguration = .default) {
+                clock: ClockConfiguration = .default,
+                date: DateConfiguration = .default,
+                time: TimeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
         self.clock = clock
+        self.date = date
+        self.time = time
     }
 
     public static let `default` = WidgetOptions()
@@ -309,7 +345,7 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .clock: return true
+        case .workspaces, .frontApp, .clock, .date, .time: return true
         case .battery, .network, .volume: return false
         }
     }
@@ -388,8 +424,8 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     /// Default left is `workspaces`, `front-app`.
     public static let defaultLeft: [BarItemID] = [.workspaces, .frontApp]
-    /// Default right is `battery`, `clock`, `network`, `volume`.
-    public static let defaultRight: [BarItemID] = [.battery, .clock, .network, .volume]
+    /// Default right is `battery`, `time`, `network`, `volume`.
+    public static let defaultRight: [BarItemID] = [.battery, .time, .network, .volume]
 
     /// The first-launch bar: beautiful without any user input.
     public static let `default` = DivotConfiguration()
@@ -429,9 +465,11 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
-    /// Clock and front-app formatting the renderer needs beyond snapshots.
+    /// Clock, date, time, and front-app formatting the renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
+                                  date: widgets.date.formatOptions,
+                                  time: widgets.time.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions)
     }
 

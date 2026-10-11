@@ -45,12 +45,12 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let parsed = try ConfigurationParser.parse(try exampleData("focus.json"))
     let configuration = parsed.configuration
     #expect(configuration.left == [.workspaces])
-    #expect(configuration.right == [.clock])
+    #expect(configuration.right == [.time])
     #expect(configuration.appearance.mode == .dark)
     #expect(configuration.appearance.material == .opaque)
     #expect(configuration.layout == LayoutConfiguration(height: 28, padding: 10))
     #expect(configuration.widgets.workspaces.showEmpty == false)
-    #expect(configuration.widgets.clock == ClockConfiguration(weekday: false, date: true, seconds: false))
+    #expect(configuration.widgets.time == TimeConfiguration(seconds: false))
 }
 
 @Test func everyTopLevelExampleParsesNatively() throws {
@@ -438,7 +438,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let configuration = parsed.configuration
     #expect(configuration.version == 2)
     #expect(configuration.left == [.workspaces])
-    #expect(configuration.right == [.battery, .clock, .network, .volume])
+    #expect(configuration.right == [.battery, .time, .network, .volume])
     #expect(configuration.appearance == .default)
     #expect(configuration.layout == .default)
     #expect(configuration.widgets == .default)
@@ -449,7 +449,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.migratedFromVersion == 1)
     let configuration = parsed.configuration
     #expect(configuration.left == [.workspaces])
-    #expect(configuration.right == [.clock])
+    #expect(configuration.right == [.time])
     #expect(configuration.appearance.mode == .dark)
     #expect(configuration.widgets.workspaces.showEmpty == false)
     #expect(configuration.widgets.workspaces.showAppIcons == false)

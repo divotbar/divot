@@ -17,6 +17,8 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
     case network
     case volume
     case clock
+    case date
+    case time
 
     /// Human label for settings and placeholder/accessible text.
     public var displayName: String {
@@ -27,6 +29,8 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
         case .network: return "Network"
         case .volume: return "Volume"
         case .clock: return "Clock"
+        case .date: return "Date"
+        case .time: return "Time"
         }
     }
 }
@@ -214,6 +218,8 @@ public enum WidgetContentKind: String, Equatable, Sendable {
     case network
     case volume
     case clock
+    case date
+    case time
     case unavailable
 }
 
@@ -224,6 +230,8 @@ public enum WidgetContent: Equatable, Sendable {
     case network(NetworkSnapshot)
     case volume(VolumeSnapshot)
     case clock(ClockSnapshot)
+    case date(ClockSnapshot)
+    case time(ClockSnapshot)
     case unavailable(WidgetUnavailable)
 
     public var kind: WidgetContentKind {
@@ -233,6 +241,8 @@ public enum WidgetContent: Equatable, Sendable {
         case .network: return .network
         case .volume: return .volume
         case .clock: return .clock
+        case .date: return .date
+        case .time: return .time
         case .unavailable: return .unavailable
         }
     }
@@ -249,7 +259,7 @@ public enum WidgetContent: Equatable, Sendable {
         if isUnavailable { return true }
         switch (id, self) {
         case (.frontApp, .frontApp), (.battery, .battery), (.network, .network),
-             (.volume, .volume), (.clock, .clock):
+             (.volume, .volume), (.clock, .clock), (.date, .date), (.time, .time):
             return true
         default:
             return false
@@ -294,7 +304,7 @@ public struct BarLayout: Equatable, Sendable {
 
     /// Default left/right groups from the first-launch story.
     public static let `default` = BarLayout(left: [.workspaces, .frontApp],
-                                            right: [.battery, .clock, .network, .volume])
+                                            right: [.battery, .time, .network, .volume])
 
     public func items(on side: BarSide) -> [BarItemID] {
         switch side {

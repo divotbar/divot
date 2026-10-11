@@ -146,7 +146,7 @@ import Testing
 
 @Test func defaultLayoutMatchesTheFirstLaunchStory() {
     #expect(BarLayout.default.left == [.workspaces, .frontApp])
-    #expect(BarLayout.default.right == [.battery, .clock, .network, .volume])
+    #expect(BarLayout.default.right == [.battery, .time, .network, .volume])
     #expect(BarLayout.default.side(of: .frontApp) == .left)
     #expect(BarLayout.default.side(of: .volume) == .right)
 }

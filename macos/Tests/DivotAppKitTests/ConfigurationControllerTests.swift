@@ -9,7 +9,7 @@ private func makeDirectory() throws -> URL {
     return url
 }
 
-private let validV2 = ##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##
+private let validV2 = ##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##
 
 @MainActor
 @Test func controllerPublishesALoadedFile() throws {
@@ -21,7 +21,7 @@ private let validV2 = ##"{"version":2,"appearance":{"family":"native","mode":"sy
     controller.addObserver { published.append($0) }
 
     #expect(controller.reload() == .loaded)
-    #expect(controller.configuration.left == [.clock])
+    #expect(controller.configuration.left == [.time])
     #expect(controller.configuration.right == [.battery])
     #expect(published == [controller.configuration])
 }
@@ -54,12 +54,12 @@ private let validV2 = ##"{"version":2,"appearance":{"family":"native","mode":"sy
     let store = ConfigurationStore(configURL: url)
     let controller = ConfigurationController(store: store)
 
-    #expect(controller.update { $0.widgets.clock.seconds = true }.isSuccess)
-    #expect(controller.configuration.widgets.clock.seconds)
+    #expect(controller.update { $0.widgets.time.seconds = true }.isSuccess)
+    #expect(controller.configuration.widgets.time.seconds)
 
     let reloaded = ConfigurationStore(configURL: url)
     #expect(reloaded.load() == .loaded)
-    #expect(reloaded.current.widgets.clock.seconds)
+    #expect(reloaded.current.widgets.time.seconds)
 }
 
 @MainActor
@@ -74,7 +74,7 @@ private let validV2 = ##"{"version":2,"appearance":{"family":"native","mode":"sy
     }
     #expect(from == 1)
     #expect(controller.configuration.version == 2)
-    #expect(controller.configuration.right == [.battery, .clock])
+    #expect(controller.configuration.right == [.battery, .time])
 }
 
 /// A writer that fails its first call (the migration rewrite) and succeeds

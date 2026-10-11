@@ -11,7 +11,7 @@ import Testing
 private let shippedFamilies: [AppearanceConfiguration.Family] = [.gruvbox, .ayu, .dracula, .tokyoNight]
 
 @Test func defaultWorkloadCoversEveryRequiredWidget() {
-    let required: Set<BarItemID> = [.network, .volume, .frontApp, .clock, .battery]
+    let required: Set<BarItemID> = [.network, .volume, .frontApp, .time, .battery]
     let placed = Set(BarLayout.default.left + BarLayout.default.right)
     #expect(required.isSubset(of: placed))
 }
