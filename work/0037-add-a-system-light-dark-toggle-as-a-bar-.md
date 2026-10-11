@@ -40,11 +40,14 @@ Scope was added by the maintainer on 2026-10-11: the toggle has two options, "Di
 
 ## Implementation
 
-The appearance bar item now shows a menu with two options when clicked:
-1. **Toggle Divot Light/Dark** - Toggles the app's appearance override via NSApp.appearance
-2. **Open System Appearance Settings** - Opens System Settings to the General pane where users can toggle macOS system appearance
+The appearance bar item is a direct toggle that switches light/dark mode. The scope determines what gets toggled:
 
-This respects the "public API only" constraint while giving users convenient access to both Divot-specific and system-wide appearance controls.
+1. **Divot only** (default) - Toggles only Divot's appearance override via NSApp.appearance, using AppKit's public API
+2. **Full system** - Toggles the macOS system appearance (System Preferences → General → Appearance) via AppleScript, the public automation API
+
+The click is a direct toggle, not a menu. It works identically for mouse clicks and VoiceOver through the unified `toggleAppearance` action, which routes through `toggleAppearanceBasedOnScope()` in DivotAppDelegate to apply the user's chosen scope setting.
+
+The scope setting is configurable in Divot's Settings window under "Appearance item" and persists across app launches through the configuration store.
 
 ## Activity
 

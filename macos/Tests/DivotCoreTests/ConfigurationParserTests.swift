@@ -62,6 +62,19 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.configuration.widgets.network.showWifiName == true)
 }
 
+@Test func appearanceItemScopeDefaultsToDivotOnlyAndParsesExplicitly() throws {
+    let defaults = try ConfigurationParser.parse(try exampleData("default.json"))
+    #expect(defaults.configuration.widgets.appearance.scope == .divotOnly)
+
+    let fullSystem = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["appearance"],"widgets":{"appearance":{"scope":"fullSystem"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: fullSystem)
+    #expect(parsed.configuration.widgets.appearance.scope == .fullSystem)
+
+    let divotOnly = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["appearance"],"widgets":{"appearance":{"scope":"divotOnly"}}}"##)
+    let parsed2 = try ConfigurationParser.parse(jsonObject: divotOnly)
+    #expect(parsed2.configuration.widgets.appearance.scope == .divotOnly)
+}
+
 @Test func everyTopLevelExampleParsesNatively() throws {
     let directory = repoRoot().appendingPathComponent("examples")
     let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
