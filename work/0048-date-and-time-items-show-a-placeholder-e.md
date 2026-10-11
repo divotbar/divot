@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T16:09:06Z"
+review_passes: 5
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
@@ -11,9 +13,7 @@ branch: feat/date-and-time-items-show-a-placeholder-e
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T16:09:06Z"
 close_out_repair_count: 1
-review_passes: 4
 review_rounds: 2
 dev_error_count: 2
 ---
@@ -155,3 +155,4 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T16:08:06Z · status active→review
 - 2026-10-11T16:08:07Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T16:09:06Z · note: review pass 5: good to go
+
