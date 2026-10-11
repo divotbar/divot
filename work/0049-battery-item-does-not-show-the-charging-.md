@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T16:20:22Z"
+review_passes: 1
 id: "0049"
 title: Battery item does not show the charging state on the bar
 type: bug
@@ -9,7 +11,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-item-does-not-show-the-charging-
 created_at: "2026-10-11T15:53:55Z"
-updated_at: "2026-10-11T16:20:22Z"
 ---
 ## Problem
 
@@ -49,3 +50,4 @@ Relevant code: macos/Sources/DivotAppKit/SystemBatteryReading.swift, macos/Sourc
 - 2026-10-11T16:19:32Z · status active→review
 - 2026-10-11T16:19:32Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T16:20:22Z · note: review pass 1: good to go
+
