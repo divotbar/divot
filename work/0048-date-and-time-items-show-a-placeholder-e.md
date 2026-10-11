@@ -2,7 +2,10 @@
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: active
+status: review
+needs_input: true
+needs_input_reason: dev-error
+needs_input_detail: No session found matching 'repoos-0048-engineer'
 priority: p0
 area: macos
 assigned_to: ""
@@ -12,6 +15,7 @@ created_at: "2026-10-11T14:25:56Z"
 updated_at: "2026-10-11T14:40:52Z"
 review_passes: 3
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 
@@ -117,3 +121,5 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:40:52Z · needs_input
 - 2026-10-11T14:40:52Z · status review→active
 - 2026-10-11T14:40:52Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T14:40:52Z · agent exited with an error (pi) · No session found matching 'repoos-0048-engineer'
+- 2026-10-11T14:40:52Z · status active→review
