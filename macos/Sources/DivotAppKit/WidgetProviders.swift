@@ -293,3 +293,38 @@ public struct VolumeProvider: WidgetProvider {
         return reading.observeChanges { push() }
     }
 }
+
+// MARK: - Appearance
+
+/// Reads the system appearance and reports changes.
+public protocol AppearanceReading: Sendable {
+    /// The current appearance mode, or `nil` when it cannot be read this moment.
+    func snapshot() -> AppearanceSnapshot?
+    func observeChanges(_ handler: @escaping @MainActor @Sendable () -> Void) -> any ProviderSubscription
+}
+
+/// Emits the system appearance on changes.
+public struct AppearanceProvider: WidgetProvider {
+    public let id = BarItemID.appearance
+    private let reading: any AppearanceReading
+
+    public init(reading: any AppearanceReading) { self.reading = reading }
+
+    public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
+        let bag = SubscriptionBag()
+        let reading = self.reading
+        let task = Task { @MainActor in
+            let push: @MainActor @Sendable () -> Void = {
+                if let snapshot = reading.snapshot() {
+                    emit(.appearance(snapshot))
+                } else {
+                    emit(.unavailable(.init(kind: .failed, message: "Appearance is unavailable")))
+                }
+            }
+            push()
+            bag.add(reading.observeChanges { push() })
+        }
+        bag.add(TaskSubscription(task))
+        return bag
+    }
+}

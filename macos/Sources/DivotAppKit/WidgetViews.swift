@@ -70,6 +70,7 @@ final class BarItemView: NSView {
         switch action {
         case .none: setAccessibilityHelp(nil)
         case .toggleKeepAwake: setAccessibilityHelp("Toggles keep-awake")
+        case .toggleAppearance: setAccessibilityHelp("Toggles appearance")
         default: setAccessibilityHelp("Activates \(presentation.accessibilityLabel)")
         }
 
@@ -263,6 +264,7 @@ final class BarContentView: NSView, BarContentLifecycle {
          showOccupiedDot: Bool = true,
          showEmptyDot: Bool = true,
          enablesChipStyle: Bool = false,
+         chipOpacity: Int = 0,
          workspaceFeed: WorkspaceFeed? = nil,
          workspaceIcons: WorkspaceIconProviding? = nil,
          displayScreensID: Int? = nil,
@@ -295,7 +297,8 @@ final class BarContentView: NSView, BarContentLifecycle {
                                             theme: theme,
                                             metrics: metrics,
                                             showOccupiedDot: showOccupiedDot,
-                                            showEmptyDot: showEmptyDot)
+                                            showEmptyDot: showEmptyDot,
+                                            chipOpacity: chipOpacity)
                 workspaceViews[id] = view
                 addSubview(view)
                 continue

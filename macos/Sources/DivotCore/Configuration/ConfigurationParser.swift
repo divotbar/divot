@@ -55,7 +55,7 @@ public enum ConfigurationParser {
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
                              optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon",
-                                        "showOccupiedDot", "showEmptyDot", "bottomShadow", "chipStyle"], path: "root")
+                                        "showOccupiedDot", "showEmptyDot", "bottomShadow", "chipStyle", "chipOpacity"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
@@ -88,6 +88,11 @@ public enum ConfigurationParser {
         // and only an explicit `true` draws them as distinct chips (#0030).
         var chipStyle = false
         if let raw = root["chipStyle"] { chipStyle = try boolean(raw, path: "chipStyle") }
+        // Chip opacity is 0 by default, so an omitted key keeps the current
+        // chip appearance; explicit values 0–100 control the background opacity
+        // (#0047).
+        var chipOpacity = 0
+        if let raw = root["chipOpacity"] { chipOpacity = try intRange(raw, DivotConfiguration.chipOpacityRange, path: "chipOpacity") }
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
@@ -101,7 +106,8 @@ public enum ConfigurationParser {
                                   showOccupiedDot: showOccupiedDot,
                                   showEmptyDot: showEmptyDot,
                                   bottomShadow: bottomShadow,
-                                  chipStyle: chipStyle)
+                                  chipStyle: chipStyle,
+                                  chipOpacity: chipOpacity)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {
@@ -199,7 +205,7 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.volume.rawValue] {
             options.volume = try volumeOptions(raw, path: "widgets.volume")
         }
-        // battery accepts an empty object only.
+        // Items without options accept an empty object only.
         for id in BarItemID.allCases where !WidgetOptions.acceptsOptions(for: id) {
             if let raw = object[id.rawValue] {
                 try shape(raw, required: [], optional: [], path: "widgets.\(id.rawValue)")

@@ -127,15 +127,18 @@ private func workspaceChip(_ id: String, in view: NSView) -> NSButton? {
     let occupied = try! #require(workspaceChip("2", in: view))
     let empty = try! #require(workspaceChip("3", in: view))
 
-    // Focused uses the family selected background, not the system accent.
+    // At opacity 0 (current appearance), focused uses theme.selected, others use
+    // clear. All use the foreground text color (#0047).
     #expect(colorMatches(focused.layer?.backgroundColor, theme.selected))
-    #expect(colorMatches(focused.layer?.borderColor, theme.accent))
     #expect(colorMatches(occupied.layer?.backgroundColor, .clear))
+    #expect(colorMatches(empty.layer?.backgroundColor, .clear))
+    #expect(nameColor(of: occupied.attributedTitle) == theme.foreground)
+    #expect(nameColor(of: focused.attributedTitle) == theme.foreground)
 
-    // Flat chrome (#0025): square chips with a flat focused stroke.
+    // Flat chrome (#0025): square chips with no focus border (#0047).
     #expect(focused.layer?.cornerRadius == 0)
     #expect(occupied.layer?.cornerRadius == 0)
-    #expect(focused.layer?.borderWidth == 1)
+    #expect(focused.layer?.borderWidth == 0)
     #expect(occupied.layer?.borderWidth == 0)
 
     // The occupancy marker carries the occupied/disabled role; the name stays in
@@ -144,6 +147,51 @@ private func workspaceChip(_ id: String, in view: NSView) -> NSButton? {
     #expect(markerColor(of: empty.attributedTitle) == theme.disabled)
     #expect(nameColor(of: occupied.attributedTitle) == theme.foreground)
     #expect(focused.state == .on)
+}
+
+@MainActor
+@Test func workspaceChipOpacityFadesTheSelectedBackgroundAtDifferentLevels() async {
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
+                                                  Workspace(id: WorkspaceID("2"))])
+    let theme = BarTheme.resolve(gruvboxDark, dark: true)
+
+    // Test opacity 0: focused has full opacity, others are clear.
+    let feed = WorkspaceFeed()
+    var view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme, chipOpacity: 0)
+    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+    feed.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let focusedOp0 = try! #require(workspaceChip("1", in: view))
+    let occupiedOp0 = try! #require(workspaceChip("2", in: view))
+    #expect(colorMatches(focusedOp0.layer?.backgroundColor, theme.selected))
+    #expect(colorMatches(occupiedOp0.layer?.backgroundColor, .clear))
+
+    // Test opacity 50: focused has 50% opacity (halfway between selected and transparent).
+    let feed50 = WorkspaceFeed()
+    view = WorkspaceBarView(feed: feed50, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme, chipOpacity: 50)
+    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+    feed50.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
+    await feed50.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let focusedOp50 = try! #require(workspaceChip("1", in: view))
+    let expectedOp50 = theme.selected.withAlphaComponent(0.5)
+    #expect(colorMatches(focusedOp50.layer?.backgroundColor, expectedOp50))
+
+    // Test opacity 100: focused is fully transparent (matches bar background).
+    let feed100 = WorkspaceFeed()
+    view = WorkspaceBarView(feed: feed100, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme, chipOpacity: 100)
+    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+    feed100.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
+    await feed100.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let focusedOp100 = try! #require(workspaceChip("1", in: view))
+    let expectedOp100 = theme.selected.withAlphaComponent(0.0)
+    #expect(colorMatches(focusedOp100.layer?.backgroundColor, expectedOp100))
 }
 
 private func markerColor(of string: NSAttributedString) -> NSColor? {
