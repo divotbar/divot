@@ -99,16 +99,25 @@ public struct DateProvider: WidgetProvider {
 public struct TimeProvider: WidgetProvider {
     public let id = BarItemID.time
     private let seconds: Bool
+    private let timeFormat: TimeConfiguration.Format
+    private let customPattern: String?
     private let source: any ClockSource
 
-    public init(seconds: Bool = false, source: any ClockSource = SystemClockSource()) {
+    public init(seconds: Bool = false,
+                timeFormat: TimeConfiguration.Format = .twentyFourHour,
+                customPattern: String? = nil,
+                source: any ClockSource = SystemClockSource()) {
         self.seconds = seconds
+        self.timeFormat = timeFormat
+        self.customPattern = customPattern
         self.source = source
     }
 
-    /// The time's only configuration is its resolution, so a changed `seconds`
-    /// option must restart the provider rather than keep the old minute ticker.
-    public var activationKey: String { "time(seconds: \(seconds))" }
+    /// The time's configuration is its resolution and format, so changes must restart
+    /// the provider rather than keep the old ticker.
+    public var activationKey: String {
+        "time(seconds: \(seconds), format: \(timeFormat.rawValue), custom: \(customPattern ?? ""))"
+    }
 
     public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
         let source = self.source
@@ -282,5 +291,40 @@ public struct VolumeProvider: WidgetProvider {
         }
         push()
         return reading.observeChanges { push() }
+    }
+}
+
+// MARK: - Appearance
+
+/// Reads the system appearance and reports changes.
+public protocol AppearanceReading: Sendable {
+    /// The current appearance mode, or `nil` when it cannot be read this moment.
+    func snapshot() -> AppearanceSnapshot?
+    func observeChanges(_ handler: @escaping @MainActor @Sendable () -> Void) -> any ProviderSubscription
+}
+
+/// Emits the system appearance on changes.
+public struct AppearanceProvider: WidgetProvider {
+    public let id = BarItemID.appearance
+    private let reading: any AppearanceReading
+
+    public init(reading: any AppearanceReading) { self.reading = reading }
+
+    public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
+        let bag = SubscriptionBag()
+        let reading = self.reading
+        let task = Task { @MainActor in
+            let push: @MainActor @Sendable () -> Void = {
+                if let snapshot = reading.snapshot() {
+                    emit(.appearance(snapshot))
+                } else {
+                    emit(.unavailable(.init(kind: .failed, message: "Appearance is unavailable")))
+                }
+            }
+            push()
+            bag.add(reading.observeChanges { push() })
+        }
+        bag.add(TaskSubscription(task))
+        return bag
     }
 }

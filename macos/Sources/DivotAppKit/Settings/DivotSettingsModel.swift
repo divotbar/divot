@@ -184,6 +184,13 @@ public final class DivotSettingsModel {
         update { $0.chipStyle = enabled }
     }
 
+    /// Set the workspace chip background opacity (0–100). The bar rebuilds live
+    /// from the published snapshot and the setting survives a relaunch through
+    /// the store.
+    public func setChipOpacity(_ opacity: Int) {
+        update { $0.chipOpacity = max(0, min(opacity, 100)) }
+    }
+
     // MARK: Network
 
     /// Turn the Wi-Fi network name on or off. Turning it on from off is the one
@@ -276,6 +283,18 @@ public final class DivotSettingsModel {
     /// The public URL scheme for the Location Services privacy pane. Opening it
     /// only navigates System Settings; it changes no setting.
     public static let locationServicesURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")!
+
+    // MARK: Date and time
+
+    /// Set the time format: 24-hour, AM/PM, or custom.
+    public func setTimeFormat(_ format: TimeConfiguration.Format) {
+        update { $0.widgets.time.timeFormat = format }
+    }
+
+    /// Set the custom time pattern for Format.custom.
+    public func setCustomTimePattern(_ pattern: String) {
+        update { $0.widgets.time.customPattern = pattern.isEmpty ? nil : pattern }
+    }
 
     // MARK: Keep awake
 

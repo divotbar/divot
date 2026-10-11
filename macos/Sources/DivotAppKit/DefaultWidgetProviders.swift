@@ -15,7 +15,8 @@ public enum DefaultWidgetProviders {
 
     /// The providers enabled by `configuration`, in a stable order.
     public static func make(for configuration: DivotConfiguration,
-                            keepAwake: (any KeepAwakeObserving)? = nil) -> [any WidgetProvider] {
+                            keepAwake: (any KeepAwakeObserving)? = nil,
+                            appearance: (any AppearanceReading)? = nil) -> [any WidgetProvider] {
         var providers: [any WidgetProvider] = []
         for id in placedProviderIDs(in: configuration) {
             switch id {
@@ -23,11 +24,14 @@ public enum DefaultWidgetProviders {
                                                             keepAwake: keepAwake))
             case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
             case .date: providers.append(DateProvider())
-            case .time: providers.append(TimeProvider(seconds: configuration.widgets.time.seconds))
+            case .time: providers.append(TimeProvider(seconds: configuration.widgets.time.seconds,
+                                                      timeFormat: configuration.widgets.time.timeFormat,
+                                                      customPattern: configuration.widgets.time.customPattern))
             case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading(),
                                                            readWifiName: configuration.widgets.network.showWifiName))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
             case .frontApp: providers.append(FrontAppProvider(reading: NSWorkspaceFrontAppReading()))
+            case .appearance: providers.append(AppearanceProvider(reading: appearance ?? SystemAppearanceReading()))
             case .workspaces: break
             }
         }
@@ -38,7 +42,7 @@ public enum DefaultWidgetProviders {
     /// "disabled providers stop" rule is testable without constructing readers.
     /// The clock split into date and time (#0033); neither is the old clock.
     public static func placedProviderIDs(in configuration: DivotConfiguration) -> [BarItemID] {
-        let order: [BarItemID] = [.battery, .date, .time, .network, .volume, .frontApp]
+        let order: [BarItemID] = [.battery, .date, .time, .network, .volume, .frontApp, .appearance]
         return order.filter { configuration.isPlaced($0) }
     }
 }

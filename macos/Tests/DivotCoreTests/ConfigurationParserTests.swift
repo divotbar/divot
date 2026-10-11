@@ -62,6 +62,35 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.configuration.widgets.network.showWifiName == true)
 }
 
+@Test func timeFormatOptionsDefaultToLocaleAwareAndParseExplicitly() throws {
+    let defaults = try ConfigurationParser.parse(try exampleData("default.json"))
+    #expect(defaults.configuration.widgets.time.timeFormat == .ampm)
+
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"24-hour"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.time.timeFormat == .twentyFourHour)
+}
+
+@Test func customTimePatternOptionParsesExplicitly() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"custom","customPattern":"HH:mm:ss"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.time.timeFormat == .custom)
+    #expect(parsed.configuration.widgets.time.customPattern == "HH:mm:ss")
+}
+
+@Test func customTimePatternCanBeOmittedForNonCustomFormat() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"24-hour"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.time.timeFormat == .twentyFourHour)
+    #expect(parsed.configuration.widgets.time.customPattern == nil)
+}
+
+@Test func invalidTimeFormatIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"invalid"}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "widgets.time.timeFormat")
+}
+
 @Test func everyTopLevelExampleParsesNatively() throws {
     let directory = repoRoot().appendingPathComponent("examples")
     let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
@@ -541,6 +570,64 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     var configuration = DivotConfiguration.default
     #expect(configuration.rendersSameBar(as: .default))
     configuration.chipStyle = true
+    #expect(!configuration.rendersSameBar(as: .default))
+}
+
+@Test func chipOpacityDefaultsToZeroAndParsesExplicitly() throws {
+    // Absent keeps the current chip appearance.
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: without).configuration.chipOpacity == 0)
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipOpacity":50}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.chipOpacity == 50)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipOpacity":"50"}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(failure?.path == "chipOpacity")
+}
+
+@Test func chipOpacityValidatesRangeZeroToOneHundred() throws {
+    let tooLow = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipOpacity":-1}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: tooLow) }
+    #expect(failure?.path == "chipOpacity")
+    #expect(failure?.message.contains("0–100") ?? false)
+
+    let tooHigh = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"chipOpacity":101}"##)
+    let failureHigh = error { try ConfigurationParser.parse(jsonObject: tooHigh) }
+    #expect(failureHigh?.path == "chipOpacity")
+}
+
+@Test func chipOpacityRoundTripsThroughTheCanonicalJSON() throws {
+    var configuration = DivotConfiguration.default
+    configuration.chipOpacity = 50
+    let encoded = try JSONSerialization.data(withJSONObject: configuration.jsonObject,
+                                             options: [.sortedKeys])
+    let reparsed = try ConfigurationParser.parse(encoded)
+    #expect(reparsed.configuration == configuration)
+    #expect(reparsed.configuration.chipOpacity == 50)
+
+    // The default writes no key, so the first-launch document is identical.
+    #expect(DivotConfiguration.default.jsonObject["chipOpacity"] == nil)
+}
+
+@Test func chipOpacityClampsDuringInit() throws {
+    // Values outside 0–100 are clamped in the initializer.
+    let config1 = DivotConfiguration(chipOpacity: -10)
+    #expect(config1.chipOpacity == 0)
+
+    let config2 = DivotConfiguration(chipOpacity: 150)
+    #expect(config2.chipOpacity == 100)
+
+    let config3 = DivotConfiguration(chipOpacity: 50)
+    #expect(config3.chipOpacity == 50)
+}
+
+@Test func chipOpacityChangesMakesTheBarsRenderDifferently() {
+    // Chip opacity changes the chip drawing, so changing it must rebuild
+    // the panels; `rendersSameBar` therefore has to see the change.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.chipOpacity = 50
     #expect(!configuration.rendersSameBar(as: .default))
 }
 

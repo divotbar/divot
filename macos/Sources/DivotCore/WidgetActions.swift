@@ -16,6 +16,7 @@ public enum WidgetSettingsPane: String, Equatable, Sendable, CaseIterable {
     case network
     case sound
     case dateTime = "datetime"
+    case general
 
     /// Candidate deep link for the pane. `nil` when the URL cannot be formed.
     public var url: URL? {
@@ -33,6 +34,8 @@ public enum WidgetAction: Equatable, Sendable {
     case openSettings(WidgetSettingsPane)
     /// Toggle the keep-awake power assertion (the battery item's click).
     case toggleKeepAwake
+    /// Toggle the system appearance between light and dark (the appearance item's click).
+    case toggleAppearance
     /// Open Divot's own settings window (the optional app-icon click). Distinct
     /// from `openSettings` so it routes to Divot's window, not a System Settings
     /// pane.
@@ -67,6 +70,8 @@ public enum WidgetActions {
             return .openSettings(.sound)
         case .clock, .date, .time:
             return .openSettings(.dateTime)
+        case .appearance:
+            return .toggleAppearance
         case .workspaces:
             // Workspace activation belongs to the workspace adapter milestone.
             return .none

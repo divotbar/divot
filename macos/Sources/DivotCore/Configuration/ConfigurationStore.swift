@@ -213,6 +213,9 @@ public extension DivotConfiguration {
         // Chip style is off by default, so only the opt-in is written; the
         // first-launch document stays identical (#0030).
         if chipStyle { object["chipStyle"] = true }
+        // Chip opacity is 0 by default, so only non-default values are written
+        // (#0047).
+        if chipOpacity != 0 { object["chipOpacity"] = chipOpacity }
         return object
     }
 }
@@ -343,6 +346,8 @@ private extension TimeConfiguration {
         var object: [String: Any] = [:]
         let defaults = TimeConfiguration.default
         if seconds != defaults.seconds { object["seconds"] = seconds }
+        if timeFormat != defaults.timeFormat { object["timeFormat"] = timeFormat.rawValue }
+        if customPattern != defaults.customPattern { object["customPattern"] = customPattern }
         return object
     }
 }
