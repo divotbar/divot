@@ -210,6 +210,9 @@ public extension DivotConfiguration {
         // The shadow is off by default, so only the opt-in is written; the
         // first-launch document stays identical (#0025).
         if bottomShadow { object["bottomShadow"] = true }
+        // Chip style is off by default, so only the opt-in is written; the
+        // first-launch document stays identical (#0030).
+        if chipStyle { object["chipStyle"] = true }
         return object
     }
 }
@@ -280,8 +283,14 @@ private extension WidgetOptions {
         if !workspaces.isEmpty { object[BarItemID.workspaces.rawValue] = workspaces }
         let frontApp = frontApp.jsonObject
         if !frontApp.isEmpty { object[BarItemID.frontApp.rawValue] = frontApp }
+        let battery = battery.jsonObject
+        if !battery.isEmpty { object[BarItemID.battery.rawValue] = battery }
         let clock = clock.jsonObject
         if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
+        let network = network.jsonObject
+        if !network.isEmpty { object[BarItemID.network.rawValue] = network }
+        let volume = volume.jsonObject
+        if !volume.isEmpty { object[BarItemID.volume.rawValue] = volume }
         return object
     }
 }
@@ -309,6 +318,15 @@ private extension FrontAppConfiguration {
     }
 }
 
+private extension BatteryConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = BatteryConfiguration.default
+        if showPercentage != defaults.showPercentage { object["showPercentage"] = showPercentage }
+        return object
+    }
+}
+
 private extension ClockConfiguration {
     var jsonObject: [String: Any] {
         var object: [String: Any] = [:]
@@ -316,6 +334,25 @@ private extension ClockConfiguration {
         if weekday != defaults.weekday { object["weekday"] = weekday }
         if date != defaults.date { object["date"] = date }
         if seconds != defaults.seconds { object["seconds"] = seconds }
+        return object
+    }
+}
+
+private extension NetworkConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = NetworkConfiguration.default
+        if showWifiName != defaults.showWifiName { object["showWifiName"] = showWifiName }
+        return object
+    }
+}
+
+private extension VolumeConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = VolumeConfiguration.default
+        if showVolumePercent != defaults.showVolumePercent { object["showVolumePercent"] = showVolumePercent }
+        if showVolumeMuted != defaults.showVolumeMuted { object["showVolumeMuted"] = showVolumeMuted }
         return object
     }
 }

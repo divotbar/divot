@@ -9,8 +9,12 @@ depends_on: ["0028"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/split-the-clock-into-separate-date-and-t
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T00:39:24Z"
-updated_at: "2026-10-11T00:43:49Z"
+updated_at: "2026-10-11T12:20:13Z"
+check_retry_count: 2
+last_check_failure: "repoos check at 2026-10-11T00:55:08.295Z: repoos check failed: native-core — 􁁛 Test configureStopsRemovedProvidersAndStartsNewOnes() passed after 2.845 seconds."
 ---
 ## Problem
 
@@ -37,3 +41,7 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T00:39:24Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:49Z · status inbox→ready
 - 2026-10-11T00:43:49Z · status ready→active, branch
+- 2026-10-11T00:59:05Z · handoff failed · check failed after 2 automatic retries · repoos check failed: native-core — 􁁛  Test pipelineStartsProvidersOffTheMainThread() passed after 2.403 seconds.
+- 2026-10-11T01:04:17Z · watchdog: escalated to needs_input · check-failed-after-retries · check failed after 2 automatic retries · repoos check failed: native-core — 􁁛  Test pipelineStartsProvidersOffTheMainThread() passed after 2.403 seconds. · next step: resume the session manually from the task's worktree and check for uncommitted work
+- 2026-10-11T12:20:12Z · cli_override, model_override
+- 2026-10-11T12:20:13Z · needs_input

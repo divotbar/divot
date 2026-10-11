@@ -21,7 +21,10 @@ public struct DivotSettingsView: View {
             barItemsSection
             workspacesSection
             frontAppSection
+            batterySection
             clockSection
+            networkSection
+            volumeSection
             keepAwakeSection
             layoutSection
             textSection
@@ -53,6 +56,10 @@ public struct DivotSettingsView: View {
             Text("Draws a subtle drop shadow along the bar's bottom edge. Off by default; the bar stays a flat colour.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Toggle("Chips", isOn: chipStyleBinding)
+            Text("Draws each item in its own rounded chip. Off by default; items blend together without individual backgrounds.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -64,6 +71,11 @@ public struct DivotSettingsView: View {
     private var bottomShadowBinding: Binding<Bool> {
         Binding(get: { model.configuration.bottomShadow },
                 set: { model.setBottomShadow($0) })
+    }
+
+    private var chipStyleBinding: Binding<Bool> {
+        Binding(get: { model.configuration.chipStyle },
+                set: { model.setChipStyle($0) })
     }
 
     // MARK: Menu bar
@@ -194,11 +206,33 @@ public struct DivotSettingsView: View {
         }
     }
 
+    private var batterySection: some View {
+        Section("Battery") {
+            Toggle("Show battery percentage", isOn: binding(\.widgets.battery.showPercentage))
+        }
+    }
+
     private var clockSection: some View {
         Section("Clock") {
             Toggle("Show weekday", isOn: binding(\.widgets.clock.weekday))
             Toggle("Show date", isOn: binding(\.widgets.clock.date))
             Toggle("Show seconds", isOn: binding(\.widgets.clock.seconds))
+        }
+    }
+
+    private var networkSection: some View {
+        Section("Network") {
+            Toggle("Show Wi-Fi network name", isOn: binding(\.widgets.network.showWifiName))
+            Text("When on, the network item displays the current Wi-Fi network name beside the icon. The name appears only when connected to Wi-Fi and location permission is available.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var volumeSection: some View {
+        Section("Volume") {
+            Toggle("Show percentage", isOn: binding(\.widgets.volume.showVolumePercent))
+            Toggle("Show muted state", isOn: binding(\.widgets.volume.showVolumeMuted))
         }
     }
 

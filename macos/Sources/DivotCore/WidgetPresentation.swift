@@ -1,5 +1,16 @@
 import Foundation
 
+/// Whether the battery item shows its percentage.
+public struct BatteryFormatOptions: Equatable, Sendable {
+    public var showPercentage: Bool
+
+    public init(showPercentage: Bool = true) {
+        self.showPercentage = showPercentage
+    }
+
+    public static let `default` = BatteryFormatOptions()
+}
+
 /// Whether the frontmost-application item shows its icon and/or its name.
 public struct FrontAppFormatOptions: Equatable, Sendable {
     public var showIcon: Bool
@@ -13,19 +24,52 @@ public struct FrontAppFormatOptions: Equatable, Sendable {
     public static let `default` = FrontAppFormatOptions()
 }
 
+/// Whether the network item shows the Wi-Fi network name.
+public struct NetworkFormatOptions: Equatable, Sendable {
+    public var showWifiName: Bool
+
+    public init(showWifiName: Bool = false) {
+        self.showWifiName = showWifiName
+    }
+
+    public static let `default` = NetworkFormatOptions()
+}
+
+/// Whether the volume item shows its percentage and/or muted state.
+public struct VolumeFormatOptions: Equatable, Sendable {
+    public var showPercent: Bool
+    public var showMuted: Bool
+
+    public init(showPercent: Bool = true, showMuted: Bool = true) {
+        self.showPercent = showPercent
+        self.showMuted = showMuted
+    }
+
+    public static let `default` = VolumeFormatOptions()
+}
+
 /// Options the presenter needs beyond the snapshot itself.
 public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var frontApp: FrontAppFormatOptions
+    public var battery: BatteryFormatOptions
+    public var network: NetworkFormatOptions
+    public var volume: VolumeFormatOptions
     public var locale: Locale
     public var timeZone: TimeZone
 
     public init(clock: ClockFormatOptions = .default,
                 frontApp: FrontAppFormatOptions = .default,
+                battery: BatteryFormatOptions = .default,
+                network: NetworkFormatOptions = .default,
+                volume: VolumeFormatOptions = .default,
                 locale: Locale = .current,
                 timeZone: TimeZone = .current) {
         self.clock = clock
         self.frontApp = frontApp
+        self.battery = battery
+        self.network = network
+        self.volume = volume
         self.locale = locale
         self.timeZone = timeZone
     }
@@ -108,11 +152,11 @@ public enum WidgetPresenter {
         case .frontApp(let snapshot):
             return frontAppPresentation(snapshot, options: options.frontApp)
         case .battery(let snapshot):
-            return batteryPresentation(snapshot)
+            return batteryPresentation(snapshot, options: options.battery)
         case .network(let snapshot):
-            return networkPresentation(snapshot)
+            return networkPresentation(snapshot, options: options.network)
         case .volume(let snapshot):
-            return volumePresentation(snapshot)
+            return volumePresentation(snapshot, options: options.volume)
         case .clock(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.clock,
                                         locale: options.locale, timeZone: options.timeZone)
@@ -156,7 +200,8 @@ public enum WidgetPresenter {
                                   isError: isError)
     }
 
-    private static func batteryPresentation(_ snapshot: BatterySnapshot) -> WidgetPresentation {
+    private static func batteryPresentation(_ snapshot: BatterySnapshot,
+                                            options: BatteryFormatOptions) -> WidgetPresentation {
         let indicator = snapshot.isKeepingAwake
             ? WidgetIndicator(symbolName: "cup.and.saucer.fill",
                               role: .keepAwakeActive,
@@ -172,8 +217,9 @@ public enum WidgetPresenter {
                                       indicator: indicator)
         case .internalBattery:
             let symbol = batterySymbol(percentage: snapshot.percentage, charging: snapshot.isCharging)
-            let text = snapshot.percentage.map { "\($0)%" } ?? ""
-            var description = "Battery \(text.isEmpty ? "state unknown" : text)"
+            let text = options.showPercentage ? (snapshot.percentage.map { "\($0)%" } ?? "") : ""
+            let percentageText = snapshot.percentage.map { "\($0)%" } ?? "state unknown"
+            var description = "Battery \(percentageText)"
             if snapshot.isCharging { description += ", charging" }
             else if snapshot.isPluggedIn { description += ", plugged in" }
             else if snapshot.isFullyCharged { description += ", charged" }
@@ -196,7 +242,8 @@ public enum WidgetPresenter {
         }
     }
 
-    private static func networkPresentation(_ snapshot: NetworkSnapshot) -> WidgetPresentation {
+    private static func networkPresentation(_ snapshot: NetworkSnapshot,
+                                            options: NetworkFormatOptions) -> WidgetPresentation {
         guard snapshot.isConnected else {
             return WidgetPresentation(symbolName: "wifi.slash",
                                       text: "",
@@ -214,19 +261,32 @@ public enum WidgetPresenter {
         var description = "\(kind) connected"
         if snapshot.isExpensive { description += ", metered" }
         if snapshot.isConstrained { description += ", low data mode" }
-        return WidgetPresentation(symbolName: symbol, text: "", accessibilityLabel: description)
+
+        let text: String
+        if options.showWifiName, snapshot.kind == .wifi, let wifiName = snapshot.wifiName {
+            text = wifiName
+            description += ", Wi-Fi network: \(wifiName)"
+        } else {
+            text = ""
+        }
+
+        return WidgetPresentation(symbolName: symbol, text: text, accessibilityLabel: description)
     }
 
-    private static func volumePresentation(_ snapshot: VolumeSnapshot) -> WidgetPresentation {
+    private static func volumePresentation(_ snapshot: VolumeSnapshot,
+                                           options: VolumeFormatOptions = .default) -> WidgetPresentation {
         guard snapshot.hasOutputDevice else {
             return WidgetPresentation(symbolName: "speaker.slash.fill",
                                       text: "",
                                       accessibilityLabel: "No audio output device",
                                       isError: true)
         }
+        // When muted, the muted state takes priority over the percentage.
+        // The accessibility label always includes the full state so screen readers announce it completely.
         if snapshot.isMuted {
+            let text = options.showMuted ? "Muted" : ""
             return WidgetPresentation(symbolName: "speaker.slash.fill",
-                                      text: "Muted",
+                                      text: text,
                                       accessibilityLabel: "Volume muted")
         }
         let symbol: String
@@ -237,8 +297,9 @@ public enum WidgetPresenter {
         default: symbol = "speaker.wave.3.fill"
         }
         let percent = Int((snapshot.level * 100).rounded())
+        let text = options.showPercent ? "\(percent)%" : ""
         return WidgetPresentation(symbolName: symbol,
-                                  text: "\(percent)%",
+                                  text: text,
                                   accessibilityLabel: "Volume \(percent) percent")
     }
 

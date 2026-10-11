@@ -55,7 +55,7 @@ public enum ConfigurationParser {
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
                              optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon",
-                                        "showOccupiedDot", "showEmptyDot", "bottomShadow"], path: "root")
+                                        "showOccupiedDot", "showEmptyDot", "bottomShadow", "chipStyle"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
@@ -77,6 +77,10 @@ public enum ConfigurationParser {
         // first-launch look and only an explicit `true` turns it on (#0025).
         var bottomShadow = false
         if let raw = root["bottomShadow"] { bottomShadow = try boolean(raw, path: "bottomShadow") }
+        // Chip style is off by default, so an omitted key keeps items blended
+        // and only an explicit `true` draws them as distinct chips (#0030).
+        var chipStyle = false
+        if let raw = root["chipStyle"] { chipStyle = try boolean(raw, path: "chipStyle") }
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
@@ -89,7 +93,8 @@ public enum ConfigurationParser {
                                   showAppIcon: showAppIcon,
                                   showOccupiedDot: showOccupiedDot,
                                   showEmptyDot: showEmptyDot,
-                                  bottomShadow: bottomShadow)
+                                  bottomShadow: bottomShadow,
+                                  chipStyle: chipStyle)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {
@@ -146,10 +151,19 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.frontApp.rawValue] {
             options.frontApp = try frontAppOptions(raw, path: "widgets.front-app")
         }
+        if let raw = object[BarItemID.battery.rawValue] {
+            options.battery = try batteryOptions(raw, path: "widgets.battery")
+        }
         if let raw = object[BarItemID.clock.rawValue] {
             options.clock = try clockOptions(raw, path: "widgets.clock")
         }
-        // battery, network, and volume accept an empty object only.
+        if let raw = object[BarItemID.network.rawValue] {
+            options.network = try networkOptions(raw, path: "widgets.network")
+        }
+        if let raw = object[BarItemID.volume.rawValue] {
+            options.volume = try volumeOptions(raw, path: "widgets.volume")
+        }
+        // battery accepts an empty object only.
         for id in BarItemID.allCases where !WidgetOptions.acceptsOptions(for: id) {
             if let raw = object[id.rawValue] {
                 try shape(raw, required: [], optional: [], path: "widgets.\(id.rawValue)")
@@ -188,12 +202,34 @@ public enum ConfigurationParser {
         return configuration
     }
 
+    private static func batteryOptions(_ value: Any?, path: String) throws -> BatteryConfiguration {
+        let object = try shape(value, required: [], optional: ["showPercentage"], path: path)
+        var configuration = BatteryConfiguration.default
+        if let raw = object["showPercentage"] { configuration.showPercentage = try boolean(raw, path: "\(path).showPercentage") }
+        return configuration
+    }
+
     private static func clockOptions(_ value: Any?, path: String) throws -> ClockConfiguration {
         let object = try shape(value, required: [], optional: ["weekday", "date", "seconds"], path: path)
         var configuration = ClockConfiguration.default
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
         if let raw = object["date"] { configuration.date = try boolean(raw, path: "\(path).date") }
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        return configuration
+    }
+
+    private static func networkOptions(_ value: Any?, path: String) throws -> NetworkConfiguration {
+        let object = try shape(value, required: [], optional: ["showWifiName"], path: path)
+        var configuration = NetworkConfiguration.default
+        if let raw = object["showWifiName"] { configuration.showWifiName = try boolean(raw, path: "\(path).showWifiName") }
+        return configuration
+    }
+
+    private static func volumeOptions(_ value: Any?, path: String) throws -> VolumeConfiguration {
+        let object = try shape(value, required: [], optional: ["showVolumePercent", "showVolumeMuted"], path: path)
+        var configuration = VolumeConfiguration.default
+        if let raw = object["showVolumePercent"] { configuration.showVolumePercent = try boolean(raw, path: "\(path).showVolumePercent") }
+        if let raw = object["showVolumeMuted"] { configuration.showVolumeMuted = try boolean(raw, path: "\(path).showVolumeMuted") }
         return configuration
     }
 

@@ -201,6 +201,17 @@ public struct FrontAppConfiguration: Equatable, Sendable {
     }
 }
 
+/// `widgets.battery`.
+public struct BatteryConfiguration: Equatable, Sendable {
+    public var showPercentage: Bool
+
+    public init(showPercentage: Bool = true) {
+        self.showPercentage = showPercentage
+    }
+
+    public static let `default` = BatteryConfiguration()
+}
+
 /// `widgets.clock`.
 public struct ClockConfiguration: Equatable, Sendable {
     public var weekday: Bool
@@ -241,6 +252,37 @@ public struct AppearanceItemConfiguration: Equatable, Sendable {
     }
 
     public static let `default` = AppearanceItemConfiguration()
+}
+
+/// `widgets.network`.
+public struct NetworkConfiguration: Equatable, Sendable {
+    public var showWifiName: Bool
+
+    public init(showWifiName: Bool = false) {
+        self.showWifiName = showWifiName
+    }
+
+    public static let `default` = NetworkConfiguration()
+
+    public var formatOptions: NetworkFormatOptions {
+        NetworkFormatOptions(showWifiName: showWifiName)
+    }
+}
+
+public struct VolumeConfiguration: Equatable, Sendable {
+    public var showVolumePercent: Bool
+    public var showVolumeMuted: Bool
+
+    public init(showVolumePercent: Bool = true, showVolumeMuted: Bool = true) {
+        self.showVolumePercent = showVolumePercent
+        self.showVolumeMuted = showVolumeMuted
+    }
+
+    public static let `default` = VolumeConfiguration()
+
+    public var formatOptions: VolumeFormatOptions {
+        VolumeFormatOptions(showPercent: showVolumePercent, showMuted: showVolumeMuted)
+    }
 }
 
 /// The document-level menu-bar detection preference.
@@ -313,21 +355,31 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public static let `default` = KeepAwakeConfiguration()
 }
 
-/// Namespaced per-item options. `battery`, `network`, and `volume` accept none.
+/// Namespaced per-item options. `battery` accepts none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
+    public var battery: BatteryConfiguration
     public var clock: ClockConfiguration
+<<<<<<< HEAD
     public var appearance: AppearanceItemConfiguration
+    public var network: NetworkConfiguration
+    public var volume: VolumeConfiguration
 
     public init(workspaces: WorkspacesConfiguration = .default,
                 frontApp: FrontAppConfiguration = .default,
+                battery: BatteryConfiguration = .default,
                 clock: ClockConfiguration = .default,
-                appearance: AppearanceItemConfiguration = .default) {
+                appearance: AppearanceItemConfiguration = .default,
+                network: NetworkConfiguration = .default,
+                volume: VolumeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
+        self.battery = battery
         self.clock = clock
         self.appearance = appearance
+        self.network = network
+        self.volume = volume
     }
 
     public static let `default` = WidgetOptions()
@@ -335,8 +387,7 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .clock, .appearance: return true
-        case .battery, .network, .volume: return false
+        case .workspaces, .frontApp, .battery, .clock, .network, .volume, .appearance: return true
         }
     }
 }
@@ -383,6 +434,11 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// Root-level because it changes only the panel chrome, not any item
     /// (#0025).
     public var bottomShadow: Bool
+    /// Draw each bar item in its own rounded chip with padding and theme
+    /// background. Off by default so the first-launch bar has items blend
+    /// together; when on, each item sits in its own chip with the same padding
+    /// and theme colours (#0030).
+    public var chipStyle: Bool
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -396,7 +452,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 showAppIcon: Bool = false,
                 showOccupiedDot: Bool = true,
                 showEmptyDot: Bool = true,
-                bottomShadow: Bool = false) {
+                bottomShadow: Bool = false,
+                chipStyle: Bool = false) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -410,6 +467,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.showOccupiedDot = showOccupiedDot
         self.showEmptyDot = showEmptyDot
         self.bottomShadow = bottomShadow
+        self.chipStyle = chipStyle
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -449,16 +507,20 @@ public struct DivotConfiguration: Equatable, Sendable {
             && showOccupiedDot == other.showOccupiedDot
             && showEmptyDot == other.showEmptyDot
             && bottomShadow == other.bottomShadow
+            && chipStyle == other.chipStyle
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
-    /// Clock and front-app formatting the renderer needs beyond snapshots.
+    /// Battery, clock, front-app, network, and volume formatting the renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
-                                  frontApp: widgets.frontApp.formatOptions)
+                                  frontApp: widgets.frontApp.formatOptions,
+                                  battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),
+                                  network: widgets.network.formatOptions,
+                                  volume: widgets.volume.formatOptions)
     }
 
     /// The compact render rhythm derived from the configured layout and text.

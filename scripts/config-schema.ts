@@ -117,6 +117,10 @@ function options(id: string, value: unknown) {
       shape(value, [], ['showIcon', 'showName'], path)
       flags(value, ['showIcon', 'showName'], path)
       return
+    case 'battery':
+      shape(value, [], ['showPercentage'], path)
+      flags(value, ['showPercentage'], path)
+      return
     case 'clock':
       shape(value, [], ['weekday', 'date', 'seconds'], path)
       flags(value, ['weekday', 'date', 'seconds'], path)

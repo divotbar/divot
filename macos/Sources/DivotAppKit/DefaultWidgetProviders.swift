@@ -23,7 +23,8 @@ public enum DefaultWidgetProviders {
             case .battery: providers.append(BatteryProvider(reading: IOKitBatteryReading(),
                                                             keepAwake: keepAwake))
             case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
-            case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading()))
+            case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading(),
+                                                           readWifiName: configuration.widgets.network.showWifiName))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
             case .frontApp: providers.append(FrontAppProvider(reading: NSWorkspaceFrontAppReading()))
             case .appearance: providers.append(AppearanceProvider(reading: appearance ?? SystemAppearanceReading()))

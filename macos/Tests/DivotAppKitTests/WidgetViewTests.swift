@@ -79,3 +79,225 @@ private func expectNoTruncation(_ field: NSTextField, _ label: String) {
     #expect(field.frame.minX == 0)
     expectNoTruncation(field, "front app")
 }
+
+@MainActor
+@Test func chipStyleAddsContentPaddingToItemView() {
+    let presentation = WidgetPresentation(symbolName: "battery.25", text: "50%", accessibilityLabel: "Battery: 50%")
+
+    // Without chip style, view is compact with no padding.
+    let viewWithoutChip = BarItemView(enablesChipStyle: false)
+    viewWithoutChip.update(presentation, action: .none)
+    viewWithoutChip.frame = NSRect(origin: .zero, size: viewWithoutChip.intrinsicContentSize)
+    viewWithoutChip.layoutSubtreeIfNeeded()
+    let sizeWithoutChip = viewWithoutChip.intrinsicContentSize
+
+    // With chip style, view has padding around content.
+    let viewWithChip = BarItemView(enablesChipStyle: true)
+    viewWithChip.update(presentation, action: .none)
+    viewWithChip.frame = NSRect(origin: .zero, size: viewWithChip.intrinsicContentSize)
+    viewWithChip.layoutSubtreeIfNeeded()
+    let sizeWithChip = viewWithChip.intrinsicContentSize
+
+    // Chip style adds padding (4 points on each side = 8 points total per dimension).
+    #expect(sizeWithChip.width == sizeWithoutChip.width + 8)
+    #expect(sizeWithChip.height == sizeWithoutChip.height + 8)
+}
+
+@MainActor
+@Test func networkItemWithWifiNameShowsText() {
+    let view = BarItemView()
+    let wifiNameOptions = NetworkFormatOptions(showWifiName: true)
+    let presentation = WidgetPresenter.present(
+        id: .network,
+        state: WidgetState(id: .network, revision: 1,
+                          content: .network(NetworkSnapshot(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: WidgetPresentationOptions(network: wifiNameOptions)
+    )
+    view.update(presentation, action: .openSettings(.network))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.count == 1)
+    #expect(fields[0].stringValue == "MyNetwork")
+    expectNoTruncation(fields[0], "wifi name")
+}
+
+@MainActor
+@Test func networkItemWithoutWifiNameShowsOnlyIcon() {
+    let view = BarItemView()
+    let noWifiNameOptions = NetworkFormatOptions(showWifiName: false)
+    let presentation = WidgetPresenter.present(
+        id: .network,
+        state: WidgetState(id: .network, revision: 1,
+                          content: .network(NetworkSnapshot(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: WidgetPresentationOptions(network: noWifiNameOptions)
+    )
+    view.update(presentation, action: .openSettings(.network))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.isEmpty || fields[0].stringValue.isEmpty)
+    // Icon-only width: icon size + no spacing when no text
+    let iconOnlySize = view.intrinsicContentSize
+    #expect(iconOnlySize.width > 0)
+}
+
+@MainActor
+@Test func networkItemWithoutWifiNameDoesNotReserveSpace() {
+    let view = BarItemView()
+    let metrics = BarMetrics.default
+
+    // With wifi name shown
+    let withNameOptions = NetworkFormatOptions(showWifiName: true)
+    let withNamePresentation = WidgetPresenter.present(
+        id: .network,
+        state: WidgetState(id: .network, revision: 1,
+                          content: .network(NetworkSnapshot(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: WidgetPresentationOptions(network: withNameOptions)
+    )
+    view.update(withNamePresentation, action: .openSettings(.network))
+    let sizeWithName = view.intrinsicContentSize
+
+    // Without wifi name shown - should be narrower
+    let withoutNameOptions = NetworkFormatOptions(showWifiName: false)
+    let withoutNamePresentation = WidgetPresenter.present(
+        id: .network,
+        state: WidgetState(id: .network, revision: 1,
+                          content: .network(NetworkSnapshot(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: WidgetPresentationOptions(network: withoutNameOptions)
+    )
+    view.update(withoutNamePresentation, action: .openSettings(.network))
+    let sizeWithoutName = view.intrinsicContentSize
+
+    // Icon-only should be much narrower than icon + name + spacing
+    #expect(sizeWithoutName.width < sizeWithName.width - metrics.iconSpacing)
+}
+
+@MainActor
+@Test func networkItemWithUnavailableNameShowsOnlyIcon() {
+    let view = BarItemView()
+    let showNameOptions = NetworkFormatOptions(showWifiName: true)
+    // No wifi name available (wifiName is nil)
+    let presentation = WidgetPresenter.present(
+        id: .network,
+        state: WidgetState(id: .network, revision: 1,
+                          content: .network(NetworkSnapshot(isConnected: true, kind: .wifi, wifiName: nil))),
+        options: WidgetPresentationOptions(network: showNameOptions)
+    )
+    view.update(presentation, action: .openSettings(.network))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.isEmpty || fields[0].stringValue.isEmpty)
+    // Should be icon-only width, no reserved gap
+}
+
+@MainActor
+@Test func volumeItemWithPercentageShown() {
+    let view = BarItemView()
+    let volumeOptions = VolumeFormatOptions(showPercent: true, showMuted: false)
+    let presentation = WidgetPresenter.present(
+        id: .volume,
+        state: WidgetState(id: .volume, revision: 1,
+                          content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: false))),
+        options: WidgetPresentationOptions(volume: volumeOptions)
+    )
+    view.update(presentation, action: .openSettings(.sound))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.count == 1)
+    #expect(fields[0].stringValue == "50%")
+    expectNoTruncation(fields[0], "volume percentage")
+}
+
+@MainActor
+@Test func volumeItemWithoutPercentageShowsOnlyIcon() {
+    let view = BarItemView()
+    let volumeOptions = VolumeFormatOptions(showPercent: false, showMuted: false)
+    let presentation = WidgetPresenter.present(
+        id: .volume,
+        state: WidgetState(id: .volume, revision: 1,
+                          content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: false))),
+        options: WidgetPresentationOptions(volume: volumeOptions)
+    )
+    view.update(presentation, action: .openSettings(.sound))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.isEmpty || fields[0].stringValue.isEmpty)
+}
+
+@MainActor
+@Test func volumeItemWithoutOptionalContentDoesNotReserveSpace() {
+    let view = BarItemView()
+    let metrics = BarMetrics.default
+
+    // With percentage shown
+    let withPercentOptions = VolumeFormatOptions(showPercent: true, showMuted: false)
+    let withPercentPresentation = WidgetPresenter.present(
+        id: .volume,
+        state: WidgetState(id: .volume, revision: 1,
+                          content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: false))),
+        options: WidgetPresentationOptions(volume: withPercentOptions)
+    )
+    view.update(withPercentPresentation, action: .openSettings(.sound))
+    let sizeWithPercent = view.intrinsicContentSize
+
+    // Without percentage shown
+    let withoutPercentOptions = VolumeFormatOptions(showPercent: false, showMuted: false)
+    let withoutPercentPresentation = WidgetPresenter.present(
+        id: .volume,
+        state: WidgetState(id: .volume, revision: 1,
+                          content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: false))),
+        options: WidgetPresentationOptions(volume: withoutPercentOptions)
+    )
+    view.update(withoutPercentPresentation, action: .openSettings(.sound))
+    let sizeWithoutPercent = view.intrinsicContentSize
+
+    // Icon-only should be much narrower
+    #expect(sizeWithoutPercent.width < sizeWithPercent.width - metrics.iconSpacing)
+}
+
+@MainActor
+@Test func volumeItemMutedWithLabelShown() {
+    let view = BarItemView()
+    let volumeOptions = VolumeFormatOptions(showPercent: false, showMuted: true)
+    let presentation = WidgetPresenter.present(
+        id: .volume,
+        state: WidgetState(id: .volume, revision: 1,
+                          content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: true))),
+        options: WidgetPresentationOptions(volume: volumeOptions)
+    )
+    view.update(presentation, action: .openSettings(.sound))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.count == 1)
+    #expect(fields[0].stringValue == "Muted")
+    expectNoTruncation(fields[0], "volume muted")
+}
+
+@MainActor
+@Test func volumeItemMutedWithoutLabelShowsOnlyIcon() {
+    let view = BarItemView()
+    let volumeOptions = VolumeFormatOptions(showPercent: false, showMuted: false)
+    let presentation = WidgetPresenter.present(
+        id: .volume,
+        state: WidgetState(id: .volume, revision: 1,
+                          content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: true))),
+        options: WidgetPresentationOptions(volume: volumeOptions)
+    )
+    view.update(presentation, action: .openSettings(.sound))
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: view)
+    #expect(fields.isEmpty || fields[0].stringValue.isEmpty)
+}

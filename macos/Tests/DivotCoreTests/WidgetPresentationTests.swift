@@ -57,6 +57,31 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(!off.accessibilityLabel.contains("keep awake"))
 }
 
+@Test func batteryPercentageIsShownByDefault() {
+    let snapshot = BatterySnapshot(presence: .internalBattery, percentage: 75)
+    let presentation = WidgetPresenter.present(
+        id: .battery,
+        state: state(.battery, .battery(snapshot)),
+        options: options)
+    #expect(presentation.text == "75%")
+}
+
+@Test func batteryPercentageHidesWhenOptionIsDisabled() {
+    let snapshot = BatterySnapshot(presence: .internalBattery, percentage: 75)
+    let hiddenOptions = WidgetPresentationOptions(
+        clock: ClockFormatOptions(),
+        battery: BatteryFormatOptions(showPercentage: false),
+        locale: posix,
+        timeZone: utc)
+    let presentation = WidgetPresenter.present(
+        id: .battery,
+        state: state(.battery, .battery(snapshot)),
+        options: hiddenOptions)
+    #expect(presentation.text.isEmpty)
+    #expect(presentation.symbolName == "battery.75")
+    #expect(presentation.accessibilityLabel.contains("Battery 75%"))
+}
+
 @Test func networkPresentationReflectsTransportAndConnection() {
     let wifi = WidgetPresenter.present(id: .network,
                                        state: state(.network, .network(.init(isConnected: true, kind: .wifi))),
@@ -74,6 +99,52 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
                                           state: state(.network, .network(.init(isConnected: true, kind: .wifi, isExpensive: true))),
                                           options: options)
     #expect(metered.accessibilityLabel.contains("metered"))
+}
+
+@Test func networkPresentationShowsWifiNameWhenEnabled() {
+    let optionsOff = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                               network: NetworkFormatOptions(showWifiName: false),
+                                               locale: posix, timeZone: utc)
+    let hiddenName = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: optionsOff)
+    #expect(hiddenName.text.isEmpty)
+    #expect(!hiddenName.accessibilityLabel.contains("MyNetwork"))
+
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let shownName = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: optionsOn)
+    #expect(shownName.text == "MyNetwork")
+    #expect(shownName.accessibilityLabel.contains("Wi-Fi network: MyNetwork"))
+}
+
+@Test func networkPresentationWithoutNameShowsOnlyIcon() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let noName = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi))),
+        options: optionsOn)
+    #expect(noName.text.isEmpty)
+    #expect(noName.symbolName == "wifi")
+}
+
+@Test func networkPresentationIgnoresWifiNameOnNonWifiNetworks() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let ethernet = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .ethernet, wifiName: "MyNetwork"))),
+        options: optionsOn)
+    #expect(ethernet.text.isEmpty)
+    #expect(ethernet.symbolName == "cable.connector")
 }
 
 @Test func volumePresentationCoversMuteAndNoOutput() {
@@ -94,6 +165,56 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
                                        options: options)
     #expect(none.isError)
     #expect(none.accessibilityLabel.contains("No audio output"))
+}
+
+@Test func volumeOptionsControlPercentageAndMutedLabelIndependently() {
+    let snapshot = VolumeSnapshot(hasOutputDevice: true, level: 0.5)
+
+    // Both enabled (default)
+    let both = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(snapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: true)))
+    #expect(both.text == "50%")
+
+    // Percentage disabled
+    let noPercent = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(snapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: false, showMuted: true)))
+    #expect(noPercent.text == "")
+
+    // Muted disabled (but volume is not muted)
+    let noMutedLabel = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(snapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: false)))
+    #expect(noMutedLabel.text == "50%")
+}
+
+@Test func volumeOptionsHideMutedStateWhenDisabled() {
+    let mutedSnapshot = VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: true)
+
+    // Muted label enabled (default)
+    let showMuted = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(mutedSnapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: true)))
+    #expect(showMuted.text == "Muted")
+
+    // Muted label disabled
+    let hideMuted = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(mutedSnapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: false, showMuted: false)))
+    #expect(hideMuted.text == "")
+
+    // Show percentage but muted - still shows percentage when muted
+    let muteShowPercent = WidgetPresenter.present(
+        id: .volume,
+        state: state(.volume, .volume(mutedSnapshot)),
+        options: WidgetPresentationOptions(volume: VolumeFormatOptions(showPercent: true, showMuted: false)))
+    #expect(muteShowPercent.text == "")
 }
 
 @Test func clockPresentationUsesTheConfiguredLocaleAndZone() {
