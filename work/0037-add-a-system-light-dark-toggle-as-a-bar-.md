@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-11T14:03:47Z"
-review_passes: 9
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -15,8 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-check_retry_count: 2
-last_check_failure: "repoos check at 2026-10-11T14:03:18.530Z: repoos check failed: native-core — 􁁛 Test frontAppProviderEmitsOnMainAndOnChange() passed after 2.231 seconds."
+updated_at: "2026-10-11T12:44:29Z"
+review_passes: 6
 review_rounds: 2
 handoff_signal_retry_count: 1
 ---
@@ -94,23 +89,3 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T12:42:35Z · status review→active
 - 2026-10-11T12:42:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-11T12:44:29Z · status active→review
-- 2026-10-11T12:44:29Z · note: shots: skipped — the diff (17 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T12:45:13Z · note: review pass 7: needs some work
-- 2026-10-11T12:45:14Z · needs_input
-- 2026-10-11T13:08:53Z · body: section Acceptance criteria
-- 2026-10-11T13:08:54Z · body: section Notes for AI
-- 2026-10-11T13:08:54Z · needs_input
-- 2026-10-11T13:08:54Z · status review→active
-- 2026-10-11T13:08:54Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T13:13:17Z · status active→review
-- 2026-10-11T13:13:17Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T13:14:15Z · note: review pass 8: needs some work
-- 2026-10-11T13:14:15Z · needs_input
-- 2026-10-11T13:58:25Z · needs_input
-- 2026-10-11T13:58:25Z · status review→active
-- 2026-10-11T13:58:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T14:02:50Z · status active→review
-- 2026-10-11T14:02:50Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T14:03:47Z · note: review pass 9: needs some work
-- 2026-10-11T14:03:47Z · needs_input
-

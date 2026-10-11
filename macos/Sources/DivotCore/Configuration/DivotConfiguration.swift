@@ -382,7 +382,7 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public static let `default` = KeepAwakeConfiguration()
 }
 
-/// Namespaced per-item options. `battery` accepts none.
+/// Namespaced per-item options. `battery`, `appearance`, and items without options accept none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
@@ -417,6 +417,7 @@ public struct WidgetOptions: Equatable, Sendable {
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
         case .workspaces, .frontApp, .battery, .clock, .date, .time, .network, .volume: return true
+        case .appearance: return false
         }
     }
 }
