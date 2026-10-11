@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/ask-for-location-permission-when-the-wi-
 created_at: "2026-10-11T11:54:34Z"
-updated_at: "2026-10-11T12:21:43Z"
+updated_at: "2026-10-11T12:21:59Z"
 review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-11T12:08:42.383Z: repoos check failed: native-core — 􁁛 Test configureStopsRemovedProvidersAndStartsNewOnes() passed after 2.170 seconds."
