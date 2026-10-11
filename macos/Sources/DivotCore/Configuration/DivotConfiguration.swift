@@ -396,8 +396,8 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .clock, .network, .volume: return true
-        case .battery, .date, .time, .appearance: return false
+        case .workspaces, .frontApp, .clock, .date, .time, .network, .volume: return true
+        case .battery, .appearance: return false
         }
     }
 }
