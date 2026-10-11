@@ -1,0 +1,38 @@
+---
+id: "0034"
+title: Let the user choose the date format in Settings
+type: feature
+status: inbox
+priority: p2
+area: macos
+depends_on: ["0028", "0033"]
+assigned_to: ""
+created_by: njachowski@gmail.com
+branch: ""
+created_at: "2026-10-11T00:39:28Z"
+updated_at: "2026-10-11T00:39:28Z"
+---
+## Problem
+
+The date uses a fixed format. The maintainer wants to choose it.
+
+## Desired UX
+
+- Settings has a date format field with a short list of presets (for example "Sat, 10 Oct" and "10/10/2026") and a custom pattern option.
+- An invalid custom pattern falls back to the default with a visible note, not a crash.
+- The format applies live and persists through the configuration store.
+
+## Acceptance criteria
+
+- Add a `dateFormat` configuration key with the default preset, persisted through the configuration store, with a settings control.
+- Validate custom patterns; fall back to the default on error.
+- Tests cover the presets, a valid custom pattern, and an invalid one.
+- `repoos check` passes.
+
+## Notes for AI
+
+Depends on #0033, the date/time split, which must land first.
+
+## Activity
+
+- 2026-10-11T00:39:28Z · created · njachowski@gmail.com
