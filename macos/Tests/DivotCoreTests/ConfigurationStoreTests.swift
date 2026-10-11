@@ -444,6 +444,64 @@ private func write(_ json: String, to url: URL) throws {
     #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
 }
 
+@Test func dateFormatPresetRoundTrips() throws {
+    let tempDir = try makeTempDirectory()
+    let url = tempDir.appendingPathComponent("config.json")
+    var configuration = DivotConfiguration()
+    configuration.left = [.date]
+    configuration.widgets.date.format = .preset(.numericShortDate)
+
+    let store = ConfigurationStore(configURL: url, fileManager: .default)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url, fileManager: .default)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.date.format == .preset(.numericShortDate))
+
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    let dateWidget = widgets?["date"] as? [String: Any]
+    #expect(dateWidget?["format"] as? String == "10/10/yyyy")
+}
+
+@Test func dateFormatCustomRoundTrips() throws {
+    let tempDir = try makeTempDirectory()
+    let url = tempDir.appendingPathComponent("config.json")
+    var configuration = DivotConfiguration()
+    configuration.left = [.date]
+    configuration.widgets.date.format = .custom("dd MMM yyyy")
+
+    let store = ConfigurationStore(configURL: url, fileManager: .default)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url, fileManager: .default)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.date.format == .custom("dd MMM yyyy"))
+
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    let dateWidget = widgets?["date"] as? [String: Any]
+    #expect(dateWidget?["format"] as? String == "dd MMM yyyy")
+}
+
+@Test func invalidDateFormatPatternFallsBackToDefaultOnSave() throws {
+    let tempDir = try makeTempDirectory()
+    let url = tempDir.appendingPathComponent("config.json")
+    var configuration = DivotConfiguration()
+    configuration.left = [.date]
+    configuration.widgets.date.format = .custom("invalid pattern")
+
+    let store = ConfigurationStore(configURL: url, fileManager: .default)
+    try store.save(configuration)
+
+    // Invalid pattern should be sanitized to default
+    #expect(store.current.widgets.date.format == .default)
+
+    let reloaded = ConfigurationStore(configURL: url, fileManager: .default)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.date.format == .default)
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])

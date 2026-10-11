@@ -112,10 +112,14 @@ public enum ClockText {
     }
 
     /// Validate a custom date format pattern.
-    /// Returns `true` if the pattern is valid, `false` otherwise.
+    /// Returns `true` if the pattern is valid and produces non-empty output, `false` otherwise.
     public static func isValidPattern(_ pattern: String) -> Bool {
+        guard !pattern.isEmpty else { return false }
         let formatter = DateFormatter()
         formatter.dateFormat = pattern
-        return formatter.string(from: Date()) != ""
+        // Check if the pattern is not empty and produces a formatted date
+        let testDate = Date(timeIntervalSince1970: 0) // 1970-01-01
+        let formatted = formatter.string(from: testDate)
+        return !formatted.isEmpty && formatted != pattern
     }
 }

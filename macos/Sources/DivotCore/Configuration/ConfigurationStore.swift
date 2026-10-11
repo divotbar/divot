@@ -137,9 +137,16 @@ public final class ConfigurationStore: @unchecked Sendable {
     public func save(_ configuration: DivotConfiguration) throws {
         lock.lock()
         defer { lock.unlock() }
-        try validate(configuration)
-        try write(configuration)
-        current = configuration
+        var sanitized = configuration
+        // Sanitize invalid custom date format patterns by falling back to default
+        if case .custom(let pattern) = sanitized.widgets.date.format {
+            if !ClockText.isValidPattern(pattern) {
+                sanitized.widgets.date.format = .default
+            }
+        }
+        try validate(sanitized)
+        try write(sanitized)
+        current = sanitized
         lastOutcome = .loaded
     }
 
@@ -334,6 +341,14 @@ private extension DateConfiguration {
         var object: [String: Any] = [:]
         let defaults = DateConfiguration.default
         if weekday != defaults.weekday { object["weekday"] = weekday }
+        if format != defaults.format {
+            switch format {
+            case .preset(let preset):
+                object["format"] = preset.rawValue
+            case .custom(let pattern):
+                object["format"] = pattern
+            }
+        }
         return object
     }
 }
