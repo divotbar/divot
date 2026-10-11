@@ -2,7 +2,7 @@
 id: "0030"
 title: "Optional chips style for bar items, enabled in Settings"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T00:39:23Z"
-updated_at: "2026-10-11T00:39:23Z"
+updated_at: "2026-10-11T00:43:50Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Depends on #0028 so the notch-side geometry is settled first. Keep changes to it
 ## Activity
 
 - 2026-10-11T00:39:23Z · created · njachowski@gmail.com
+- 2026-10-11T00:43:50Z · status inbox→ready
