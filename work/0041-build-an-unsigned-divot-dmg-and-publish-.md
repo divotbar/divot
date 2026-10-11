@@ -88,3 +88,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T14:40:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-11T14:40:51Z · agent exited with an error (pi) · No session found matching 'repoos-0041-engineer'
 - 2026-10-11T14:40:51Z · status active→review
+- 2026-10-11T14:40:51Z · note: handoff requested (cli)
