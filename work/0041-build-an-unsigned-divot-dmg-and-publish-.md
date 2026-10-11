@@ -62,3 +62,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T13:58:24Z · status review→active
 - 2026-10-11T13:58:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-11T14:00:45Z · status active→review
+- 2026-10-11T14:00:45Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
