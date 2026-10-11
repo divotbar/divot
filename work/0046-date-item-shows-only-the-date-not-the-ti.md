@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-11T14:06:11Z"
-review_passes: 2
+last_close_out_gate_ms: 50927
+last_close_out_gate_at: "2026-10-11T14:08:37.552Z"
 id: "0046"
 title: "Date item shows only the date, not the time"
 type: bug
@@ -11,6 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-item-shows-only-the-date-not-the-ti
 created_at: "2026-10-11T13:26:29Z"
+updated_at: "2026-10-11T14:08:37Z"
+review_passes: 2
 review_rounds: 1
 ---
 ## Problem
@@ -44,4 +46,5 @@ The format options (weekday, year, presets) are in #0034. Keep this change to th
 - 2026-10-11T14:05:42Z · status active→review
 - 2026-10-11T14:05:42Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:06:11Z · note: review pass 2: good to go
+- 2026-10-11T14:08:37Z · close-out gate completed in 51s
 
