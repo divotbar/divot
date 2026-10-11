@@ -52,6 +52,7 @@ public struct VolumeFormatOptions: Equatable, Sendable {
 public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var date: ClockFormatOptions
+    public var dateFormatPattern: String?
     public var time: ClockFormatOptions
     public var frontApp: FrontAppFormatOptions
     public var battery: BatteryFormatOptions
@@ -62,6 +63,7 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
 
     public init(clock: ClockFormatOptions = .default,
                 date: ClockFormatOptions = ClockFormatOptions(weekday: true, date: true, seconds: false),
+                dateFormatPattern: String? = nil,
                 time: ClockFormatOptions = ClockFormatOptions(weekday: false, date: false, seconds: false),
                 frontApp: FrontAppFormatOptions = .default,
                 battery: BatteryFormatOptions = .default,
@@ -71,6 +73,7 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
                 timeZone: TimeZone = .current) {
         self.clock = clock
         self.date = date
+        self.dateFormatPattern = dateFormatPattern
         self.time = time
         self.frontApp = frontApp
         self.battery = battery
@@ -169,6 +172,7 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .date(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.date,
+                                        customPattern: options.dateFormatPattern,
                                         locale: options.locale, timeZone: options.timeZone)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .time(let snapshot):

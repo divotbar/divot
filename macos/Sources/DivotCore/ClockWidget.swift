@@ -75,6 +75,32 @@ public enum ClockText {
         return formatter.string(from: snapshot.date)
     }
 
+    /// Format a date snapshot with an optional custom pattern.
+    /// If the pattern is invalid, falls back to the default template.
+    public static func string(for snapshot: ClockSnapshot,
+                              options: ClockFormatOptions = .default,
+                              customPattern: String? = nil,
+                              locale: Locale = .current,
+                              timeZone: TimeZone = .current) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.timeZone = timeZone
+
+        if let pattern = customPattern {
+            // Try to use the custom pattern
+            formatter.dateFormat = pattern
+            // Validate by attempting to format a test date
+            if formatter.string(from: Date()) != "" {
+                return formatter.string(from: snapshot.date)
+            }
+        }
+
+        // Fall back to the default template
+        formatter.dateFormat = nil
+        formatter.setLocalizedDateFormatFromTemplate(template(options))
+        return formatter.string(from: snapshot.date)
+    }
+
     /// The unlocalized template handed to `setLocalizedDateFormatFromTemplate`.
     /// Exposed so tests can assert component selection independent of locale.
     static func template(_ options: ClockFormatOptions) -> String {
@@ -83,5 +109,13 @@ public enum ClockText {
         if options.date { fields.append("MMMd") }
         fields.append(options.seconds ? "jmms" : "jmm")
         return fields.joined(separator: " ")
+    }
+
+    /// Validate a custom date format pattern.
+    /// Returns `true` if the pattern is valid, `false` otherwise.
+    public static func isValidPattern(_ pattern: String) -> Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        return formatter.string(from: Date()) != ""
     }
 }

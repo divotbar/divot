@@ -277,6 +277,13 @@ public final class DivotSettingsModel {
     /// only navigates System Settings; it changes no setting.
     public static let locationServicesURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")!
 
+    // MARK: Date format
+
+    /// Set the date format using a preset or custom pattern.
+    public func setDateFormat(_ format: DateConfiguration.Format) {
+        update { $0.widgets.date.format = format }
+    }
+
     // MARK: Keep awake
 
     /// Turn the "remember across launches" policy on or off. Enabling captures

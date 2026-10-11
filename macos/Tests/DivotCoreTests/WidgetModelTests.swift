@@ -219,3 +219,45 @@ import Testing
         #expect(url.scheme == "x-apple.systempreferences")
     }
 }
+
+// MARK: - Date format
+
+@Test func dateFormatPresetsHaveValidPatterns() {
+    for preset in DateFormatPreset.allCases {
+        #expect(ClockText.isValidPattern(preset.pattern), "Preset \(preset.rawValue) has invalid pattern: \(preset.pattern)")
+    }
+}
+
+@Test func validCustomDatePatternIsAccepted() {
+    #expect(ClockText.isValidPattern("MM/dd/yyyy"))
+    #expect(ClockText.isValidPattern("dd MMM yyyy"))
+    #expect(ClockText.isValidPattern("EEEE, MMMM d, yyyy"))
+}
+
+@Test func invalidCustomDatePatternIsRejected() {
+    #expect(!ClockText.isValidPattern(""))
+    #expect(!ClockText.isValidPattern("not a pattern"))
+}
+
+@Test func customDatePatternFormatsCorrectly() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: true, date: true, seconds: false),
+                                customPattern: "MM/dd/yyyy",
+                                locale: Locale(identifier: "en_US_POSIX"),
+                                timeZone: TimeZone(identifier: "UTC")!)
+    #expect(text == "09/13/2020")
+}
+
+@Test func invalidCustomDatePatternFallsBackToDefault() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: true, date: true, seconds: false),
+                                customPattern: "invalid pattern",
+                                locale: Locale(identifier: "en_US_POSIX"),
+                                timeZone: TimeZone(identifier: "UTC")!)
+    // Should fall back to default template which includes weekday, date, and time
+    #expect(text.contains("Sun"))
+    #expect(text.contains("Sep"))
+    #expect(text.contains("13"))
+}

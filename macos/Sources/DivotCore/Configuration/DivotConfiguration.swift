@@ -233,16 +233,51 @@ public struct ClockConfiguration: Equatable, Sendable {
 
 /// `widgets.date`.
 public struct DateConfiguration: Equatable, Sendable {
-    public var weekday: Bool
+    public enum Format: Equatable, Sendable, Hashable {
+        case preset(DateFormatPreset)
+        case custom(String)
 
-    public init(weekday: Bool = true) {
+        public static let `default` = Format.preset(.satOctTen)
+    }
+
+    public var weekday: Bool
+    public var format: Format
+
+    public init(weekday: Bool = true, format: Format = .default) {
         self.weekday = weekday
+        self.format = format
     }
 
     public static let `default` = DateConfiguration()
 
     public var formatOptions: ClockFormatOptions {
         ClockFormatOptions(weekday: weekday, date: true, seconds: false)
+    }
+}
+
+/// Preset date formats for the date widget.
+public enum DateFormatPreset: String, CaseIterable, Equatable, Sendable {
+    /// Example: "Sat, 10 Oct"
+    case satOctTen = "sat-oct-ten"
+    /// Example: "10/10/2026"
+    case numericShortDate = "10/10/yyyy"
+    /// Example: "Saturday, October 10, 2026"
+    case fullDate = "EEEE, MMMM d, yyyy"
+
+    public var displayName: String {
+        switch self {
+        case .satOctTen: return "Sat, 10 Oct"
+        case .numericShortDate: return "10/10/2026"
+        case .fullDate: return "Saturday, October 10, 2026"
+        }
+    }
+
+    public var pattern: String {
+        switch self {
+        case .satOctTen: return "EEE, d MMM"
+        case .numericShortDate: return "MM/dd/yyyy"
+        case .fullDate: return "EEEE, MMMM d, yyyy"
+        }
     }
 }
 
@@ -526,8 +561,17 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// Clock, date, time, battery, network, volume, and front-app formatting the
     /// renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
-        WidgetPresentationOptions(clock: widgets.clock.formatOptions,
+        let dateFormatPattern: String? = {
+            switch widgets.date.format {
+            case .preset(let preset):
+                return preset.pattern
+            case .custom(let pattern):
+                return pattern
+            }
+        }()
+        return WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   date: widgets.date.formatOptions,
+                                  dateFormatPattern: dateFormatPattern,
                                   time: widgets.time.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions,
                                   battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),

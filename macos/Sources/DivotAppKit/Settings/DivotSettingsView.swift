@@ -217,8 +217,58 @@ public struct DivotSettingsView: View {
     private var dateTimeSection: some View {
         Section("Date and time") {
             Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
+            Picker("Date format", selection: dateFormatBinding) {
+                ForEach(DateFormatPreset.allCases, id: \.self) { preset in
+                    Text(preset.displayName).tag(DateConfiguration.Format.preset(preset))
+                }
+                Divider()
+                Text("Custom pattern...").tag(dateFormatBinding.wrappedValue)
+            }
+            if case .custom(let pattern) = model.configuration.widgets.date.format {
+                TextField("Custom pattern (e.g., MM/dd/yyyy)", text: customPatternBinding)
+                    .textFieldStyle(.roundedBorder)
+                if !ClockText.isValidPattern(pattern) {
+                    Text("Invalid pattern. Falling back to default.")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                } else {
+                    Text("Example: \(formatDateExample(pattern))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
             Toggle("Show seconds in the time", isOn: binding(\.widgets.time.seconds))
         }
+    }
+
+    private var dateFormatBinding: Binding<DateConfiguration.Format> {
+        Binding(
+            get: { model.configuration.widgets.date.format },
+            set: { model.setDateFormat($0) }
+        )
+    }
+
+    private var customPatternBinding: Binding<String> {
+        Binding(
+            get: {
+                if case .custom(let pattern) = model.configuration.widgets.date.format {
+                    return pattern
+                }
+                return ""
+            },
+            set: { pattern in
+                if !pattern.isEmpty {
+                    model.setDateFormat(.custom(pattern))
+                }
+            }
+        )
+    }
+
+    private func formatDateExample(_ pattern: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        let date = Date() // Current date
+        return formatter.string(from: date)
     }
 
     private var networkSection: some View {
