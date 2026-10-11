@@ -2,7 +2,7 @@
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -85,3 +85,5 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T12:25:55Z · note: review pass 6: needs some work
 - 2026-10-11T12:25:55Z · needs_input
 - 2026-10-11T12:42:35Z · needs_input
+- 2026-10-11T12:42:35Z · status review→active
+- 2026-10-11T12:42:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
