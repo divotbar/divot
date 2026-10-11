@@ -39,3 +39,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:08:13Z · status inbox→ready
 - 2026-10-11T13:08:13Z · status ready→active, branch
 - 2026-10-11T13:14:33Z · status active→review
+- 2026-10-11T13:14:33Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
