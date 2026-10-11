@@ -99,16 +99,25 @@ public struct DateProvider: WidgetProvider {
 public struct TimeProvider: WidgetProvider {
     public let id = BarItemID.time
     private let seconds: Bool
+    private let timeFormat: TimeConfiguration.Format
+    private let customPattern: String?
     private let source: any ClockSource
 
-    public init(seconds: Bool = false, source: any ClockSource = SystemClockSource()) {
+    public init(seconds: Bool = false,
+                timeFormat: TimeConfiguration.Format = .twentyFourHour,
+                customPattern: String? = nil,
+                source: any ClockSource = SystemClockSource()) {
         self.seconds = seconds
+        self.timeFormat = timeFormat
+        self.customPattern = customPattern
         self.source = source
     }
 
-    /// The time's only configuration is its resolution, so a changed `seconds`
-    /// option must restart the provider rather than keep the old minute ticker.
-    public var activationKey: String { "time(seconds: \(seconds))" }
+    /// The time's configuration is its resolution and format, so changes must restart
+    /// the provider rather than keep the old ticker.
+    public var activationKey: String {
+        "time(seconds: \(seconds), format: \(timeFormat.rawValue), custom: \(customPattern ?? ""))"
+    }
 
     public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
         let source = self.source

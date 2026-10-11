@@ -279,9 +279,18 @@ public enum ConfigurationParser {
     }
 
     private static func timeOptions(_ value: Any?, path: String) throws -> TimeConfiguration {
-        let object = try shape(value, required: [], optional: ["seconds"], path: path)
+        let object = try shape(value, required: [], optional: ["seconds", "timeFormat", "customPattern"], path: path)
         var configuration = TimeConfiguration.default
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        if let raw = object["timeFormat"] {
+            configuration.timeFormat = try enumValue(raw, TimeConfiguration.Format.self, path: "\(path).timeFormat")
+        }
+        if let raw = object["customPattern"] {
+            guard let string = raw as? String else {
+                throw ConfigurationError(path: "\(path).customPattern", message: "expected string")
+            }
+            configuration.customPattern = string.isEmpty ? nil : string
+        }
         return configuration
     }
 
