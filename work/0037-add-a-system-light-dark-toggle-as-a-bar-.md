@@ -2,7 +2,7 @@
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T04:40:13Z"
+updated_at: "2026-10-11T04:44:38Z"
 ---
 ## Problem
 
@@ -41,3 +41,4 @@ Depends on #0028. Keep the appearance read and write behind a small provider so 
 - 2026-10-11T00:43:57Z · status ready→active, branch
 - 2026-10-11T00:59:33Z · status active→review
 - 2026-10-11T04:40:13Z · status review→active
+- 2026-10-11T04:44:38Z · status active→review
