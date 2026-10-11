@@ -1,12 +1,23 @@
 import { defineConfig } from 'vitepress'
 
+const baseUrl = 'https://divotbar.app/'
+
 export default defineConfig({
   title: 'Divot',
   description: 'A quieter edge for your Mac. An open-source native macOS bar, designed around the notch.',
   base: '/',
   cleanUrls: true,
   appearance: 'dark',
-  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/mark.svg' }], ['link', { rel: 'canonical', href: 'https://divotbar.app/' }], ['meta', { name: 'theme-color', content: '#183d43' }]],
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/mark.svg' }], ['meta', { name: 'theme-color', content: '#183d43' }]],
+  sitemap: {
+    hostname: baseUrl.slice(0, -1)
+  },
+  transformHead({ pageData }) {
+    const canonicalUrl = baseUrl.slice(0, -1) + pageData.relativePath.replace(/README\.md$/, '').replace(/\.md$/, '')
+    return [
+      ['link', { rel: 'canonical', href: canonicalUrl }]
+    ]
+  },
   themeConfig: {
     logo: '/mark.svg',
     nav: [{ text: 'Guide', link: '/guide/getting-started' }, { text: 'Customize', link: '/guide/customization' }, { text: 'Contribute', link: '/contributing/' }],

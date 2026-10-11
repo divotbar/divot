@@ -12,7 +12,7 @@
 | `work/` | RepoOS task records; CLI/API writes only |
 | `.github/workflows/` | CI templates, active when hosted on GitHub |
 
-MIT licensed. The hosting repository URL, bundle identifier, Apple developer team, signing credentials, and public domain are not provisioned. Do not invent them or silently use a contributor's identity.
+MIT licensed. Public domain: https://divotbar.app. The hosting repository URL, bundle identifier, and Apple developer team are not provisioned. Do not invent them or silently use a contributor's identity.
 
 ## Toolchain
 
@@ -69,8 +69,8 @@ The site builds to `site/.vitepress/dist/` and deploys to Cloudflare Pages at ht
 ### Configuration
 
 - VitePress `base` is set to `/` (root domain, no subpath)
-- Canonical URLs are set to `https://divotbar.app` in the HTML head
-- Sitemap generation and social share images use the canonical domain
+- Per-page canonical URLs are generated to `https://divotbar.app` in the HTML head via `transformHead`
+- Sitemap hostname is set to `https://divotbar.app` for absolute URLs in `sitemap.xml`
 
 ## Native distribution (planned)
 
