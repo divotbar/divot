@@ -2,7 +2,7 @@
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028", "0033"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
-updated_at: "2026-10-11T13:08:13Z"
+updated_at: "2026-10-11T13:14:33Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T00:39:28Z · created · njachowski@gmail.com
 - 2026-10-11T13:08:13Z · status inbox→ready
 - 2026-10-11T13:08:13Z · status ready→active, branch
+- 2026-10-11T13:14:33Z · status active→review
