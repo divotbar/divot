@@ -27,6 +27,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the keep-awake power assertion for the whole app lifetime; the
     /// battery item toggles it and quit releases it.
     private var keepAwake: KeepAwakeController?
+    /// Reads and toggles the app appearance; reused across all clicks so only
+    /// one subscription is held.
+    private var appearanceReading: SystemAppearanceReading?
     /// The one quit path. Both the status item menu and the app's main menu
     /// target it, and the Settings window reaches it through the same instance,
     /// so every quit control ends the process the same way. The keep-awake
@@ -50,6 +53,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         let keepAwake = KeepAwakeController(creator: IOKitPowerAssertionCreator())
         self.keepAwake = keepAwake
 
+        let appearanceReading = SystemAppearanceReading()
+        self.appearanceReading = appearanceReading
+
         // The workspace feed exists before the surfaces so each display's left
         // panel can subscribe to it as it is created.
         let workspaceFeed = WorkspaceFeed()
@@ -68,9 +74,10 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             configuration: configuration,
                                             workspaceFeed: workspaceFeed,
                                             workspaceIcons: icons,
-                                            displayScreensID: screensID) { action in
+                                            displayScreensID: screensID,
+                                            onWidgetAction: { action in
                 self?.perform(action)
-            }
+            })
             // A family/appearance change can change icon rendering; drop the
             // appearance-dependent icon cache.
             surface.onThemeChanged = { [weak icons] in icons?.invalidate() }
@@ -141,7 +148,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         workspaceIcons?.invalidate()
         syncKeepAwake(configuration)
         let pipeline = self.pipeline
-        let providers = DefaultWidgetProviders.make(for: configuration, keepAwake: keepAwake)
+        let providers = DefaultWidgetProviders.make(for: configuration, keepAwake: keepAwake, appearance: appearanceReading)
         Task { await pipeline?.configure(providers) }
         applyWorkspaceRow(configuration)
     }
@@ -178,6 +185,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         keepAwake.setActive(newValue)
         guard configurationController?.configuration.keepAwake.remember == true else { return }
         configurationController?.update { $0.keepAwake.isActive = newValue }
+    }
+
+    /// The appearance item's click. Toggles based on the configured scope setting.
+    private func toggleAppearance() {
+        appearanceReading?.toggleAppearance()
     }
 
     /// Start, reconfigure, or stop the workspace row. When the item is not placed
@@ -327,6 +339,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                 .first?.activate()
         case .toggleKeepAwake:
             toggleKeepAwake()
+        case .toggleAppearance:
+            toggleAppearance()
         case .openDivotSettings:
             // The optional bar icon reuses the existing settings-window opener
             // (the same path as the menu and menu-bar items), never a new one.
@@ -335,4 +349,5 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             break
         }
     }
+
 }

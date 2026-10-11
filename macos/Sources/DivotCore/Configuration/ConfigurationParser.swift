@@ -205,7 +205,7 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.volume.rawValue] {
             options.volume = try volumeOptions(raw, path: "widgets.volume")
         }
-        // battery accepts an empty object only.
+        // Items without options accept an empty object only.
         for id in BarItemID.allCases where !WidgetOptions.acceptsOptions(for: id) {
             if let raw = object[id.rawValue] {
                 try shape(raw, required: [], optional: [], path: "widgets.\(id.rawValue)")

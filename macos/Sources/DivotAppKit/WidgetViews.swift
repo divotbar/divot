@@ -70,6 +70,7 @@ final class BarItemView: NSView {
         switch action {
         case .none: setAccessibilityHelp(nil)
         case .toggleKeepAwake: setAccessibilityHelp("Toggles keep-awake")
+        case .toggleAppearance: setAccessibilityHelp("Toggles appearance")
         default: setAccessibilityHelp("Activates \(presentation.accessibilityLabel)")
         }
 

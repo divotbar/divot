@@ -319,6 +319,24 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(iconOnly.accessibilityLabel.contains("Xcode"))
 }
 
+@Test func appearancePresentationShowsLightOrDarkMode() {
+    let light = WidgetPresenter.present(
+        id: .appearance,
+        state: state(.appearance, .appearance(AppearanceSnapshot(mode: .light))),
+        options: options)
+    #expect(light.symbolName == "sun.max.fill")
+    #expect(light.accessibilityLabel == "Light mode")
+    #expect(light.text.isEmpty)
+
+    let dark = WidgetPresenter.present(
+        id: .appearance,
+        state: state(.appearance, .appearance(AppearanceSnapshot(mode: .dark))),
+        options: options)
+    #expect(dark.symbolName == "moon.fill")
+    #expect(dark.accessibilityLabel == "Dark mode")
+    #expect(dark.text.isEmpty)
+}
+
 @Test func unavailableStatesAreHonestAndOnlyFailuresAreErrors() {
     let denied = WidgetPresenter.present(
         id: .network,

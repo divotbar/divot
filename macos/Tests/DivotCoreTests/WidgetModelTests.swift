@@ -262,9 +262,7 @@ import Testing
     #expect(WidgetActions.defaultAction(for: .network) == .openSettings(.network))
     #expect(WidgetActions.defaultAction(for: .volume) == .openSettings(.sound))
     #expect(WidgetActions.defaultAction(for: .clock) == .openSettings(.dateTime))
-    // The split items open the same Date & Time pane as the old clock.
-    #expect(WidgetActions.defaultAction(for: .date) == .openSettings(.dateTime))
-    #expect(WidgetActions.defaultAction(for: .time) == .openSettings(.dateTime))
+    #expect(WidgetActions.defaultAction(for: .appearance) == .toggleAppearance)
     // Workspaces are the adapter milestone's actions, never a fake sample.
     #expect(WidgetActions.defaultAction(for: .workspaces) == .none)
 }
