@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0033"
 title: "Split the clock into separate date and time items, each with its own toggle"
 type: feature
@@ -55,3 +56,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T12:36:57Z · note: review pass 2: good to go
 - 2026-10-11T12:39:00Z · status review→active
 - 2026-10-11T12:39:00Z · note: close-out repair: merge-conflict
+
