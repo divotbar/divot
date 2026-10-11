@@ -92,7 +92,7 @@ hdiutil create -volname "$VOLUME_NAME" \
   -ov \
   -format UDZO \
   -imagekey zlib-level=9 \
-  "$DMG_PATH" > /dev/null 2>&1
+  "$DMG_PATH"
 
 if [ ! -f "$DMG_PATH" ]; then
   echo "make-dmg: failed to create DMG at $DMG_PATH" >&2
