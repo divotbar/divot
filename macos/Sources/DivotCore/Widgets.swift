@@ -17,6 +17,8 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
     case network
     case volume
     case clock
+    case date
+    case time
     case appearance
 
     /// Human label for settings and placeholder/accessible text.
@@ -28,6 +30,8 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
         case .network: return "Network"
         case .volume: return "Volume"
         case .clock: return "Clock"
+        case .date: return "Date"
+        case .time: return "Time"
         case .appearance: return "Appearance"
         }
     }
@@ -247,6 +251,8 @@ public enum WidgetContentKind: String, Equatable, Sendable {
     case network
     case volume
     case clock
+    case date
+    case time
     case appearance
     case unavailable
 }
@@ -258,6 +264,8 @@ public enum WidgetContent: Equatable, Sendable {
     case network(NetworkSnapshot)
     case volume(VolumeSnapshot)
     case clock(ClockSnapshot)
+    case date(ClockSnapshot)
+    case time(ClockSnapshot)
     case appearance(AppearanceSnapshot)
     case unavailable(WidgetUnavailable)
 
@@ -268,6 +276,8 @@ public enum WidgetContent: Equatable, Sendable {
         case .network: return .network
         case .volume: return .volume
         case .clock: return .clock
+        case .date: return .date
+        case .time: return .time
         case .appearance: return .appearance
         case .unavailable: return .unavailable
         }
