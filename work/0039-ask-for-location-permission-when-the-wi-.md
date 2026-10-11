@@ -2,7 +2,7 @@
 id: "0039"
 title: "Ask for Location permission when the Wi-Fi name is turned on, and show an error when it is denied"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0032"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/ask-for-location-permission-when-the-wi-
 created_at: "2026-10-11T11:54:34Z"
-updated_at: "2026-10-11T12:20:16Z"
+updated_at: "2026-10-11T12:21:42Z"
 review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-11T12:08:42.383Z: repoos check failed: native-core — 􁁛 Test configureStopsRemovedProvidersAndStartsNewOnes() passed after 2.170 seconds."
@@ -62,3 +62,4 @@ The location permission prompt only appears when the packaged app (dist/Divot.ap
 - 2026-10-11T12:20:16Z · needs_input
 - 2026-10-11T12:20:16Z · status review→active
 - 2026-10-11T12:20:16Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T12:21:42Z · status active→review
