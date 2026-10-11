@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-an-unsigned-divot-dmg-and-publish-
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T12:47:17Z"
+updated_at: "2026-10-11T12:51:54Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
 - 2026-10-11T12:47:16Z · status inbox→ready
 - 2026-10-11T12:47:17Z · status ready→active, branch
+- 2026-10-11T12:51:54Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
