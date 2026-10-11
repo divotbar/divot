@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
@@ -151,3 +152,4 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T16:01:28Z · note: review pass 4: good to go
 - 2026-10-11T16:04:19Z · status review→active, needs_input
 - 2026-10-11T16:04:19Z · note: close-out repair: merge-conflict
+
