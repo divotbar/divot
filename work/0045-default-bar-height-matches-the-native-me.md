@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T14:38:53Z"
+review_passes: 3
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
@@ -14,9 +16,7 @@ branch: feat/default-bar-height-matches-the-native-me
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T13:13:19Z"
-updated_at: "2026-10-11T14:38:53Z"
 review_rounds: 2
-review_passes: 2
 last_check_failure: "repoos check at 2026-10-11T13:37:56.607Z: repoos check failed: native-core — 􀟈 Test workspaceBarViewDrawsEveryDeduplicatedAppIcon() started."
 ---
 ## Problem
@@ -66,3 +66,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:37:52Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:38:53Z · note: review pass 3: needs some work
 - 2026-10-11T14:38:53Z · needs_input
+
