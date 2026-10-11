@@ -1,16 +1,17 @@
 ---
-updated_at: "2026-10-11T14:02:53Z"
-review_passes: 1
 id: "0046"
 title: "Date item shows only the date, not the time"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-item-shows-only-the-date-not-the-ti
 created_at: "2026-10-11T13:26:29Z"
+updated_at: "2026-10-11T14:02:53Z"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 
@@ -39,4 +40,4 @@ The format options (weekday, year, presets) are in #0034. Keep this change to th
 - 2026-10-11T14:02:15Z · status active→review
 - 2026-10-11T14:02:16Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:02:53Z · note: review pass 1: needs some work
-
+- 2026-10-11T14:02:53Z · status review→active
