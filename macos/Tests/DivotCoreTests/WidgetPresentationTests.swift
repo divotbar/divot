@@ -286,6 +286,8 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     // Date should not contain time
     #expect(!presentation.text.contains(":"))
     #expect(!presentation.text.contains("12:26"))
+    // Date should not contain comma (AC: "Sun 11 Oct" not "Sun, 11 Oct")
+    #expect(!presentation.text.contains(","))
 }
 
 @Test func frontAppPresentationUsesTheApplicationName() {

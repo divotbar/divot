@@ -84,7 +84,12 @@ public enum ClockText {
             formatter.setLocalizedDateFormatFromTemplate(templateToUse)
         }
 
-        return formatter.string(from: snapshot.date)
+        var result = formatter.string(from: snapshot.date)
+        // When formatting date-only (no time), remove commas that some locales add
+        if !includeTime {
+            result = result.replacingOccurrences(of: ",", with: "")
+        }
+        return result
     }
 
     /// Validate a custom date format pattern
