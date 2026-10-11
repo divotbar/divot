@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T14:37:11Z"
+review_passes: 3
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
@@ -12,9 +14,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-and-time-items-show-a-placeholder-e
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T14:37:11Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 
@@ -117,3 +117,4 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:36:30Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:37:11Z · note: review pass 3: needs some work
 - 2026-10-11T14:37:11Z · needs_input
+
