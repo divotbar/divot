@@ -2,17 +2,21 @@
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
-status: active
+status: done
 priority: p1
 area: macos
+merged_commit: 778fac31aadc1d7dd05aa3b05c17c32c33c95e30
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/default-bar-height-matches-the-native-me
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T13:13:19Z"
-updated_at: "2026-10-11T14:21:03Z"
+updated_at: "2026-10-11T15:49:03Z"
+last_close_out_gate_ms: 51376
+last_close_out_gate_at: "2026-10-11T15:49:01.496Z"
+review_passes: 4
 review_rounds: 2
-review_passes: 2
-check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-11T13:37:56.607Z: repoos check failed: native-core — 􀟈 Test workspaceBarViewDrawsEveryDeduplicatedAppIcon() started."
 ---
 ## Problem
@@ -54,3 +58,20 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:20:07Z · handoff failed · check failed after 2 automatic retries · repoos check failed: native-core — 􀟈  Test optionsToggleFiltersEmptyWorkspacesWithoutAReload() started.
 - 2026-10-11T14:21:03Z · note: review pass 2: needs some work
 - 2026-10-11T14:21:03Z · status review→active
+- 2026-10-11T14:26:41Z · watchdog: escalated to needs_input · check-failed-after-retries · check failed after 2 automatic retries · repoos check failed: native-core — 􀟈  Test everyDefaultItemIsLabelledAndRoatedAcrossEveryTheme() started. · next step: resume the session manually from the task's worktree and check for uncommitted work
+- 2026-10-11T14:27:17Z · cli_override, model_override
+- 2026-10-11T14:27:17Z · needs_input
+- 2026-10-11T14:37:17Z · note: Clock/date/time items now always carry a non-empty, role-prefixed accessibility label (e.g. "Date: Sun 11 Oct"), so an all-off format cannot leave a silent item; core tests added. Merged main, which cleared the native-core SIGSEGV in ConfigurationParser.parse; repoos check passes (533 tests).
+- 2026-10-11T14:37:52Z · status active→review
+- 2026-10-11T14:37:52Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:38:53Z · note: review pass 3: needs some work
+- 2026-10-11T14:38:53Z · needs_input
+- 2026-10-11T14:40:51Z · needs_input
+- 2026-10-11T14:40:51Z · status review→active
+- 2026-10-11T14:40:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T14:48:10Z · note: Packaged-app measurement — dist/Divot.app built from branch commit 8636944, run on the built-in notched display (1710x1107pt @2x). Native menu bar height = 33.0pt (NSScreen safeAreaInsets.top=33.0, cross-checked frame.maxY-visibleFrame.maxY=33.0). divot --report: display-1 notched=true, mode=belowNativeBar(inset: 33.0). On-screen panel bounds read from CGWindowList while the packaged app ran: default config (height unset, no shadow) -> top edge y=33.0, panel height 33.0pt, so the Divot row = 33.0pt = native; maintainer config (layout.height=32, bottomShadow=true) -> panel 39.0pt = 33.0 row + 6.0 shadow strip; explicit layout.height=40 (no shadow) -> panel 40.0pt. The row matches the native 33pt on the notched display when height is unset/32, and a non-32 explicit height is honored. These are window-bounds measurements only; the on-screen look is the maintainer's confirmation.
+- 2026-10-11T14:49:20Z · status active→review
+- 2026-10-11T14:49:20Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:50:20Z · note: review pass 4: good to go
+- 2026-10-11T15:49:01Z · close-out gate completed in 51s
+- 2026-10-11T15:49:03Z · status review→done, release:success

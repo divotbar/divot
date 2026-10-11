@@ -233,16 +233,55 @@ public struct ClockConfiguration: Equatable, Sendable {
 
 /// `widgets.date`.
 public struct DateConfiguration: Equatable, Sendable {
+    /// Whether to show the weekday (e.g. "Sun").
     public var weekday: Bool
+    /// Whether to show the year.
+    public var year: Bool
+    /// Whether to show day before month (e.g. "11 Oct" vs "Oct 11").
+    public var dayFirst: Bool
+    /// The separator between date components (e.g. " ", "-", "/").
+    public var separator: String
+    /// Optional custom pattern for advanced users. Falls back to generated pattern if invalid.
+    public var customPattern: String?
 
-    public init(weekday: Bool = true) {
+    public init(weekday: Bool = true,
+                year: Bool = false,
+                dayFirst: Bool = false,
+                separator: String = " ",
+                customPattern: String? = nil) {
         self.weekday = weekday
+        self.year = year
+        self.dayFirst = dayFirst
+        self.separator = separator
+        self.customPattern = customPattern
     }
 
     public static let `default` = DateConfiguration()
 
     public var formatOptions: ClockFormatOptions {
         ClockFormatOptions(weekday: weekday, date: true, seconds: false)
+    }
+
+    /// Generate the date format pattern from the configuration options.
+    /// Default order is: weekday, day, month (e.g., "Sun 11 Oct")
+    public var pattern: String {
+        var components: [String] = []
+
+        if weekday { components.append("EEE") }
+
+        // Default (dayFirst=false): day before month → "d MMM" → "11 Oct"
+        // dayFirst=true: month before day → "MMM d" → "Oct 11"
+        if dayFirst {
+            components.append("MMM")
+            components.append("d")
+        } else {
+            components.append("d")
+            components.append("MMM")
+        }
+
+        if year { components.append("yyyy") }
+
+        return components.joined(separator: separator)
     }
 }
 
@@ -556,8 +595,16 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// Clock, date, time, battery, network, volume, and front-app formatting the
     /// renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
-        WidgetPresentationOptions(clock: widgets.clock.formatOptions,
+        let dateFormatPattern: String? = {
+            if let customPattern = widgets.date.customPattern,
+               ClockText.isValidPattern(customPattern) {
+                return customPattern
+            }
+            return widgets.date.pattern
+        }()
+        return WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   date: widgets.date.formatOptions,
+                                  dateFormatPattern: dateFormatPattern,
                                   time: widgets.time.formatOptions,
                                   timeFormat: widgets.time.timeFormat,
                                   customTimePattern: widgets.time.customPattern,

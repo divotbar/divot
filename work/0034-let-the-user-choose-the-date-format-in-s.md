@@ -1,20 +1,20 @@
 ---
-updated_at: "2026-10-11T14:24:28Z"
-review_passes: 6
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p2
 area: macos
 depends_on: ["0028", "0033"]
+merged_commit: 68cbfcc091e09c044cbf870f74629da518e04a6d
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
+updated_at: "2026-10-11T14:40:47Z"
+last_close_out_gate_ms: 47420
+last_close_out_gate_at: "2026-10-11T14:40:45.117Z"
+review_passes: 7
 review_rounds: 2
 ---
 ## Problem
@@ -79,4 +79,12 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T14:23:35Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:24:28Z · note: review pass 6: needs some work
 - 2026-10-11T14:24:28Z · needs_input
-
+- 2026-10-11T14:27:16Z · needs_input
+- 2026-10-11T14:27:16Z · status review→active
+- 2026-10-11T14:27:16Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T14:28:49Z · status active→review
+- 2026-10-11T14:28:50Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:30:06Z · note: review pass 7: good to go
+- 2026-10-11T14:39:57Z · close-out gate completed in 48s
+- 2026-10-11T14:40:45Z · close-out gate completed in 47s
+- 2026-10-11T14:40:47Z · status review→done, release:success

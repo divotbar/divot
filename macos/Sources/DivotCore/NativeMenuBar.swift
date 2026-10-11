@@ -71,6 +71,17 @@ public struct ScreenGeometry: Equatable, Sendable {
     public var isNotched: Bool {
         housingTop > 0.5 || auxiliaryTopLeft != nil || auxiliaryTopRight != nil
     }
+
+    /// Compute the default row height for this display based on its native menu bar.
+    /// On notched displays, returns the safe-area top inset. On notch-free displays,
+    /// returns the nominal menu bar height. Always returns a positive value.
+    public func defaultBarHeight(nominalMenuBarHeight: CGFloat = 24) -> CGFloat {
+        if isNotched {
+            return max(1, housingTop)
+        } else {
+            return max(1, nominalMenuBarHeight.isFinite ? nominalMenuBarHeight : 24)
+        }
+    }
 }
 
 /// What public APIs can currently say about the native menu bar.

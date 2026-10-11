@@ -279,15 +279,61 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
 
 @Test func datePresentationShowsOnlyDateWithoutTime() {
     let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let dateConfig = DateConfiguration()
+    let dateOptions = WidgetPresentationOptions(
+        clock: options.clock,
+        date: options.date,
+        dateFormatPattern: dateConfig.pattern,
+        time: options.time,
+        timeFormat: options.timeFormat,
+        frontApp: options.frontApp,
+        battery: options.battery,
+        network: options.network,
+        volume: options.volume,
+        locale: options.locale,
+        timeZone: options.timeZone)
     let presentation = WidgetPresenter.present(id: .date,
                                                state: state(.date, .date(ClockSnapshot(date: date))),
-                                               options: options)
+                                               options: dateOptions)
     #expect(presentation.text.contains("Sun"))
     // Date should not contain time
     #expect(!presentation.text.contains(":"))
     #expect(!presentation.text.contains("12:26"))
     // Date should not contain comma (AC: "Sun 11 Oct" not "Sun, 11 Oct")
     #expect(!presentation.text.contains(","))
+}
+
+@Test func clockFamilyItemsAlwaysCarryARolePrefixedAccessibilityLabel() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+
+    let clock = WidgetPresenter.present(id: .clock,
+                                        state: state(.clock, .clock(ClockSnapshot(date: date))),
+                                        options: options)
+    #expect(clock.accessibilityLabel.hasPrefix("Clock: "))
+    #expect(clock.accessibilityLabel.contains("Sun"))
+
+    let day = WidgetPresenter.present(id: .date,
+                                      state: state(.date, .date(ClockSnapshot(date: date))),
+                                      options: options)
+    #expect(day.accessibilityLabel.hasPrefix("Date: "))
+    #expect(day.accessibilityLabel.contains("Sun"))
+
+    let time = WidgetPresenter.present(id: .time,
+                                       state: state(.time, .time(ClockSnapshot(date: date))),
+                                       options: options)
+    #expect(time.accessibilityLabel.hasPrefix("Time: "))
+    #expect(time.accessibilityLabel.contains("12:26"))
+}
+
+@Test func clockFamilyItemsStillSpeakWhenTheFormatRendersNothing() {
+    // The label helper never returns an empty announcement, even when the
+    // configured format renders nothing at all.
+    let empty = WidgetPresenter.clockPresentation(role: "Date", text: "   ")
+    #expect(empty.accessibilityLabel == "Date")
+    #expect(empty.text == "   ")
+
+    let filled = WidgetPresenter.clockPresentation(role: "Time", text: "12:26")
+    #expect(filled.accessibilityLabel == "Time: 12:26")
 }
 
 @Test func timePresentationShowsOnlyTime() {
@@ -300,7 +346,8 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     // Time should not carry the weekday or the date.
     #expect(!presentation.text.contains("Sun"))
     #expect(!presentation.text.contains("Sep"))
-    #expect(presentation.accessibilityLabel == presentation.text)
+    // Clock-family items speak with a role prefix (see the accessibility tests above).
+    #expect(presentation.accessibilityLabel == "Time: 12:26")
 }
 
 @Test func frontAppPresentationUsesTheApplicationName() {

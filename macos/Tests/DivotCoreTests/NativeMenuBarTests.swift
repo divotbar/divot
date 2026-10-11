@@ -214,3 +214,23 @@ private func flatGeometry(menuBarInset: CGFloat) -> ScreenGeometry {
     #expect(!c.isSettling)
     #expect(c.advance(to: 10) == [])
 }
+
+// MARK: - Default bar height computation
+
+@Test func defaultBarHeightOnNotchedDisplayReturnsHousingTop() {
+    let g = notchedGeometry()
+    #expect(g.defaultBarHeight() == 33)
+}
+
+@Test func defaultBarHeightOnNotchFreeDisplayReturnsNominalHeight() {
+    let g = flatGeometry(menuBarInset: 24)
+    #expect(g.defaultBarHeight() == 24)
+    #expect(g.defaultBarHeight(nominalMenuBarHeight: 22) == 22)
+}
+
+@Test func defaultBarHeightReturnsMinimumOnePoint() {
+    let g = ScreenGeometry(frame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                           visibleFrame: CGRect(x: 0, y: 0, width: 1600, height: 1000),
+                           safeAreaTop: 0)
+    #expect(g.defaultBarHeight(nominalMenuBarHeight: 0) >= 1)
+}

@@ -671,3 +671,27 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "left/right")
 }
+
+// MARK: - Date format
+
+@Test func dateConfigurationOptionsAreParsed() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["date"],"right":[],"widgets":{"date":{"weekday":true,"year":true,"dayFirst":false,"separator":"-"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.date.weekday == true)
+    #expect(parsed.configuration.widgets.date.year == true)
+    #expect(parsed.configuration.widgets.date.dayFirst == false)
+    #expect(parsed.configuration.widgets.date.separator == "-")
+}
+
+@Test func dateConfigurationWithCustomPatternIsParsed() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["date"],"right":[],"widgets":{"date":{"customPattern":"dd MMM yyyy"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.date.customPattern == "dd MMM yyyy")
+}
+
+@Test func dateConfigurationWithInvalidCustomPatternIsIgnored() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["date"],"right":[],"widgets":{"date":{"customPattern":"invalid pattern"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    // Invalid pattern is ignored and not stored
+    #expect(parsed.configuration.widgets.date.customPattern == nil)
+}

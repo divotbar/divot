@@ -67,42 +67,47 @@ public enum ClockText {
     public static func string(for snapshot: ClockSnapshot,
                               options: ClockFormatOptions = .default,
                               locale: Locale = .current,
-                              timeZone: TimeZone = .current,
-                              timeFormat: TimeConfiguration.Format = .ampm,
-                              customTimePattern: String? = nil,
-                              includeTime: Bool = true) -> String {
+                              timeZone: TimeZone = .current) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.timeZone = timeZone
+        formatter.setLocalizedDateFormatFromTemplate(template(options))
+        return formatter.string(from: snapshot.date)
+    }
+
+    /// Format a date snapshot with an optional custom pattern.
+    /// If the pattern is invalid, falls back to the default template.
+    public static func string(for snapshot: ClockSnapshot,
+                              options: ClockFormatOptions = .default,
+                              customPattern: String? = nil,
+                              locale: Locale = .current,
+                              timeZone: TimeZone = .current) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.timeZone = timeZone
 
-        let templateToUse = template(options, timeFormat: timeFormat, customTimePattern: customTimePattern, includeTime: includeTime)
-
-        // If using a custom pattern, set it directly; otherwise use localized template
-        if timeFormat == .custom && isValidCustomPattern(customTimePattern ?? "") {
-            formatter.dateFormat = customTimePattern
-        } else {
-            formatter.setLocalizedDateFormatFromTemplate(templateToUse)
+        if let pattern = customPattern {
+            // Try to use the custom pattern
+            formatter.dateFormat = pattern
+            // Validate by attempting to format a test date
+            if formatter.string(from: Date()) != "" {
+                return formatter.string(from: snapshot.date)
+            }
         }
 
-        var result = formatter.string(from: snapshot.date)
-        // When formatting date-only (no time), remove commas that some locales add
-        if !includeTime {
-            result = result.replacingOccurrences(of: ",", with: "")
-        }
-        return result
-    }
-
-    /// Validate a custom date format pattern
-    public static func isValidCustomPattern(_ pattern: String) -> Bool {
-        guard !pattern.isEmpty else { return false }
-        let formatter = DateFormatter()
-        formatter.dateFormat = pattern
-        // DateFormatter accepts invalid patterns silently, so we test it
-        return formatter.date(from: formatter.string(from: Date())) != nil
+        // Fall back to the default template
+        formatter.dateFormat = nil
+        formatter.setLocalizedDateFormatFromTemplate(template(options))
+        return formatter.string(from: snapshot.date)
     }
 
     /// The unlocalized template handed to `setLocalizedDateFormatFromTemplate`.
     /// Exposed so tests can assert component selection independent of locale.
+    static func template(_ options: ClockFormatOptions) -> String {
+        template(options, timeFormat: .ampm, customTimePattern: nil, includeTime: true)
+    }
+
+    /// The unlocalized template for date and time formatting with optional time components.
     static func template(_ options: ClockFormatOptions,
                         timeFormat: TimeConfiguration.Format = .ampm,
                         customTimePattern: String? = nil,
@@ -119,12 +124,70 @@ public enum ClockText {
             case .ampm:
                 timeField = options.seconds ? "jmms" : "jmm"
             case .custom:
-                // For custom format, the pattern will be set directly, so use a placeholder
                 timeField = options.seconds ? "jmms" : "jmm"
             }
-
             fields.append(timeField)
         }
+
         return fields.joined(separator: " ")
+    }
+
+    /// Format a time snapshot with optional time format and custom pattern.
+    public static func string(for snapshot: ClockSnapshot,
+                              options: ClockFormatOptions = .default,
+                              locale: Locale = .current,
+                              timeZone: TimeZone = .current,
+                              timeFormat: TimeConfiguration.Format? = nil,
+                              customTimePattern: String? = nil) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.timeZone = timeZone
+
+        // If custom pattern is provided and valid, use it
+        if let pattern = customTimePattern, ClockText.isValidCustomPattern(pattern) {
+            formatter.dateFormat = pattern
+            return formatter.string(from: snapshot.date)
+        }
+
+        // Otherwise use the time format
+        if let format = timeFormat {
+            let timeTemplate: String
+            switch format {
+            case .twentyFourHour:
+                timeTemplate = options.seconds ? "HHmms" : "HHmm"
+            case .ampm:
+                timeTemplate = options.seconds ? "jmms" : "jmm"
+            case .custom:
+                timeTemplate = options.seconds ? "jmms" : "jmm"
+            }
+            formatter.setLocalizedDateFormatFromTemplate(timeTemplate)
+        } else {
+            // Fall back to default time template
+            formatter.setLocalizedDateFormatFromTemplate(options.seconds ? "jmms" : "jmm")
+        }
+
+        return formatter.string(from: snapshot.date)
+    }
+
+    /// Validate a custom date format pattern.
+    /// Returns `true` if the pattern is valid and produces non-empty output, `false` otherwise.
+    public static func isValidPattern(_ pattern: String) -> Bool {
+        guard !pattern.isEmpty else { return false }
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        // Check if the pattern is not empty and produces a formatted date
+        let testDate = Date(timeIntervalSince1970: 0) // 1970-01-01
+        let formatted = formatter.string(from: testDate)
+        return !formatted.isEmpty && formatted != pattern
+    }
+
+    /// Validate a custom time format pattern.
+    public static func isValidCustomPattern(_ pattern: String) -> Bool {
+        guard !pattern.isEmpty else { return false }
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        let testDate = Date(timeIntervalSince1970: 0)
+        let formatted = formatter.string(from: testDate)
+        return !formatted.isEmpty && formatted != pattern
     }
 }
