@@ -201,6 +201,17 @@ public struct FrontAppConfiguration: Equatable, Sendable {
     }
 }
 
+/// `widgets.battery`.
+public struct BatteryConfiguration: Equatable, Sendable {
+    public var showPercentage: Bool
+
+    public init(showPercentage: Bool = true) {
+        self.showPercentage = showPercentage
+    }
+
+    public static let `default` = BatteryConfiguration()
+}
+
 /// `widgets.clock`.
 public struct ClockConfiguration: Equatable, Sendable {
     public var weekday: Bool
@@ -325,17 +336,20 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
+    public var battery: BatteryConfiguration
     public var clock: ClockConfiguration
     public var network: NetworkConfiguration
     public var volume: VolumeConfiguration
 
     public init(workspaces: WorkspacesConfiguration = .default,
                 frontApp: FrontAppConfiguration = .default,
+                battery: BatteryConfiguration = .default,
                 clock: ClockConfiguration = .default,
                 network: NetworkConfiguration = .default,
                 volume: VolumeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
+        self.battery = battery
         self.clock = clock
         self.network = network
         self.volume = volume
@@ -346,8 +360,13 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
+<<<<<<< HEAD
         case .workspaces, .frontApp, .clock, .network, .volume: return true
         case .battery: return false
+=======
+        case .workspaces, .frontApp, .battery, .clock, .volume: return true
+        case .network: return false
+>>>>>>> main
         }
     }
 }
@@ -474,11 +493,19 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
+<<<<<<< HEAD
     /// Clock, front-app, network, and volume formatting the renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions,
                                   network: widgets.network.formatOptions,
+=======
+    /// Battery, clock, front-app, and volume formatting the renderer needs beyond snapshots.
+    public var presentationOptions: WidgetPresentationOptions {
+        WidgetPresentationOptions(clock: widgets.clock.formatOptions,
+                                  frontApp: widgets.frontApp.formatOptions,
+                                  battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),
+>>>>>>> main
                                   volume: widgets.volume.formatOptions)
     }
 

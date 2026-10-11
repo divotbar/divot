@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 2
 id: "0032"
 title: Optional Wi-Fi network name on the network item in Settings
 type: feature
@@ -10,9 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-wi-fi-network-name-on-the-netwo
 created_at: "2026-10-11T00:39:24Z"
-updated_at: "2026-10-11T01:14:51Z"
-close_out_repair_count: 1
-review_passes: 2
+updated_at: "2026-10-11T04:37:46Z"
+review_passes: 3
 review_rounds: 1
 ---
 ## Problem
@@ -50,4 +50,8 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T00:59:55Z · note: review pass 2: good to go
 - 2026-10-11T01:11:27Z · status review→active
 - 2026-10-11T01:11:27Z · note: close-out repair: merge-conflict
-- 2026-10-11T01:14:51Z · status active→review
+- 2026-10-11T01:14:52Z · status active→review
+- 2026-10-11T01:14:52Z · note: shots: skipped — the diff (14 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T01:15:32Z · note: review pass 3: good to go
+- 2026-10-11T04:37:46Z · status review→active
+- 2026-10-11T04:37:46Z · note: close-out repair: merge-conflict

@@ -399,6 +399,30 @@ private func write(_ json: String, to url: URL) throws {
     #expect(networkOptions?["showWifiName"] as? Bool == true)
 }
 
+@Test func savePersistsBatteryPercentageAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // A plain default configuration writes no battery widget object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["battery"] == nil)
+
+    // An explicit non-default setting writes the battery object.
+    var configuration = DivotConfiguration.default
+    configuration.widgets.battery = BatteryConfiguration(showPercentage: false)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.battery == BatteryConfiguration(showPercentage: false))
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let reloadedWidgets = object?["widgets"] as? [String: Any]
+    #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])

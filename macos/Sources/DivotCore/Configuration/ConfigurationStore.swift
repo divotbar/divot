@@ -283,6 +283,8 @@ private extension WidgetOptions {
         if !workspaces.isEmpty { object[BarItemID.workspaces.rawValue] = workspaces }
         let frontApp = frontApp.jsonObject
         if !frontApp.isEmpty { object[BarItemID.frontApp.rawValue] = frontApp }
+        let battery = battery.jsonObject
+        if !battery.isEmpty { object[BarItemID.battery.rawValue] = battery }
         let clock = clock.jsonObject
         if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
         let network = network.jsonObject
@@ -312,6 +314,15 @@ private extension FrontAppConfiguration {
         let defaults = FrontAppConfiguration.default
         if showIcon != defaults.showIcon { object["showIcon"] = showIcon }
         if showName != defaults.showName { object["showName"] = showName }
+        return object
+    }
+}
+
+private extension BatteryConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = BatteryConfiguration.default
+        if showPercentage != defaults.showPercentage { object["showPercentage"] = showPercentage }
         return object
     }
 }
