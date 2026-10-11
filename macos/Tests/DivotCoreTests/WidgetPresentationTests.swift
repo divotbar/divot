@@ -147,6 +147,57 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(ethernet.symbolName == "cable.connector")
 }
 
+@Test func networkPresentationShowsIconOnlyWhenLocationPermissionDenied() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let denied = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, locationAuthorizationStatus: "denied"))),
+        options: optionsOn)
+    #expect(denied.text.isEmpty)
+    #expect(!denied.isError)
+    #expect(denied.symbolName == "wifi")
+}
+
+@Test func networkPresentationShowsWifiNameWhenLocationAuthorized() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let authorized = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork", locationAuthorizationStatus: "authorizedWhenInUse"))),
+        options: optionsOn)
+    #expect(authorized.text == "MyNetwork")
+    #expect(!authorized.isError)
+    #expect(authorized.accessibilityLabel.contains("Wi-Fi network: MyNetwork"))
+}
+
+@Test func networkPresentationShowsIconOnlyWhenLocationAuthorizedAlways() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let authorizedAlways = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork", locationAuthorizationStatus: "authorizedAlways"))),
+        options: optionsOn)
+    #expect(authorizedAlways.text == "MyNetwork")
+    #expect(!authorizedAlways.isError)
+}
+
+@Test func networkPresentationShowsIconOnlyWhenLocationNotDetermined() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let notDetermined = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, locationAuthorizationStatus: "notDetermined"))),
+        options: optionsOn)
+    #expect(notDetermined.text.isEmpty)
+    #expect(!notDetermined.isError)
+    #expect(notDetermined.symbolName == "wifi")
+}
+
 @Test func volumePresentationCoversMuteAndNoOutput() {
     let muted = WidgetPresenter.present(id: .volume,
                                         state: state(.volume, .volume(.init(hasOutputDevice: true, level: 0.4, isMuted: true))),
