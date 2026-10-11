@@ -1,21 +1,19 @@
 ---
-last_close_out_gate_ms: 44108
-last_close_out_gate_at: "2026-10-11T14:12:33.337Z"
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p2
 area: macos
 depends_on: ["0028"]
+merged_commit: 36b9be8fa2aa6110955912600e35038d13a3b5a6
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T14:12:33Z"
+updated_at: "2026-10-11T14:12:35Z"
+last_close_out_gate_ms: 44108
+last_close_out_gate_at: "2026-10-11T14:12:33.337Z"
 review_passes: 9
 check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-11T14:03:18.530Z: repoos check failed: native-core — 􁁛 Test frontAppProviderEmitsOnMainAndOnChange() passed after 2.231 seconds."
@@ -116,4 +114,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T14:03:47Z · note: review pass 9: needs some work
 - 2026-10-11T14:03:47Z · needs_input
 - 2026-10-11T14:12:33Z · close-out gate completed in 44s
-
+- 2026-10-11T14:12:35Z · status review→done, release:success
