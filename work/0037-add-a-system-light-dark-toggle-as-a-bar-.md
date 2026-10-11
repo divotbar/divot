@@ -62,3 +62,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T04:40:13Z · note: The review came back with "needs some work — The bar item, provider split, presentation, and settings placement wiring are in good shape, but the click path toggles Divot’s NSApp.appearance override, not macOS system light/dark as the spec requires.” >> but actually I think both options are good to have, so how about when toggling light/dark let’s give the user the options: - to toggle just Divot’s light/dark mode  - to toggle the system light/dark mode
 - 2026-10-11T04:44:11Z · body: section Notes for AI
 - 2026-10-11T04:44:38Z · status active→review
+- 2026-10-11T04:44:38Z · note: Task body is underspecified: empty sections: Notes for AI
