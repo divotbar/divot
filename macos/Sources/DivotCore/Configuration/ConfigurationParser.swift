@@ -163,7 +163,10 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.volume.rawValue] {
             options.volume = try volumeOptions(raw, path: "widgets.volume")
         }
-        // battery accepts an empty object only.
+        if let raw = object[BarItemID.appearance.rawValue] {
+            options.appearance = try appearanceOptions(raw, path: "widgets.appearance")
+        }
+        // Items without options accept an empty object only.
         for id in BarItemID.allCases where !WidgetOptions.acceptsOptions(for: id) {
             if let raw = object[id.rawValue] {
                 try shape(raw, required: [], optional: [], path: "widgets.\(id.rawValue)")
@@ -230,6 +233,17 @@ public enum ConfigurationParser {
         var configuration = VolumeConfiguration.default
         if let raw = object["showVolumePercent"] { configuration.showVolumePercent = try boolean(raw, path: "\(path).showVolumePercent") }
         if let raw = object["showVolumeMuted"] { configuration.showVolumeMuted = try boolean(raw, path: "\(path).showVolumeMuted") }
+        return configuration
+    }
+
+    private static func appearanceOptions(_ value: Any?, path: String) throws -> AppearanceItemConfiguration {
+        let object = try shape(value, required: [], optional: ["scope"], path: path)
+        var configuration = AppearanceItemConfiguration.default
+        if let raw = object["scope"] {
+            let scope = try oneOf(raw, AppearanceItemConfiguration.Scope.allCases.map(\.rawValue),
+                                  path: "\(path).scope")
+            configuration.scope = AppearanceItemConfiguration.Scope(rawValue: scope) ?? .divotOnly
+        }
         return configuration
     }
 

@@ -434,6 +434,8 @@ private func write(_ json: String, to url: URL) throws {
 
     // An explicit fullSystem scope is persisted.
     var configuration = DivotConfiguration.default
+    // Place appearance on the right side to enable options
+    configuration.right.append(.appearance)
     configuration.widgets.appearance = AppearanceItemConfiguration(scope: .fullSystem)
     try store.save(configuration)
 

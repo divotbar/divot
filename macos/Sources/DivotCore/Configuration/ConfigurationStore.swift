@@ -291,6 +291,8 @@ private extension WidgetOptions {
         if !network.isEmpty { object[BarItemID.network.rawValue] = network }
         let volume = volume.jsonObject
         if !volume.isEmpty { object[BarItemID.volume.rawValue] = volume }
+        let appearance = appearance.jsonObject
+        if !appearance.isEmpty { object[BarItemID.appearance.rawValue] = appearance }
         return object
     }
 }
@@ -353,6 +355,15 @@ private extension VolumeConfiguration {
         let defaults = VolumeConfiguration.default
         if showVolumePercent != defaults.showVolumePercent { object["showVolumePercent"] = showVolumePercent }
         if showVolumeMuted != defaults.showVolumeMuted { object["showVolumeMuted"] = showVolumeMuted }
+        return object
+    }
+}
+
+private extension AppearanceItemConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = AppearanceItemConfiguration.default
+        if scope != defaults.scope { object["scope"] = scope.rawValue }
         return object
     }
 }
