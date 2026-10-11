@@ -76,6 +76,52 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(metered.accessibilityLabel.contains("metered"))
 }
 
+@Test func networkPresentationShowsWifiNameWhenEnabled() {
+    let optionsOff = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                               network: NetworkFormatOptions(showWifiName: false),
+                                               locale: posix, timeZone: utc)
+    let hiddenName = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: optionsOff)
+    #expect(hiddenName.text.isEmpty)
+    #expect(!hiddenName.accessibilityLabel.contains("MyNetwork"))
+
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let shownName = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi, wifiName: "MyNetwork"))),
+        options: optionsOn)
+    #expect(shownName.text == "MyNetwork")
+    #expect(shownName.accessibilityLabel.contains("Wi-Fi network: MyNetwork"))
+}
+
+@Test func networkPresentationWithoutNameShowsOnlyIcon() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let noName = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .wifi))),
+        options: optionsOn)
+    #expect(noName.text.isEmpty)
+    #expect(noName.symbolName == "wifi")
+}
+
+@Test func networkPresentationIgnoresWifiNameOnNonWifiNetworks() {
+    let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
+                                              network: NetworkFormatOptions(showWifiName: true),
+                                              locale: posix, timeZone: utc)
+    let ethernet = WidgetPresenter.present(
+        id: .network,
+        state: state(.network, .network(.init(isConnected: true, kind: .ethernet, wifiName: "MyNetwork"))),
+        options: optionsOn)
+    #expect(ethernet.text.isEmpty)
+    #expect(ethernet.symbolName == "cable.connector")
+}
+
 @Test func volumePresentationCoversMuteAndNoOutput() {
     let muted = WidgetPresenter.present(id: .volume,
                                         state: state(.volume, .volume(.init(hasOutputDevice: true, level: 0.4, isMuted: true))),

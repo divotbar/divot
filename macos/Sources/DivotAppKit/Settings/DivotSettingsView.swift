@@ -22,6 +22,7 @@ public struct DivotSettingsView: View {
             workspacesSection
             frontAppSection
             clockSection
+            networkSection
             keepAwakeSection
             layoutSection
             textSection
@@ -199,6 +200,15 @@ public struct DivotSettingsView: View {
             Toggle("Show weekday", isOn: binding(\.widgets.clock.weekday))
             Toggle("Show date", isOn: binding(\.widgets.clock.date))
             Toggle("Show seconds", isOn: binding(\.widgets.clock.seconds))
+        }
+    }
+
+    private var networkSection: some View {
+        Section("Network") {
+            Toggle("Show Wi-Fi network name", isOn: binding(\.widgets.network.showWifiName))
+            Text("When on, the network item displays the current Wi-Fi network name beside the icon. The name appears only when connected to Wi-Fi and location permission is available.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 

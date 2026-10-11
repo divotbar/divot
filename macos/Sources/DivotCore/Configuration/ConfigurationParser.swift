@@ -149,7 +149,10 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.clock.rawValue] {
             options.clock = try clockOptions(raw, path: "widgets.clock")
         }
-        // battery, network, and volume accept an empty object only.
+        if let raw = object[BarItemID.network.rawValue] {
+            options.network = try networkOptions(raw, path: "widgets.network")
+        }
+        // battery and volume accept an empty object only.
         for id in BarItemID.allCases where !WidgetOptions.acceptsOptions(for: id) {
             if let raw = object[id.rawValue] {
                 try shape(raw, required: [], optional: [], path: "widgets.\(id.rawValue)")
@@ -194,6 +197,13 @@ public enum ConfigurationParser {
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
         if let raw = object["date"] { configuration.date = try boolean(raw, path: "\(path).date") }
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        return configuration
+    }
+
+    private static func networkOptions(_ value: Any?, path: String) throws -> NetworkConfiguration {
+        let object = try shape(value, required: [], optional: ["showWifiName"], path: path)
+        var configuration = NetworkConfiguration.default
+        if let raw = object["showWifiName"] { configuration.showWifiName = try boolean(raw, path: "\(path).showWifiName") }
         return configuration
     }
 
