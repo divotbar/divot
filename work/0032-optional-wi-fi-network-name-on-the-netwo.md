@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0032"
 title: Optional Wi-Fi network name on the network item in Settings
 type: feature
@@ -49,3 +50,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T00:59:55Z · note: review pass 2: good to go
 - 2026-10-11T01:11:27Z · status review→active
 - 2026-10-11T01:11:27Z · note: close-out repair: merge-conflict
+
