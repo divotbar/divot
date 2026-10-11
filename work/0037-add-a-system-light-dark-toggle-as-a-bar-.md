@@ -98,3 +98,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T13:08:54Z · status review→active
 - 2026-10-11T13:08:54Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-11T13:13:17Z · status active→review
+- 2026-10-11T13:13:17Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
