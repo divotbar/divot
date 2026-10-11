@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-11T14:31:09Z"
+review_passes: 1
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
@@ -9,7 +11,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-and-time-items-show-a-placeholder-e
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T14:31:09Z"
 ---
 ## Problem
 
@@ -62,3 +63,4 @@ The root cause was that DateProvider and TimeProvider were emitting .date and .t
 - 2026-10-11T14:30:38Z · status active→review
 - 2026-10-11T14:30:38Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:31:09Z · note: review pass 1: needs some work
+
