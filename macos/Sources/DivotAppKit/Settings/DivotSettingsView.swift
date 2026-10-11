@@ -60,6 +60,20 @@ public struct DivotSettingsView: View {
             Text("Draws each item in its own rounded chip. Off by default; items blend together without individual backgrounds.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Chip opacity")
+                    Spacer()
+                    Text("\(model.configuration.chipOpacity)%")
+                        .foregroundStyle(.secondary)
+                }
+                Slider(value: Binding(get: { Double(model.configuration.chipOpacity) },
+                                      set: { model.setChipOpacity(Int($0)) }),
+                       in: 0...100, step: 1)
+            }
+            Text("0% shows the current chip appearance; 100% makes chips match the bar background.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 

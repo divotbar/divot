@@ -127,15 +127,16 @@ private func workspaceChip(_ id: String, in view: NSView) -> NSButton? {
     let occupied = try! #require(workspaceChip("2", in: view))
     let empty = try! #require(workspaceChip("3", in: view))
 
-    // Focused uses the family selected background, not the system accent.
+    // All chips use the same background color (#0047). Focus is shown via font
+    // weight, not background or border.
     #expect(colorMatches(focused.layer?.backgroundColor, theme.selected))
-    #expect(colorMatches(focused.layer?.borderColor, theme.accent))
-    #expect(colorMatches(occupied.layer?.backgroundColor, .clear))
+    #expect(colorMatches(occupied.layer?.backgroundColor, theme.selected))
+    #expect(colorMatches(empty.layer?.backgroundColor, theme.selected))
 
-    // Flat chrome (#0025): square chips with a flat focused stroke.
+    // Flat chrome (#0025): square chips with no focus border (#0047).
     #expect(focused.layer?.cornerRadius == 0)
     #expect(occupied.layer?.cornerRadius == 0)
-    #expect(focused.layer?.borderWidth == 1)
+    #expect(focused.layer?.borderWidth == 0)
     #expect(occupied.layer?.borderWidth == 0)
 
     // The occupancy marker carries the occupied/disabled role; the name stays in
