@@ -113,7 +113,7 @@ describe('local preview gate', () => {
     expect(smokeScript).toContain('--report')
     expect(smokeScript).toContain('--widgets')
     expect(smokeScript).toContain('layout.left=workspaces,front-app')
-    expect(smokeScript).toContain('layout.right=battery,clock,network,volume')
+    expect(smokeScript).toContain('layout.right=battery,time,network,volume')
     // It must verify the signature and the archive checksum.
     expect(smokeScript).toContain('codesign --verify --deep --strict')
     expect(smokeScript).toContain('sha256')
