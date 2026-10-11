@@ -12,6 +12,7 @@ final class BarItemView: NSView {
     private let indicatorView = NSImageView()
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
+    var onShowAppearanceMenu: ((NSView) -> Void)?
     private let metrics: BarMetrics
     private var lastIconBundleIdentifier: String?
     private var presentation: WidgetPresentation?
@@ -68,7 +69,7 @@ final class BarItemView: NSView {
         switch action {
         case .none: setAccessibilityHelp(nil)
         case .toggleKeepAwake: setAccessibilityHelp("Toggles keep-awake")
-        case .toggleAppearance: setAccessibilityHelp("Toggles appearance")
+        case .showAppearanceMenu: setAccessibilityHelp("Shows appearance menu")
         default: setAccessibilityHelp("Activates \(presentation.accessibilityLabel)")
         }
 
@@ -191,7 +192,11 @@ final class BarItemView: NSView {
             super.mouseDown(with: event)
             return
         }
-        onActivate?(action)
+        if case .showAppearanceMenu = action {
+            onShowAppearanceMenu?(self)
+        } else {
+            onActivate?(action)
+        }
     }
 
     override func accessibilityPerformPress() -> Bool {
@@ -230,6 +235,7 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// configured item; it decorates the left group and opens Divot settings.
     private var appIconButton: DivotAppIconButton?
     var onActivate: ((WidgetAction) -> Void)?
+    var onShowAppearanceMenu: ((NSView) -> Void)?
 
     private let metrics: BarMetrics
 
@@ -277,6 +283,7 @@ final class BarContentView: NSView, BarContentLifecycle {
             }
             let view = BarItemView(metrics: metrics)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
+            view.onShowAppearanceMenu = { [weak self] sender in self?.onShowAppearanceMenu?(sender) }
             view.apply(theme: theme)
             itemViews[id] = view
             addSubview(view)

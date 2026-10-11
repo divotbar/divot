@@ -3,8 +3,8 @@ import DivotCore
 
 /// Reads and writes Divot's appearance override through AppKit's public appearance API.
 ///
-/// This instance controls `NSApp.appearance`, which toggles Divot's light/dark rendering.
-/// It is not a system-wide appearance change (which would require private APIs);
+/// This instance controls `NSApp.appearance`, which toggles Divot's light/dark rendering only.
+/// It does not change the macOS system appearance (which would require private APIs);
 /// it's the app-level override that Divot already supports via configuration.
 public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendable {
     private var token: NSObjectProtocol?
@@ -48,8 +48,8 @@ public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendab
 
     /// Toggle Divot's appearance between light and dark.
     ///
-    /// Sets `NSApp.appearance` to override the effective appearance for Divot's rendering.
-    /// This does not change the system-wide appearance setting; it's the app-level toggle
+    /// Sets `NSApp.appearance` to override the effective appearance for Divot's rendering only.
+    /// This does not change the macOS system appearance; it's the app-level toggle
     /// that Divot already supports via configuration.
     nonisolated public func toggleAppearance() {
         DispatchQueue.main.async { [weak self] in

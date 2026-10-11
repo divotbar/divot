@@ -74,9 +74,13 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             configuration: configuration,
                                             workspaceFeed: workspaceFeed,
                                             workspaceIcons: icons,
-                                            displayScreensID: screensID) { action in
+                                            displayScreensID: screensID,
+                                            onWidgetAction: { action in
                 self?.perform(action)
-            }
+            },
+                                            onShowAppearanceMenu: { [weak self] sender in
+                self?.showAppearanceMenu(from: sender)
+            })
             // A family/appearance change can change icon rendering; drop the
             // appearance-dependent icon cache.
             surface.onThemeChanged = { [weak icons] in icons?.invalidate() }
@@ -333,14 +337,39 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                 .first?.activate()
         case .toggleKeepAwake:
             toggleKeepAwake()
-        case .toggleAppearance:
-            appearanceReading?.toggleAppearance()
+        case .showAppearanceMenu:
+            // Menu is shown directly from the view; this case should not be called.
+            break
         case .openDivotSettings:
             // The optional bar icon reuses the existing settings-window opener
             // (the same path as the menu and menu-bar items), never a new one.
             openSettings()
         case .none:
             break
+        }
+    }
+
+    private func showAppearanceMenu(from sender: NSView) {
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Toggle Divot Light/Dark",
+                               action: #selector(toggleDivotAppearance),
+                               keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Open System Appearance Settings",
+                               action: #selector(openSystemAppearanceSettings),
+                               keyEquivalent: ""))
+        // Show menu at the current mouse location using the current event
+        if let event = NSApp.currentEvent {
+            NSMenu.popUpContextMenu(menu, with: event, for: sender)
+        }
+    }
+
+    @objc private func toggleDivotAppearance() {
+        appearanceReading?.toggleAppearance()
+    }
+
+    @objc private func openSystemAppearanceSettings() {
+        if let url = WidgetSettingsPane.general.url {
+            NSWorkspace.shared.open(url)
         }
     }
 }
