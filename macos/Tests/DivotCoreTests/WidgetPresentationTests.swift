@@ -57,6 +57,31 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(!off.accessibilityLabel.contains("keep awake"))
 }
 
+@Test func batteryPercentageIsShownByDefault() {
+    let snapshot = BatterySnapshot(presence: .internalBattery, percentage: 75)
+    let presentation = WidgetPresenter.present(
+        id: .battery,
+        state: state(.battery, .battery(snapshot)),
+        options: options)
+    #expect(presentation.text == "75%")
+}
+
+@Test func batteryPercentageHidesWhenOptionIsDisabled() {
+    let snapshot = BatterySnapshot(presence: .internalBattery, percentage: 75)
+    let hiddenOptions = WidgetPresentationOptions(
+        clock: ClockFormatOptions(),
+        battery: BatteryFormatOptions(showPercentage: false),
+        locale: posix,
+        timeZone: utc)
+    let presentation = WidgetPresenter.present(
+        id: .battery,
+        state: state(.battery, .battery(snapshot)),
+        options: hiddenOptions)
+    #expect(presentation.text.isEmpty)
+    #expect(presentation.symbolName == "battery.75")
+    #expect(presentation.accessibilityLabel.contains("Battery state unknown"))
+}
+
 @Test func networkPresentationReflectsTransportAndConnection() {
     let wifi = WidgetPresenter.present(id: .network,
                                        state: state(.network, .network(.init(isConnected: true, kind: .wifi))),

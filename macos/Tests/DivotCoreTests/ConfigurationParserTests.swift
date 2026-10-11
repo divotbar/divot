@@ -271,7 +271,17 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "expected aerospace | yabai")
 }
 
-@Test func batteryOptionsMustBeAnEmptyObject() throws {
+@Test func batteryOptionsAcceptsShowPercentage() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["battery"],"widgets":{"battery":{"showPercentage":false}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.battery.showPercentage == false)
+
+    let hidden = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["battery"],"widgets":{"battery":{"showPercentage":true}}}"##)
+    let shownParsed = try ConfigurationParser.parse(jsonObject: hidden)
+    #expect(shownParsed.configuration.widgets.battery.showPercentage == true)
+}
+
+@Test func batteryOptionsRejectsUnknownFields() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["battery"],"widgets":{"battery":{"showIcon":true}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "widgets.battery")

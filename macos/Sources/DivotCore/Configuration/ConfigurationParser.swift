@@ -146,10 +146,13 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.frontApp.rawValue] {
             options.frontApp = try frontAppOptions(raw, path: "widgets.front-app")
         }
+        if let raw = object[BarItemID.battery.rawValue] {
+            options.battery = try batteryOptions(raw, path: "widgets.battery")
+        }
         if let raw = object[BarItemID.clock.rawValue] {
             options.clock = try clockOptions(raw, path: "widgets.clock")
         }
-        // battery, network, and volume accept an empty object only.
+        // network and volume accept an empty object only.
         for id in BarItemID.allCases where !WidgetOptions.acceptsOptions(for: id) {
             if let raw = object[id.rawValue] {
                 try shape(raw, required: [], optional: [], path: "widgets.\(id.rawValue)")
@@ -185,6 +188,13 @@ public enum ConfigurationParser {
         var configuration = FrontAppConfiguration.default
         if let raw = object["showIcon"] { configuration.showIcon = try boolean(raw, path: "\(path).showIcon") }
         if let raw = object["showName"] { configuration.showName = try boolean(raw, path: "\(path).showName") }
+        return configuration
+    }
+
+    private static func batteryOptions(_ value: Any?, path: String) throws -> BatteryConfiguration {
+        let object = try shape(value, required: [], optional: ["showPercentage"], path: path)
+        var configuration = BatteryConfiguration.default
+        if let raw = object["showPercentage"] { configuration.showPercentage = try boolean(raw, path: "\(path).showPercentage") }
         return configuration
     }
 
