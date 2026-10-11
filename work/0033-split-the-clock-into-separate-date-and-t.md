@@ -1,10 +1,8 @@
 ---
-updated_at: "2026-10-11T12:36:57Z"
-review_passes: 2
 id: "0033"
 title: "Split the clock into separate date and time items, each with its own toggle"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -14,6 +12,8 @@ branch: feat/split-the-clock-into-separate-date-and-t
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T00:39:24Z"
+updated_at: "2026-10-11T12:39:00Z"
+review_passes: 2
 review_rounds: 1
 last_check_failure: "repoos check at 2026-10-11T00:55:08.295Z: repoos check failed: native-core — 􁁛 Test configureStopsRemovedProvidersAndStartsNewOnes() passed after 2.845 seconds."
 ---
@@ -53,4 +53,5 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T12:36:18Z · status active→review
 - 2026-10-11T12:36:18Z · note: shots: skipped — the diff (30 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T12:36:57Z · note: review pass 2: good to go
-
+- 2026-10-11T12:39:00Z · status review→active
+- 2026-10-11T12:39:00Z · note: close-out repair: merge-conflict
