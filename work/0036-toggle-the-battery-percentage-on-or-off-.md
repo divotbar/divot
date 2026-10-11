@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0036"
 title: Toggle the battery percentage on or off in Settings
 type: feature
@@ -48,3 +49,4 @@ Depends on #0028. Keep changes to the battery widget's label, not the battery re
 - 2026-10-11T00:56:38Z · note: review pass 2: good to go
 - 2026-10-11T01:11:28Z · status review→active
 - 2026-10-11T01:11:28Z · note: close-out repair: merge-conflict
+
