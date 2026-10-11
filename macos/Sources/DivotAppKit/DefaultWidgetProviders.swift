@@ -42,7 +42,7 @@ public enum DefaultWidgetProviders {
     /// "disabled providers stop" rule is testable without constructing readers.
     /// The clock split into date and time (#0033); neither is the old clock.
     public static func placedProviderIDs(in configuration: DivotConfiguration) -> [BarItemID] {
-        let order: [BarItemID] = [.battery, .clock, .network, .volume, .frontApp, .appearance]
+        let order: [BarItemID] = [.battery, .date, .time, .network, .volume, .frontApp, .appearance]
         return order.filter { configuration.isPlaced($0) }
     }
 }
