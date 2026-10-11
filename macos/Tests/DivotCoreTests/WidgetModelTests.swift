@@ -222,10 +222,15 @@ import Testing
 
 // MARK: - Date format
 
-@Test func dateFormatPresetsHaveValidPatterns() {
-    for preset in DateFormatPreset.allCases {
-        #expect(ClockText.isValidPattern(preset.pattern), "Preset \(preset.rawValue) has invalid pattern: \(preset.pattern)")
-    }
+@Test func dateFormatGeneratesValidPatterns() {
+    let config = DateConfiguration()
+    #expect(ClockText.isValidPattern(config.pattern), "Default config generates invalid pattern: \(config.pattern)")
+
+    let configWithYear = DateConfiguration(weekday: true, year: true)
+    #expect(ClockText.isValidPattern(configWithYear.pattern), "Config with year generates invalid pattern: \(configWithYear.pattern)")
+
+    let configDayFirst = DateConfiguration(dayFirst: true)
+    #expect(ClockText.isValidPattern(configDayFirst.pattern), "Day-first config generates invalid pattern: \(configDayFirst.pattern)")
 }
 
 @Test func validCustomDatePatternIsAccepted() {

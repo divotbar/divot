@@ -233,19 +233,27 @@ public struct ClockConfiguration: Equatable, Sendable {
 
 /// `widgets.date`.
 public struct DateConfiguration: Equatable, Sendable {
-    public enum Format: Equatable, Sendable, Hashable {
-        case preset(DateFormatPreset)
-        case custom(String)
-
-        public static let `default` = Format.preset(.satOctTen)
-    }
-
+    /// Whether to show the weekday (e.g. "Sun").
     public var weekday: Bool
-    public var format: Format
+    /// Whether to show the year.
+    public var year: Bool
+    /// Whether to show day before month (e.g. "11 Oct" vs "Oct 11").
+    public var dayFirst: Bool
+    /// The separator between date components (e.g. " ", "-", "/").
+    public var separator: String
+    /// Optional custom pattern for advanced users. Falls back to generated pattern if invalid.
+    public var customPattern: String?
 
-    public init(weekday: Bool = true, format: Format = .default) {
+    public init(weekday: Bool = true,
+                year: Bool = false,
+                dayFirst: Bool = false,
+                separator: String = " ",
+                customPattern: String? = nil) {
         self.weekday = weekday
-        self.format = format
+        self.year = year
+        self.dayFirst = dayFirst
+        self.separator = separator
+        self.customPattern = customPattern
     }
 
     public static let `default` = DateConfiguration()
@@ -253,31 +261,28 @@ public struct DateConfiguration: Equatable, Sendable {
     public var formatOptions: ClockFormatOptions {
         ClockFormatOptions(weekday: weekday, date: true, seconds: false)
     }
-}
 
-/// Preset date formats for the date widget.
-public enum DateFormatPreset: String, CaseIterable, Equatable, Sendable {
-    /// Example: "Sat, 10 Oct"
-    case satOctTen = "sat-oct-ten"
-    /// Example: "10/10/2026"
-    case numericShortDate = "10/10/yyyy"
-    /// Example: "Saturday, October 10, 2026"
-    case fullDate = "EEEE, MMMM d, yyyy"
-
-    public var displayName: String {
-        switch self {
-        case .satOctTen: return "Sat, 10 Oct"
-        case .numericShortDate: return "10/10/2026"
-        case .fullDate: return "Saturday, October 10, 2026"
-        }
-    }
-
+    /// Generate the date format pattern from the configuration options.
     public var pattern: String {
-        switch self {
-        case .satOctTen: return "EEE, d MMM"
-        case .numericShortDate: return "MM/dd/yyyy"
-        case .fullDate: return "EEEE, MMMM d, yyyy"
+        var components: [String] = []
+
+        if weekday { components.append("EEE") }
+
+        if dayFirst {
+            components.append("d")
+        } else {
+            components.append("MMM")
         }
+
+        if dayFirst {
+            components.append("MMM")
+        } else {
+            components.append("d")
+        }
+
+        if year { components.append("yyyy") }
+
+        return components.joined(separator: separator)
     }
 }
 
@@ -562,12 +567,11 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         let dateFormatPattern: String? = {
-            switch widgets.date.format {
-            case .preset(let preset):
-                return preset.pattern
-            case .custom(let pattern):
-                return pattern
+            if let customPattern = widgets.date.customPattern,
+               ClockText.isValidPattern(customPattern) {
+                return customPattern
             }
+            return widgets.date.pattern
         }()
         return WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   date: widgets.date.formatOptions,

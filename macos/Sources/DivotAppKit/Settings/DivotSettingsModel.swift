@@ -279,9 +279,9 @@ public final class DivotSettingsModel {
 
     // MARK: Date format
 
-    /// Set the date format using a preset or custom pattern.
-    public func setDateFormat(_ format: DateConfiguration.Format) {
-        update { $0.widgets.date.format = format }
+    /// Update the custom date pattern.
+    public func updateDateCustomPattern(_ pattern: String?) {
+        update { $0.widgets.date.customPattern = pattern }
     }
 
     // MARK: Keep awake

@@ -255,32 +255,27 @@ public enum ConfigurationParser {
     }
 
     private static func dateOptions(_ value: Any?, path: String) throws -> DateConfiguration {
-        let object = try shape(value, required: [], optional: ["weekday", "format"], path: path)
+        let object = try shape(value, required: [], optional: ["weekday", "year", "dayFirst", "separator", "customPattern"], path: path)
         var configuration = DateConfiguration.default
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
-        if let raw = object["format"] {
-            configuration.format = try dateFormat(raw, path: "\(path).format")
+        if let raw = object["year"] { configuration.year = try boolean(raw, path: "\(path).year") }
+        if let raw = object["dayFirst"] { configuration.dayFirst = try boolean(raw, path: "\(path).dayFirst") }
+        if let raw = object["separator"] {
+            guard let sep = raw as? String else {
+                throw ConfigurationError(path: "\(path).separator", message: "expected string")
+            }
+            configuration.separator = sep
+        }
+        if let raw = object["customPattern"] {
+            guard let pattern = raw as? String else {
+                throw ConfigurationError(path: "\(path).customPattern", message: "expected string")
+            }
+            // Validate the pattern but don't reject the document if invalid
+            if ClockText.isValidPattern(pattern) {
+                configuration.customPattern = pattern
+            }
         }
         return configuration
-    }
-
-    private static func dateFormat(_ value: Any?, path: String) throws -> DateConfiguration.Format {
-        guard let raw = value else { return .default }
-        if let preset = raw as? String {
-            // Try to parse as a preset
-            if let presetValue = DateFormatPreset(rawValue: preset) {
-                return .preset(presetValue)
-            }
-            // Otherwise treat as a custom pattern, but fall back to default if invalid
-            // (rather than failing the entire document parse)
-            if ClockText.isValidPattern(preset) {
-                return .custom(preset)
-            } else {
-                // Invalid pattern falls back to default instead of rejecting the document
-                return .default
-            }
-        }
-        throw ConfigurationError(path: path, message: "expected string (preset or custom pattern)")
     }
 
     private static func timeOptions(_ value: Any?, path: String) throws -> TimeConfiguration {

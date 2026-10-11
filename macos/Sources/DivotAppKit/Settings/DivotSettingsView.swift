@@ -215,70 +215,55 @@ public struct DivotSettingsView: View {
     }
 
     private var dateTimeSection: some View {
-        Section("Date and time") {
-            Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
-            Text("The weekday toggle applies only when using preset formats. Custom patterns always use their full format.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Picker("Date format", selection: dateFormatModeBinding) {
-                ForEach(DateFormatPreset.allCases, id: \.self) { preset in
-                    Text(preset.displayName).tag(DateFormatMode.preset(preset))
+        Group {
+            Section("Date") {
+                Toggle("Show weekday", isOn: binding(\.widgets.date.weekday))
+                Toggle("Show year", isOn: binding(\.widgets.date.year))
+                Picker("Day order", selection: binding(\.widgets.date.dayFirst)) {
+                    Text("Month, Day").tag(false)
+                    Text("Day, Month").tag(true)
                 }
-                Divider()
-                Text("Custom pattern...").tag(DateFormatMode.custom)
-            }
-            if case .custom(let pattern) = model.configuration.widgets.date.format {
-                TextField("Custom pattern (e.g., MM/dd/yyyy)", text: customPatternBinding)
+                TextField("Separator", text: binding(\.widgets.date.separator))
                     .textFieldStyle(.roundedBorder)
-                if !pattern.isEmpty && !ClockText.isValidPattern(pattern) {
-                    Text("Invalid pattern. Falling back to default.")
+                LabeledContent("Preview") {
+                    Text(datePreview)
                         .font(.caption)
-                        .foregroundStyle(.red)
-                } else if !pattern.isEmpty {
-                    Text("Example: \(formatDateExample(pattern))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .monospaced()
                 }
-            }
-            Toggle("Show seconds in the time", isOn: binding(\.widgets.time.seconds))
-        }
-    }
-
-    private var dateFormatModeBinding: Binding<DateFormatMode> {
-        Binding(
-            get: {
-                if case .preset(let preset) = model.configuration.widgets.date.format {
-                    return .preset(preset)
-                } else {
-                    return .custom
-                }
-            },
-            set: { newMode in
-                switch newMode {
-                case .preset(let preset):
-                    model.setDateFormat(.preset(preset))
-                case .custom:
-                    // Switch to custom mode with empty pattern if not already custom
-                    if case .custom = model.configuration.widgets.date.format {
-                        // Already in custom mode, do nothing
-                    } else {
-                        model.setDateFormat(.custom(""))
+                DisclosureGroup("Custom pattern") {
+                    TextField("Custom pattern (e.g., MM/dd/yyyy)", text: customPatternBinding)
+                        .textFieldStyle(.roundedBorder)
+                    if let pattern = model.configuration.widgets.date.customPattern,
+                       !pattern.isEmpty {
+                        if !ClockText.isValidPattern(pattern) {
+                            Text("Invalid pattern. Using format above.")
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        } else {
+                            Text("Example: \(formatDateExample(pattern))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }
-        )
+            Section("Time") {
+                Toggle("Show seconds", isOn: binding(\.widgets.time.seconds))
+            }
+        }
+    }
+
+    private var datePreview: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = model.configuration.widgets.date.pattern
+        return formatter.string(from: Date())
     }
 
     private var customPatternBinding: Binding<String> {
         Binding(
-            get: {
-                if case .custom(let pattern) = model.configuration.widgets.date.format {
-                    return pattern
-                }
-                return ""
-            },
+            get: { model.configuration.widgets.date.customPattern ?? "" },
             set: { pattern in
-                model.setDateFormat(.custom(pattern))
+                model.updateDateCustomPattern(pattern.isEmpty ? nil : pattern)
             }
         )
     }
@@ -287,8 +272,7 @@ public struct DivotSettingsView: View {
         guard ClockText.isValidPattern(pattern) else { return "" }
         let formatter = DateFormatter()
         formatter.dateFormat = pattern
-        let date = Date() // Current date
-        return formatter.string(from: date)
+        return formatter.string(from: Date())
     }
 
     private var networkSection: some View {
@@ -465,10 +449,4 @@ public struct DivotSettingsView: View {
         Binding(get: { model.configuration[keyPath: keyPath] },
                 set: { newValue in model.update { $0[keyPath: keyPath] = newValue } })
     }
-}
-
-/// Helper enum to drive the date format picker.
-private enum DateFormatMode: Hashable {
-    case preset(DateFormatPreset)
-    case custom
 }
