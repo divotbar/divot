@@ -423,6 +423,28 @@ private func write(_ json: String, to url: URL) throws {
     #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
 }
 
+@Test func savePersistsAppearanceItemScope() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // A plain default configuration uses divotOnly scope.
+    try store.save(.default)
+    #expect(store.current.widgets.appearance.scope == .divotOnly)
+
+    // An explicit fullSystem scope is persisted.
+    var configuration = DivotConfiguration.default
+    configuration.widgets.appearance = AppearanceItemConfiguration(scope: .fullSystem)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.appearance.scope == .fullSystem)
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let appearanceOptions = (object?["widgets"] as? [String: Any])?["appearance"] as? [String: Any]
+    #expect(appearanceOptions?["scope"] as? String == "fullSystem")
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])

@@ -361,7 +361,6 @@ public struct WidgetOptions: Equatable, Sendable {
     public var frontApp: FrontAppConfiguration
     public var battery: BatteryConfiguration
     public var clock: ClockConfiguration
-<<<<<<< HEAD
     public var appearance: AppearanceItemConfiguration
     public var network: NetworkConfiguration
     public var volume: VolumeConfiguration
