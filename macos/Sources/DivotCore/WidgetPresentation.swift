@@ -13,19 +13,35 @@ public struct FrontAppFormatOptions: Equatable, Sendable {
     public static let `default` = FrontAppFormatOptions()
 }
 
+/// Whether the volume item shows its percentage and/or muted state.
+public struct VolumeFormatOptions: Equatable, Sendable {
+    public var showPercent: Bool
+    public var showMuted: Bool
+
+    public init(showPercent: Bool = true, showMuted: Bool = true) {
+        self.showPercent = showPercent
+        self.showMuted = showMuted
+    }
+
+    public static let `default` = VolumeFormatOptions()
+}
+
 /// Options the presenter needs beyond the snapshot itself.
 public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var frontApp: FrontAppFormatOptions
+    public var volume: VolumeFormatOptions
     public var locale: Locale
     public var timeZone: TimeZone
 
     public init(clock: ClockFormatOptions = .default,
                 frontApp: FrontAppFormatOptions = .default,
+                volume: VolumeFormatOptions = .default,
                 locale: Locale = .current,
                 timeZone: TimeZone = .current) {
         self.clock = clock
         self.frontApp = frontApp
+        self.volume = volume
         self.locale = locale
         self.timeZone = timeZone
     }
@@ -112,7 +128,7 @@ public enum WidgetPresenter {
         case .network(let snapshot):
             return networkPresentation(snapshot)
         case .volume(let snapshot):
-            return volumePresentation(snapshot)
+            return volumePresentation(snapshot, options: options.volume)
         case .clock(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.clock,
                                         locale: options.locale, timeZone: options.timeZone)
@@ -215,16 +231,20 @@ public enum WidgetPresenter {
         return WidgetPresentation(symbolName: symbol, text: "", accessibilityLabel: description)
     }
 
-    private static func volumePresentation(_ snapshot: VolumeSnapshot) -> WidgetPresentation {
+    private static func volumePresentation(_ snapshot: VolumeSnapshot,
+                                           options: VolumeFormatOptions = .default) -> WidgetPresentation {
         guard snapshot.hasOutputDevice else {
             return WidgetPresentation(symbolName: "speaker.slash.fill",
                                       text: "",
                                       accessibilityLabel: "No audio output device",
                                       isError: true)
         }
+        // When muted, the muted state takes priority over the percentage.
+        // The accessibility label always includes the full state so screen readers announce it completely.
         if snapshot.isMuted {
+            let text = options.showMuted ? "Muted" : ""
             return WidgetPresentation(symbolName: "speaker.slash.fill",
-                                      text: "Muted",
+                                      text: text,
                                       accessibilityLabel: "Volume muted")
         }
         let symbol: String
@@ -235,8 +255,9 @@ public enum WidgetPresenter {
         default: symbol = "speaker.wave.3.fill"
         }
         let percent = Int((snapshot.level * 100).rounded())
+        let text = options.showPercent ? "\(percent)%" : ""
         return WidgetPresentation(symbolName: symbol,
-                                  text: "\(percent)%",
+                                  text: text,
                                   accessibilityLabel: "Volume \(percent) percent")
     }
 }

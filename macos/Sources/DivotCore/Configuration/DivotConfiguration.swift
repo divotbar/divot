@@ -220,6 +220,22 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+public struct VolumeConfiguration: Equatable, Sendable {
+    public var showVolumePercent: Bool
+    public var showVolumeMuted: Bool
+
+    public init(showVolumePercent: Bool = true, showVolumeMuted: Bool = true) {
+        self.showVolumePercent = showVolumePercent
+        self.showVolumeMuted = showVolumeMuted
+    }
+
+    public static let `default` = VolumeConfiguration()
+
+    public var formatOptions: VolumeFormatOptions {
+        VolumeFormatOptions(showPercent: showVolumePercent, showMuted: showVolumeMuted)
+    }
+}
+
 /// The document-level menu-bar detection preference.
 ///
 /// On notched hardware the camera housing masks the same top band whether the
@@ -290,18 +306,21 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public static let `default` = KeepAwakeConfiguration()
 }
 
-/// Namespaced per-item options. `battery`, `network`, and `volume` accept none.
+/// Namespaced per-item options. `battery` and `network` accept none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
     public var clock: ClockConfiguration
+    public var volume: VolumeConfiguration
 
     public init(workspaces: WorkspacesConfiguration = .default,
                 frontApp: FrontAppConfiguration = .default,
-                clock: ClockConfiguration = .default) {
+                clock: ClockConfiguration = .default,
+                volume: VolumeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
         self.clock = clock
+        self.volume = volume
     }
 
     public static let `default` = WidgetOptions()
@@ -309,8 +328,8 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .clock: return true
-        case .battery, .network, .volume: return false
+        case .workspaces, .frontApp, .clock, .volume: return true
+        case .battery, .network: return false
         }
     }
 }
@@ -437,10 +456,11 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
-    /// Clock and front-app formatting the renderer needs beyond snapshots.
+    /// Clock, front-app, and volume formatting the renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
-                                  frontApp: widgets.frontApp.formatOptions)
+                                  frontApp: widgets.frontApp.formatOptions,
+                                  volume: widgets.volume.formatOptions)
     }
 
     /// The compact render rhythm derived from the configured layout and text.
