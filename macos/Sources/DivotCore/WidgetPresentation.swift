@@ -182,6 +182,8 @@ public enum WidgetPresenter {
                                         locale: options.locale, timeZone: options.timeZone,
                                         timeFormat: options.timeFormat, customTimePattern: options.customTimePattern)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
+        case .appearance(let snapshot):
+            return appearancePresentation(snapshot)
         case .unavailable(let unavailable):
             return unavailablePresentation(unavailable)
         }
