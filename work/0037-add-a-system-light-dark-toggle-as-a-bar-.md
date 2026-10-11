@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-11T04:45:27Z"
-review_passes: 4
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
@@ -12,6 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
+updated_at: "2026-10-11T10:07:05Z"
+review_passes: 4
 review_rounds: 2
 handoff_signal_retry_count: 1
 ---
@@ -26,12 +26,14 @@ The maintainer wants a bar item that switches the macOS system appearance betwee
 - The item uses the public appearance API; no private settings are touched.
 
 ## Acceptance criteria
-
 - Add an `appearance` bar item with an enable toggle and side placement, consistent with the other items.
-- Clicking the item switches the system appearance through the public API and the item updates to match.
-- Tests cover the state mapping (light, dark) and the click action routing.
-- The toggle does not change any other system setting. Verify on the packaged app; the maintainer confirms the look.
-- `repoos check` passes.
+- A scope setting in Settings has two options: "Divot only" (switches only Divot's own theme appearance) and "Full system" (switches the macOS light/dark appearance through the public API). Default: "Divot only".
+- Clicking the item toggles the chosen scope and the item updates to match. The click is a direct toggle, not a menu, and works with the mouse and VoiceOver through the same action.
+- Tests cover the state mapping (light, dark), each scope's action, and the click routing for both scopes.
+- In "Divot only" mode no macOS setting is changed. In "Full system" mode only the appearance is changed, through the public API.
+- Verify on the packaged app; the maintainer confirms the look.
+- repoos check passes.
+
 
 ## Notes for AI
 ## Implementation
@@ -65,4 +67,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T04:44:38Z · note: Task body is underspecified: empty sections: Notes for AI
 - 2026-10-11T04:44:39Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T04:45:27Z · note: review pass 4: needs some work
-
+- 2026-10-11T10:07:05Z · body: section Acceptance criteria
