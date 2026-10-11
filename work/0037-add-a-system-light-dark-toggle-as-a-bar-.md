@@ -1,10 +1,8 @@
 ---
-updated_at: "2026-10-11T01:08:16Z"
-review_passes: 3
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -12,6 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
+updated_at: "2026-10-11T04:40:13Z"
+review_passes: 3
 review_rounds: 2
 handoff_signal_retry_count: 1
 ---
@@ -53,4 +53,5 @@ Depends on #0028. Keep the appearance read and write behind a small provider so 
 - 2026-10-11T01:07:35Z · status active→review
 - 2026-10-11T01:07:36Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T01:08:16Z · note: review pass 3: needs some work
-
+- 2026-10-11T04:40:13Z · status review→active
+- 2026-10-11T04:40:13Z · note: The review came back with "needs some work — The bar item, provider split, presentation, and settings placement wiring are in good shape, but the click path toggles Divot’s NSApp.appearance override, not macOS system light/dark as the spec requires.” >> but actually I think both options are good to have, so how about when toggling light/dark let’s give the user the options: - to toggle just Divot’s light/dark mode  - to toggle the system light/dark mode
