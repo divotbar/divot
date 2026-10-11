@@ -2,7 +2,7 @@
 id: "0035"
 title: Let the user choose the time format in Settings (24-hour or AM/PM)
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0033"]
@@ -44,4 +44,4 @@ Depends on #0033, the date/time split. Keep this to the time item's formatting, 
 - 2026-10-11T13:18:26Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T13:19:07Z · note: review pass 1: needs some work
 - 2026-10-11T13:19:07Z · status review→active
-- 2026-10-11T13:22:42Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:22:42Z · status active→review
