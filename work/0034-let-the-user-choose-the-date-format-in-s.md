@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
-updated_at: "2026-10-11T13:18:51Z"
+updated_at: "2026-10-11T13:22:50Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -48,3 +48,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:17:55Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T13:18:51Z · note: review pass 2: needs some work
 - 2026-10-11T13:18:51Z · status review→active
+- 2026-10-11T13:22:50Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
