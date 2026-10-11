@@ -151,9 +151,8 @@ public enum NetworkKind: String, Equatable, Sendable {
 
 /// Connectivity and transport state.
 ///
-/// It deliberately carries no SSID or other location-gated detail: those need
-/// an extra permission and are not required for a useful indicator. Network
-/// details must not force unnecessary permissions.
+/// The SSID/Wi-Fi network name is optional and location-gated. Include it only
+/// when the user has explicitly enabled it and the permission is available.
 public struct NetworkSnapshot: Equatable, Sendable {
     public let isConnected: Bool
     public let kind: NetworkKind
@@ -162,17 +161,21 @@ public struct NetworkSnapshot: Equatable, Sendable {
     public let isExpensive: Bool
     /// The path is in a low-data mode.
     public let isConstrained: Bool
+    /// The current Wi-Fi network name (SSID), when connected to Wi-Fi and available.
+    public let wifiName: String?
 
     public init(isConnected: Bool,
                 kind: NetworkKind = .other,
                 interfaceName: String? = nil,
                 isExpensive: Bool = false,
-                isConstrained: Bool = false) {
+                isConstrained: Bool = false,
+                wifiName: String? = nil) {
         self.isConnected = isConnected
         self.kind = kind
         self.interfaceName = interfaceName
         self.isExpensive = isExpensive
         self.isConstrained = isConstrained
+        self.wifiName = wifiName
     }
 }
 

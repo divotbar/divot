@@ -231,6 +231,21 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// `widgets.network`.
+public struct NetworkConfiguration: Equatable, Sendable {
+    public var showWifiName: Bool
+
+    public init(showWifiName: Bool = false) {
+        self.showWifiName = showWifiName
+    }
+
+    public static let `default` = NetworkConfiguration()
+
+    public var formatOptions: NetworkFormatOptions {
+        NetworkFormatOptions(showWifiName: showWifiName)
+    }
+}
+
 public struct VolumeConfiguration: Equatable, Sendable {
     public var showVolumePercent: Bool
     public var showVolumeMuted: Bool
@@ -317,23 +332,26 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public static let `default` = KeepAwakeConfiguration()
 }
 
-/// Namespaced per-item options. `network` accepts none.
+/// Namespaced per-item options. `battery` accepts none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
     public var battery: BatteryConfiguration
     public var clock: ClockConfiguration
+    public var network: NetworkConfiguration
     public var volume: VolumeConfiguration
 
     public init(workspaces: WorkspacesConfiguration = .default,
                 frontApp: FrontAppConfiguration = .default,
                 battery: BatteryConfiguration = .default,
                 clock: ClockConfiguration = .default,
+                network: NetworkConfiguration = .default,
                 volume: VolumeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
         self.battery = battery
         self.clock = clock
+        self.network = network
         self.volume = volume
     }
 
@@ -342,8 +360,7 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .battery, .clock, .volume: return true
-        case .network: return false
+        case .workspaces, .frontApp, .battery, .clock, .network, .volume: return true
         }
     }
 }
@@ -470,11 +487,12 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
-    /// Battery, clock, front-app, and volume formatting the renderer needs beyond snapshots.
+    /// Battery, clock, front-app, network, and volume formatting the renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions,
                                   battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),
+                                  network: widgets.network.formatOptions,
                                   volume: widgets.volume.formatOptions)
     }
 
