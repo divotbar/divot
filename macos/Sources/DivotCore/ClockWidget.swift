@@ -67,21 +67,55 @@ public enum ClockText {
     public static func string(for snapshot: ClockSnapshot,
                               options: ClockFormatOptions = .default,
                               locale: Locale = .current,
-                              timeZone: TimeZone = .current) -> String {
+                              timeZone: TimeZone = .current,
+                              timeFormat: TimeConfiguration.Format = .ampm,
+                              customTimePattern: String? = nil) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.timeZone = timeZone
-        formatter.setLocalizedDateFormatFromTemplate(template(options))
+
+        let templateToUse = template(options, timeFormat: timeFormat, customTimePattern: customTimePattern)
+
+        // If using a custom pattern, set it directly; otherwise use localized template
+        if timeFormat == .custom && isValidCustomPattern(customTimePattern ?? "") {
+            formatter.dateFormat = customTimePattern
+        } else {
+            formatter.setLocalizedDateFormatFromTemplate(templateToUse)
+        }
+
         return formatter.string(from: snapshot.date)
+    }
+
+    /// Validate a custom date format pattern
+    public static func isValidCustomPattern(_ pattern: String) -> Bool {
+        guard !pattern.isEmpty else { return false }
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        // DateFormatter accepts invalid patterns silently, so we test it
+        return formatter.date(from: formatter.string(from: Date())) != nil
     }
 
     /// The unlocalized template handed to `setLocalizedDateFormatFromTemplate`.
     /// Exposed so tests can assert component selection independent of locale.
-    static func template(_ options: ClockFormatOptions) -> String {
+    static func template(_ options: ClockFormatOptions,
+                        timeFormat: TimeConfiguration.Format = .ampm,
+                        customTimePattern: String? = nil) -> String {
         var fields: [String] = []
         if options.weekday { fields.append("EEE") }
         if options.date { fields.append("MMMd") }
-        fields.append(options.seconds ? "jmms" : "jmm")
+
+        let timeField: String
+        switch timeFormat {
+        case .twentyFourHour:
+            timeField = options.seconds ? "HHmms" : "HHmm"
+        case .ampm:
+            timeField = options.seconds ? "jmms" : "jmm"
+        case .custom:
+            // For custom format, the pattern will be set directly, so use a placeholder
+            timeField = options.seconds ? "jmms" : "jmm"
+        }
+
+        fields.append(timeField)
         return fields.joined(separator: " ")
     }
 }
