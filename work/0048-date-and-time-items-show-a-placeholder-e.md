@@ -2,7 +2,7 @@
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -59,4 +59,4 @@ The root cause was that DateProvider and TimeProvider were emitting .date and .t
 - 2026-10-11T14:25:57Z · status inbox→ready
 - 2026-10-11T14:25:58Z · status ready→active, branch
 - 2026-10-11T14:29:42Z · body: section Observed Results
-- 2026-10-11T14:30:38Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:30:38Z · status active→review
