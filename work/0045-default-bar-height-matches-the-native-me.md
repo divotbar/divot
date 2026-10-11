@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-11T13:32:26.182Z: repoos check failed: native-core — 􁁛 Test configureKeepsUnchangedProvidersRunning() passed after 2.155 seconds."
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
@@ -44,3 +46,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T13:23:30Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T13:24:17Z · note: review pass 1: needs some work
 - 2026-10-11T13:24:18Z · status review→active
+
