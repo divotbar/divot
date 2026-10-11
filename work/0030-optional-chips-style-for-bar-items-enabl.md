@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-chips-style-for-bar-items-enabl
 created_at: "2026-10-11T00:39:23Z"
-updated_at: "2026-10-11T00:43:51Z"
+updated_at: "2026-10-11T00:49:59Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Depends on #0028 so the notch-side geometry is settled first. Keep changes to it
 - 2026-10-11T00:39:23Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:50Z · status inbox→ready
 - 2026-10-11T00:43:51Z · status ready→active, branch
+- 2026-10-11T00:49:59Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
