@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T01:02:54Z"
+updated_at: "2026-10-11T01:03:28Z"
 review_rounds: 1
 review_passes: 1
 handoff_signal_retry_count: 1
@@ -48,3 +48,4 @@ Depends on #0028. Keep the appearance read and write behind a small provider so 
 - 2026-10-11T01:00:28Z · status review→active
 - 2026-10-11T01:02:53Z · status active→review
 - 2026-10-11T01:02:54Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T01:03:28Z · note: review pass 2: needs some work
