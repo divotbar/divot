@@ -50,3 +50,4 @@ Depends on #0028. Keep changes to the battery widget's label, not the battery re
 - 2026-10-11T01:11:28Z · status review→active
 - 2026-10-11T01:11:28Z · note: close-out repair: merge-conflict
 - 2026-10-11T01:14:29Z · status active→review
+- 2026-10-11T01:14:29Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
