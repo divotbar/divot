@@ -21,7 +21,7 @@ public struct DivotSettingsView: View {
             barItemsSection
             workspacesSection
             frontAppSection
-            clockSection
+            dateTimeSection
             keepAwakeSection
             layoutSection
             textSection
@@ -95,7 +95,9 @@ public struct DivotSettingsView: View {
 
     private var barItemsSection: some View {
         Section("Bar items") {
-            ForEach(BarItemID.allCases, id: \.self) { id in
+            // The legacy combined clock is not offered: the split into date and
+            // time replaced it (#0033).
+            ForEach(BarItemID.placeableItems, id: \.self) { id in
                 itemRow(id)
             }
         }
@@ -194,11 +196,10 @@ public struct DivotSettingsView: View {
         }
     }
 
-    private var clockSection: some View {
-        Section("Clock") {
-            Toggle("Show weekday", isOn: binding(\.widgets.clock.weekday))
-            Toggle("Show date", isOn: binding(\.widgets.clock.date))
-            Toggle("Show seconds", isOn: binding(\.widgets.clock.seconds))
+    private var dateTimeSection: some View {
+        Section("Date and time") {
+            Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
+            Toggle("Show seconds in the time", isOn: binding(\.widgets.time.seconds))
         }
     }
 

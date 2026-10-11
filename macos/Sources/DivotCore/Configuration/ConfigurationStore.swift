@@ -280,8 +280,6 @@ private extension WidgetOptions {
         if !workspaces.isEmpty { object[BarItemID.workspaces.rawValue] = workspaces }
         let frontApp = frontApp.jsonObject
         if !frontApp.isEmpty { object[BarItemID.frontApp.rawValue] = frontApp }
-        let clock = clock.jsonObject
-        if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
         let date = date.jsonObject
         if !date.isEmpty { object[BarItemID.date.rawValue] = date }
         let time = time.jsonObject
@@ -309,17 +307,6 @@ private extension FrontAppConfiguration {
         let defaults = FrontAppConfiguration.default
         if showIcon != defaults.showIcon { object["showIcon"] = showIcon }
         if showName != defaults.showName { object["showName"] = showName }
-        return object
-    }
-}
-
-private extension ClockConfiguration {
-    var jsonObject: [String: Any] {
-        var object: [String: Any] = [:]
-        let defaults = ClockConfiguration.default
-        if weekday != defaults.weekday { object["weekday"] = weekday }
-        if date != defaults.date { object["date"] = date }
-        if seconds != defaults.seconds { object["seconds"] = seconds }
         return object
     }
 }

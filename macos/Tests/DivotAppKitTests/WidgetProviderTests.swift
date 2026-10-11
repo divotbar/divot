@@ -317,6 +317,58 @@ private final class MockFrontAppReading: FrontAppReading {
     #expect(source.sleeps.first == 60)
 }
 
+@Test func timeProviderEmitsImmediatelyThenAtBoundaries() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(60),
+                                         base.addingTimeInterval(60), base.addingTimeInterval(120)])
+    let collector = ContentCollector()
+    let subscription = TimeProvider(source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 3 }
+    subscription.cancel()
+
+    let contents = collector.contents
+    guard case .time? = contents.first else {
+        Issue.record("expected a time snapshot")
+        return
+    }
+    // The default time item wakes at the next minute boundary.
+    #expect(source.sleeps.first == 60)
+}
+
+@Test func timeProviderWithSecondsWakesEverySecondBoundary() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(1)])
+    let collector = ContentCollector()
+    let subscription = TimeProvider(seconds: true, source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 2 }
+    subscription.cancel()
+
+    guard case .time? = collector.contents.first else {
+        Issue.record("expected a time snapshot")
+        return
+    }
+    #expect(source.sleeps.first == 1)
+}
+
+@Test func dateProviderEmitsImmediatelyAndWakesAtTheDayBoundary() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base])
+    let collector = ContentCollector()
+    let subscription = DateProvider(source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 2 }
+    subscription.cancel()
+
+    guard case .date? = collector.contents.first else {
+        Issue.record("expected a date snapshot")
+        return
+    }
+    // A date changes once a day, so the loop must not wake every minute.
+    #expect((source.sleeps.first ?? 0) > 60 * 60)
+}
+
 @MainActor
 @Test func frontAppProviderEmitsOnMainAndOnChange() async {
     let reading = MockFrontAppReading()

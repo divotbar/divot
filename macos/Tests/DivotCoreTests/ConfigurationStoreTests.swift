@@ -323,11 +323,12 @@ private func write(_ json: String, to url: URL) throws {
 @Test func legacyNotchGapIsStrippedOnSave() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
-    // Load a legacy config with notchGap.
+    // Load a legacy config with notchGap and the combined clock item.
     try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":15},"left":["clock"],"right":["battery"]}"##, to: url)
     let store = ConfigurationStore(configURL: url)
     #expect(store.load() == .loaded)
-    // Save it back; notchGap should be omitted.
+    #expect(store.current.left == [.time])
+    // Save it back; notchGap and the legacy clock item are not rewritten.
     try store.save(store.current)
 
     let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
@@ -335,6 +336,26 @@ private func write(_ json: String, to url: URL) throws {
     #expect(layout?["notchGap"] == nil)
     #expect(layout?["height"] as? Int == 32)
     #expect(layout?["padding"] as? Int == 12)
+    // The clock moved to time on disk, not just in memory.
+    #expect(object?["left"] as? [String] == ["time"])
+}
+
+@Test func legacyClockOptionsMigrateAndPersistAsTimeAndDateOnSave() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["date"],"widgets":{"clock":{"weekday":false,"seconds":true}}}"##, to: url)
+    let store = ConfigurationStore(configURL: url)
+    #expect(store.load() == .loaded)
+    #expect(store.current.widgets.time.seconds)
+    #expect(!store.current.widgets.date.weekday)
+
+    try store.save(store.current)
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    // The stale clock namespace is gone; the options live under time and date.
+    #expect(widgets?["clock"] == nil)
+    #expect((widgets?["time"] as? [String: Any])?["seconds"] as? Bool == true)
+    #expect((widgets?["date"] as? [String: Any])?["weekday"] as? Bool == false)
 }
 
 @Test func defaultLocationHonorsXDGConfigHome() {

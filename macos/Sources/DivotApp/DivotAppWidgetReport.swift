@@ -30,7 +30,7 @@ enum DivotAppWidgetReport {
         print("# divot widget report (live built-in providers, \(duration)s window)")
         print("layout.left=\(BarLayout.default.left.map(\.rawValue).joined(separator: ","))")
         print("layout.right=\(BarLayout.default.right.map(\.rawValue).joined(separator: ","))")
-        for id in BarItemID.allCases {
+        for id in BarItemID.placeableItems {
             guard let state = collected[id] else {
                 print("\(id.rawValue): (no data within \(duration)s)")
                 continue

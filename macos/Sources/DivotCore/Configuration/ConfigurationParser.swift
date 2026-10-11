@@ -62,19 +62,11 @@ public enum ConfigurationParser {
         var left = try itemGroup(root["left"], path: "left")
         var right = try itemGroup(root["right"], path: "right")
 
-        // Migrate clock to time and date (#0033)
-        let hadClock = left.contains(.clock) || right.contains(.clock)
-        if hadClock {
-            let clockSide = left.contains(.clock) ? BarSide.left : .right
-            let clockIndex = (clockSide == .left ? left : right).firstIndex(of: .clock)!
-            if clockSide == .left {
-                left.remove(at: clockIndex)
-                left.insert(.time, at: clockIndex)
-            } else {
-                right.remove(at: clockIndex)
-                right.insert(.time, at: clockIndex)
-            }
-        }
+        // Migrate the legacy combined clock to time (#0033). Every occurrence is
+        // rewritten so a document that named clock on both sides is then caught
+        // as the duplicate it was.
+        left = left.map { $0 == .clock ? .time : $0 }
+        right = right.map { $0 == .clock ? .time : $0 }
 
         try requireUniquePlacement(left: left, right: right)
         let widgets = try widgetOptions(root["widgets"], placed: Set(left + right))
@@ -146,6 +138,31 @@ public enum ConfigurationParser {
         guard var object = value as? [String: Any] else {
             throw ConfigurationError(path: "widgets", message: "expected object")
         }
+        // Migrate the legacy combined-clock namespace to time/date before
+        // validating, so a document that still carries `widgets.clock` is
+        // accepted and rewritten rather than rejected as unplaced or left stale
+        // (#0033). The key is removed so it can never be re-saved.
+        if let clockRaw = object[BarItemID.clock.rawValue] {
+            object[BarItemID.clock.rawValue] = nil
+            if let clockObj = clockRaw as? [String: Any] {
+                // If time is placed, migrate the seconds option.
+                if placed.contains(.time) && object[BarItemID.time.rawValue] == nil {
+                    var timeObj = [String: Any]()
+                    if let seconds = clockObj["seconds"] { timeObj["seconds"] = seconds }
+                    if !timeObj.isEmpty { object[BarItemID.time.rawValue] = timeObj }
+                }
+                // If date is placed, migrate the weekday option.
+                if placed.contains(.date) && object[BarItemID.date.rawValue] == nil {
+                    var dateObj = [String: Any]()
+                    if let weekday = clockObj["weekday"] { dateObj["weekday"] = weekday }
+                    if !dateObj.isEmpty { object[BarItemID.date.rawValue] = dateObj }
+                }
+            } else {
+                // A malformed clock namespace still reports its own path.
+                _ = try clockOptions(clockRaw, path: "widgets.clock")
+            }
+        }
+
         for key in object.keys {
             guard let id = BarItemID(rawValue: key) else {
                 throw ConfigurationError(path: "widgets", message: "unknown field \(key)")
@@ -155,41 +172,12 @@ public enum ConfigurationParser {
             }
         }
 
-        // Migrate clock options to time and date options (#0033)
-        if let clockRaw = object[BarItemID.clock.rawValue], placed.contains(.time) || placed.contains(.date) {
-            if let clockObj = clockRaw as? [String: Any] {
-                // If time is placed, migrate the seconds option
-                if placed.contains(.time) && object[BarItemID.time.rawValue] == nil {
-                    var timeObj = [String: Any]()
-                    if let seconds = clockObj["seconds"] {
-                        timeObj["seconds"] = seconds
-                    }
-                    if !timeObj.isEmpty {
-                        object[BarItemID.time.rawValue] = timeObj
-                    }
-                }
-                // If date is placed, migrate the weekday option
-                if placed.contains(.date) && object[BarItemID.date.rawValue] == nil {
-                    var dateObj = [String: Any]()
-                    if let weekday = clockObj["weekday"] {
-                        dateObj["weekday"] = weekday
-                    }
-                    if !dateObj.isEmpty {
-                        object[BarItemID.date.rawValue] = dateObj
-                    }
-                }
-            }
-        }
-
         var options = WidgetOptions.default
         if let raw = object[BarItemID.workspaces.rawValue] {
             options.workspaces = try workspacesOptions(raw, path: "widgets.workspaces")
         }
         if let raw = object[BarItemID.frontApp.rawValue] {
             options.frontApp = try frontAppOptions(raw, path: "widgets.front-app")
-        }
-        if let raw = object[BarItemID.clock.rawValue] {
-            options.clock = try clockOptions(raw, path: "widgets.clock")
         }
         if let raw = object[BarItemID.date.rawValue] {
             options.date = try dateOptions(raw, path: "widgets.date")
@@ -317,10 +305,8 @@ public enum ConfigurationParser {
         let layoutConfig = try root["layout"].map { try layout($0, path: "layout") } ?? .default
         var status = try itemGroup(root["status"], path: "status")
 
-        // Migrate clock to time (#0033)
-        if let clockIndex = status.firstIndex(of: .clock) {
-            status[clockIndex] = .time
-        }
+        // Migrate the legacy combined clock to time (#0033).
+        status = status.map { $0 == .clock ? .time : $0 }
 
         var widgets = WidgetOptions.default
         if let raw = root["workspaces"] {

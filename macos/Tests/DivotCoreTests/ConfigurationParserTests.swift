@@ -208,6 +208,29 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "unknown field weather")
 }
 
+@Test func versionTwoClockItemAndOptionsMigrateToTimeAndDate() throws {
+    // A version 2 document from before the split still names the combined
+    // clock. It is not a version migration, but parsing rewrites it to time,
+    // and its options move to time's seconds and date's weekday.
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["date"],"widgets":{"clock":{"weekday":false,"seconds":true}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.migratedFromVersion == nil)
+    #expect(parsed.configuration.left == [.time])
+    #expect(parsed.configuration.right == [.date])
+    #expect(parsed.configuration.widgets.time == TimeConfiguration(seconds: true))
+    #expect(parsed.configuration.widgets.date == DateConfiguration(weekday: false))
+}
+
+@Test func aStaleClockNamespaceIsDroppedRatherThanRejected() throws {
+    // A document that carries `widgets.clock` with no clock item left to place
+    // is legacy noise: it is dropped, not rejected as unplaced, and never
+    // re-saved.
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["battery"],"right":[],"widgets":{"clock":{"weekday":false,"seconds":true}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.clock == .default)
+    #expect(parsed.configuration.jsonObject["widgets"] == nil)
+}
+
 @Test func unknownWidgetOptionIsRejected() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":[],"widgets":{"time":{"timezone":"UTC"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }

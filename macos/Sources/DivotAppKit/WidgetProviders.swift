@@ -78,7 +78,7 @@ public struct DateProvider: WidgetProvider {
         let task = Task.detached {
             emit(.date(ClockSnapshot(date: source.now())))
             while !Task.isCancelled {
-                let delay = ClockSchedule.secondsUntilNextBoundary(after: source.now(), seconds: false)
+                let delay = ClockSchedule.secondsUntilNextDayBoundary(after: source.now())
                 do {
                     try await source.sleep(seconds: delay)
                 } catch {

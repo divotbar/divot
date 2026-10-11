@@ -33,6 +33,15 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
         case .time: return "Time"
         }
     }
+
+    /// The items the Settings bar list offers.
+    ///
+    /// The legacy combined `clock` stays in `allCases` only so older documents
+    /// can migrate to `time`/`date`; it is never placed or shown after the
+    /// split (#0033).
+    public static var placeableItems: [BarItemID] {
+        allCases.filter { $0 != .clock }
+    }
 }
 
 // MARK: - Unavailable states
