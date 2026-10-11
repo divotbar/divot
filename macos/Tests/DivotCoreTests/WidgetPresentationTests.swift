@@ -290,6 +290,42 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(!presentation.text.contains(","))
 }
 
+@Test func clockFamilyItemsAlwaysCarryARolePrefixedAccessibilityLabel() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+
+    let clock = WidgetPresenter.present(id: .clock,
+                                        state: state(.clock, .clock(ClockSnapshot(date: date))),
+                                        options: options)
+    #expect(clock.accessibilityLabel.hasPrefix("Clock: "))
+    #expect(clock.accessibilityLabel.contains("Sun"))
+
+    let day = WidgetPresenter.present(id: .date,
+                                      state: state(.date, .date(ClockSnapshot(date: date))),
+                                      options: options)
+    #expect(day.accessibilityLabel.hasPrefix("Date: "))
+    #expect(day.accessibilityLabel.contains("Sun"))
+
+    let time = WidgetPresenter.present(id: .time,
+                                       state: state(.time, .time(ClockSnapshot(date: date))),
+                                       options: options)
+    #expect(time.accessibilityLabel.hasPrefix("Time: "))
+    #expect(time.accessibilityLabel.contains("12:26"))
+}
+
+@Test func clockFamilyItemsStillSpeakWhenTheFormatRendersNothing() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000)
+    // A date item with every component turned off renders an empty string; the
+    // label must fall back to the role rather than going silent.
+    let emptyFormat = WidgetPresentationOptions(
+        date: ClockFormatOptions(weekday: false, date: false, seconds: false),
+        locale: posix, timeZone: utc)
+    let presentation = WidgetPresenter.present(id: .date,
+                                               state: state(.date, .date(ClockSnapshot(date: date))),
+                                               options: emptyFormat)
+    #expect(presentation.text.isEmpty)
+    #expect(presentation.accessibilityLabel == "Date")
+}
+
 @Test func frontAppPresentationUsesTheApplicationName() {
     let presentation = WidgetPresenter.present(
         id: .frontApp,

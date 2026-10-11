@@ -172,21 +172,32 @@ public enum WidgetPresenter {
         case .clock(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.clock,
                                         locale: options.locale, timeZone: options.timeZone)
-            return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
+            return clockPresentation(role: "Clock", text: text)
         case .date(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.date,
                                         locale: options.locale, timeZone: options.timeZone, includeTime: false)
-            return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
+            return clockPresentation(role: "Date", text: text)
         case .time(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.time,
                                         locale: options.locale, timeZone: options.timeZone,
                                         timeFormat: options.timeFormat, customTimePattern: options.customTimePattern)
-            return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
+            return clockPresentation(role: "Time", text: text)
         case .appearance(let snapshot):
             return appearancePresentation(snapshot)
         case .unavailable(let unavailable):
             return unavailablePresentation(unavailable)
         }
+    }
+
+    /// A clock-family item (clock, date, or time) always announces its role and
+    /// value. The configured format can legitimately render an empty string
+    /// (for example a date with every component turned off), so the label falls
+    /// back to the role alone rather than going silent.
+    private static func clockPresentation(role: String, text: String) -> WidgetPresentation {
+        let value = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return WidgetPresentation(symbolName: nil,
+                                  text: text,
+                                  accessibilityLabel: value.isEmpty ? role : "\(role): \(text)")
     }
 
     private static func frontAppPresentation(_ snapshot: FrontAppSnapshot,
