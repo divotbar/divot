@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-wi-fi-network-name-on-the-netwo
 created_at: "2026-10-11T00:39:24Z"
-updated_at: "2026-10-11T00:59:06Z"
+updated_at: "2026-10-11T00:59:55Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -46,3 +46,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T00:53:00Z · status review→active
 - 2026-10-11T00:59:06Z · status active→review
 - 2026-10-11T00:59:06Z · note: shots: skipped — the diff (14 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:59:55Z · note: review pass 2: good to go
