@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 47436
-last_close_out_gate_at: "2026-10-11T04:44:02.610Z"
 id: "0032"
 title: Optional Wi-Fi network name on the network item in Settings
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
 depends_on: ["0028"]
+merged_commit: 3cb3529763634a60e15959c5abacf89b5dbb442f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-wi-fi-network-name-on-the-netwo
 created_at: "2026-10-11T00:39:24Z"
-updated_at: "2026-10-11T04:44:02Z"
+updated_at: "2026-10-11T04:44:04Z"
+last_close_out_gate_ms: 47436
+last_close_out_gate_at: "2026-10-11T04:44:02.610Z"
 review_passes: 4
 close_out_repair_count: 2
 review_rounds: 1
@@ -61,4 +62,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 - 2026-10-11T04:40:37Z · note: shots: skipped — the diff (14 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T04:41:10Z · note: review pass 4: good to go
 - 2026-10-11T04:44:02Z · close-out gate completed in 47s
-
+- 2026-10-11T04:44:04Z · status review→done, release:success
