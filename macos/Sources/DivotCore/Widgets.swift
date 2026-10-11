@@ -17,6 +17,7 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
     case network
     case volume
     case clock
+    case appearance
 
     /// Human label for settings and placeholder/accessible text.
     public var displayName: String {
@@ -27,6 +28,7 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
         case .network: return "Network"
         case .volume: return "Volume"
         case .clock: return "Clock"
+        case .appearance: return "Appearance"
         }
     }
 }
@@ -205,6 +207,21 @@ public struct ClockSnapshot: Equatable, Sendable {
     }
 }
 
+/// The system appearance mode (light or dark).
+public enum AppearanceMode: String, Equatable, Sendable {
+    case light
+    case dark
+}
+
+/// The current system appearance.
+public struct AppearanceSnapshot: Equatable, Sendable {
+    public let mode: AppearanceMode
+
+    public init(mode: AppearanceMode) {
+        self.mode = mode
+    }
+}
+
 // MARK: - Content
 
 /// The payload kind a content case carries.
@@ -214,6 +231,7 @@ public enum WidgetContentKind: String, Equatable, Sendable {
     case network
     case volume
     case clock
+    case appearance
     case unavailable
 }
 
@@ -224,6 +242,7 @@ public enum WidgetContent: Equatable, Sendable {
     case network(NetworkSnapshot)
     case volume(VolumeSnapshot)
     case clock(ClockSnapshot)
+    case appearance(AppearanceSnapshot)
     case unavailable(WidgetUnavailable)
 
     public var kind: WidgetContentKind {
@@ -233,6 +252,7 @@ public enum WidgetContent: Equatable, Sendable {
         case .network: return .network
         case .volume: return .volume
         case .clock: return .clock
+        case .appearance: return .appearance
         case .unavailable: return .unavailable
         }
     }
@@ -249,7 +269,7 @@ public enum WidgetContent: Equatable, Sendable {
         if isUnavailable { return true }
         switch (id, self) {
         case (.frontApp, .frontApp), (.battery, .battery), (.network, .network),
-             (.volume, .volume), (.clock, .clock):
+             (.volume, .volume), (.clock, .clock), (.appearance, .appearance):
             return true
         default:
             return false

@@ -33,6 +33,8 @@ public enum WidgetAction: Equatable, Sendable {
     case openSettings(WidgetSettingsPane)
     /// Toggle the keep-awake power assertion (the battery item's click).
     case toggleKeepAwake
+    /// Toggle the system appearance between light and dark.
+    case toggleAppearance
     /// Open Divot's own settings window (the optional app-icon click). Distinct
     /// from `openSettings` so it routes to Divot's window, not a System Settings
     /// pane.
@@ -67,6 +69,9 @@ public enum WidgetActions {
             return .openSettings(.sound)
         case .clock:
             return .openSettings(.dateTime)
+        case .appearance:
+            // Clicking the appearance item toggles system light/dark mode.
+            return .toggleAppearance
         case .workspaces:
             // Workspace activation belongs to the workspace adapter milestone.
             return .none

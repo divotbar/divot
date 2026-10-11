@@ -166,6 +166,8 @@ import Testing
     #expect(WidgetActions.defaultAction(for: .network) == .openSettings(.network))
     #expect(WidgetActions.defaultAction(for: .volume) == .openSettings(.sound))
     #expect(WidgetActions.defaultAction(for: .clock) == .openSettings(.dateTime))
+    // The appearance item toggles system light/dark mode.
+    #expect(WidgetActions.defaultAction(for: .appearance) == .toggleAppearance)
     // Workspaces are the adapter milestone's actions, never a fake sample.
     #expect(WidgetActions.defaultAction(for: .workspaces) == .none)
 }

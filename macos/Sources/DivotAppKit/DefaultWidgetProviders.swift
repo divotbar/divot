@@ -25,6 +25,7 @@ public enum DefaultWidgetProviders {
             case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading()))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
             case .frontApp: providers.append(FrontAppProvider(reading: NSWorkspaceFrontAppReading()))
+            case .appearance: providers.append(AppearanceProvider(reading: SystemAppearanceReading()))
             case .workspaces: break
             }
         }
@@ -34,7 +35,7 @@ public enum DefaultWidgetProviders {
     /// The built-in provider identifiers a configuration enables. Pure, so the
     /// "disabled providers stop" rule is testable without constructing readers.
     public static func placedProviderIDs(in configuration: DivotConfiguration) -> [BarItemID] {
-        let order: [BarItemID] = [.battery, .clock, .network, .volume, .frontApp]
+        let order: [BarItemID] = [.battery, .clock, .network, .volume, .frontApp, .appearance]
         return order.filter { configuration.isPlaced($0) }
     }
 }

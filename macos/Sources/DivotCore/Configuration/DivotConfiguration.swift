@@ -310,7 +310,7 @@ public struct WidgetOptions: Equatable, Sendable {
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
         case .workspaces, .frontApp, .clock: return true
-        case .battery, .network, .volume: return false
+        case .battery, .network, .volume, .appearance: return false
         }
     }
 }

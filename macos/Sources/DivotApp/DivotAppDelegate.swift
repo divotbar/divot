@@ -327,6 +327,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                 .first?.activate()
         case .toggleKeepAwake:
             toggleKeepAwake()
+        case .toggleAppearance:
+            SystemAppearanceReading().toggleAppearance()
         case .openDivotSettings:
             // The optional bar icon reuses the existing settings-window opener
             // (the same path as the menu and menu-bar items), never a new one.
