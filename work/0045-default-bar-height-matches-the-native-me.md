@@ -2,7 +2,7 @@
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -59,4 +59,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:27:17Z · cli_override, model_override
 - 2026-10-11T14:27:17Z · needs_input
 - 2026-10-11T14:37:17Z · note: Clock/date/time items now always carry a non-empty, role-prefixed accessibility label (e.g. "Date: Sun 11 Oct"), so an all-off format cannot leave a silent item; core tests added. Merged main, which cleared the native-core SIGSEGV in ConfigurationParser.parse; repoos check passes (533 tests).
-- 2026-10-11T14:37:52Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:37:52Z · status active→review
