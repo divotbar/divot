@@ -196,7 +196,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func duplicateItemAcrossGroupsIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["clock"]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":["time"]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "left/right")
 }
@@ -209,9 +209,9 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func unknownWidgetOptionIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"clock":{"timezone":"UTC"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":[],"widgets":{"time":{"timezone":"UTC"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
-    #expect(failure?.path == "widgets.clock")
+    #expect(failure?.path == "widgets.time")
     #expect(failure?.message == "unknown field timezone")
 }
 
@@ -234,9 +234,9 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func nonBooleanOptionIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"clock":{"seconds":"yes"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":[],"widgets":{"time":{"seconds":"yes"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
-    #expect(failure?.path == "widgets.clock.seconds")
+    #expect(failure?.path == "widgets.time.seconds")
     #expect(failure?.message == "expected boolean")
 }
 
