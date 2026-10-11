@@ -279,9 +279,22 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
 
 @Test func datePresentationShowsOnlyDateWithoutTime() {
     let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let dateConfig = DateConfiguration()
+    let dateOptions = WidgetPresentationOptions(
+        clock: options.clock,
+        date: options.date,
+        dateFormatPattern: dateConfig.pattern,
+        time: options.time,
+        timeFormat: options.timeFormat,
+        frontApp: options.frontApp,
+        battery: options.battery,
+        network: options.network,
+        volume: options.volume,
+        locale: options.locale,
+        timeZone: options.timeZone)
     let presentation = WidgetPresenter.present(id: .date,
                                                state: state(.date, .date(ClockSnapshot(date: date))),
-                                               options: options)
+                                               options: dateOptions)
     #expect(presentation.text.contains("Sun"))
     // Date should not contain time
     #expect(!presentation.text.contains(":"))
@@ -313,17 +326,14 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
 }
 
 @Test func clockFamilyItemsStillSpeakWhenTheFormatRendersNothing() {
-    let date = Date(timeIntervalSince1970: 1_600_000_000)
-    // A date item with every component turned off renders an empty string; the
-    // label must fall back to the role rather than going silent.
-    let emptyFormat = WidgetPresentationOptions(
-        date: ClockFormatOptions(weekday: false, date: false, seconds: false),
-        locale: posix, timeZone: utc)
-    let presentation = WidgetPresenter.present(id: .date,
-                                               state: state(.date, .date(ClockSnapshot(date: date))),
-                                               options: emptyFormat)
-    #expect(presentation.text.isEmpty)
-    #expect(presentation.accessibilityLabel == "Date")
+    // The label helper never returns an empty announcement, even when the
+    // configured format renders nothing at all.
+    let empty = WidgetPresenter.clockPresentation(role: "Date", text: "   ")
+    #expect(empty.accessibilityLabel == "Date")
+    #expect(empty.text == "   ")
+
+    let filled = WidgetPresenter.clockPresentation(role: "Time", text: "12:26")
+    #expect(filled.accessibilityLabel == "Time: 12:26")
 }
 
 @Test func frontAppPresentationUsesTheApplicationName() {

@@ -2,7 +2,7 @@
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
@@ -11,10 +11,9 @@ branch: feat/default-bar-height-matches-the-native-me
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T13:13:19Z"
-updated_at: "2026-10-11T14:37:52Z"
+updated_at: "2026-10-11T14:40:51Z"
+review_passes: 3
 review_rounds: 2
-review_passes: 2
-check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-11T13:37:56.607Z: repoos check failed: native-core — 􀟈 Test workspaceBarViewDrawsEveryDeduplicatedAppIcon() started."
 ---
 ## Problem
@@ -59,4 +58,11 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:26:41Z · watchdog: escalated to needs_input · check-failed-after-retries · check failed after 2 automatic retries · repoos check failed: native-core — 􀟈  Test everyDefaultItemIsLabelledAndRoatedAcrossEveryTheme() started. · next step: resume the session manually from the task's worktree and check for uncommitted work
 - 2026-10-11T14:27:17Z · cli_override, model_override
 - 2026-10-11T14:27:17Z · needs_input
+- 2026-10-11T14:37:17Z · note: Clock/date/time items now always carry a non-empty, role-prefixed accessibility label (e.g. "Date: Sun 11 Oct"), so an all-off format cannot leave a silent item; core tests added. Merged main, which cleared the native-core SIGSEGV in ConfigurationParser.parse; repoos check passes (533 tests).
 - 2026-10-11T14:37:52Z · status active→review
+- 2026-10-11T14:37:52Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:38:53Z · note: review pass 3: needs some work
+- 2026-10-11T14:38:53Z · needs_input
+- 2026-10-11T14:40:51Z · needs_input
+- 2026-10-11T14:40:51Z · status review→active
+- 2026-10-11T14:40:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
