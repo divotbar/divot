@@ -13,7 +13,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T13:08:53Z"
+updated_at: "2026-10-11T13:08:54Z"
 review_passes: 7
 review_rounds: 2
 handoff_signal_retry_count: 1
@@ -38,9 +38,8 @@ The maintainer wants a bar item that switches the macOS system appearance betwee
 - Verify on the packaged app; the maintainer confirms the look.
 - repoos check passes.
 
-
 ## Notes for AI
-Scope was added by the maintainer on 2026-10-11: the toggle has two options, "Divot only" and "Full system". Keep the appearance read and write behind a small provider so the view stays a pure display. Use the public appearance API only.
+Rescoped by the maintainer on 2026-10-11: the item only toggles Divot's own bar theme light/dark. There is no public macOS API to change the system appearance, so the "Full system" scope and its AppleScript path are removed. Keep the theme read and write behind a small provider so the view stays a display.
 
 
 ## Implementation
@@ -97,3 +96,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T12:45:13Z · note: review pass 7: needs some work
 - 2026-10-11T12:45:14Z · needs_input
 - 2026-10-11T13:08:53Z · body: section Acceptance criteria
+- 2026-10-11T13:08:54Z · body: section Notes for AI
