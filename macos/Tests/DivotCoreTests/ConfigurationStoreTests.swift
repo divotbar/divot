@@ -444,6 +444,41 @@ private func write(_ json: String, to url: URL) throws {
     #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
 }
 
+@Test func savePersistsTimeFormatAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // A plain default configuration writes no time widget object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["time"] == nil)
+
+    // Changing to 24-hour format writes the time object.
+    var configuration = DivotConfiguration.default
+    configuration.widgets.time.timeFormat = .twentyFourHour
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.time.timeFormat == .twentyFourHour)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let timeOptions = (object?["widgets"] as? [String: Any])?["time"] as? [String: Any]
+    #expect(timeOptions?["timeFormat"] as? String == "24-hour")
+
+    // Custom pattern is also persisted.
+    configuration.widgets.time.customPattern = "HH:mm:ss"
+    try store.save(configuration)
+
+    let reloaded2 = ConfigurationStore(configURL: url)
+    #expect(reloaded2.load() == .loaded)
+    #expect(reloaded2.current.widgets.time.customPattern == "HH:mm:ss")
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let timeOptions2 = (object?["widgets"] as? [String: Any])?["time"] as? [String: Any]
+    #expect(timeOptions2?["customPattern"] as? String == "HH:mm:ss")
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])

@@ -343,6 +343,8 @@ private extension TimeConfiguration {
         var object: [String: Any] = [:]
         let defaults = TimeConfiguration.default
         if seconds != defaults.seconds { object["seconds"] = seconds }
+        if timeFormat != defaults.timeFormat { object["timeFormat"] = timeFormat.rawValue }
+        if customPattern != defaults.customPattern { object["customPattern"] = customPattern }
         return object
     }
 }
