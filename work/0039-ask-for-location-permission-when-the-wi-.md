@@ -2,7 +2,7 @@
 id: "0039"
 title: "Ask for Location permission when the Wi-Fi name is turned on, and show an error when it is denied"
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 depends_on: ["0032"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T11:54:34Z"
-updated_at: "2026-10-11T11:54:34Z"
+updated_at: "2026-10-11T11:54:35Z"
 ---
 ## Problem
 
@@ -40,3 +40,4 @@ Depends on #0032, which added the Wi-Fi name. Keep the authorization logic in it
 ## Activity
 
 - 2026-10-11T11:54:34Z · created · njachowski@gmail.com
+- 2026-10-11T11:54:35Z · status inbox→ready
