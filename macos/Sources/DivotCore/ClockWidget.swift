@@ -69,12 +69,13 @@ public enum ClockText {
                               locale: Locale = .current,
                               timeZone: TimeZone = .current,
                               timeFormat: TimeConfiguration.Format = .ampm,
-                              customTimePattern: String? = nil) -> String {
+                              customTimePattern: String? = nil,
+                              includeTime: Bool = true) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.timeZone = timeZone
 
-        let templateToUse = template(options, timeFormat: timeFormat, customTimePattern: customTimePattern)
+        let templateToUse = template(options, timeFormat: timeFormat, customTimePattern: customTimePattern, includeTime: includeTime)
 
         // If using a custom pattern, set it directly; otherwise use localized template
         if timeFormat == .custom && isValidCustomPattern(customTimePattern ?? "") {
@@ -99,23 +100,26 @@ public enum ClockText {
     /// Exposed so tests can assert component selection independent of locale.
     static func template(_ options: ClockFormatOptions,
                         timeFormat: TimeConfiguration.Format = .ampm,
-                        customTimePattern: String? = nil) -> String {
+                        customTimePattern: String? = nil,
+                        includeTime: Bool = true) -> String {
         var fields: [String] = []
         if options.weekday { fields.append("EEE") }
         if options.date { fields.append("MMMd") }
 
-        let timeField: String
-        switch timeFormat {
-        case .twentyFourHour:
-            timeField = options.seconds ? "HHmms" : "HHmm"
-        case .ampm:
-            timeField = options.seconds ? "jmms" : "jmm"
-        case .custom:
-            // For custom format, the pattern will be set directly, so use a placeholder
-            timeField = options.seconds ? "jmms" : "jmm"
-        }
+        if includeTime {
+            let timeField: String
+            switch timeFormat {
+            case .twentyFourHour:
+                timeField = options.seconds ? "HHmms" : "HHmm"
+            case .ampm:
+                timeField = options.seconds ? "jmms" : "jmm"
+            case .custom:
+                // For custom format, the pattern will be set directly, so use a placeholder
+                timeField = options.seconds ? "jmms" : "jmm"
+            }
 
-        fields.append(timeField)
+            fields.append(timeField)
+        }
         return fields.joined(separator: " ")
     }
 }

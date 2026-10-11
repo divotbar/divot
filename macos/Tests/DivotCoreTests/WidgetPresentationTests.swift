@@ -277,6 +277,17 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(presentation.text.contains("12:26"))
 }
 
+@Test func datePresentationShowsOnlyDateWithoutTime() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let presentation = WidgetPresenter.present(id: .date,
+                                               state: state(.date, .date(ClockSnapshot(date: date))),
+                                               options: options)
+    #expect(presentation.text.contains("Sun"))
+    // Date should not contain time
+    #expect(!presentation.text.contains(":"))
+    #expect(!presentation.text.contains("12:26"))
+}
+
 @Test func frontAppPresentationUsesTheApplicationName() {
     let presentation = WidgetPresenter.present(
         id: .frontApp,
