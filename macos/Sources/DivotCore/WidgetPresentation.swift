@@ -53,6 +53,8 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var date: ClockFormatOptions
     public var time: ClockFormatOptions
+    public var timeFormat: TimeConfiguration.Format
+    public var customTimePattern: String?
     public var frontApp: FrontAppFormatOptions
     public var battery: BatteryFormatOptions
     public var network: NetworkFormatOptions
@@ -63,6 +65,8 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
     public init(clock: ClockFormatOptions = .default,
                 date: ClockFormatOptions = ClockFormatOptions(weekday: true, date: true, seconds: false),
                 time: ClockFormatOptions = ClockFormatOptions(weekday: false, date: false, seconds: false),
+                timeFormat: TimeConfiguration.Format = .twentyFourHour,
+                customTimePattern: String? = nil,
                 frontApp: FrontAppFormatOptions = .default,
                 battery: BatteryFormatOptions = .default,
                 network: NetworkFormatOptions = .default,
@@ -72,6 +76,8 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
         self.clock = clock
         self.date = date
         self.time = time
+        self.timeFormat = timeFormat
+        self.customTimePattern = customTimePattern
         self.frontApp = frontApp
         self.battery = battery
         self.network = network
@@ -173,7 +179,8 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .time(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.time,
-                                        locale: options.locale, timeZone: options.timeZone)
+                                        locale: options.locale, timeZone: options.timeZone,
+                                        timeFormat: options.timeFormat, customTimePattern: options.customTimePattern)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .unavailable(let unavailable):
             return unavailablePresentation(unavailable)

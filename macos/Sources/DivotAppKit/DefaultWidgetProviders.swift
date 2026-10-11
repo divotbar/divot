@@ -23,7 +23,9 @@ public enum DefaultWidgetProviders {
                                                             keepAwake: keepAwake))
             case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
             case .date: providers.append(DateProvider())
-            case .time: providers.append(TimeProvider(seconds: configuration.widgets.time.seconds))
+            case .time: providers.append(TimeProvider(seconds: configuration.widgets.time.seconds,
+                                                      timeFormat: configuration.widgets.time.timeFormat,
+                                                      customPattern: configuration.widgets.time.customPattern))
             case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading(),
                                                            readWifiName: configuration.widgets.network.showWifiName))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))

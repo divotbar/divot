@@ -277,6 +277,18 @@ public final class DivotSettingsModel {
     /// only navigates System Settings; it changes no setting.
     public static let locationServicesURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")!
 
+    // MARK: Date and time
+
+    /// Set the time format: 24-hour, AM/PM, or custom.
+    public func setTimeFormat(_ format: TimeConfiguration.Format) {
+        update { $0.widgets.time.timeFormat = format }
+    }
+
+    /// Set the custom time pattern for Format.custom.
+    public func setCustomTimePattern(_ pattern: String) {
+        update { $0.widgets.time.customPattern = pattern.isEmpty ? nil : pattern }
+    }
+
     // MARK: Keep awake
 
     /// Turn the "remember across launches" policy on or off. Enabling captures

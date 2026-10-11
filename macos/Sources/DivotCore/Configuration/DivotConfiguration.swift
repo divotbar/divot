@@ -248,10 +248,29 @@ public struct DateConfiguration: Equatable, Sendable {
 
 /// `widgets.time`.
 public struct TimeConfiguration: Equatable, Sendable {
-    public var seconds: Bool
+    public enum Format: String, CaseIterable, Codable, Sendable {
+        case twentyFourHour = "24-hour"
+        case ampm = "AM/PM"
+        case custom
 
-    public init(seconds: Bool = false) {
+        public var displayName: String {
+            switch self {
+            case .twentyFourHour: return "24-hour"
+            case .ampm: return "AM/PM"
+            case .custom: return "Custom"
+            }
+        }
+    }
+
+    public var seconds: Bool
+    public var timeFormat: Format
+    /// Custom time pattern for Format.custom; ignored for other formats.
+    public var customPattern: String?
+
+    public init(seconds: Bool = false, timeFormat: Format = .twentyFourHour, customPattern: String? = nil) {
         self.seconds = seconds
+        self.timeFormat = timeFormat
+        self.customPattern = customPattern
     }
 
     public static let `default` = TimeConfiguration()
@@ -529,6 +548,8 @@ public struct DivotConfiguration: Equatable, Sendable {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   date: widgets.date.formatOptions,
                                   time: widgets.time.formatOptions,
+                                  timeFormat: widgets.time.timeFormat,
+                                  customTimePattern: widgets.time.customPattern,
                                   frontApp: widgets.frontApp.formatOptions,
                                   battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),
                                   network: widgets.network.formatOptions,
