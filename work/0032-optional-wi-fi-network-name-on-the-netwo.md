@@ -2,15 +2,15 @@
 id: "0032"
 title: Optional Wi-Fi network name on the network item in Settings
 type: feature
-status: ready
+status: active
 priority: p2
 area: macos
 depends_on: ["0028"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/optional-wi-fi-network-name-on-the-netwo
 created_at: "2026-10-11T00:39:24Z"
-updated_at: "2026-10-11T00:43:53Z"
+updated_at: "2026-10-11T00:43:54Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Depends on #0028. Keep the network reading in its own provider, not in the view.
 
 - 2026-10-11T00:39:24Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:53Z · status inbox→ready
+- 2026-10-11T00:43:54Z · status ready→active, branch
