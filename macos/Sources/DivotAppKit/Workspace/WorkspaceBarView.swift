@@ -33,6 +33,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     /// and focus highlight stay either way.
     private let showOccupiedDot: Bool
     private let showEmptyDot: Bool
+    private let chipOpacity: Int
 
     private let horizontalInset: CGFloat
     private let chipSpacing: CGFloat
@@ -49,7 +50,8 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                 theme: BarTheme = .systemDefault,
                 metrics: BarMetrics = .default,
                 showOccupiedDot: Bool = true,
-                showEmptyDot: Bool = true) {
+                showEmptyDot: Bool = true,
+                chipOpacity: Int = 0) {
         self.feed = feed
         self.icons = icons
         self.displayScreensID = displayScreensID
@@ -58,6 +60,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         self.metrics = metrics
         self.showOccupiedDot = showOccupiedDot
         self.showEmptyDot = showEmptyDot
+        self.chipOpacity = chipOpacity
         self.horizontalInset = metrics.rowInset
         self.chipSpacing = metrics.chipSpacing
         super.init(frame: .zero)
@@ -216,17 +219,30 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // The themed chip draws its own background so the selected state is the
         // family's `selected` color, not the system accent. Focus also remains
         // the control's selected state and an accessibility value, so state is
-        // never color alone.
+        // never color alone (#0047: focused chip now matches other chips).
         button.isBordered = false
         button.wantsLayer = true
         // Flat chrome (#0025): square corners, a flat selected fill, and a flat
         // focused stroke. No rounded corners or bevel.
         button.layer?.cornerRadius = 0
-        button.layer?.backgroundColor = workspace.isFocused ? theme.selected.cgColor : NSColor.clear.cgColor
-        // The accent is the interactive focus emphasis: a restrained border on
-        // the focused chip, on top of the selected background.
-        button.layer?.borderWidth = workspace.isFocused ? 1 : 0
-        button.layer?.borderColor = workspace.isFocused ? theme.accent.cgColor : NSColor.clear.cgColor
+        // All chips use the same style, with opacity control. Focus is shown via
+        // the number's semibold weight (#0047). At opacity 0, the current chip
+        // appearance is preserved: focused gets theme.selected, others get clear.
+        // At opacity 100, all chips fade to transparent. In between, we
+        // interpolate: start from each chip's natural color and fade toward
+        // transparent.
+        let transparencyFraction = CGFloat(chipOpacity) / 100.0
+        let backgroundColor: NSColor
+        if workspace.isFocused {
+            backgroundColor = theme.selected.withAlphaComponent(1.0 - transparencyFraction)
+        } else {
+            // Non-focused chips start clear and remain clear as we fade
+            // (they never have a background at opacity 0).
+            backgroundColor = NSColor.clear.withAlphaComponent(0)
+        }
+        button.layer?.backgroundColor = backgroundColor.cgColor
+        button.layer?.borderWidth = 0
+        button.layer?.borderColor = NSColor.clear.cgColor
 
         let label = accessibilityDescription(for: workspace, options: options, occupancy: occupancy)
         button.toolTip = label
@@ -235,7 +251,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
         let weight: NSFont.Weight = workspace.isFocused ? .semibold : .regular
         let font = BarFont.chip(metrics, weight: weight)
-        let nameColor = workspace.isFocused ? theme.selectedForeground : theme.foreground
+        // All chips use the foreground color; focus is shown via weight and the
+        // selected background, not text color (#0047).
+        let nameColor = theme.foreground
         let markerColor: NSColor
         switch occupancy {
         case .occupied: markerColor = theme.occupied
