@@ -282,6 +282,10 @@ private extension WidgetOptions {
         if !frontApp.isEmpty { object[BarItemID.frontApp.rawValue] = frontApp }
         let clock = clock.jsonObject
         if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
+        let date = date.jsonObject
+        if !date.isEmpty { object[BarItemID.date.rawValue] = date }
+        let time = time.jsonObject
+        if !time.isEmpty { object[BarItemID.time.rawValue] = time }
         return object
     }
 }
@@ -315,6 +319,24 @@ private extension ClockConfiguration {
         let defaults = ClockConfiguration.default
         if weekday != defaults.weekday { object["weekday"] = weekday }
         if date != defaults.date { object["date"] = date }
+        if seconds != defaults.seconds { object["seconds"] = seconds }
+        return object
+    }
+}
+
+private extension DateConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = DateConfiguration.default
+        if weekday != defaults.weekday { object["weekday"] = weekday }
+        return object
+    }
+}
+
+private extension TimeConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = TimeConfiguration.default
         if seconds != defaults.seconds { object["seconds"] = seconds }
         return object
     }

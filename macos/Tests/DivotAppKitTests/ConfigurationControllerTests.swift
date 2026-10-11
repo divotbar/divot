@@ -143,17 +143,21 @@ private final class FailingThenWorkingWriter: @unchecked Sendable {
 @Test func placedProviderIDsFollowTheConfiguration() {
     var configuration = DivotConfiguration.default
     #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration)
-        == [.battery, .clock, .network, .volume, .frontApp])
+        == [.battery, .time, .network, .volume, .frontApp])
 
     // Remove the status items from both sides: their providers stop.
     configuration.remove(.battery)
     configuration.remove(.network)
     configuration.remove(.volume)
-    #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration) == [.clock, .frontApp])
+    #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration) == [.time, .frontApp])
 
     // Moving an item does not duplicate provider activity.
     configuration.move(.frontApp, to: .right)
-    #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration) == [.clock, .frontApp])
+    #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration) == [.time, .frontApp])
+
+    // The date item is provider-backed once it is placed.
+    configuration.move(.date, to: .right)
+    #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration) == [.date, .time, .frontApp])
 }
 
 private extension Result {

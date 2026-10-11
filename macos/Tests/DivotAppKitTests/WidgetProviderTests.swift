@@ -167,7 +167,11 @@ private final class MockFrontAppReading: FrontAppReading {
 @MainActor
 @Test func defaultProvidersCoverEveryStatusItemExceptWorkspaces() {
     let ids = Set(DefaultWidgetProviders.make().map(\.id))
-    #expect(ids == [.frontApp, .battery, .network, .volume, .clock])
+    // The clock split into date and time (#0033). The default bar shows time;
+    // date is provider-backed too, once the user places it. Neither is the old
+    // combined clock.
+    #expect(ids == [.frontApp, .battery, .network, .volume, .time])
+    #expect(!ids.contains(.clock))
     // Workspaces is the workspace-adapter milestone and is intentionally absent
     // rather than faked with numbered spaces.
     #expect(!ids.contains(.workspaces))
@@ -175,6 +179,10 @@ private final class MockFrontAppReading: FrontAppReading {
     for item in BarLayout.default.right {
         #expect(ids.contains(item))
     }
+    // Placing the date item gives it a provider as well.
+    var withDate = DivotConfiguration.default
+    withDate.move(.date, to: .right)
+    #expect(DefaultWidgetProviders.placedProviderIDs(in: withDate).contains(.date))
 }
 
 @Test func clockProviderActivationKeyReflectsItsOptions() {

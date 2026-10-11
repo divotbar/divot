@@ -99,13 +99,13 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem())
     #expect(model.configuration.items(on: .left) == left)
 
     // A middle item moves one slot, and the ordered configuration the bar
-    // renders with follows it (right default is [battery, clock, network, volume]).
-    model.moveWithinSide(.clock, delta: -1)
-    #expect(model.configuration.items(on: .right) == [.clock, .battery, .network, .volume])
+    // renders with follows it (right default is [battery, time, network, volume]).
+    model.moveWithinSide(.time, delta: -1)
+    #expect(model.configuration.items(on: .right) == [.time, .battery, .network, .volume])
     #expect(model.configuration.barLayout.items(on: .right) == model.configuration.right)
 
     // The moved item is now first, so it cannot move earlier again.
-    #expect(!model.canMove(.clock, delta: -1))
+    #expect(!model.canMove(.time, delta: -1))
 }
 
 @MainActor
