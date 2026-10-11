@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 48102
-last_close_out_gate_at: "2026-10-11T16:32:38.330Z"
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: review
+status: done
 priority: p0
 area: macos
+merged_commit: f2826d70afd1c5359884daefbefa57891d70a355
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-and-time-items-show-a-placeholder-e
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T16:32:38Z"
+updated_at: "2026-10-11T16:32:40Z"
+last_close_out_gate_ms: 48102
+last_close_out_gate_at: "2026-10-11T16:32:38.330Z"
 review_passes: 5
 close_out_repair_count: 1
 review_rounds: 2
@@ -158,4 +159,4 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T16:08:07Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T16:09:06Z · note: review pass 5: good to go
 - 2026-10-11T16:32:38Z · close-out gate completed in 48s
-
+- 2026-10-11T16:32:40Z · status review→done, release:success
