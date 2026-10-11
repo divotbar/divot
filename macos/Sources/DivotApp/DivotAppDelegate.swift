@@ -77,9 +77,6 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             displayScreensID: screensID,
                                             onWidgetAction: { action in
                 self?.perform(action)
-            },
-                                            onShowAppearanceMenu: { [weak self] sender in
-                self?.showAppearanceMenu(from: sender)
             })
             // A family/appearance change can change icon rendering; drop the
             // appearance-dependent icon cache.
@@ -188,6 +185,18 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         keepAwake.setActive(newValue)
         guard configurationController?.configuration.keepAwake.remember == true else { return }
         configurationController?.update { $0.keepAwake.isActive = newValue }
+    }
+
+    /// The appearance item's click. Toggles based on the configured scope setting.
+    private func toggleAppearanceBasedOnScope() {
+        guard let config = configurationController?.configuration else { return }
+        let scope = config.widgets.appearance.scope
+
+        if scope == .fullSystem {
+            appearanceReading?.toggleSystemAppearance()
+        } else {
+            appearanceReading?.toggleAppearance()
+        }
     }
 
     /// Start, reconfigure, or stop the workspace row. When the item is not placed
@@ -337,9 +346,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                 .first?.activate()
         case .toggleKeepAwake:
             toggleKeepAwake()
-        case .showAppearanceMenu:
-            // Menu is shown directly from the view; this case should not be called.
-            break
+        case .toggleAppearance:
+            toggleAppearanceBasedOnScope()
         case .openDivotSettings:
             // The optional bar icon reuses the existing settings-window opener
             // (the same path as the menu and menu-bar items), never a new one.
@@ -349,27 +357,4 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func showAppearanceMenu(from sender: NSView) {
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Toggle Divot Light/Dark",
-                               action: #selector(toggleDivotAppearance),
-                               keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Open System Appearance Settings",
-                               action: #selector(openSystemAppearanceSettings),
-                               keyEquivalent: ""))
-        // Show menu at the current mouse location using the current event
-        if let event = NSApp.currentEvent {
-            NSMenu.popUpContextMenu(menu, with: event, for: sender)
-        }
-    }
-
-    @objc private func toggleDivotAppearance() {
-        appearanceReading?.toggleAppearance()
-    }
-
-    @objc private func openSystemAppearanceSettings() {
-        if let url = WidgetSettingsPane.general.url {
-            NSWorkspace.shared.open(url)
-        }
-    }
 }

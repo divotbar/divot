@@ -66,4 +66,35 @@ public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendab
             }
         }
     }
+
+    /// Toggle the macOS system appearance between light and dark.
+    ///
+    /// Uses AppleScript to set the system appearance through the public API.
+    /// This affects the system-wide appearance setting, not just Divot.
+    nonisolated public func toggleSystemAppearance() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+
+            // Use AppleScript to toggle macOS system appearance
+            let script = """
+            tell application "System Events"
+                tell appearance preferences
+                    set dark mode to not dark mode
+                end tell
+            end tell
+            """
+
+            var error: NSDictionary?
+            guard let scriptObject = NSAppleScript(source: script) else { return }
+            scriptObject.executeAndReturnError(&error)
+
+            // Notify the provider so the bar item updates immediately.
+            self.lock.lock()
+            let handler = self.changeHandler
+            self.lock.unlock()
+            if let handler {
+                Task { @MainActor in handler() }
+            }
+        }
+    }
 }

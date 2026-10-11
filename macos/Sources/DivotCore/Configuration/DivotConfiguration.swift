@@ -220,6 +220,29 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// `widgets.appearance`.
+public struct AppearanceItemConfiguration: Equatable, Sendable {
+    public enum Scope: String, CaseIterable, Codable, Sendable {
+        case divotOnly
+        case fullSystem
+
+        public var displayName: String {
+            switch self {
+            case .divotOnly: return "Divot only"
+            case .fullSystem: return "Full system"
+            }
+        }
+    }
+
+    public var scope: Scope
+
+    public init(scope: Scope = .divotOnly) {
+        self.scope = scope
+    }
+
+    public static let `default` = AppearanceItemConfiguration()
+}
+
 /// The document-level menu-bar detection preference.
 ///
 /// On notched hardware the camera housing masks the same top band whether the
@@ -295,13 +318,16 @@ public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
     public var clock: ClockConfiguration
+    public var appearance: AppearanceItemConfiguration
 
     public init(workspaces: WorkspacesConfiguration = .default,
                 frontApp: FrontAppConfiguration = .default,
-                clock: ClockConfiguration = .default) {
+                clock: ClockConfiguration = .default,
+                appearance: AppearanceItemConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
         self.clock = clock
+        self.appearance = appearance
     }
 
     public static let `default` = WidgetOptions()
@@ -309,8 +335,8 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-        case .workspaces, .frontApp, .clock: return true
-        case .battery, .network, .volume, .appearance: return false
+        case .workspaces, .frontApp, .clock, .appearance: return true
+        case .battery, .network, .volume: return false
         }
     }
 }
