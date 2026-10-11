@@ -2,14 +2,14 @@
 id: "0041"
 title: Build an unsigned Divot.dmg and publish it on a GitHub Release from a version tag
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T12:47:05Z"
+updated_at: "2026-10-11T12:47:16Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 ## Activity
 
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
+- 2026-10-11T12:47:16Z · status inbox→ready
