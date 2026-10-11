@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-11T00:53:15.073Z: repoos check failed: site — (pass) validate > rejects a non-boolean app-icon opt-in [0.01ms]"
 id: "0033"
 title: "Split the clock into separate date and time items, each with its own toggle"
 type: feature
@@ -37,3 +39,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T00:39:24Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:49Z · status inbox→ready
 - 2026-10-11T00:43:49Z · status ready→active, branch
+
