@@ -166,13 +166,18 @@ public struct DisplayBarUpdate: Equatable, Sendable {
 public struct DisplayBarCoordinator: Sendable {
     public var menuBarPolicy: MenuBarInsetPolicy
     public var contentPolicy: BarContentPolicy
+    /// The configured height from the configuration, or nil if using computed defaults.
+    /// Preserved separately so we can distinguish explicit config from defaults.
+    public var configuredHeight: CGFloat?
     private var controllers: [DisplayBarID: MenuBarInsetController] = [:]
     private var readings: [DisplayBarID: DisplayReading] = [:]
 
     public init(menuBarPolicy: MenuBarInsetPolicy = .init(),
-                contentPolicy: BarContentPolicy = .init()) {
+                contentPolicy: BarContentPolicy = .init(),
+                configuredHeight: CGFloat? = nil) {
         self.menuBarPolicy = menuBarPolicy
         self.contentPolicy = contentPolicy
+        self.configuredHeight = configuredHeight
     }
 
     /// Displays currently tracked, in stable identity order.
@@ -332,17 +337,21 @@ public struct DisplayBarCoordinator: Sendable {
     }
 
     /// Compute the effective policy for a display, applying the computed default
-    /// height from the screen geometry when the configured height is the default.
+    /// height from the screen geometry when no explicit height is configured.
     private func effectivePolicy(for geometry: ScreenGeometry, signal: NativeMenuBarSignal) -> BarContentPolicy {
-        let configuredHeight = contentPolicy.height
-        let defaultHeight = CGFloat(BarMetrics.default.height)
-        if abs(configuredHeight - defaultHeight) < 0.1 {
-            let computedHeight = geometry.defaultBarHeight(nominalMenuBarHeight: signal.nominalMenuBarHeight)
-            return BarContentPolicy(height: computedHeight,
+        // If the configuration explicitly set a height, use it (including 32).
+        // If not (configuredHeight is nil), compute from the native menu bar band.
+        if let configured = configuredHeight {
+            return BarContentPolicy(height: configured,
                                     clearance: contentPolicy.clearance,
                                     edgeMargin: contentPolicy.edgeMargin)
         }
-        return contentPolicy
+
+        // No explicit height configured: compute per display.
+        let computedHeight = geometry.defaultBarHeight(nominalMenuBarHeight: signal.nominalMenuBarHeight)
+        return BarContentPolicy(height: computedHeight,
+                                clearance: contentPolicy.clearance,
+                                edgeMargin: contentPolicy.edgeMargin)
     }
 
     /// An immediate, non-animated placement. `visibility` is what the caller

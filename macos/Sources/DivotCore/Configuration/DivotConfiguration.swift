@@ -92,14 +92,19 @@ public struct AppearanceConfiguration: Equatable, Sendable {
 /// Panel geometry. Values are logical points and are validated against the
 /// documented ranges so an out-of-range file is rejected instead of silently
 /// clamped.
+///
+/// When `height` is `nil`, the default row height is computed per display from
+/// the native menu bar band (task 0045). When set to a specific value, that
+/// value is used as the row height regardless of the native menu bar.
 public struct LayoutConfiguration: Equatable, Sendable {
     public static let heightRange: ClosedRange<Double> = 24...40
     public static let paddingRange: ClosedRange<Double> = 0...24
 
-    public var height: Double
+    /// Row height in points, or `nil` to compute from the native menu bar per display.
+    public var height: Double?
     public var padding: Double
 
-    public init(height: Double = Double(BarMetrics.default.height),
+    public init(height: Double? = nil,
                 padding: Double = Double(BarMetrics.default.rowInset)) {
         self.height = height
         self.padding = padding
@@ -108,8 +113,10 @@ public struct LayoutConfiguration: Equatable, Sendable {
     public static let `default` = LayoutConfiguration()
 
     /// The panel content policy the display coordinator positions panels with.
+    /// Uses the configured height, or the default if none is configured.
     public var contentPolicy: BarContentPolicy {
-        BarContentPolicy(height: CGFloat(height), clearance: 0, edgeMargin: 0)
+        let h = height ?? Double(BarMetrics.default.height)
+        return BarContentPolicy(height: CGFloat(h), clearance: 0, edgeMargin: 0)
     }
 }
 
@@ -539,11 +546,15 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// Item spacing and the icon/text gap come from `BarMetrics`; the height,
     /// padding, text size, and font are user-configurable here, and the icon and
     /// chip sizes follow the text size so the row stays in proportion.
+    /// When layout.height is nil, the bar metrics use the fallback height (32pt);
+    /// the display coordinator then computes per-display heights based on the
+    /// native menu bar (task 0045).
     public var barMetrics: BarMetrics {
-        BarMetrics.scaled(textSize: CGFloat(text.size),
-                          height: CGFloat(layout.height),
-                          rowInset: CGFloat(layout.padding),
-                          fontFamily: text.fontFamily)
+        let h = layout.height ?? Double(BarMetrics.default.height)
+        return BarMetrics.scaled(textSize: CGFloat(text.size),
+                                 height: CGFloat(h),
+                                 rowInset: CGFloat(layout.padding),
+                                 fontFamily: text.fontFamily)
     }
 
     // MARK: Editing
