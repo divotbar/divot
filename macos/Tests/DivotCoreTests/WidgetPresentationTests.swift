@@ -277,6 +277,19 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(presentation.text.contains("12:26"))
 }
 
+@Test func datePresentationShowsOnlyDateWithoutTime() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let presentation = WidgetPresenter.present(id: .date,
+                                               state: state(.date, .date(ClockSnapshot(date: date))),
+                                               options: options)
+    #expect(presentation.text.contains("Sun"))
+    // Date should not contain time
+    #expect(!presentation.text.contains(":"))
+    #expect(!presentation.text.contains("12:26"))
+    // Date should not contain comma (AC: "Sun 11 Oct" not "Sun, 11 Oct")
+    #expect(!presentation.text.contains(","))
+}
+
 @Test func frontAppPresentationUsesTheApplicationName() {
     let presentation = WidgetPresenter.present(
         id: .frontApp,
@@ -304,6 +317,24 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(iconOnly.iconBundleIdentifier == "com.apple.dt.Xcode")
     // The name is still announced even when the label is hidden.
     #expect(iconOnly.accessibilityLabel.contains("Xcode"))
+}
+
+@Test func appearancePresentationShowsLightOrDarkMode() {
+    let light = WidgetPresenter.present(
+        id: .appearance,
+        state: state(.appearance, .appearance(AppearanceSnapshot(mode: .light))),
+        options: options)
+    #expect(light.symbolName == "sun.max.fill")
+    #expect(light.accessibilityLabel == "Light mode")
+    #expect(light.text.isEmpty)
+
+    let dark = WidgetPresenter.present(
+        id: .appearance,
+        state: state(.appearance, .appearance(AppearanceSnapshot(mode: .dark))),
+        options: options)
+    #expect(dark.symbolName == "moon.fill")
+    #expect(dark.accessibilityLabel == "Dark mode")
+    #expect(dark.text.isEmpty)
 }
 
 @Test func unavailableStatesAreHonestAndOnlyFailuresAreErrors() {

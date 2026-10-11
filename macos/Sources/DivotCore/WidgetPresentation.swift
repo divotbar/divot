@@ -175,13 +175,15 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .date(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.date,
-                                        locale: options.locale, timeZone: options.timeZone)
+                                        locale: options.locale, timeZone: options.timeZone, includeTime: false)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .time(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.time,
                                         locale: options.locale, timeZone: options.timeZone,
                                         timeFormat: options.timeFormat, customTimePattern: options.customTimePattern)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
+        case .appearance(let snapshot):
+            return appearancePresentation(snapshot)
         case .unavailable(let unavailable):
             return unavailablePresentation(unavailable)
         }
@@ -320,5 +322,21 @@ public enum WidgetPresenter {
         return WidgetPresentation(symbolName: symbol,
                                   text: text,
                                   accessibilityLabel: "Volume \(percent) percent")
+    }
+
+    private static func appearancePresentation(_ snapshot: AppearanceSnapshot) -> WidgetPresentation {
+        let symbol: String
+        let description: String
+        switch snapshot.mode {
+        case .light:
+            symbol = "sun.max.fill"
+            description = "Light mode"
+        case .dark:
+            symbol = "moon.fill"
+            description = "Dark mode"
+        }
+        return WidgetPresentation(symbolName: symbol,
+                                  text: "",
+                                  accessibilityLabel: description)
     }
 }

@@ -382,7 +382,7 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public static let `default` = KeepAwakeConfiguration()
 }
 
-/// Namespaced per-item options. `battery` accepts none.
+/// Namespaced per-item options. `battery`, `appearance`, and items without options accept none.
 public struct WidgetOptions: Equatable, Sendable {
     public var workspaces: WorkspacesConfiguration
     public var frontApp: FrontAppConfiguration
@@ -417,6 +417,7 @@ public struct WidgetOptions: Equatable, Sendable {
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
         case .workspaces, .frontApp, .battery, .clock, .date, .time, .network, .volume: return true
+        case .appearance: return false
         }
     }
 }
@@ -432,6 +433,7 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// The only version the native loader accepts. Older supported versions are
     /// migrated explicitly by the parser; unknown versions are rejected.
     public static let currentVersion = 2
+    public static let chipOpacityRange: ClosedRange<Int> = 0...100
 
     public var version: Int
     public var appearance: AppearanceConfiguration
@@ -468,6 +470,11 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// together; when on, each item sits in its own chip with the same padding
     /// and theme colours (#0030).
     public var chipStyle: Bool
+    /// The workspace chip background opacity, 0–100. 0 is the current chip
+    /// appearance (matching `backgroundColor` color); 100 makes the chip
+    /// background match the bar background, so chips are invisible and only
+    /// the workspace content shows (#0047).
+    public var chipOpacity: Int
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -482,7 +489,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 showOccupiedDot: Bool = true,
                 showEmptyDot: Bool = true,
                 bottomShadow: Bool = false,
-                chipStyle: Bool = false) {
+                chipStyle: Bool = false,
+                chipOpacity: Int = 0) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -497,6 +505,7 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.showEmptyDot = showEmptyDot
         self.bottomShadow = bottomShadow
         self.chipStyle = chipStyle
+        self.chipOpacity = max(0, min(chipOpacity, 100))
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -537,6 +546,7 @@ public struct DivotConfiguration: Equatable, Sendable {
             && showEmptyDot == other.showEmptyDot
             && bottomShadow == other.bottomShadow
             && chipStyle == other.chipStyle
+            && chipOpacity == other.chipOpacity
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
