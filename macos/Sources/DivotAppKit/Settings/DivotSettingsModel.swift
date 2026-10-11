@@ -277,11 +277,16 @@ public final class DivotSettingsModel {
     /// only navigates System Settings; it changes no setting.
     public static let locationServicesURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")!
 
-    // MARK: Date format
+    // MARK: Date and time format
 
     /// Update the custom date pattern.
     public func updateDateCustomPattern(_ pattern: String?) {
         update { $0.widgets.date.customPattern = pattern }
+    }
+
+    /// Update the custom time pattern.
+    public func updateTimeCustomPattern(_ pattern: String?) {
+        update { $0.widgets.time.customPattern = pattern }
     }
 
     // MARK: Keep awake

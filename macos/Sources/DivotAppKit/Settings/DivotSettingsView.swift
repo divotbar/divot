@@ -220,8 +220,8 @@ public struct DivotSettingsView: View {
                 Toggle("Show weekday", isOn: binding(\.widgets.date.weekday))
                 Toggle("Show year", isOn: binding(\.widgets.date.year))
                 Picker("Day order", selection: binding(\.widgets.date.dayFirst)) {
-                    Text("Month, Day").tag(false)
-                    Text("Day, Month").tag(true)
+                    Text("Day, Month").tag(false)
+                    Text("Month, Day").tag(true)
                 }
                 TextField("Separator", text: binding(\.widgets.date.separator))
                     .textFieldStyle(.roundedBorder)
@@ -248,7 +248,23 @@ public struct DivotSettingsView: View {
                 }
             }
             Section("Time") {
+                Picker("Format", selection: binding(\.widgets.time.timeFormat)) {
+                    ForEach(TimeConfiguration.Format.allCases, id: \.self) { format in
+                        Text(format.displayName).tag(format)
+                    }
+                }
                 Toggle("Show seconds", isOn: binding(\.widgets.time.seconds))
+                if model.configuration.widgets.time.timeFormat == .custom {
+                    TextField("Custom pattern (e.g., HH:mm:ss)", text: timePatternBinding)
+                        .textFieldStyle(.roundedBorder)
+                    if let pattern = model.configuration.widgets.time.customPattern,
+                       !pattern.isEmpty,
+                       !ClockText.isValidCustomPattern(pattern) {
+                        Text("Invalid pattern. Using default.")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
             }
         }
     }
@@ -264,6 +280,15 @@ public struct DivotSettingsView: View {
             get: { model.configuration.widgets.date.customPattern ?? "" },
             set: { pattern in
                 model.updateDateCustomPattern(pattern.isEmpty ? nil : pattern)
+            }
+        )
+    }
+
+    private var timePatternBinding: Binding<String> {
+        Binding(
+            get: { model.configuration.widgets.time.customPattern ?? "" },
+            set: { pattern in
+                model.updateTimeCustomPattern(pattern.isEmpty ? nil : pattern)
             }
         )
     }
