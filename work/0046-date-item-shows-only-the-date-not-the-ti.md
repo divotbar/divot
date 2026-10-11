@@ -2,14 +2,14 @@
 id: "0046"
 title: "Date item shows only the date, not the time"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-item-shows-only-the-date-not-the-ti
 created_at: "2026-10-11T13:26:29Z"
-updated_at: "2026-10-11T13:58:15Z"
+updated_at: "2026-10-11T14:02:15Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ The format options (weekday, year, presets) are in #0034. Keep this change to th
 - 2026-10-11T13:26:29Z · created · njachowski@gmail.com
 - 2026-10-11T13:58:14Z · status inbox→ready
 - 2026-10-11T13:58:15Z · status ready→active, branch
+- 2026-10-11T14:02:15Z · status active→review
