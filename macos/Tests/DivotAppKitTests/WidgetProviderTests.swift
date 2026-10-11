@@ -4,6 +4,12 @@ import Testing
 import DivotCore
 @testable import DivotAppKit
 
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
 /// Thread-safe sink for emissions from a provider's background task.
 private final class ContentCollector: @unchecked Sendable {
     private let lock = NSLock()
@@ -419,6 +425,64 @@ private final class MockFrontAppReading: FrontAppReading {
     }
     // A date changes once a day, so the loop must not wake every minute.
     #expect((source.sleeps.first ?? 0) > 60 * 60)
+}
+
+@Test func dateProviderEmitsOnStartAndClockTick() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(86400)])
+    let collector = ContentCollector()
+    let subscription = DateProvider(source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 2 }
+    subscription.cancel()
+
+    let contents = collector.contents
+    #expect(contents.count >= 2, "Expected at least 2 emissions (initial + one tick)")
+
+    guard case .date(let first)? = contents.first else {
+        Issue.record("expected a date snapshot on start")
+        return
+    }
+    #expect(first.date == base, "Initial emission should be at the current time")
+
+    guard case .date? = contents[safe: 1] else {
+        Issue.record("expected a date snapshot on day boundary tick")
+        return
+    }
+
+    // Verify no noData is emitted
+    for content in contents {
+        #expect(!content.isUnavailable, "DateProvider should never emit noData")
+    }
+}
+
+@Test func timeProviderEmitsOnStartAndClockTick() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(60)])
+    let collector = ContentCollector()
+    let subscription = TimeProvider(source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 2 }
+    subscription.cancel()
+
+    let contents = collector.contents
+    #expect(contents.count >= 2, "Expected at least 2 emissions (initial + one tick)")
+
+    guard case .time(let first)? = contents.first else {
+        Issue.record("expected a time snapshot on start")
+        return
+    }
+    #expect(first.date == base, "Initial emission should be at the current time")
+
+    guard case .time? = contents[safe: 1] else {
+        Issue.record("expected a time snapshot on minute boundary tick")
+        return
+    }
+
+    // Verify no noData is emitted
+    for content in contents {
+        #expect(!content.isUnavailable, "TimeProvider should never emit noData")
+    }
 }
 
 @MainActor
