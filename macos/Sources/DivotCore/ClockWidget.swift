@@ -21,6 +21,22 @@ public enum ClockSchedule {
         let next = (floor(interval / unit) + 1) * unit
         return next - interval
     }
+
+    /// Seconds from `date` to the next local midnight strictly after it.
+    ///
+    /// The date item only changes at local midnight, so the date provider sleeps
+    /// to the next day boundary instead of waking every minute. Adding a
+    /// calendar day to the start of the day also does the right thing across a
+    /// daylight-saving change, when a local day is not exactly 24 hours. The
+    /// calendar is injected so the arithmetic is deterministic under test.
+    public static func secondsUntilNextDayBoundary(after date: Date,
+                                                   calendar: Calendar = .current) -> TimeInterval {
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let nextMidnight = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return 24 * 60 * 60
+        }
+        return max(1, nextMidnight.timeIntervalSince(date))
+    }
 }
 
 // MARK: - Formatting

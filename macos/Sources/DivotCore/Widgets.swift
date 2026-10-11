@@ -31,6 +31,15 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
         case .appearance: return "Appearance"
         }
     }
+
+    /// The items the Settings bar list offers.
+    ///
+    /// The legacy combined `clock` stays in `allCases` only so older documents
+    /// can migrate to `time`/`date`; it is never placed or shown after the
+    /// split (#0033).
+    public static var placeableItems: [BarItemID] {
+        allCases.filter { $0 != .clock }
+    }
 }
 
 // MARK: - Unavailable states
@@ -321,7 +330,7 @@ public struct BarLayout: Equatable, Sendable {
 
     /// Default left/right groups from the first-launch story.
     public static let `default` = BarLayout(left: [.workspaces, .frontApp],
-                                            right: [.battery, .clock, .network, .volume])
+                                            right: [.battery, .time, .network, .volume])
 
     public func items(on side: BarSide) -> [BarItemID] {
         switch side {

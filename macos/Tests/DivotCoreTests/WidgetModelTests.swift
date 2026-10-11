@@ -146,7 +146,7 @@ import Testing
 
 @Test func defaultLayoutMatchesTheFirstLaunchStory() {
     #expect(BarLayout.default.left == [.workspaces, .frontApp])
-    #expect(BarLayout.default.right == [.battery, .clock, .network, .volume])
+    #expect(BarLayout.default.right == [.battery, .time, .network, .volume])
     #expect(BarLayout.default.side(of: .frontApp) == .left)
     #expect(BarLayout.default.side(of: .volume) == .right)
 }
@@ -156,6 +156,14 @@ import Testing
     #expect(layout.items(on: .left) == [.clock])
     #expect(layout.items(on: .right) == [.network])
     #expect(layout.side(of: .battery) == nil)
+}
+
+@Test func settingsItemsReplaceTheLegacyClockWithDateAndTime() {
+    #expect(BarItemID.placeableItems.contains(.date))
+    #expect(BarItemID.placeableItems.contains(.time))
+    // The combined clock is kept only so older documents can migrate.
+    #expect(!BarItemID.placeableItems.contains(.clock))
+    #expect(BarItemID.placeableItems.count == BarItemID.allCases.count - 1)
 }
 
 // MARK: - Actions
@@ -169,6 +177,23 @@ import Testing
     #expect(WidgetActions.defaultAction(for: .appearance) == .toggleAppearance)
     // Workspaces are the adapter milestone's actions, never a fake sample.
     #expect(WidgetActions.defaultAction(for: .workspaces) == .none)
+}
+
+@Test func clockScheduleFindsTheNextMinuteSecondAndDayBoundary() {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    #expect(ClockSchedule.secondsUntilNextBoundary(after: base, seconds: false) == 60)
+    #expect(ClockSchedule.secondsUntilNextBoundary(after: base, seconds: true) == 1)
+
+    // A fixed calendar keeps the day-boundary arithmetic deterministic.
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "UTC")!
+    let noon = Date(timeIntervalSince1970: 1_800_000_000) // 2027-01-15 08:00:00 UTC
+    let toMidnight = ClockSchedule.secondsUntilNextDayBoundary(after: noon, calendar: calendar)
+    #expect(toMidnight > 0)
+    #expect(toMidnight <= 24 * 60 * 60)
+    #expect(calendar.date(byAdding: .second, value: Int(toMidnight), to: noon).map {
+        calendar.component(.hour, from: $0) == 0
+    } == true)
 }
 
 @Test func keepAwakeToggleDoesNotDependOnTheBatteryReading() {

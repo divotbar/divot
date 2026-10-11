@@ -167,7 +167,11 @@ private final class MockFrontAppReading: FrontAppReading {
 @MainActor
 @Test func defaultProvidersCoverEveryStatusItemExceptWorkspaces() {
     let ids = Set(DefaultWidgetProviders.make().map(\.id))
-    #expect(ids == [.frontApp, .battery, .network, .volume, .clock])
+    // The clock split into date and time (#0033). The default bar shows time;
+    // date is provider-backed too, once the user places it. Neither is the old
+    // combined clock.
+    #expect(ids == [.frontApp, .battery, .network, .volume, .time])
+    #expect(!ids.contains(.clock))
     // Workspaces is the workspace-adapter milestone and is intentionally absent
     // rather than faked with numbered spaces.
     #expect(!ids.contains(.workspaces))
@@ -175,6 +179,10 @@ private final class MockFrontAppReading: FrontAppReading {
     for item in BarLayout.default.right {
         #expect(ids.contains(item))
     }
+    // Placing the date item gives it a provider as well.
+    var withDate = DivotConfiguration.default
+    withDate.move(.date, to: .right)
+    #expect(DefaultWidgetProviders.placedProviderIDs(in: withDate).contains(.date))
 }
 
 @Test func clockProviderActivationKeyReflectsItsOptions() {
@@ -359,6 +367,58 @@ private final class MockFrontAppReading: FrontAppReading {
     }
     // A minute clock wakes ~60s out, never a zero-length or frame-rate poll.
     #expect(source.sleeps.first == 60)
+}
+
+@Test func timeProviderEmitsImmediatelyThenAtBoundaries() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(60),
+                                         base.addingTimeInterval(60), base.addingTimeInterval(120)])
+    let collector = ContentCollector()
+    let subscription = TimeProvider(source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 3 }
+    subscription.cancel()
+
+    let contents = collector.contents
+    guard case .time? = contents.first else {
+        Issue.record("expected a time snapshot")
+        return
+    }
+    // The default time item wakes at the next minute boundary.
+    #expect(source.sleeps.first == 60)
+}
+
+@Test func timeProviderWithSecondsWakesEverySecondBoundary() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(1)])
+    let collector = ContentCollector()
+    let subscription = TimeProvider(seconds: true, source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 2 }
+    subscription.cancel()
+
+    guard case .time? = collector.contents.first else {
+        Issue.record("expected a time snapshot")
+        return
+    }
+    #expect(source.sleeps.first == 1)
+}
+
+@Test func dateProviderEmitsImmediatelyAndWakesAtTheDayBoundary() async {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    let source = TestClockSource(dates: [base, base, base])
+    let collector = ContentCollector()
+    let subscription = DateProvider(source: source).start { collector.append($0) }
+
+    await waitUntil { collector.contents.count >= 2 }
+    subscription.cancel()
+
+    guard case .date? = collector.contents.first else {
+        Issue.record("expected a date snapshot")
+        return
+    }
+    // A date changes once a day, so the loop must not wake every minute.
+    #expect((source.sleeps.first ?? 0) > 60 * 60)
 }
 
 @MainActor

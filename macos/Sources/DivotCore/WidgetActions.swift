@@ -68,7 +68,7 @@ public enum WidgetActions {
             return .openSettings(.network)
         case .volume:
             return .openSettings(.sound)
-        case .clock:
+        case .clock, .date, .time:
             return .openSettings(.dateTime)
         case .appearance:
             return .toggleAppearance

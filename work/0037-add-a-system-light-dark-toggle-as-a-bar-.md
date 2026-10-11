@@ -27,15 +27,16 @@ The maintainer wants a bar item that switches the macOS system appearance betwee
 
 ## Acceptance criteria
 - Add an `appearance` bar item with an enable toggle and side placement, consistent with the other items.
-- A scope setting in Settings has two options: "Divot only" (switches only Divot's own theme appearance) and "Full system" (switches the macOS light/dark appearance through the public API). Default: "Divot only".
-- Clicking the item toggles the chosen scope and the item updates to match. The click is a direct toggle, not a menu, and works with the mouse and VoiceOver through the same action.
-- Tests cover the state mapping (light, dark), each scope's action, and the click routing for both scopes.
-- In "Divot only" mode no macOS setting is changed. In "Full system" mode only the appearance is changed, through the public API.
+- Clicking the item toggles Divot's own bar theme between light and dark. It does not change the macOS system appearance.
+- The click is a direct toggle, not a menu, and works with the mouse and VoiceOver through the same action.
+- The current mode is shown on the item (sun or moon glyph) and updates when toggled.
+- Tests cover the state mapping (light, dark), the click action, and the Settings persistence of the chosen mode.
+- No macOS setting is changed. No AppleScript, System Events or private API is used.
 - Verify on the packaged app; the maintainer confirms the look.
 - repoos check passes.
 
 ## Notes for AI
-Scope was added by the maintainer on 2026-10-11: the toggle has two options, "Divot only" and "Full system". Keep the appearance read and write behind a small provider so the view stays a pure display. Use the public appearance API only.
+Rescoped by the maintainer on 2026-10-11: the item only toggles Divot's own bar theme light/dark. There is no public macOS API to change the system appearance, so the "Full system" scope and its AppleScript path are removed. Keep the theme read and write behind a small provider so the view stays a display.
 
 
 ## Implementation

@@ -29,7 +29,7 @@ function flags(value: Record<string, unknown>, keys: string[], path: string) {
 }
 
 const FAMILIES = ['native', 'gruvbox', 'ayu', 'dracula', 'tokyo-night']
-const ITEMS = ['workspaces', 'front-app', 'battery', 'network', 'volume', 'clock']
+const ITEMS = ['workspaces', 'front-app', 'battery', 'network', 'volume', 'clock', 'date', 'time']
 // Semantic color roles a custom palette may override, merged over the chosen
 // family and variant. `accent` also exists at the appearance root; when both
 // are present the palette value wins.
@@ -124,6 +124,14 @@ function options(id: string, value: unknown) {
     case 'clock':
       shape(value, [], ['weekday', 'date', 'seconds'], path)
       flags(value, ['weekday', 'date', 'seconds'], path)
+      return
+    case 'date':
+      shape(value, [], ['weekday'], path)
+      flags(value, ['weekday'], path)
+      return
+    case 'time':
+      shape(value, [], ['seconds'], path)
+      flags(value, ['seconds'], path)
       return
     default:
       shape(value, [], [], path)

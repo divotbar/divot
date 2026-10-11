@@ -68,5 +68,5 @@ import Testing
 
 @Test func defaultWorkloadIncludesTheRequiredWidgets() {
     let ids = Set(PerformanceHarness.defaultWorkloadStates().map(\.id))
-    #expect(ids == [.network, .volume, .frontApp, .clock, .battery])
+    #expect(ids == [.network, .volume, .frontApp, .date, .time, .battery])
 }

@@ -231,6 +231,36 @@ public struct ClockConfiguration: Equatable, Sendable {
     }
 }
 
+/// `widgets.date`.
+public struct DateConfiguration: Equatable, Sendable {
+    public var weekday: Bool
+
+    public init(weekday: Bool = true) {
+        self.weekday = weekday
+    }
+
+    public static let `default` = DateConfiguration()
+
+    public var formatOptions: ClockFormatOptions {
+        ClockFormatOptions(weekday: weekday, date: true, seconds: false)
+    }
+}
+
+/// `widgets.time`.
+public struct TimeConfiguration: Equatable, Sendable {
+    public var seconds: Bool
+
+    public init(seconds: Bool = false) {
+        self.seconds = seconds
+    }
+
+    public static let `default` = TimeConfiguration()
+
+    public var formatOptions: ClockFormatOptions {
+        ClockFormatOptions(weekday: false, date: false, seconds: seconds)
+    }
+}
+
 /// `widgets.network`.
 public struct NetworkConfiguration: Equatable, Sendable {
     public var showWifiName: Bool
@@ -338,6 +368,8 @@ public struct WidgetOptions: Equatable, Sendable {
     public var frontApp: FrontAppConfiguration
     public var battery: BatteryConfiguration
     public var clock: ClockConfiguration
+    public var date: DateConfiguration
+    public var time: TimeConfiguration
     public var network: NetworkConfiguration
     public var volume: VolumeConfiguration
 
@@ -345,12 +377,16 @@ public struct WidgetOptions: Equatable, Sendable {
                 frontApp: FrontAppConfiguration = .default,
                 battery: BatteryConfiguration = .default,
                 clock: ClockConfiguration = .default,
+                date: DateConfiguration = .default,
+                time: TimeConfiguration = .default,
                 network: NetworkConfiguration = .default,
                 volume: VolumeConfiguration = .default) {
         self.workspaces = workspaces
         self.frontApp = frontApp
         self.battery = battery
         self.clock = clock
+        self.date = date
+        self.time = time
         self.network = network
         self.volume = volume
     }
@@ -446,8 +482,8 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     /// Default left is `workspaces`, `front-app`.
     public static let defaultLeft: [BarItemID] = [.workspaces, .frontApp]
-    /// Default right is `battery`, `clock`, `network`, `volume`.
-    public static let defaultRight: [BarItemID] = [.battery, .clock, .network, .volume]
+    /// Default right is `battery`, `time`, `network`, `volume`.
+    public static let defaultRight: [BarItemID] = [.battery, .time, .network, .volume]
 
     /// The first-launch bar: beautiful without any user input.
     public static let `default` = DivotConfiguration()
@@ -488,9 +524,12 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
-    /// Battery, clock, front-app, network, and volume formatting the renderer needs beyond snapshots.
+    /// Clock, date, time, battery, network, volume, and front-app formatting the
+    /// renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
+                                  date: widgets.date.formatOptions,
+                                  time: widgets.time.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions,
                                   battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),
                                   network: widgets.network.formatOptions,
