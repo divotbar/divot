@@ -42,3 +42,4 @@ The format options (weekday, year, presets) are in #0034. Keep this change to th
 - 2026-10-11T14:02:53Z · note: review pass 1: needs some work
 - 2026-10-11T14:02:53Z · status review→active
 - 2026-10-11T14:05:42Z · status active→review
+- 2026-10-11T14:05:42Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
