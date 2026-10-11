@@ -45,3 +45,4 @@ Depends on #0033, the date/time split. Keep this to the time item's formatting, 
 - 2026-10-11T13:19:07Z · note: review pass 1: needs some work
 - 2026-10-11T13:19:07Z · status review→active
 - 2026-10-11T13:22:42Z · status active→review
+- 2026-10-11T13:22:42Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
