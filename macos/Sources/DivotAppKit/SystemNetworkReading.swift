@@ -6,27 +6,27 @@ import DivotCore
 /// Live connectivity from `NWPathMonitor`.
 ///
 /// The monitor runs on its own queue and delivers the first path immediately, so
-/// the provider needs no polling and the main thread is untouched. Optional Wi-Fi
-/// name reading uses the public `CWWiFiClient` API; if the user denies permissions
-/// or the API is unavailable, the name is silently omitted with no error shown.
+/// the provider needs no polling and the main thread is untouched. Wi-Fi name
+/// reading is opt-in via `readWifiName` to avoid requesting location permission
+/// when the user has not explicitly enabled the feature.
 public final class NWPathNetworkReading: NetworkReading, @unchecked Sendable {
     public init() {}
 
-    public func observe(_ handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription {
+    public func observe(readWifiName: Bool, handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription {
         let monitor = NWPathMonitor()
         let queue = DispatchQueue(label: "divot.network-path", qos: .utility)
         monitor.pathUpdateHandler = { path in
-            handler(NWPathNetworkReading.snapshot(from: path))
+            handler(NWPathNetworkReading.snapshot(from: path, readWifiName: readWifiName))
         }
         monitor.start(queue: queue)
         return CallbackSubscription { monitor.cancel() }
     }
 
-    static func snapshot(from path: NWPath) -> NetworkSnapshot {
+    static func snapshot(from path: NWPath, readWifiName: Bool = false) -> NetworkSnapshot {
         let interface = path.availableInterfaces.first { path.usesInterfaceType($0.type) }
             ?? path.availableInterfaces.first
         let kind = kind(of: path)
-        let wifiName = kind == .wifi ? attemptReadWifiName() : nil
+        let wifiName = (readWifiName && kind == .wifi) ? attemptReadWifiName() : nil
         return NetworkSnapshot(isConnected: path.status == .satisfied,
                                kind: kind,
                                interfaceName: interface?.name,

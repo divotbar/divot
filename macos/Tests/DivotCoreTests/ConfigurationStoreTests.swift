@@ -337,6 +337,29 @@ private func write(_ json: String, to url: URL) throws {
     #expect(layout?["padding"] as? Int == 12)
 }
 
+@Test func savePersistsNetworkOptionsAndOmitsThemWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // The defaults write no network options at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["network"] == nil)
+
+    var configuration = DivotConfiguration.default
+    configuration.widgets.network = NetworkConfiguration(showWifiName: true)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.network == NetworkConfiguration(showWifiName: true))
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let networkOptions = (object?["widgets"] as? [String: Any])?["network"] as? [String: Any]
+    #expect(networkOptions?["showWifiName"] as? Bool == true)
+}
+
 @Test func defaultLocationHonorsXDGConfigHome() {
     let xdg = DivotConfigLocation.defaultURL(homeDirectory: "/Users/x",
                                              environment: ["XDG_CONFIG_HOME": "/tmp/cfg"])
