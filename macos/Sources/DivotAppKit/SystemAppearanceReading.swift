@@ -1,32 +1,30 @@
 import AppKit
 import DivotCore
 
-/// Reads and writes the app appearance through AppKit's public appearance API.
+/// Reads and writes Divot's appearance override through AppKit's public appearance API.
 ///
-/// This is a single shared instance that observes and controls `NSApp.appearance`,
-/// which affects Divot's own rendering. It is not a system-wide appearance toggle
-/// (that requires private APIs or AppleScript); it's the app-level appearance override.
+/// This instance controls `NSApp.appearance`, which toggles Divot's light/dark rendering.
+/// It is not a system-wide appearance change (which would require private APIs);
+/// it's the app-level override that Divot already supports via configuration.
 public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendable {
     private var token: NSObjectProtocol?
     private let lock = NSLock()
+    private var changeHandler: (@MainActor @Sendable () -> Void)?
 
     public init() {}
 
     nonisolated public func snapshot() -> AppearanceSnapshot? {
-        var mode: AppearanceMode = .light
-        // Read from NSApp.appearance to get the app's current setting.
-        // If nil, the app follows system, so read effectiveAppearance.
-        let appearance: NSAppearance.Name
-        if let appAppearance = NSApplication.shared.appearance {
-            appearance = appAppearance.bestMatch(from: [.darkAqua, .aqua]) ?? .aqua
-        } else {
-            appearance = NSApplication.shared.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) ?? .aqua
+        // Read the effective appearance: either the app's override, or the system mode.
+        let appearance = DispatchQueue.main.sync {
+            NSApplication.shared.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) ?? .aqua
         }
-        mode = appearance == .darkAqua ? .dark : .light
+        let mode: AppearanceMode = appearance == .darkAqua ? .dark : .light
         return AppearanceSnapshot(mode: mode)
     }
 
     nonisolated public func observeChanges(_ handler: @escaping @MainActor @Sendable () -> Void) -> any ProviderSubscription {
+        lock.withLock { self.changeHandler = handler }
+
         let token = DistributedNotificationCenter.default().addObserver(
             forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
             object: nil,
@@ -35,6 +33,7 @@ public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendab
             Task { @MainActor in handler() }
         }
         lock.withLock { self.token = token }
+
         return CallbackSubscription { [weak self] in
             guard let self else { return }
             self.lock.withLock {
@@ -42,19 +41,29 @@ public final class SystemAppearanceReading: AppearanceReading, @unchecked Sendab
                     DistributedNotificationCenter.default().removeObserver(token)
                     self.token = nil
                 }
+                self.changeHandler = nil
             }
         }
     }
 
-    /// Toggle the app appearance between light and dark.
+    /// Toggle Divot's appearance between light and dark.
     ///
-    /// Sets `NSApp.appearance` to override the system appearance for Divot's rendering.
-    /// This is the app-level override, not a system-wide setting change.
+    /// Sets `NSApp.appearance` to override the effective appearance for Divot's rendering.
+    /// This does not change the system-wide appearance setting; it's the app-level toggle
+    /// that Divot already supports via configuration.
     nonisolated public func toggleAppearance() {
-        DispatchQueue.main.async {
-            let current = NSApplication.shared.appearance?.bestMatch(from: [.darkAqua, .aqua]) ?? .aqua
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let current = NSApplication.shared.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) ?? .aqua
             let newAppearance = current == .darkAqua ? NSAppearance(named: .aqua)! : NSAppearance(named: .darkAqua)!
             NSApp.appearance = newAppearance
+            // Notify the provider so the bar item updates immediately.
+            self.lock.lock()
+            let handler = self.changeHandler
+            self.lock.unlock()
+            if let handler {
+                Task { @MainActor in handler() }
+            }
         }
     }
 }
