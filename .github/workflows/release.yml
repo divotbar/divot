@@ -25,22 +25,22 @@ jobs:
       # Build markdown release notes.
       - name: Prepare release notes
         run: |
-          cat > /tmp/release_notes.md <<'NOTES'
-# Divot ${{ github.ref_name }}
+          cat > /tmp/release_notes.md << 'NOTES'
+          # Divot ${{ github.ref_name }}
 
-**Note:** This is an unsigned build. To open Divot on your Mac:
-1. Mount the DMG: double-click `Divot.dmg`
-2. Right-click the Divot app and select "Open"
-3. Click "Open" in the dialog (you only need to do this once)
-4. Drag Divot to your Applications folder
+          **Note:** This is an unsigned build. To open Divot on your Mac:
+          1. Mount the DMG: double-click `Divot.dmg`
+          2. Right-click the Divot app and select "Open"
+          3. Click "Open" in the dialog (you only need to do this once)
+          4. Drag Divot to your Applications folder
 
-**Build info:**
-- Configuration: Release
-- Signing: Ad-hoc (unsigned; not Developer ID signed or notarized)
-- Commit: ${{ github.sha }}
+          **Build info:**
+          - Configuration: Release
+          - Signing: Ad-hoc (unsigned; not Developer ID signed or notarized)
+          - Commit: ${{ github.sha }}
 
-Signed and notarized builds are planned for a future release.
-NOTES
+          Signed and notarized builds are planned for a future release.
+          NOTES
       # Create the GitHub Release with the DMG and checksum files.
       - name: Create Release
         uses: softprops/action-gh-release@v2
