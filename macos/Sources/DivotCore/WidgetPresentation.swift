@@ -323,4 +323,20 @@ public enum WidgetPresenter {
                                   text: text,
                                   accessibilityLabel: "Volume \(percent) percent")
     }
+
+    private static func appearancePresentation(_ snapshot: AppearanceSnapshot) -> WidgetPresentation {
+        let symbol: String
+        let description: String
+        switch snapshot.mode {
+        case .light:
+            symbol = "sun.max.fill"
+            description = "Light mode"
+        case .dark:
+            symbol = "moon.fill"
+            description = "Dark mode"
+        }
+        return WidgetPresentation(symbolName: symbol,
+                                  text: "",
+                                  accessibilityLabel: description)
+    }
 }
