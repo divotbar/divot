@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-an-unsigned-divot-dmg-and-publish-
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T13:19:12Z"
+updated_at: "2026-10-11T13:19:32Z"
 ---
 ## Problem
 
