@@ -282,6 +282,8 @@ private extension WidgetOptions {
         if !frontApp.isEmpty { object[BarItemID.frontApp.rawValue] = frontApp }
         let clock = clock.jsonObject
         if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
+        let volume = volume.jsonObject
+        if !volume.isEmpty { object[BarItemID.volume.rawValue] = volume }
         return object
     }
 }
@@ -316,6 +318,16 @@ private extension ClockConfiguration {
         if weekday != defaults.weekday { object["weekday"] = weekday }
         if date != defaults.date { object["date"] = date }
         if seconds != defaults.seconds { object["seconds"] = seconds }
+        return object
+    }
+}
+
+private extension VolumeConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = VolumeConfiguration.default
+        if showVolumePercent != defaults.showVolumePercent { object["showVolumePercent"] = showVolumePercent }
+        if showVolumeMuted != defaults.showVolumeMuted { object["showVolumeMuted"] = showVolumeMuted }
         return object
     }
 }

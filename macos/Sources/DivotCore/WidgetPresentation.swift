@@ -239,6 +239,8 @@ public enum WidgetPresenter {
                                       accessibilityLabel: "No audio output device",
                                       isError: true)
         }
+        // When muted, the muted state takes priority over the percentage.
+        // The accessibility label always includes the full state so screen readers announce it completely.
         if snapshot.isMuted {
             let text = options.showMuted ? "Muted" : ""
             return WidgetPresentation(symbolName: "speaker.slash.fill",
