@@ -360,13 +360,7 @@ public struct WidgetOptions: Equatable, Sendable {
     /// Whether the contract accepts an options object for this item at all.
     public static func acceptsOptions(for id: BarItemID) -> Bool {
         switch id {
-<<<<<<< HEAD
-        case .workspaces, .frontApp, .clock, .network, .volume: return true
-        case .battery: return false
-=======
-        case .workspaces, .frontApp, .battery, .clock, .volume: return true
-        case .network: return false
->>>>>>> main
+        case .workspaces, .frontApp, .battery, .clock, .network, .volume: return true
         }
     }
 }
@@ -493,19 +487,12 @@ public struct DivotConfiguration: Equatable, Sendable {
 
     public func items(on side: BarSide) -> [BarItemID] { barLayout.items(on: side) }
 
-<<<<<<< HEAD
-    /// Clock, front-app, network, and volume formatting the renderer needs beyond snapshots.
-    public var presentationOptions: WidgetPresentationOptions {
-        WidgetPresentationOptions(clock: widgets.clock.formatOptions,
-                                  frontApp: widgets.frontApp.formatOptions,
-                                  network: widgets.network.formatOptions,
-=======
-    /// Battery, clock, front-app, and volume formatting the renderer needs beyond snapshots.
+    /// Battery, clock, front-app, network, and volume formatting the renderer needs beyond snapshots.
     public var presentationOptions: WidgetPresentationOptions {
         WidgetPresentationOptions(clock: widgets.clock.formatOptions,
                                   frontApp: widgets.frontApp.formatOptions,
                                   battery: BatteryFormatOptions(showPercentage: widgets.battery.showPercentage),
->>>>>>> main
+                                  network: widgets.network.formatOptions,
                                   volume: widgets.volume.formatOptions)
     }
 
