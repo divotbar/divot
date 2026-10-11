@@ -2,19 +2,22 @@
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: active
+status: review
+needs_input: true
+needs_input_reason: dev-error
+needs_input_detail: No session found matching 'repoos-0048-engineer'
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/date-and-time-items-show-a-placeholder-e
 created_at: "2026-10-11T14:25:56Z"
-updated_at: "2026-10-11T14:43:08Z"
+updated_at: "2026-10-11T14:43:09Z"
 last_handoff_failure_fingerprint: "check|repoos check failed: native-core — 􁁛 Test frontAppProviderEmitsOnMainAndOnChange() passed after 2.337 seconds."
 last_handoff_failure_sha: e78fdedc76a4f66ecbf587cef0959b4a2197ab0b
 review_passes: 3
 review_rounds: 2
-dev_error_count: 1
+dev_error_count: 2
 ---
 ## Problem
 
@@ -125,3 +128,5 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:40:53Z · note: handoff requested (cli)
 - 2026-10-11T14:41:17Z · handoff failed · task-file handoff failed at check · repoos check failed: native-core — 􁁛  Test frontAppProviderEmitsOnMainAndOnChange() passed after 2.337 seconds.
 - 2026-10-11T14:43:08Z · needs_input
+- 2026-10-11T14:43:09Z · agent exited with an error (pi) · No session found matching 'repoos-0048-engineer'
+- 2026-10-11T14:43:09Z · status active→review
