@@ -50,3 +50,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T13:44:40Z · watchdog: escalated to needs_input · check-failed-after-retries · check failed after 2 automatic retries · repoos check failed: native-core — 􀟈  Test everyDefaultItemIsLabelledAndRoatedAcrossEveryTheme() started. · next step: resume the session manually from the task's worktree and check for uncommitted work
 - 2026-10-11T14:17:48Z · needs_input
 - 2026-10-11T14:19:52Z · status active→review
+- 2026-10-11T14:19:52Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
