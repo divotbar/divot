@@ -2,7 +2,7 @@
 id: "0039"
 title: "Ask for Location permission when the Wi-Fi name is turned on, and show an error when it is denied"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 depends_on: ["0032"]
@@ -51,4 +51,4 @@ The location permission prompt only appears when the packaged app (dist/Divot.ap
 - 2026-10-11T12:03:16Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T12:03:54Z · note: review pass 1: needs some work
 - 2026-10-11T12:03:54Z · status review→active
-- 2026-10-11T12:09:22Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-11T12:09:22Z · status active→review
