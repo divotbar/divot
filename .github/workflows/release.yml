@@ -22,25 +22,25 @@ jobs:
       - run: ./scripts/make-dmg.sh
       # Generate the SHA-256 checksum for the DMG.
       - run: cd dist && shasum -a 256 Divot.dmg > Divot.dmg.sha256 && cat Divot.dmg.sha256
-      # Build markdown release notes.
+      # Build markdown release notes using printf to avoid leading spaces.
       - name: Prepare release notes
         run: |
-          cat > /tmp/release_notes.md <<'EOF'
-# Divot ${{ github.ref_name }}
-
-**Note:** This is an unsigned build. To open Divot on your Mac:
-1. Mount the DMG: double-click `Divot.dmg`
-2. Right-click the Divot app and select "Open"
-3. Click "Open" in the dialog (you only need to do this once)
-4. Drag Divot to your Applications folder
-
-**Build info:**
-- Configuration: Release
-- Signing: Ad-hoc (unsigned; not Developer ID signed or notarized)
-- Commit: ${{ github.sha }}
-
-Signed and notarized builds are planned for a future release.
-EOF
+          printf '%s\n' \
+            '# Divot ${{ github.ref_name }}' \
+            '' \
+            '**Note:** This is an unsigned build. To open Divot on your Mac:' \
+            '1. Mount the DMG: double-click `Divot.dmg`' \
+            '2. Right-click the Divot app and select "Open"' \
+            '3. Click "Open" in the dialog (you only need to do this once)' \
+            '4. Drag Divot to your Applications folder' \
+            '' \
+            '**Build info:**' \
+            '- Configuration: Release' \
+            '- Signing: Ad-hoc (unsigned; not Developer ID signed or notarized)' \
+            '- Commit: ${{ github.sha }}' \
+            '' \
+            'Signed and notarized builds are planned for a future release.' \
+            > /tmp/release_notes.md
       # Create the GitHub Release with the DMG and checksum files.
       - name: Create Release
         uses: softprops/action-gh-release@v2
