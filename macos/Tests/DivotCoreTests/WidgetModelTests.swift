@@ -166,8 +166,7 @@ import Testing
     #expect(WidgetActions.defaultAction(for: .network) == .openSettings(.network))
     #expect(WidgetActions.defaultAction(for: .volume) == .openSettings(.sound))
     #expect(WidgetActions.defaultAction(for: .clock) == .openSettings(.dateTime))
-    // The appearance item shows a menu to toggle Divot or system appearance.
-    #expect(WidgetActions.defaultAction(for: .appearance) == .showAppearanceMenu)
+    #expect(WidgetActions.defaultAction(for: .appearance) == .toggleAppearance)
     // Workspaces are the adapter milestone's actions, never a fake sample.
     #expect(WidgetActions.defaultAction(for: .workspaces) == .none)
 }

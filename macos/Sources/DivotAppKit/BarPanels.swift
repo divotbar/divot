@@ -72,8 +72,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 workspaceFeed: WorkspaceFeed? = nil,
                 workspaceIcons: WorkspaceIconProviding? = nil,
                 displayScreensID: Int? = nil,
-                onWidgetAction: ((WidgetAction) -> Void)? = nil,
-                onShowAppearanceMenu: ((NSView) -> Void)? = nil) {
+                onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
         self.configuration = configuration
         let shadowStrip = configuration.bottomShadow ? Self.bottomShadowHeight : 0
@@ -102,8 +101,6 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         self.right = Self.makePanel(on: screen, content: rightContent, shadowHeight: shadowStrip)
         leftContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
         rightContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
-        leftContent.onShowAppearanceMenu = onShowAppearanceMenu
-        rightContent.onShowAppearanceMenu = onShowAppearanceMenu
         leftContent.applyInitialState()
         rightContent.applyInitialState()
         left.orderFrontRegardless()
