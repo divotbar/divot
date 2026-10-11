@@ -2,7 +2,7 @@
 id: "0033"
 title: "Split the clock into separate date and time items, each with its own toggle"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T00:39:24Z"
-updated_at: "2026-10-11T00:39:24Z"
+updated_at: "2026-10-11T00:43:49Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 ## Activity
 
 - 2026-10-11T00:39:24Z · created · njachowski@gmail.com
+- 2026-10-11T00:43:49Z · status inbox→ready
