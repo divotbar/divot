@@ -79,3 +79,4 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:31:09Z · status review→active
 - 2026-10-11T14:32:51Z · body: section Observed Results
 - 2026-10-11T14:33:59Z · status active→review
+- 2026-10-11T14:33:59Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
