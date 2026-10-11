@@ -1,19 +1,19 @@
 ---
-updated_at: "2026-10-11T14:21:03Z"
-review_passes: 2
 id: "0045"
 title: Default bar height matches the native menu bar height on each display
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/default-bar-height-matches-the-native-me
 created_at: "2026-10-11T13:13:19Z"
+updated_at: "2026-10-11T14:21:03Z"
+review_rounds: 2
+review_passes: 2
 check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-11T13:37:56.607Z: repoos check failed: native-core — 􀟈 Test workspaceBarViewDrawsEveryDeduplicatedAppIcon() started."
-review_rounds: 1
 ---
 ## Problem
 
@@ -53,4 +53,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:19:52Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:20:07Z · handoff failed · check failed after 2 automatic retries · repoos check failed: native-core — 􀟈  Test optionsToggleFiltersEmptyWorkspacesWithoutAReload() started.
 - 2026-10-11T14:21:03Z · note: review pass 2: needs some work
-
+- 2026-10-11T14:21:03Z · status review→active
