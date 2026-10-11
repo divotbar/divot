@@ -2,7 +2,7 @@
 id: "0048"
 title: Date and time items show a placeholder ellipsis on main instead of the date and time
 type: bug
-status: review
+status: active
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: No session found matching 'repoos-0048-engineer'
@@ -129,4 +129,3 @@ The fix ensures content validation no longer silently drops these emissions.
 - 2026-10-11T14:41:17Z · handoff failed · task-file handoff failed at check · repoos check failed: native-core — 􁁛  Test frontAppProviderEmitsOnMainAndOnChange() passed after 2.337 seconds.
 - 2026-10-11T14:43:08Z · needs_input
 - 2026-10-11T14:43:09Z · agent exited with an error (pi) · No session found matching 'repoos-0048-engineer'
-- 2026-10-11T14:43:09Z · status active→review
