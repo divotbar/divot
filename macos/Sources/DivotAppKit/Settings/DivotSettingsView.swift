@@ -22,6 +22,7 @@ public struct DivotSettingsView: View {
             workspacesSection
             frontAppSection
             clockSection
+            volumeSection
             keepAwakeSection
             layoutSection
             textSection
@@ -199,6 +200,13 @@ public struct DivotSettingsView: View {
             Toggle("Show weekday", isOn: binding(\.widgets.clock.weekday))
             Toggle("Show date", isOn: binding(\.widgets.clock.date))
             Toggle("Show seconds", isOn: binding(\.widgets.clock.seconds))
+        }
+    }
+
+    private var volumeSection: some View {
+        Section("Volume") {
+            Toggle("Show percentage", isOn: binding(\.widgets.volume.showVolumePercent))
+            Toggle("Show muted state", isOn: binding(\.widgets.volume.showVolumeMuted))
         }
     }
 
