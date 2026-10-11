@@ -15,7 +15,8 @@ public enum DefaultWidgetProviders {
 
     /// The providers enabled by `configuration`, in a stable order.
     public static func make(for configuration: DivotConfiguration,
-                            keepAwake: (any KeepAwakeObserving)? = nil) -> [any WidgetProvider] {
+                            keepAwake: (any KeepAwakeObserving)? = nil,
+                            appearance: (any AppearanceReading)? = nil) -> [any WidgetProvider] {
         var providers: [any WidgetProvider] = []
         for id in placedProviderIDs(in: configuration) {
             switch id {
@@ -25,7 +26,7 @@ public enum DefaultWidgetProviders {
             case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading()))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
             case .frontApp: providers.append(FrontAppProvider(reading: NSWorkspaceFrontAppReading()))
-            case .appearance: providers.append(AppearanceProvider(reading: SystemAppearanceReading()))
+            case .appearance: providers.append(AppearanceProvider(reading: appearance ?? SystemAppearanceReading()))
             case .workspaces: break
             }
         }
