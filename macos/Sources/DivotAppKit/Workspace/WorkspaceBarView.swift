@@ -225,11 +225,21 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // Flat chrome (#0025): square corners, a flat selected fill, and a flat
         // focused stroke. No rounded corners or bevel.
         button.layer?.cornerRadius = 0
-        // All chips use the same background color, with opacity control. Focus
-        // is shown via the number's semibold weight (#0047).
-        // Opacity 0 = current chip appearance (opaque), 100 = invisible (transparent).
+        // All chips use the same style, with opacity control. Focus is shown via
+        // the number's semibold weight (#0047). At opacity 0, the current chip
+        // appearance is preserved: focused gets theme.selected, others get clear.
+        // At opacity 100, all chips fade to transparent. In between, we
+        // interpolate: start from each chip's natural color and fade toward
+        // transparent.
         let transparencyFraction = CGFloat(chipOpacity) / 100.0
-        let backgroundColor = theme.selected.withAlphaComponent(1.0 - transparencyFraction)
+        let backgroundColor: NSColor
+        if workspace.isFocused {
+            backgroundColor = theme.selected.withAlphaComponent(1.0 - transparencyFraction)
+        } else {
+            // Non-focused chips start clear and remain clear as we fade
+            // (they never have a background at opacity 0).
+            backgroundColor = NSColor.clear.withAlphaComponent(0)
+        }
         button.layer?.backgroundColor = backgroundColor.cgColor
         button.layer?.borderWidth = 0
         button.layer?.borderColor = NSColor.clear.cgColor
@@ -241,7 +251,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 
         let weight: NSFont.Weight = workspace.isFocused ? .semibold : .regular
         let font = BarFont.chip(metrics, weight: weight)
-        let nameColor = workspace.isFocused ? theme.selectedForeground : theme.foreground
+        // All chips use the foreground color; focus is shown via weight and the
+        // selected background, not text color (#0047).
+        let nameColor = theme.foreground
         let markerColor: NSColor
         switch occupancy {
         case .occupied: markerColor = theme.occupied

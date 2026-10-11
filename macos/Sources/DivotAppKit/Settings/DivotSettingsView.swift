@@ -62,7 +62,7 @@ public struct DivotSettingsView: View {
                 .foregroundStyle(.secondary)
             VStack(alignment: .leading) {
                 HStack {
-                    Text("Chip opacity")
+                    Text("Workspace chip opacity")
                     Spacer()
                     Text("\(model.configuration.chipOpacity)%")
                         .foregroundStyle(.secondary)
@@ -71,7 +71,7 @@ public struct DivotSettingsView: View {
                                       set: { model.setChipOpacity(Int($0)) }),
                        in: 0...100, step: 1)
             }
-            Text("0% shows the current chip appearance; 100% makes chips match the bar background.")
+            Text("Controls the workspace chips only. 0% shows the current appearance; 100% makes them match the bar background.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
