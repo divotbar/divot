@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/ask-for-location-permission-when-the-wi-
 created_at: "2026-10-11T11:54:34Z"
-updated_at: "2026-10-11T11:54:35Z"
+updated_at: "2026-10-11T12:02:43Z"
 ---
 ## Problem
 
@@ -34,11 +34,13 @@ macOS hides the Wi-Fi network name from apps without Location Services permissio
 - `repoos check` passes. The maintainer confirms the prompt and the messages.
 
 ## Notes for AI
-
 Depends on #0032, which added the Wi-Fi name. Keep the authorization logic in its own type behind the network reading, not in the view.
+
+The location permission prompt only appears when the packaged app (dist/Divot.app) with its Info.plist is used. Running with `swift run` may not show the prompt because the runtime-generated bundle does not include the NSLocationWhenInUseUsageDescription key.
 
 ## Activity
 
 - 2026-10-11T11:54:34Z · created · njachowski@gmail.com
 - 2026-10-11T11:54:35Z · status inbox→ready
 - 2026-10-11T11:54:35Z · status ready→active, branch
+- 2026-10-11T12:02:43Z · body: section Notes for AI
