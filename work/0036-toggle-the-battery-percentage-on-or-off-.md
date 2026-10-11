@@ -2,7 +2,7 @@
 id: "0036"
 title: Toggle the battery percentage on or off in Settings
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -43,4 +43,4 @@ Depends on #0028. Keep changes to the battery widget's label, not the battery re
 - 2026-10-11T00:50:23Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T00:51:06Z · note: review pass 1: needs some work
 - 2026-10-11T00:51:06Z · status review→active
-- 2026-10-11T00:56:03Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:56:03Z · status active→review
