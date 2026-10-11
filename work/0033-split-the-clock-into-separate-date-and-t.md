@@ -2,7 +2,7 @@
 id: "0033"
 title: "Split the clock into separate date and time items, each with its own toggle"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -44,4 +44,4 @@ Depends on #0028. The date format is a separate task, so this one renders the de
 - 2026-10-11T01:04:17Z · watchdog: escalated to needs_input · check-failed-after-retries · check failed after 2 automatic retries · repoos check failed: native-core — 􁁛  Test pipelineStartsProvidersOffTheMainThread() passed after 2.403 seconds. · next step: resume the session manually from the task's worktree and check for uncommitted work
 - 2026-10-11T12:20:12Z · cli_override, model_override
 - 2026-10-11T12:20:13Z · needs_input
-- 2026-10-11T12:27:45Z · note: shots: skipped — the diff (27 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T12:27:45Z · status active→review
