@@ -2,7 +2,7 @@
 id: "0047"
 title: "Make the selected workspace chip match the other chips, and add a chip opacity setting (0 to 100)"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0030"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/make-the-selected-workspace-chip-match-t
 created_at: "2026-10-11T13:57:41Z"
-updated_at: "2026-10-11T13:58:17Z"
+updated_at: "2026-10-11T14:05:38Z"
 ---
 ## Problem
 
@@ -39,3 +39,4 @@ Depends on #0030 (chips). Keep changes to the chip drawing and the focus cue, no
 - 2026-10-11T13:57:41Z · created · njachowski@gmail.com
 - 2026-10-11T13:58:16Z · status inbox→ready
 - 2026-10-11T13:58:17Z · status ready→active, branch
+- 2026-10-11T14:05:38Z · status active→review
