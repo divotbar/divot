@@ -2,7 +2,7 @@
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028", "0033"]
@@ -65,4 +65,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:58:25Z · needs_input
 - 2026-10-11T13:58:25Z · status review→active
 - 2026-10-11T13:58:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-11T14:01:32Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T14:01:32Z · status active→review
