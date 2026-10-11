@@ -14,7 +14,6 @@ created_at: "2026-10-11T13:13:19Z"
 updated_at: "2026-10-11T14:37:17Z"
 review_rounds: 2
 review_passes: 2
-check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-11T13:37:56.607Z: repoos check failed: native-core — 􀟈 Test workspaceBarViewDrawsEveryDeduplicatedAppIcon() started."
 ---
 ## Problem
@@ -60,3 +59,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:27:17Z · cli_override, model_override
 - 2026-10-11T14:27:17Z · needs_input
 - 2026-10-11T14:37:17Z · note: Clock/date/time items now always carry a non-empty, role-prefixed accessibility label (e.g. "Date: Sun 11 Oct"), so an all-off format cannot leave a silent item; core tests added. Merged main, which cleared the native-core SIGSEGV in ConfigurationParser.parse; repoos check passes (533 tests).
+
