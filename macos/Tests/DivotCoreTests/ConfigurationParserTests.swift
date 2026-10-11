@@ -440,6 +440,15 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(!configuration.rendersSameBar(as: .default))
 }
 
+@Test func batteryPercentageVisibilityChangesWhatTheRenderedBarNeeds() {
+    // Hiding or showing the percentage must rebuild the bar so the setting
+    // applies live; `rendersSameBar` therefore has to see the change.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.widgets.battery = BatteryConfiguration(showPercentage: false)
+    #expect(!configuration.rendersSameBar(as: .default))
+}
+
 // MARK: - Version 1 migration fixtures
 
 @Test func starterV1DefaultMigratesToAVersionTwoDocument() throws {

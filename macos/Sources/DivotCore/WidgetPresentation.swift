@@ -186,7 +186,8 @@ public enum WidgetPresenter {
         case .internalBattery:
             let symbol = batterySymbol(percentage: snapshot.percentage, charging: snapshot.isCharging)
             let text = options.showPercentage ? (snapshot.percentage.map { "\($0)%" } ?? "") : ""
-            var description = "Battery \(text.isEmpty ? "state unknown" : text)"
+            let percentageText = snapshot.percentage.map { "\($0)%" } ?? "state unknown"
+            var description = "Battery \(percentageText)"
             if snapshot.isCharging { description += ", charging" }
             else if snapshot.isPluggedIn { description += ", plugged in" }
             else if snapshot.isFullyCharged { description += ", charged" }

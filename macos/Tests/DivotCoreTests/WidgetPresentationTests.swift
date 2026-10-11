@@ -79,7 +79,7 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
         options: hiddenOptions)
     #expect(presentation.text.isEmpty)
     #expect(presentation.symbolName == "battery.75")
-    #expect(presentation.accessibilityLabel.contains("Battery state unknown"))
+    #expect(presentation.accessibilityLabel.contains("Battery 75%"))
 }
 
 @Test func networkPresentationReflectsTransportAndConnection() {
