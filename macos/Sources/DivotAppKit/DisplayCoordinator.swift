@@ -44,10 +44,8 @@ public final class DisplayCoordinator {
         self.adapter = adapter
         self.configuration = configuration
         adapter.trustsAccessibilityProbe = configuration.menuBar.trustAccessibilityProbe
-        let configuredHeight = configuration.layout.height.map { CGFloat($0) }
         self.core = DisplayBarCoordinator(menuBarPolicy: menuBarPolicy,
-                                          contentPolicy: configuration.layout.contentPolicy,
-                                          configuredHeight: configuredHeight)
+                                          contentPolicy: configuration.layout.contentPolicy)
         self.makeSurface = surfaceFactory
         syncObservationInputs()
     }
@@ -65,7 +63,6 @@ public final class DisplayCoordinator {
         let detectionChanged = configuration.menuBar != newValue.menuBar
         configuration = newValue
         core.contentPolicy = newValue.layout.contentPolicy
-        core.configuredHeight = newValue.layout.height.map { CGFloat($0) }
         syncObservationInputs()
         guard isRunning else { return }
         if barChanged {

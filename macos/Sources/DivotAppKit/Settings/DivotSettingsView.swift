@@ -273,14 +273,9 @@ public struct DivotSettingsView: View {
 
     private var layoutSection: some View {
         Section("Layout") {
-            let heightBinding = Binding<Double>(
-                get: { model.configuration.layout.height ?? Double(BarMetrics.default.height) },
-                set: { newH in model.update { $0.layout.height = newH } }
-            )
-            Stepper(value: heightBinding,
+            Stepper(value: binding(\.layout.height),
                     in: LayoutConfiguration.heightRange, step: 1) {
-                let h = model.configuration.layout.height ?? Double(BarMetrics.default.height)
-                Text("Height: \(Int(h)) pt (auto if not set)")
+                Text("Height: \(Int(model.configuration.layout.height)) pt")
             }
             Stepper(value: binding(\.layout.padding),
                     in: LayoutConfiguration.paddingRange, step: 1) {
