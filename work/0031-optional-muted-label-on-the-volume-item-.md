@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-muted-label-on-the-volume-item-
 created_at: "2026-10-11T00:39:23Z"
-updated_at: "2026-10-11T00:55:12Z"
+updated_at: "2026-10-11T00:56:04Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -45,3 +45,4 @@ Depends on #0028. Keep changes to the volume widget's label, not the volume read
 - 2026-10-11T00:51:16Z · status review→active
 - 2026-10-11T00:55:11Z · status active→review
 - 2026-10-11T00:55:12Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:56:04Z · note: review pass 2: good to go
