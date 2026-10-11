@@ -90,7 +90,7 @@ private final class MockNetworkReading: NetworkReading, @unchecked Sendable {
 
     var cancelCount: Int { lock.lock(); defer { lock.unlock() }; return cancels }
 
-    func observe(_ handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription {
+    func observe(readWifiName: Bool, handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription {
         lock.lock(); self.handler = handler; lock.unlock()
         return CallbackSubscription { [weak self] in
             guard let self else { return }

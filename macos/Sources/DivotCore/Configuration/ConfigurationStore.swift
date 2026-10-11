@@ -287,6 +287,8 @@ private extension WidgetOptions {
         if !battery.isEmpty { object[BarItemID.battery.rawValue] = battery }
         let clock = clock.jsonObject
         if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
+        let network = network.jsonObject
+        if !network.isEmpty { object[BarItemID.network.rawValue] = network }
         let volume = volume.jsonObject
         if !volume.isEmpty { object[BarItemID.volume.rawValue] = volume }
         return object
@@ -332,6 +334,15 @@ private extension ClockConfiguration {
         if weekday != defaults.weekday { object["weekday"] = weekday }
         if date != defaults.date { object["date"] = date }
         if seconds != defaults.seconds { object["seconds"] = seconds }
+        return object
+    }
+}
+
+private extension NetworkConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = NetworkConfiguration.default
+        if showWifiName != defaults.showWifiName { object["showWifiName"] = showWifiName }
         return object
     }
 }

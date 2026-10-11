@@ -24,6 +24,17 @@ public struct FrontAppFormatOptions: Equatable, Sendable {
     public static let `default` = FrontAppFormatOptions()
 }
 
+/// Whether the network item shows the Wi-Fi network name.
+public struct NetworkFormatOptions: Equatable, Sendable {
+    public var showWifiName: Bool
+
+    public init(showWifiName: Bool = false) {
+        self.showWifiName = showWifiName
+    }
+
+    public static let `default` = NetworkFormatOptions()
+}
+
 /// Whether the volume item shows its percentage and/or muted state.
 public struct VolumeFormatOptions: Equatable, Sendable {
     public var showPercent: Bool
@@ -42,6 +53,7 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var frontApp: FrontAppFormatOptions
     public var battery: BatteryFormatOptions
+    public var network: NetworkFormatOptions
     public var volume: VolumeFormatOptions
     public var locale: Locale
     public var timeZone: TimeZone
@@ -49,12 +61,14 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
     public init(clock: ClockFormatOptions = .default,
                 frontApp: FrontAppFormatOptions = .default,
                 battery: BatteryFormatOptions = .default,
+                network: NetworkFormatOptions = .default,
                 volume: VolumeFormatOptions = .default,
                 locale: Locale = .current,
                 timeZone: TimeZone = .current) {
         self.clock = clock
         self.frontApp = frontApp
         self.battery = battery
+        self.network = network
         self.volume = volume
         self.locale = locale
         self.timeZone = timeZone
@@ -140,7 +154,7 @@ public enum WidgetPresenter {
         case .battery(let snapshot):
             return batteryPresentation(snapshot, options: options.battery)
         case .network(let snapshot):
-            return networkPresentation(snapshot)
+            return networkPresentation(snapshot, options: options.network)
         case .volume(let snapshot):
             return volumePresentation(snapshot, options: options.volume)
         case .clock(let snapshot):
@@ -226,7 +240,8 @@ public enum WidgetPresenter {
         }
     }
 
-    private static func networkPresentation(_ snapshot: NetworkSnapshot) -> WidgetPresentation {
+    private static func networkPresentation(_ snapshot: NetworkSnapshot,
+                                            options: NetworkFormatOptions) -> WidgetPresentation {
         guard snapshot.isConnected else {
             return WidgetPresentation(symbolName: "wifi.slash",
                                       text: "",
@@ -244,7 +259,16 @@ public enum WidgetPresenter {
         var description = "\(kind) connected"
         if snapshot.isExpensive { description += ", metered" }
         if snapshot.isConstrained { description += ", low data mode" }
-        return WidgetPresentation(symbolName: symbol, text: "", accessibilityLabel: description)
+
+        let text: String
+        if options.showWifiName, snapshot.kind == .wifi, let wifiName = snapshot.wifiName {
+            text = wifiName
+            description += ", Wi-Fi network: \(wifiName)"
+        } else {
+            text = ""
+        }
+
+        return WidgetPresentation(symbolName: symbol, text: text, accessibilityLabel: description)
     }
 
     private static func volumePresentation(_ snapshot: VolumeSnapshot,
