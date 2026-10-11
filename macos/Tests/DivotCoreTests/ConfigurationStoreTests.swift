@@ -22,10 +22,10 @@ private func write(_ json: String, to url: URL) throws {
 @Test func aValidFileBecomesCurrent() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"dark","accent":"#D6F58A","material":"native"},"layout":{"height":30,"padding":10,"notchGap":8},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"dark","accent":"#D6F58A","material":"native"},"layout":{"height":30,"padding":10,"notchGap":8},"left":["time"],"right":["battery"]}"##, to: url)
     let store = ConfigurationStore(configURL: url)
     #expect(store.load() == .loaded)
-    #expect(store.current.left == [.clock])
+    #expect(store.current.left == [.time])
     #expect(store.current.right == [.battery])
     #expect(store.current.appearance.mode == .dark)
     #expect(store.current.layout.height == 30)
@@ -34,13 +34,13 @@ private func write(_ json: String, to url: URL) throws {
 @Test func invalidReloadPreservesTheLastGoodSnapshot() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##, to: url)
     let store = ConfigurationStore(configURL: url)
     #expect(store.load() == .loaded)
     let good = store.current
 
     // An out-of-range height must not blank the bar or silently clamp.
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":900,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":900,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##, to: url)
     guard case .invalid(let error) = store.load() else {
         Issue.record("expected an invalid outcome")
         return
@@ -49,7 +49,7 @@ private func write(_ json: String, to url: URL) throws {
     #expect(store.current == good)
 
     // A later good write recovers.
-    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":34,"padding":12,"notchGap":10},"left":["clock"],"right":["battery"]}"##, to: url)
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":34,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##, to: url)
     #expect(store.load() == .loaded)
     #expect(store.current.layout.height == 34)
 }
@@ -59,7 +59,7 @@ private func write(_ json: String, to url: URL) throws {
     let url = directory.appendingPathComponent("config.json")
     let store = ConfigurationStore(configURL: url)
     var configuration = DivotConfiguration.default
-    configuration.widgets.clock.seconds = true
+    configuration.widgets.time.seconds = true
     configuration.left = [.frontApp, .workspaces]
     try store.save(configuration)
 
@@ -298,7 +298,7 @@ private func write(_ json: String, to url: URL) throws {
     #expect(FileManager.default.fileExists(atPath: backupURL.path))
     #expect(backupURL.lastPathComponent == "config-v1-backup.json")
     #expect(store.current.version == 2)
-    #expect(store.current.right == [.battery, .clock])
+    #expect(store.current.right == [.battery, .time])
 
     // The rewritten file is now a plain version 2 document.
     let rewritten = try ConfigurationParser.parse(Data(contentsOf: url))
@@ -362,11 +362,12 @@ private func write(_ json: String, to url: URL) throws {
 @Test func legacyNotchGapIsStrippedOnSave() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
-    // Load a legacy config with notchGap.
+    // Load a legacy config with notchGap and the combined clock item.
     try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":15},"left":["clock"],"right":["battery"]}"##, to: url)
     let store = ConfigurationStore(configURL: url)
     #expect(store.load() == .loaded)
-    // Save it back; notchGap should be omitted.
+    #expect(store.current.left == [.time])
+    // Save it back; notchGap and the legacy clock item are not rewritten.
     try store.save(store.current)
 
     let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
@@ -374,6 +375,26 @@ private func write(_ json: String, to url: URL) throws {
     #expect(layout?["notchGap"] == nil)
     #expect(layout?["height"] as? Int == 32)
     #expect(layout?["padding"] as? Int == 12)
+    // The clock moved to time on disk, not just in memory.
+    #expect(object?["left"] as? [String] == ["time"])
+}
+
+@Test func legacyClockOptionsMigrateAndPersistAsTimeAndDateOnSave() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    try write(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["date"],"widgets":{"clock":{"weekday":false,"seconds":true}}}"##, to: url)
+    let store = ConfigurationStore(configURL: url)
+    #expect(store.load() == .loaded)
+    #expect(store.current.widgets.time.seconds)
+    #expect(!store.current.widgets.date.weekday)
+
+    try store.save(store.current)
+    let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    // The stale clock namespace is gone; the options live under time and date.
+    #expect(widgets?["clock"] == nil)
+    #expect((widgets?["time"] as? [String: Any])?["seconds"] as? Bool == true)
+    #expect((widgets?["date"] as? [String: Any])?["weekday"] as? Bool == false)
 }
 
 @Test func savePersistsNetworkOptionsAndOmitsThemWhenDefault() throws {
@@ -421,6 +442,41 @@ private func write(_ json: String, to url: URL) throws {
     object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
     let reloadedWidgets = object?["widgets"] as? [String: Any]
     #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
+}
+
+@Test func savePersistsTimeFormatAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // A plain default configuration writes no time widget object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["time"] == nil)
+
+    // Changing to 24-hour format writes the time object.
+    var configuration = DivotConfiguration.default
+    configuration.widgets.time.timeFormat = .twentyFourHour
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.time.timeFormat == .twentyFourHour)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let timeOptions = (object?["widgets"] as? [String: Any])?["time"] as? [String: Any]
+    #expect(timeOptions?["timeFormat"] as? String == "24-hour")
+
+    // Custom pattern is also persisted.
+    configuration.widgets.time.customPattern = "HH:mm:ss"
+    try store.save(configuration)
+
+    let reloaded2 = ConfigurationStore(configURL: url)
+    #expect(reloaded2.load() == .loaded)
+    #expect(reloaded2.current.widgets.time.customPattern == "HH:mm:ss")
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let timeOptions2 = (object?["widgets"] as? [String: Any])?["time"] as? [String: Any]
+    #expect(timeOptions2?["customPattern"] as? String == "HH:mm:ss")
 }
 
 @Test func defaultLocationHonorsXDGConfigHome() {

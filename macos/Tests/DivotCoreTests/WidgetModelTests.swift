@@ -44,6 +44,88 @@ import Testing
     #expect(text.contains("12:26"))
 }
 
+@Test func timeFormatTemplate24Hour() {
+    #expect(ClockText.template(ClockFormatOptions(weekday: false, date: false, seconds: false),
+                              timeFormat: .twentyFourHour) == "HHmm")
+    #expect(ClockText.template(ClockFormatOptions(weekday: false, date: false, seconds: true),
+                              timeFormat: .twentyFourHour) == "HHmms")
+}
+
+@Test func timeFormatTemplateAMPM() {
+    #expect(ClockText.template(ClockFormatOptions(weekday: false, date: false, seconds: false),
+                              timeFormat: .ampm) == "jmm")
+    #expect(ClockText.template(ClockFormatOptions(weekday: false, date: false, seconds: true),
+                              timeFormat: .ampm) == "jmms")
+}
+
+@Test func timeFormatTemplateCustom() {
+    #expect(ClockText.template(ClockFormatOptions(weekday: false, date: false, seconds: false),
+                              timeFormat: .custom) == "jmm")
+}
+
+@Test func timeFormatTwentyFourHour() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: false, date: false, seconds: false),
+                                locale: Locale(identifier: "en_US_POSIX"),
+                                timeZone: TimeZone(identifier: "UTC")!,
+                                timeFormat: .twentyFourHour)
+    #expect(text == "12:26")
+}
+
+@Test func timeFormatAMPM() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: false, date: false, seconds: false),
+                                locale: Locale(identifier: "en_US"),
+                                timeZone: TimeZone(identifier: "UTC")!,
+                                timeFormat: .ampm)
+    #expect(text.contains("12:26"))
+    #expect(text.contains("PM"))
+}
+
+@Test func customTimePatternValidation() {
+    #expect(ClockText.isValidCustomPattern("HHmm"))
+    #expect(ClockText.isValidCustomPattern("hh:mm a"))
+    #expect(!ClockText.isValidCustomPattern(""))
+    #expect(!ClockText.isValidCustomPattern("invalid pattern %%%"))
+}
+
+@Test func timeFormatCustomPattern() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: false, date: false, seconds: false),
+                                locale: Locale(identifier: "en_US_POSIX"),
+                                timeZone: TimeZone(identifier: "UTC")!,
+                                timeFormat: .custom,
+                                customTimePattern: "HH:mm:ss")
+    #expect(text == "12:26:40")
+}
+
+@Test func invalidCustomPatternFallsBackToLocalized() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let text = ClockText.string(for: ClockSnapshot(date: date),
+                                options: ClockFormatOptions(weekday: false, date: false, seconds: false),
+                                locale: Locale(identifier: "en_US"),
+                                timeZone: TimeZone(identifier: "UTC")!,
+                                timeFormat: .custom,
+                                customTimePattern: "invalid %%%")
+    // Invalid pattern falls back to locale-aware jmm format
+    #expect(text.contains("12:26"))
+    #expect(text.contains("PM"))
+}
+
+@Test func customPatternIsOnlyRetainedForCustomFormat() {
+    let customTime = TimeConfiguration(seconds: false, timeFormat: .custom, customPattern: "HH:mm")
+    #expect(customTime.customPattern == "HH:mm")
+
+    let twentyFourHour = TimeConfiguration(seconds: false, timeFormat: .twentyFourHour, customPattern: "HH:mm")
+    #expect(twentyFourHour.customPattern == nil)
+
+    let ampm = TimeConfiguration(seconds: false, timeFormat: .ampm, customPattern: "HH:mm")
+    #expect(ampm.customPattern == nil)
+}
+
 // MARK: - Store
 
 @Test func storeRejectsStaleGenerations() {
@@ -146,7 +228,7 @@ import Testing
 
 @Test func defaultLayoutMatchesTheFirstLaunchStory() {
     #expect(BarLayout.default.left == [.workspaces, .frontApp])
-    #expect(BarLayout.default.right == [.battery, .clock, .network, .volume])
+    #expect(BarLayout.default.right == [.battery, .time, .network, .volume])
     #expect(BarLayout.default.side(of: .frontApp) == .left)
     #expect(BarLayout.default.side(of: .volume) == .right)
 }
@@ -158,6 +240,14 @@ import Testing
     #expect(layout.side(of: .battery) == nil)
 }
 
+@Test func settingsItemsReplaceTheLegacyClockWithDateAndTime() {
+    #expect(BarItemID.placeableItems.contains(.date))
+    #expect(BarItemID.placeableItems.contains(.time))
+    // The combined clock is kept only so older documents can migrate.
+    #expect(!BarItemID.placeableItems.contains(.clock))
+    #expect(BarItemID.placeableItems.count == BarItemID.allCases.count - 1)
+}
+
 // MARK: - Actions
 
 @Test func defaultActionsOpenHonestSettingsLinks() {
@@ -166,8 +256,28 @@ import Testing
     #expect(WidgetActions.defaultAction(for: .network) == .openSettings(.network))
     #expect(WidgetActions.defaultAction(for: .volume) == .openSettings(.sound))
     #expect(WidgetActions.defaultAction(for: .clock) == .openSettings(.dateTime))
+    // The split items open the same Date & Time pane as the old clock.
+    #expect(WidgetActions.defaultAction(for: .date) == .openSettings(.dateTime))
+    #expect(WidgetActions.defaultAction(for: .time) == .openSettings(.dateTime))
     // Workspaces are the adapter milestone's actions, never a fake sample.
     #expect(WidgetActions.defaultAction(for: .workspaces) == .none)
+}
+
+@Test func clockScheduleFindsTheNextMinuteSecondAndDayBoundary() {
+    let base = Date(timeIntervalSinceReferenceDate: 0)
+    #expect(ClockSchedule.secondsUntilNextBoundary(after: base, seconds: false) == 60)
+    #expect(ClockSchedule.secondsUntilNextBoundary(after: base, seconds: true) == 1)
+
+    // A fixed calendar keeps the day-boundary arithmetic deterministic.
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "UTC")!
+    let noon = Date(timeIntervalSince1970: 1_800_000_000) // 2027-01-15 08:00:00 UTC
+    let toMidnight = ClockSchedule.secondsUntilNextDayBoundary(after: noon, calendar: calendar)
+    #expect(toMidnight > 0)
+    #expect(toMidnight <= 24 * 60 * 60)
+    #expect(calendar.date(byAdding: .second, value: Int(toMidnight), to: noon).map {
+        calendar.component(.hour, from: $0) == 0
+    } == true)
 }
 
 @Test func keepAwakeToggleDoesNotDependOnTheBatteryReading() {

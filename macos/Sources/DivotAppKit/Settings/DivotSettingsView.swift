@@ -22,7 +22,7 @@ public struct DivotSettingsView: View {
             workspacesSection
             frontAppSection
             batterySection
-            clockSection
+            dateTimeSection
             networkSection
             volumeSection
             keepAwakeSection
@@ -107,7 +107,9 @@ public struct DivotSettingsView: View {
 
     private var barItemsSection: some View {
         Section("Bar items") {
-            ForEach(BarItemID.allCases, id: \.self) { id in
+            // The legacy combined clock is not offered: the split into date and
+            // time replaced it (#0033).
+            ForEach(BarItemID.placeableItems, id: \.self) { id in
                 itemRow(id)
             }
         }
@@ -212,12 +214,39 @@ public struct DivotSettingsView: View {
         }
     }
 
-    private var clockSection: some View {
-        Section("Clock") {
-            Toggle("Show weekday", isOn: binding(\.widgets.clock.weekday))
-            Toggle("Show date", isOn: binding(\.widgets.clock.date))
-            Toggle("Show seconds", isOn: binding(\.widgets.clock.seconds))
+    private var dateTimeSection: some View {
+        Section("Date and time") {
+            Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
+            Toggle("Show seconds in the time", isOn: binding(\.widgets.time.seconds))
+            Picker("Time format", selection: timeFormatBinding) {
+                ForEach(TimeConfiguration.Format.allCases, id: \.self) { format in
+                    Text(format.displayName).tag(format)
+                }
+            }
+            if model.configuration.widgets.time.timeFormat == .custom {
+                HStack {
+                    Text("Custom pattern")
+                    TextField("e.g., HHmm", text: customTimePatternBinding)
+                        .textFieldStyle(.roundedBorder)
+                }
+                if let pattern = model.configuration.widgets.time.customPattern,
+                   !ClockText.isValidCustomPattern(pattern) {
+                    Text("Invalid pattern; using default format")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            }
         }
+    }
+
+    private var timeFormatBinding: Binding<TimeConfiguration.Format> {
+        Binding(get: { model.configuration.widgets.time.timeFormat },
+                set: { model.setTimeFormat($0) })
+    }
+
+    private var customTimePatternBinding: Binding<String> {
+        Binding(get: { model.configuration.widgets.time.customPattern ?? "" },
+                set: { model.setCustomTimePattern($0) })
     }
 
     private var networkSection: some View {

@@ -45,12 +45,12 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let parsed = try ConfigurationParser.parse(try exampleData("focus.json"))
     let configuration = parsed.configuration
     #expect(configuration.left == [.workspaces])
-    #expect(configuration.right == [.clock])
+    #expect(configuration.right == [.time])
     #expect(configuration.appearance.mode == .dark)
     #expect(configuration.appearance.material == .opaque)
     #expect(configuration.layout == LayoutConfiguration(height: 28, padding: 10))
     #expect(configuration.widgets.workspaces.showEmpty == false)
-    #expect(configuration.widgets.clock == ClockConfiguration(weekday: false, date: true, seconds: false))
+    #expect(configuration.widgets.time == TimeConfiguration(seconds: false))
 }
 
 @Test func networkOptionsDefaultToFalseAndParseExplicitly() throws {
@@ -60,6 +60,35 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["network"],"widgets":{"network":{"showWifiName":true}}}"##)
     let parsed = try ConfigurationParser.parse(jsonObject: value)
     #expect(parsed.configuration.widgets.network.showWifiName == true)
+}
+
+@Test func timeFormatOptionsDefaultToLocaleAwareAndParseExplicitly() throws {
+    let defaults = try ConfigurationParser.parse(try exampleData("default.json"))
+    #expect(defaults.configuration.widgets.time.timeFormat == .ampm)
+
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"24-hour"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.time.timeFormat == .twentyFourHour)
+}
+
+@Test func customTimePatternOptionParsesExplicitly() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"custom","customPattern":"HH:mm:ss"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.time.timeFormat == .custom)
+    #expect(parsed.configuration.widgets.time.customPattern == "HH:mm:ss")
+}
+
+@Test func customTimePatternCanBeOmittedForNonCustomFormat() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"24-hour"}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.time.timeFormat == .twentyFourHour)
+    #expect(parsed.configuration.widgets.time.customPattern == nil)
+}
+
+@Test func invalidTimeFormatIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":[],"right":["time"],"widgets":{"time":{"timeFormat":"invalid"}}}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "widgets.time.timeFormat")
 }
 
 @Test func everyTopLevelExampleParsesNatively() throws {
@@ -205,7 +234,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func duplicateItemAcrossGroupsIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["clock"]}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":["time"]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
     #expect(failure?.path == "left/right")
 }
@@ -217,10 +246,33 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "unknown field weather")
 }
 
+@Test func versionTwoClockItemAndOptionsMigrateToTimeAndDate() throws {
+    // A version 2 document from before the split still names the combined
+    // clock. It is not a version migration, but parsing rewrites it to time,
+    // and its options move to time's seconds and date's weekday.
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":["date"],"widgets":{"clock":{"weekday":false,"seconds":true}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.migratedFromVersion == nil)
+    #expect(parsed.configuration.left == [.time])
+    #expect(parsed.configuration.right == [.date])
+    #expect(parsed.configuration.widgets.time == TimeConfiguration(seconds: true))
+    #expect(parsed.configuration.widgets.date == DateConfiguration(weekday: false))
+}
+
+@Test func aStaleClockNamespaceIsDroppedRatherThanRejected() throws {
+    // A document that carries `widgets.clock` with no clock item left to place
+    // is legacy noise: it is dropped, not rejected as unplaced, and never
+    // re-saved.
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["battery"],"right":[],"widgets":{"clock":{"weekday":false,"seconds":true}}}"##)
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    #expect(parsed.configuration.widgets.clock == .default)
+    #expect(parsed.configuration.jsonObject["widgets"] == nil)
+}
+
 @Test func unknownWidgetOptionIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"clock":{"timezone":"UTC"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":[],"widgets":{"time":{"timezone":"UTC"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
-    #expect(failure?.path == "widgets.clock")
+    #expect(failure?.path == "widgets.time")
     #expect(failure?.message == "unknown field timezone")
 }
 
@@ -243,9 +295,9 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
 }
 
 @Test func nonBooleanOptionIsRejected() throws {
-    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[],"widgets":{"clock":{"seconds":"yes"}}}"##)
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":[],"widgets":{"time":{"seconds":"yes"}}}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }
-    #expect(failure?.path == "widgets.clock.seconds")
+    #expect(failure?.path == "widgets.time.seconds")
     #expect(failure?.message == "expected boolean")
 }
 
@@ -529,7 +581,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let configuration = parsed.configuration
     #expect(configuration.version == 2)
     #expect(configuration.left == [.workspaces])
-    #expect(configuration.right == [.battery, .clock, .network, .volume])
+    #expect(configuration.right == [.battery, .time, .network, .volume])
     #expect(configuration.appearance == .default)
     #expect(configuration.layout == .default)
     #expect(configuration.widgets == .default)
@@ -540,7 +592,7 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.migratedFromVersion == 1)
     let configuration = parsed.configuration
     #expect(configuration.left == [.workspaces])
-    #expect(configuration.right == [.clock])
+    #expect(configuration.right == [.time])
     #expect(configuration.appearance.mode == .dark)
     #expect(configuration.widgets.workspaces.showEmpty == false)
     #expect(configuration.widgets.workspaces.showAppIcons == false)

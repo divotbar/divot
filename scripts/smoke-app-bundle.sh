@@ -82,8 +82,8 @@ case "$WIDGETS" in
   *) fail "default left group is not workspaces,front-app" ;;
 esac
 case "$WIDGETS" in
-  *"layout.right=battery,clock,network,volume"*) ;;
-  *) fail "default right group is not battery,clock,network,volume" ;;
+  *"layout.right=battery,time,network,volume"*) ;;
+  *) fail "default right group is not battery,time,network,volume" ;;
 esac
 pass "default bar layout through the packaged app"
 

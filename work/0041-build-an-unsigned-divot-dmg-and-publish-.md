@@ -9,7 +9,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-an-unsigned-divot-dmg-and-publish-
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T12:51:53Z"
+updated_at: "2026-10-11T13:58:24Z"
+review_passes: 3
+review_rounds: 2
 ---
 ## Problem
 
@@ -37,4 +39,25 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
 - 2026-10-11T12:47:16Z · status inbox→ready
 - 2026-10-11T12:47:17Z · status ready→active, branch
-- 2026-10-11T12:51:53Z · status active→review
+- 2026-10-11T12:51:54Z · status active→review
+- 2026-10-11T12:51:54Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T12:52:10Z · note: review pass 1: failed — no usable report
+- 2026-10-11T12:52:10Z · needs_input
+- 2026-10-11T13:18:11Z · needs_input
+- 2026-10-11T13:18:11Z · status review→active
+- 2026-10-11T13:18:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T13:19:12Z · status active→review
+- 2026-10-11T13:19:12Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:19:47Z · note: review pass 2: needs some work
+- 2026-10-11T13:19:48Z · status review→active
+- 2026-10-11T13:22:02Z · status active→review
+- 2026-10-11T13:22:03Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:23:11Z · note: review pass 3: needs some work
+- 2026-10-11T13:23:11Z · status review→active
+- 2026-10-11T13:25:08Z · status active→review
+- 2026-10-11T13:25:10Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:26:20Z · note: review pass 4: needs some work
+- 2026-10-11T13:26:20Z · needs_input
+- 2026-10-11T13:58:24Z · needs_input
+- 2026-10-11T13:58:24Z · status review→active
+- 2026-10-11T13:58:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed

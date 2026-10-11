@@ -2,15 +2,20 @@
 id: "0035"
 title: Let the user choose the time format in Settings (24-hour or AM/PM)
 type: feature
-status: inbox
+status: done
 priority: p2
 area: macos
 depends_on: ["0033"]
+merged_commit: b329fd7f8b9d5222d828a462dca51cb82dd2d744
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/let-the-user-choose-the-time-format-in-s
 created_at: "2026-10-11T00:41:47Z"
-updated_at: "2026-10-11T00:41:47Z"
+updated_at: "2026-10-11T13:25:10Z"
+last_close_out_gate_ms: 85913
+last_close_out_gate_at: "2026-10-11T13:25:07.184Z"
+review_passes: 2
+review_rounds: 1
 ---
 ## Problem
 
@@ -36,3 +41,14 @@ Depends on #0033, the date/time split. Keep this to the time item's formatting, 
 ## Activity
 
 - 2026-10-11T00:41:47Z · created · njachowski@gmail.com
+- 2026-10-11T13:08:14Z · status inbox→ready
+- 2026-10-11T13:08:15Z · status ready→active, branch
+- 2026-10-11T13:18:26Z · status active→review
+- 2026-10-11T13:18:26Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:19:07Z · note: review pass 1: needs some work
+- 2026-10-11T13:19:07Z · status review→active
+- 2026-10-11T13:22:42Z · status active→review
+- 2026-10-11T13:22:42Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:23:26Z · note: review pass 2: good to go
+- 2026-10-11T13:25:07Z · close-out gate completed in 86s
+- 2026-10-11T13:25:10Z · status review→done, release:success

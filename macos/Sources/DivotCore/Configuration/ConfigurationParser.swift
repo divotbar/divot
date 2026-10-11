@@ -59,8 +59,15 @@ public enum ConfigurationParser {
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
-        let left = try itemGroup(root["left"], path: "left")
-        let right = try itemGroup(root["right"], path: "right")
+        var left = try itemGroup(root["left"], path: "left")
+        var right = try itemGroup(root["right"], path: "right")
+
+        // Migrate the legacy combined clock to time (#0033). Every occurrence is
+        // rewritten so a document that named clock on both sides is then caught
+        // as the duplicate it was.
+        left = left.map { $0 == .clock ? .time : $0 }
+        right = right.map { $0 == .clock ? .time : $0 }
+
         try requireUniquePlacement(left: left, right: right)
         let widgets = try widgetOptions(root["widgets"], placed: Set(left + right))
         let keepAwake = try keepAwakeOptions(root["keepAwake"])
@@ -133,9 +140,34 @@ public enum ConfigurationParser {
 
     private static func widgetOptions(_ value: Any?, placed: Set<BarItemID>) throws -> WidgetOptions {
         guard let value else { return .default }
-        guard let object = value as? [String: Any] else {
+        guard var object = value as? [String: Any] else {
             throw ConfigurationError(path: "widgets", message: "expected object")
         }
+        // Migrate the legacy combined-clock namespace to time/date before
+        // validating, so a document that still carries `widgets.clock` is
+        // accepted and rewritten rather than rejected as unplaced or left stale
+        // (#0033). The key is removed so it can never be re-saved.
+        if let clockRaw = object[BarItemID.clock.rawValue] {
+            object[BarItemID.clock.rawValue] = nil
+            if let clockObj = clockRaw as? [String: Any] {
+                // If time is placed, migrate the seconds option.
+                if placed.contains(.time) && object[BarItemID.time.rawValue] == nil {
+                    var timeObj = [String: Any]()
+                    if let seconds = clockObj["seconds"] { timeObj["seconds"] = seconds }
+                    if !timeObj.isEmpty { object[BarItemID.time.rawValue] = timeObj }
+                }
+                // If date is placed, migrate the weekday option.
+                if placed.contains(.date) && object[BarItemID.date.rawValue] == nil {
+                    var dateObj = [String: Any]()
+                    if let weekday = clockObj["weekday"] { dateObj["weekday"] = weekday }
+                    if !dateObj.isEmpty { object[BarItemID.date.rawValue] = dateObj }
+                }
+            } else {
+                // A malformed clock namespace still reports its own path.
+                _ = try clockOptions(clockRaw, path: "widgets.clock")
+            }
+        }
+
         for key in object.keys {
             guard let id = BarItemID(rawValue: key) else {
                 throw ConfigurationError(path: "widgets", message: "unknown field \(key)")
@@ -144,6 +176,7 @@ public enum ConfigurationParser {
                 throw ConfigurationError(path: "widgets.\(key)", message: "not placed on left or right")
             }
         }
+
         var options = WidgetOptions.default
         if let raw = object[BarItemID.workspaces.rawValue] {
             options.workspaces = try workspacesOptions(raw, path: "widgets.workspaces")
@@ -154,8 +187,11 @@ public enum ConfigurationParser {
         if let raw = object[BarItemID.battery.rawValue] {
             options.battery = try batteryOptions(raw, path: "widgets.battery")
         }
-        if let raw = object[BarItemID.clock.rawValue] {
-            options.clock = try clockOptions(raw, path: "widgets.clock")
+        if let raw = object[BarItemID.date.rawValue] {
+            options.date = try dateOptions(raw, path: "widgets.date")
+        }
+        if let raw = object[BarItemID.time.rawValue] {
+            options.time = try timeOptions(raw, path: "widgets.time")
         }
         if let raw = object[BarItemID.network.rawValue] {
             options.network = try networkOptions(raw, path: "widgets.network")
@@ -215,6 +251,29 @@ public enum ConfigurationParser {
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
         if let raw = object["date"] { configuration.date = try boolean(raw, path: "\(path).date") }
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        return configuration
+    }
+
+    private static func dateOptions(_ value: Any?, path: String) throws -> DateConfiguration {
+        let object = try shape(value, required: [], optional: ["weekday"], path: path)
+        var configuration = DateConfiguration.default
+        if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
+        return configuration
+    }
+
+    private static func timeOptions(_ value: Any?, path: String) throws -> TimeConfiguration {
+        let object = try shape(value, required: [], optional: ["seconds", "timeFormat", "customPattern"], path: path)
+        var configuration = TimeConfiguration.default
+        if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
+        if let raw = object["timeFormat"] {
+            configuration.timeFormat = try enumValue(raw, TimeConfiguration.Format.self, path: "\(path).timeFormat")
+        }
+        if let raw = object["customPattern"] {
+            guard let string = raw as? String else {
+                throw ConfigurationError(path: "\(path).customPattern", message: "expected string")
+            }
+            configuration.customPattern = string.isEmpty ? nil : string
+        }
         return configuration
     }
 
@@ -283,13 +342,17 @@ public enum ConfigurationParser {
     /// Version 1 hard-coded workspaces on the left and a status-only right array.
     /// Migration moves `workspaces` into `left`, its options into
     /// `widgets.workspaces`, and each `status` identifier into `right`. It never
-    /// silently reinterprets a field.
+    /// silently reinterprets a field. Clock items are migrated to time (#0033).
     private static func migrateV1(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "status"],
                              optional: ["appearance", "layout", "workspaces"], path: "root")
         let appearanceConfig = try root["appearance"].map { try appearance($0, path: "appearance") } ?? .default
         let layoutConfig = try root["layout"].map { try layout($0, path: "layout") } ?? .default
-        let status = try itemGroup(root["status"], path: "status")
+        var status = try itemGroup(root["status"], path: "status")
+
+        // Migrate the legacy combined clock to time (#0033).
+        status = status.map { $0 == .clock ? .time : $0 }
+
         var widgets = WidgetOptions.default
         if let raw = root["workspaces"] {
             widgets.workspaces = try workspacesOptions(raw, path: "workspaces")

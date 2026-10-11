@@ -24,7 +24,7 @@
   ],
   "right": [
     "battery",
-    "clock",
+    "time",
     "network",
     "volume"
   ],
@@ -38,9 +38,7 @@
       "showIcon": true,
       "showName": true
     },
-    "clock": {
-      "weekday": true,
-      "date": true,
+    "time": {
       "seconds": false
     }
   }
