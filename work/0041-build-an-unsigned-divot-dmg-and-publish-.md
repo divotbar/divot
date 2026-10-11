@@ -3,6 +3,9 @@ id: "0041"
 title: Build an unsigned Divot.dmg and publish it on a GitHub Release from a version tag
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-failed
+needs_input_detail: "the cursor agent exited without output: Error: [unavailable] read ETIMEDOUT"
 priority: p1
 area: [macos, docs]
 assigned_to: ""
@@ -40,3 +43,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T12:51:54Z · status active→review
 - 2026-10-11T12:51:54Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T12:52:10Z · note: review pass 1: failed — no usable report
+- 2026-10-11T12:52:10Z · needs_input
