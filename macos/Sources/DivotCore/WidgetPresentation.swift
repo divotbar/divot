@@ -52,6 +52,7 @@ public struct VolumeFormatOptions: Equatable, Sendable {
 public struct WidgetPresentationOptions: Equatable, Sendable {
     public var clock: ClockFormatOptions
     public var date: ClockFormatOptions
+    public var dateFormatPattern: String?
     public var time: ClockFormatOptions
     public var timeFormat: TimeConfiguration.Format
     public var customTimePattern: String?
@@ -64,6 +65,7 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
 
     public init(clock: ClockFormatOptions = .default,
                 date: ClockFormatOptions = ClockFormatOptions(weekday: true, date: true, seconds: false),
+                dateFormatPattern: String? = nil,
                 time: ClockFormatOptions = ClockFormatOptions(weekday: false, date: false, seconds: false),
                 timeFormat: TimeConfiguration.Format = .twentyFourHour,
                 customTimePattern: String? = nil,
@@ -75,6 +77,7 @@ public struct WidgetPresentationOptions: Equatable, Sendable {
                 timeZone: TimeZone = .current) {
         self.clock = clock
         self.date = date
+        self.dateFormatPattern = dateFormatPattern
         self.time = time
         self.timeFormat = timeFormat
         self.customTimePattern = customTimePattern
@@ -175,7 +178,8 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .date(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.date,
-                                        locale: options.locale, timeZone: options.timeZone, includeTime: false)
+                                        customPattern: options.dateFormatPattern,
+                                        locale: options.locale, timeZone: options.timeZone)
             return WidgetPresentation(symbolName: nil, text: text, accessibilityLabel: text)
         case .time(let snapshot):
             let text = ClockText.string(for: snapshot, options: options.time,
@@ -335,8 +339,6 @@ public enum WidgetPresenter {
             symbol = "moon.fill"
             description = "Dark mode"
         }
-        return WidgetPresentation(symbolName: symbol,
-                                  text: "",
-                                  accessibilityLabel: description)
+        return WidgetPresentation(symbolName: symbol, text: "", accessibilityLabel: description)
     }
 }

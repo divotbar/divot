@@ -261,9 +261,26 @@ public enum ConfigurationParser {
     }
 
     private static func dateOptions(_ value: Any?, path: String) throws -> DateConfiguration {
-        let object = try shape(value, required: [], optional: ["weekday"], path: path)
+        let object = try shape(value, required: [], optional: ["weekday", "year", "dayFirst", "separator", "customPattern"], path: path)
         var configuration = DateConfiguration.default
         if let raw = object["weekday"] { configuration.weekday = try boolean(raw, path: "\(path).weekday") }
+        if let raw = object["year"] { configuration.year = try boolean(raw, path: "\(path).year") }
+        if let raw = object["dayFirst"] { configuration.dayFirst = try boolean(raw, path: "\(path).dayFirst") }
+        if let raw = object["separator"] {
+            guard let sep = raw as? String else {
+                throw ConfigurationError(path: "\(path).separator", message: "expected string")
+            }
+            configuration.separator = sep
+        }
+        if let raw = object["customPattern"] {
+            guard let pattern = raw as? String else {
+                throw ConfigurationError(path: "\(path).customPattern", message: "expected string")
+            }
+            // Validate the pattern but don't reject the document if invalid
+            if ClockText.isValidPattern(pattern) {
+                configuration.customPattern = pattern
+            }
+        }
         return configuration
     }
 

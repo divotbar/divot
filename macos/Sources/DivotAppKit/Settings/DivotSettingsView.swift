@@ -229,38 +229,91 @@ public struct DivotSettingsView: View {
     }
 
     private var dateTimeSection: some View {
-        Section("Date and time") {
-            Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
-            Toggle("Show seconds in the time", isOn: binding(\.widgets.time.seconds))
-            Picker("Time format", selection: timeFormatBinding) {
-                ForEach(TimeConfiguration.Format.allCases, id: \.self) { format in
-                    Text(format.displayName).tag(format)
+        Group {
+            Section("Date") {
+                Toggle("Show weekday", isOn: binding(\.widgets.date.weekday))
+                Toggle("Show year", isOn: binding(\.widgets.date.year))
+                Picker("Day order", selection: binding(\.widgets.date.dayFirst)) {
+                    Text("Day, Month").tag(false)
+                    Text("Month, Day").tag(true)
+                }
+                TextField("Separator", text: binding(\.widgets.date.separator))
+                    .textFieldStyle(.roundedBorder)
+                LabeledContent("Preview") {
+                    Text(datePreview)
+                        .font(.caption)
+                        .monospaced()
+                }
+                DisclosureGroup("Custom pattern") {
+                    TextField("Custom pattern (e.g., MM/dd/yyyy)", text: customPatternBinding)
+                        .textFieldStyle(.roundedBorder)
+                    if let pattern = model.configuration.widgets.date.customPattern,
+                       !pattern.isEmpty {
+                        if !ClockText.isValidPattern(pattern) {
+                            Text("Invalid pattern. Using format above.")
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        } else {
+                            Text("Example: \(formatDateExample(pattern))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
-            if model.configuration.widgets.time.timeFormat == .custom {
-                HStack {
-                    Text("Custom pattern")
-                    TextField("e.g., HHmm", text: customTimePatternBinding)
-                        .textFieldStyle(.roundedBorder)
+            Section("Time") {
+                Picker("Format", selection: binding(\.widgets.time.timeFormat)) {
+                    ForEach(TimeConfiguration.Format.allCases, id: \.self) { format in
+                        Text(format.displayName).tag(format)
+                    }
                 }
-                if let pattern = model.configuration.widgets.time.customPattern,
-                   !ClockText.isValidCustomPattern(pattern) {
-                    Text("Invalid pattern; using default format")
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                Toggle("Show seconds", isOn: binding(\.widgets.time.seconds))
+                if model.configuration.widgets.time.timeFormat == .custom {
+                    TextField("Custom pattern (e.g., HH:mm:ss)", text: timePatternBinding)
+                        .textFieldStyle(.roundedBorder)
+                    if let pattern = model.configuration.widgets.time.customPattern,
+                       !pattern.isEmpty,
+                       !ClockText.isValidCustomPattern(pattern) {
+                        Text("Invalid pattern. Using default.")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                 }
             }
         }
     }
 
-    private var timeFormatBinding: Binding<TimeConfiguration.Format> {
-        Binding(get: { model.configuration.widgets.time.timeFormat },
-                set: { model.setTimeFormat($0) })
+    private var datePreview: String {
+        let snapshot = ClockSnapshot(date: Date())
+        let options = model.configuration.presentationOptions
+        return ClockText.string(for: snapshot, options: options.date,
+                               customPattern: options.dateFormatPattern,
+                               locale: options.locale, timeZone: options.timeZone)
     }
 
-    private var customTimePatternBinding: Binding<String> {
-        Binding(get: { model.configuration.widgets.time.customPattern ?? "" },
-                set: { model.setCustomTimePattern($0) })
+    private var customPatternBinding: Binding<String> {
+        Binding(
+            get: { model.configuration.widgets.date.customPattern ?? "" },
+            set: { pattern in
+                model.updateDateCustomPattern(pattern.isEmpty ? nil : pattern)
+            }
+        )
+    }
+
+    private var timePatternBinding: Binding<String> {
+        Binding(
+            get: { model.configuration.widgets.time.customPattern ?? "" },
+            set: { pattern in
+                model.updateTimeCustomPattern(pattern.isEmpty ? nil : pattern)
+            }
+        )
+    }
+
+    private func formatDateExample(_ pattern: String) -> String {
+        guard ClockText.isValidPattern(pattern) else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = pattern
+        return formatter.string(from: Date())
     }
 
     private var networkSection: some View {
