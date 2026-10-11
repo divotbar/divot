@@ -49,3 +49,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T13:18:51Z · note: review pass 2: needs some work
 - 2026-10-11T13:18:51Z · status review→active
 - 2026-10-11T13:22:50Z · status active→review
+- 2026-10-11T13:22:50Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
