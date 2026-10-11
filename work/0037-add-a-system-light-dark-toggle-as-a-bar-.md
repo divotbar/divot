@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-11T14:03:47Z"
-review_passes: 9
+last_close_out_gate_ms: 44108
+last_close_out_gate_at: "2026-10-11T14:12:33.337Z"
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
@@ -15,6 +15,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
+updated_at: "2026-10-11T14:12:33Z"
+review_passes: 9
 check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-11T14:03:18.530Z: repoos check failed: native-core — 􁁛 Test frontAppProviderEmitsOnMainAndOnChange() passed after 2.231 seconds."
 review_rounds: 2
@@ -113,4 +115,5 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T14:02:50Z · note: shots: skipped — the diff (13 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:03:47Z · note: review pass 9: needs some work
 - 2026-10-11T14:03:47Z · needs_input
+- 2026-10-11T14:12:33Z · close-out gate completed in 44s
 
