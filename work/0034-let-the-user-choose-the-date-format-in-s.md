@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 47420
-last_close_out_gate_at: "2026-10-11T14:40:45.117Z"
 id: "0034"
 title: Let the user choose the date format in Settings
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
 depends_on: ["0028", "0033"]
+merged_commit: 68cbfcc091e09c044cbf870f74629da518e04a6d
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-date-format-in-s
 created_at: "2026-10-11T00:39:28Z"
-updated_at: "2026-10-11T14:40:45Z"
+updated_at: "2026-10-11T14:40:47Z"
+last_close_out_gate_ms: 47420
+last_close_out_gate_at: "2026-10-11T14:40:45.117Z"
 review_passes: 7
 review_rounds: 2
 ---
@@ -86,4 +87,4 @@ Depends on #0033, the date/time split, which must land first.
 - 2026-10-11T14:30:06Z · note: review pass 7: good to go
 - 2026-10-11T14:39:57Z · close-out gate completed in 48s
 - 2026-10-11T14:40:45Z · close-out gate completed in 47s
-
+- 2026-10-11T14:40:47Z · status review→done, release:success
