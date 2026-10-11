@@ -1,19 +1,16 @@
 ---
-updated_at: "2026-10-11T14:01:34Z"
-review_passes: 4
 id: "0041"
 title: Build an unsigned Divot.dmg and publish it on a GitHub Release from a version tag
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/build-an-unsigned-divot-dmg-and-publish-
 created_at: "2026-10-11T12:47:05Z"
+updated_at: "2026-10-11T14:17:46Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -68,4 +65,4 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T14:00:45Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T14:01:34Z · note: review pass 5: needs some work
 - 2026-10-11T14:01:34Z · needs_input
-
+- 2026-10-11T14:17:46Z · needs_input
