@@ -2,7 +2,7 @@
 id: "0041"
 title: Build an unsigned Divot.dmg and publish it on a GitHub Release from a version tag
 type: feature
-status: review
+status: active
 priority: p1
 area: [macos, docs]
 assigned_to: ""
@@ -59,3 +59,5 @@ Unsigned build only. Do not add Developer ID signing or notarization here; that 
 - 2026-10-11T13:26:20Z · note: review pass 4: needs some work
 - 2026-10-11T13:26:20Z · needs_input
 - 2026-10-11T13:58:24Z · needs_input
+- 2026-10-11T13:58:24Z · status review→active
+- 2026-10-11T13:58:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
