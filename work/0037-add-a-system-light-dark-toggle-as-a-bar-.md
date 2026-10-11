@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-11T10:12:48Z"
-review_passes: 5
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -15,6 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
+updated_at: "2026-10-11T12:20:16Z"
+review_passes: 5
 review_rounds: 2
 handoff_signal_retry_count: 1
 ---
@@ -80,4 +77,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T10:11:57Z · note: shots: skipped — the diff (12 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-11T10:12:48Z · note: review pass 5: needs some work
 - 2026-10-11T10:12:48Z · needs_input
-
+- 2026-10-11T12:20:16Z · needs_input
