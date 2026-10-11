@@ -190,6 +190,28 @@ import Testing
     #expect(appliedUnavailable)
 }
 
+@Test func storeAcceptsDateAndTimeContentInPipeline() {
+    let snapshot = ClockSnapshot(date: Date())
+
+    // Date content must be accepted by the store when applied for .date item
+    var store = WidgetStore()
+    let dateGen = store.activate(.date)
+    let appliedDate = store.apply(.date(snapshot), for: .date, generation: dateGen)
+    #expect(appliedDate, "WidgetStore.apply must accept .date content for .date item")
+    #expect(store.state(for: .date) != nil)
+
+    // Time content must be accepted by the store when applied for .time item
+    let timeGen = store.activate(.time)
+    let appliedTime = store.apply(.time(snapshot), for: .time, generation: timeGen)
+    #expect(appliedTime, "WidgetStore.apply must accept .time content for .time item")
+    #expect(store.state(for: .time) != nil)
+
+    // Mismatched content is rejected (end-to-end)
+    let dateGen2 = store.activate(.date)
+    let appliedTimeToDate = store.apply(.time(snapshot), for: .date, generation: dateGen2)
+    #expect(!appliedTimeToDate, "WidgetStore.apply must reject .time content for .date item")
+}
+
 // MARK: - Coalescing
 
 @Test func coalescerCollapsesRepeatedIds() {
