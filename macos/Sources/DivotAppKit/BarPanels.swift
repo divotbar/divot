@@ -84,6 +84,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           showsAppIcon: configuration.showAppIcon,
                                           showOccupiedDot: configuration.showOccupiedDot,
                                           showEmptyDot: configuration.showEmptyDot,
+                                          enablesChipStyle: configuration.chipStyle,
                                           workspaceFeed: workspaceFeed,
                                           workspaceIcons: workspaceIcons,
                                           displayScreensID: displayScreensID,
@@ -93,6 +94,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           onActivate: onWidgetAction)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
+                                           enablesChipStyle: configuration.chipStyle,
                                            metrics: configuration.barMetrics,
                                            presentationOptions: configuration.presentationOptions,
                                            theme: theme,

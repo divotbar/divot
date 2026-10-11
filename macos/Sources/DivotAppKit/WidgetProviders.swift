@@ -223,22 +223,35 @@ public struct BatteryProvider: WidgetProvider {
 
 // MARK: - Network
 
-/// Observes connectivity. `NWPathMonitor` delivers the first path as its first
-/// callback, so there is no synchronous current value.
+/// Observes connectivity and optionally the current Wi-Fi network name.
+/// `NWPathMonitor` delivers the first path as its first callback, so there is no
+/// synchronous current value. The Wi-Fi name is only read when `readWifiName` is
+/// true, since it requires location permission; when false, the reading is
+/// permission-free and carries no SSID.
 public protocol NetworkReading: Sendable {
-    func observe(_ handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription
+    func observe(readWifiName: Bool, handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription
 }
 
-/// Emits connectivity on path changes. It carries no SSID or other
-/// location-gated detail, so it never needs an extra permission.
+/// Emits connectivity on path changes. When `readWifiName` is on, the reading
+/// attempts to read the current Wi-Fi network name using public APIs; permission
+/// is requested only if the user has enabled the feature. When off, no SSID is
+/// read and no permission is needed.
 public struct NetworkProvider: WidgetProvider {
     public let id = BarItemID.network
     private let reading: any NetworkReading
+    private let readWifiName: Bool
 
-    public init(reading: any NetworkReading) { self.reading = reading }
+    public init(reading: any NetworkReading, readWifiName: Bool = false) {
+        self.reading = reading
+        self.readWifiName = readWifiName
+    }
+
+    /// The provider is recreated when showWifiName changes, so that SSID reading
+    /// is only requested when the user has explicitly enabled the feature.
+    public var activationKey: String { "network(readWifiName: \(readWifiName))" }
 
     public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
-        reading.observe { snapshot in emit(.network(snapshot)) }
+        reading.observe(readWifiName: readWifiName) { snapshot in emit(.network(snapshot)) }
     }
 }
 

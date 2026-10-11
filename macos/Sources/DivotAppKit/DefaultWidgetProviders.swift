@@ -24,7 +24,8 @@ public enum DefaultWidgetProviders {
             case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
             case .date: providers.append(DateProvider())
             case .time: providers.append(TimeProvider(seconds: configuration.widgets.time.seconds))
-            case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading()))
+            case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading(),
+                                                           readWifiName: configuration.widgets.network.showWifiName))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
             case .frontApp: providers.append(FrontAppProvider(reading: NSWorkspaceFrontAppReading()))
             case .workspaces: break

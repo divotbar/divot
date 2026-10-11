@@ -21,6 +21,8 @@ public final class DivotSettingsModel {
     /// Installed font families, sorted, for the bar font picker. The system
     /// default is offered separately as an empty selection.
     public let availableFontFamilies: [String]
+    /// Current location authorization status for showing Wi-Fi name.
+    public private(set) var locationAuthorizationStatus: LocationAuthorizationStatus = .notDetermined
 
     private let controller: ConfigurationController
     private let loginItem: LoginItemControlling
@@ -31,26 +33,39 @@ public final class DivotSettingsModel {
     /// The single quit path shared with the menu-bar menu. Kept as a closure so
     /// the model never owns the application lifecycle and a test can observe it.
     private let requestQuit: () -> Void
+    private let locationTracker: any LocationAuthorizationTracking
+    private var locationSubscription: (any ProviderSubscription)?
 
     public init(controller: ConfigurationController,
                 loginItem: LoginItemControlling = SMAppServiceLoginItem(),
                 keepAwakeIsActive: @escaping () -> Bool = { false },
-                requestQuit: @escaping () -> Void = {}) {
+                requestQuit: @escaping () -> Void = {},
+                locationTracker: any LocationAuthorizationTracking = LocationAuthorizationTracker()) {
         self.controller = controller
         self.loginItem = loginItem
         self.keepAwakeIsActive = keepAwakeIsActive
         self.requestQuit = requestQuit
+        self.locationTracker = locationTracker
         self.configuration = controller.configuration
         self.errorMessage = controller.lastError?.description
         self.loginItemEnabled = loginItem.isEnabled
         self.loginItemStatus = loginItem.statusDescription
         self.availableFontFamilies = BarFont.installedFamilies()
+        self.locationAuthorizationStatus = locationTracker.currentStatus()
+
         // Keep the window in step with external edits (the file watcher) and with
         // the bar's own reloads. Values are equal after our own save, so this is
         // idempotent; there is no second copy of the truth.
         controller.addObserver { [weak self] configuration in
             self?.configuration = configuration
             self?.errorMessage = nil
+        }
+
+        // Observe location authorization status changes without requesting.
+        locationSubscription = locationTracker.observeAuthorization { [weak self] status in
+            DispatchQueue.main.async {
+                self?.locationAuthorizationStatus = status
+            }
         }
     }
 
@@ -162,6 +177,46 @@ public final class DivotSettingsModel {
         update { $0.bottomShadow = enabled }
     }
 
+    /// Draw each item in its own rounded chip or blend them together. Off by
+    /// default; the bar rebuilds live from the published snapshot and the setting
+    /// survives a relaunch through the store.
+    public func setChipStyle(_ enabled: Bool) {
+        update { $0.chipStyle = enabled }
+    }
+
+    // MARK: Network
+
+    /// Turn the Wi-Fi network name on or off. Turning it on from off is the one
+    /// and only thing that asks for Location permission; opening Settings or
+    /// turning it off never prompts.
+    public func setShowWifiName(_ enabled: Bool) {
+        let wasEnabled = configuration.widgets.network.showWifiName
+        update { $0.widgets.network.showWifiName = enabled }
+        if enabled, !wasEnabled, configuration.widgets.network.showWifiName {
+            locationTracker.requestAuthorization()
+        }
+    }
+
+    /// The guidance shown beneath the Wi-Fi name toggle for the live Location
+    /// authorization state. The denied state is the one that offers the button
+    /// to open the Location Services pane.
+    public var wifiNamePermissionMessage: String {
+        switch locationAuthorizationStatus {
+        case .notDetermined:
+            return "Asking for location permission when you turn this on."
+        case .authorizedWhenInUse, .authorizedAlways:
+            return "Location permission granted. Wi-Fi network name will appear when connected."
+        case .denied:
+            return "Location permission is needed to show the Wi-Fi name"
+        }
+    }
+
+    /// Whether the current state offers the button that opens the Location
+    /// Services pane in System Settings (denied and restricted).
+    public var wifiNamePermissionOffersSettings: Bool {
+        locationAuthorizationStatus == .denied
+    }
+
     // MARK: Text
 
     /// The font picker selection: the configured family when it is installed,
@@ -212,6 +267,15 @@ public final class DivotSettingsModel {
     public func quit() {
         requestQuit()
     }
+
+    /// Open the Location Services pane in System Settings.
+    public func openLocationServices() {
+        NSWorkspace.shared.open(Self.locationServicesURL)
+    }
+
+    /// The public URL scheme for the Location Services privacy pane. Opening it
+    /// only navigates System Settings; it changes no setting.
+    public static let locationServicesURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")!
 
     // MARK: Keep awake
 

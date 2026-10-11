@@ -2,15 +2,19 @@
 id: "0030"
 title: "Optional chips style for bar items, enabled in Settings"
 type: feature
-status: inbox
+status: done
 priority: p2
 area: macos
 depends_on: ["0028"]
+merged_commit: 11b96ace665cda814878a465b309c46736c16c5c
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/optional-chips-style-for-bar-items-enabl
 created_at: "2026-10-11T00:39:23Z"
-updated_at: "2026-10-11T00:39:23Z"
+updated_at: "2026-10-11T01:10:33Z"
+last_close_out_gate_ms: 66723
+last_close_out_gate_at: "2026-10-11T01:10:30.925Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -36,3 +40,10 @@ Depends on #0028 so the notch-side geometry is settled first. Keep changes to it
 ## Activity
 
 - 2026-10-11T00:39:23Z · created · njachowski@gmail.com
+- 2026-10-11T00:43:50Z · status inbox→ready
+- 2026-10-11T00:43:51Z · status ready→active, branch
+- 2026-10-11T00:49:59Z · status active→review
+- 2026-10-11T00:50:00Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:51:05Z · note: review pass 1: good to go
+- 2026-10-11T01:10:30Z · close-out gate completed in 67s
+- 2026-10-11T01:10:33Z · status review→done, release:success

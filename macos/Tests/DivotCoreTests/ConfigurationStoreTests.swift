@@ -162,6 +162,45 @@ private func write(_ json: String, to url: URL) throws {
     #expect(text?["font"] as? String == "Menlo")
 }
 
+@Test func savePersistsVolumeWidgetOptionsAndOmitsThemWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // Both on by default: the first-launch document writes no volume object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["volume"] == nil)
+
+    // Turning off percentage writes the volume object.
+    var configuration = DivotConfiguration.default
+    configuration.widgets.volume.showVolumePercent = false
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.volume.showVolumePercent == false)
+    #expect(reloaded.current.widgets.volume.showVolumeMuted == true)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let volumeObject = (object?["widgets"] as? [String: Any])?["volume"] as? [String: Any]
+    #expect(volumeObject?["showVolumePercent"] as? Bool == false)
+    #expect(volumeObject?["showVolumeMuted"] == nil)
+
+    // Turning off muted also writes it.
+    configuration.widgets.volume.showVolumeMuted = false
+    try store.save(configuration)
+
+    let reloaded2 = ConfigurationStore(configURL: url)
+    #expect(reloaded2.load() == .loaded)
+    #expect(reloaded2.current.widgets.volume.showVolumePercent == false)
+    #expect(reloaded2.current.widgets.volume.showVolumeMuted == false)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let volumeObject2 = (object?["widgets"] as? [String: Any])?["volume"] as? [String: Any]
+    #expect(volumeObject2?["showVolumePercent"] as? Bool == false)
+    #expect(volumeObject2?["showVolumeMuted"] as? Bool == false)
+}
+
 @Test func savePersistsTheAppIconOptInAndOmitsItWhenDefault() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")
@@ -356,6 +395,53 @@ private func write(_ json: String, to url: URL) throws {
     #expect(widgets?["clock"] == nil)
     #expect((widgets?["time"] as? [String: Any])?["seconds"] as? Bool == true)
     #expect((widgets?["date"] as? [String: Any])?["weekday"] as? Bool == false)
+}
+
+@Test func savePersistsNetworkOptionsAndOmitsThemWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // The defaults write no network options at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["network"] == nil)
+
+    var configuration = DivotConfiguration.default
+    configuration.widgets.network = NetworkConfiguration(showWifiName: true)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.network == NetworkConfiguration(showWifiName: true))
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let networkOptions = (object?["widgets"] as? [String: Any])?["network"] as? [String: Any]
+    #expect(networkOptions?["showWifiName"] as? Bool == true)
+}
+
+@Test func savePersistsBatteryPercentageAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // A plain default configuration writes no battery widget object at all.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let widgets = object?["widgets"] as? [String: Any]
+    #expect(widgets?["battery"] == nil)
+
+    // An explicit non-default setting writes the battery object.
+    var configuration = DivotConfiguration.default
+    configuration.widgets.battery = BatteryConfiguration(showPercentage: false)
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.battery == BatteryConfiguration(showPercentage: false))
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    let reloadedWidgets = object?["widgets"] as? [String: Any]
+    #expect((reloadedWidgets?["battery"] as? [String: Any])?["showPercentage"] as? Bool == false)
 }
 
 @Test func defaultLocationHonorsXDGConfigHome() {

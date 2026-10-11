@@ -21,7 +21,10 @@ public struct DivotSettingsView: View {
             barItemsSection
             workspacesSection
             frontAppSection
+            batterySection
             dateTimeSection
+            networkSection
+            volumeSection
             keepAwakeSection
             layoutSection
             textSection
@@ -53,6 +56,10 @@ public struct DivotSettingsView: View {
             Text("Draws a subtle drop shadow along the bar's bottom edge. Off by default; the bar stays a flat colour.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Toggle("Chips", isOn: chipStyleBinding)
+            Text("Draws each item in its own rounded chip. Off by default; items blend together without individual backgrounds.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -64,6 +71,11 @@ public struct DivotSettingsView: View {
     private var bottomShadowBinding: Binding<Bool> {
         Binding(get: { model.configuration.bottomShadow },
                 set: { model.setBottomShadow($0) })
+    }
+
+    private var chipStyleBinding: Binding<Bool> {
+        Binding(get: { model.configuration.chipStyle },
+                set: { model.setChipStyle($0) })
     }
 
     // MARK: Menu bar
@@ -196,10 +208,52 @@ public struct DivotSettingsView: View {
         }
     }
 
+    private var batterySection: some View {
+        Section("Battery") {
+            Toggle("Show battery percentage", isOn: binding(\.widgets.battery.showPercentage))
+        }
+    }
+
     private var dateTimeSection: some View {
         Section("Date and time") {
             Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
             Toggle("Show seconds in the time", isOn: binding(\.widgets.time.seconds))
+        }
+    }
+
+    private var networkSection: some View {
+        Section("Network") {
+            Toggle("Show Wi-Fi network name", isOn: showWifiNameBinding)
+            if model.configuration.widgets.network.showWifiName {
+                if model.wifiNamePermissionOffersSettings {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(model.wifiNamePermissionMessage)
+                        Button(action: { model.openLocationServices() }) {
+                            Text("Open Location Services")
+                        }
+                    }
+                } else {
+                    Text(model.wifiNamePermissionMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Text("When on, the network item displays the current Wi-Fi network name beside the icon. Location permission is required.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var showWifiNameBinding: Binding<Bool> {
+        Binding(get: { model.configuration.widgets.network.showWifiName },
+                set: { model.setShowWifiName($0) })
+    }
+
+    private var volumeSection: some View {
+        Section("Volume") {
+            Toggle("Show percentage", isOn: binding(\.widgets.volume.showVolumePercent))
+            Toggle("Show muted state", isOn: binding(\.widgets.volume.showVolumeMuted))
         }
     }
 

@@ -90,7 +90,7 @@ private final class MockNetworkReading: NetworkReading, @unchecked Sendable {
 
     var cancelCount: Int { lock.lock(); defer { lock.unlock() }; return cancels }
 
-    func observe(_ handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription {
+    func observe(readWifiName: Bool, handler: @escaping @Sendable (NetworkSnapshot) -> Void) -> any ProviderSubscription {
         lock.lock(); self.handler = handler; lock.unlock()
         return CallbackSubscription { [weak self] in
             guard let self else { return }
@@ -283,6 +283,58 @@ private final class MockFrontAppReading: FrontAppReading {
 
     subscription.cancel()
     #expect(reading.cancelCount == 1)
+}
+
+@Test func networkProviderShowsWifiNameWhenAuthorized() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: "MyNetwork", locationAuthorizationStatus: "authorizedWhenInUse"))
+    #expect(collector.contents.count == 1)
+    guard case .network(let snapshot)? = collector.contents.last else {
+        Issue.record("expected a network snapshot")
+        return
+    }
+    #expect(snapshot.wifiName == "MyNetwork")
+    #expect(snapshot.locationAuthorizationStatus == "authorizedWhenInUse")
+
+    subscription.cancel()
+    #expect(reading.cancelCount == 1)
+}
+
+@Test func networkProviderHidesWifiNameWhenDenied() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: nil, locationAuthorizationStatus: "denied"))
+    #expect(collector.contents.count == 1)
+    guard case .network(let snapshot)? = collector.contents.last else {
+        Issue.record("expected a network snapshot")
+        return
+    }
+    #expect(snapshot.wifiName == nil)
+    #expect(snapshot.locationAuthorizationStatus == "denied")
+
+    subscription.cancel()
+}
+
+@Test func networkProviderShowsNotDeterminedState() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: nil, locationAuthorizationStatus: "notDetermined"))
+    #expect(collector.contents.count == 1)
+    guard case .network(let snapshot)? = collector.contents.last else {
+        Issue.record("expected a network snapshot")
+        return
+    }
+    #expect(snapshot.wifiName == nil)
+    #expect(snapshot.locationAuthorizationStatus == "notDetermined")
+
+    subscription.cancel()
 }
 
 @Test func volumeProviderEmitsAndFollowsChanges() {
@@ -563,4 +615,65 @@ private final class Counter: @unchecked Sendable {
     let backend = MockAudioBackend()
     backend.device = nil
     #expect(CoreAudioVolumeReading(backend: backend).snapshot() == .noOutput)
+}
+
+@Test func networkReadingRequestsLocationOnlyWhenWifiNameIsRead() {
+    // The permission request is tied to `readWifiName` — the same value as the
+    // Wi-Fi name toggle — so a provider that does not read the name never asks.
+    let off = StubLocationTracker(status: .notDetermined)
+    let readingOff = NWPathNetworkReading(locationTracker: off)
+    let offSubscription = readingOff.observe(readWifiName: false) { _ in }
+    #expect(off.requestCount == 0)
+    offSubscription.cancel()
+
+    let on = StubLocationTracker(status: .notDetermined)
+    let readingOn = NWPathNetworkReading(locationTracker: on)
+    let onSubscription = readingOn.observe(readWifiName: true) { _ in }
+    #expect(on.requestCount == 1)
+    onSubscription.cancel()
+}
+
+@Test func networkProviderTracksAllAuthorizationStates() {
+    let reading = MockNetworkReading()
+    let collector = ContentCollector()
+    let subscription = NetworkProvider(reading: reading, readWifiName: true).start { collector.append($0) }
+    
+    // Test notDetermined state
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", locationAuthorizationStatus: "notDetermined"))
+    guard case .network(let snapshot1)? = collector.contents.last else {
+        Issue.record("expected a network snapshot for notDetermined")
+        return
+    }
+    #expect(snapshot1.locationAuthorizationStatus == "notDetermined")
+    #expect(snapshot1.wifiName == nil)
+    
+    // Test denied state
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", locationAuthorizationStatus: "denied"))
+    guard case .network(let snapshot2)? = collector.contents.last else {
+        Issue.record("expected a network snapshot for denied")
+        return
+    }
+    #expect(snapshot2.locationAuthorizationStatus == "denied")
+    #expect(snapshot2.wifiName == nil)
+    
+    // Test authorizedWhenInUse state
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: "Network1", locationAuthorizationStatus: "authorizedWhenInUse"))
+    guard case .network(let snapshot3)? = collector.contents.last else {
+        Issue.record("expected a network snapshot for authorizedWhenInUse")
+        return
+    }
+    #expect(snapshot3.locationAuthorizationStatus == "authorizedWhenInUse")
+    #expect(snapshot3.wifiName == "Network1")
+    
+    // Test authorizedAlways state
+    reading.emit(.init(isConnected: true, kind: .wifi, interfaceName: "en0", wifiName: "Network2", locationAuthorizationStatus: "authorizedAlways"))
+    guard case .network(let snapshot4)? = collector.contents.last else {
+        Issue.record("expected a network snapshot for authorizedAlways")
+        return
+    }
+    #expect(snapshot4.locationAuthorizationStatus == "authorizedAlways")
+    #expect(snapshot4.wifiName == "Network2")
+    
+    subscription.cancel()
+    #expect(reading.cancelCount == 1)
 }
