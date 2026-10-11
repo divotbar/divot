@@ -11,7 +11,7 @@ branch: feat/default-bar-height-matches-the-native-me
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-11T13:13:19Z"
-updated_at: "2026-10-11T14:48:10Z"
+updated_at: "2026-10-11T14:49:19Z"
 review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-11T13:37:56.607Z: repoos check failed: native-core — 􀟈 Test workspaceBarViewDrawsEveryDeduplicatedAppIcon() started."
@@ -67,3 +67,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T14:40:51Z · status review→active
 - 2026-10-11T14:40:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-11T14:48:10Z · note: Packaged-app measurement — dist/Divot.app built from branch commit 8636944, run on the built-in notched display (1710x1107pt @2x). Native menu bar height = 33.0pt (NSScreen safeAreaInsets.top=33.0, cross-checked frame.maxY-visibleFrame.maxY=33.0). divot --report: display-1 notched=true, mode=belowNativeBar(inset: 33.0). On-screen panel bounds read from CGWindowList while the packaged app ran: default config (height unset, no shadow) -> top edge y=33.0, panel height 33.0pt, so the Divot row = 33.0pt = native; maintainer config (layout.height=32, bottomShadow=true) -> panel 39.0pt = 33.0 row + 6.0 shadow strip; explicit layout.height=40 (no shadow) -> panel 40.0pt. The row matches the native 33pt on the notched display when height is unset/32, and a non-32 explicit height is honored. These are window-bounds measurements only; the on-screen look is the maintainer's confirmation.
+- 2026-10-11T14:49:19Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
