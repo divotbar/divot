@@ -1,16 +1,19 @@
 ---
-updated_at: "2026-10-11T13:25:18Z"
-review_passes: 3
 id: "0040"
 title: Deploy the landing and docs site to divotbar.app with GitHub Actions and Cloudflare Pages
 type: feature
-status: review
+status: done
 priority: p1
 area: [macos, docs]
+merged_commit: "09f26653602793d68cafa97303693af4c4b73911"
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/deploy-the-landing-and-docs-site-to-divo
 created_at: "2026-10-11T12:47:04Z"
+updated_at: "2026-10-11T13:54:54Z"
+last_close_out_gate_ms: 43619
+last_close_out_gate_at: "2026-10-11T13:54:52.396Z"
+review_passes: 3
 review_rounds: 2
 incomplete_review_retries: 1
 ---
@@ -59,4 +62,5 @@ The maintainer will create the Cloudflare token and account secrets; do not gues
 - 2026-10-11T13:24:11Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (09f2665) during finalization (#0734)
 - 2026-10-11T13:24:11Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (09f2665) during finalization (#0734)
 - 2026-10-11T13:25:18Z · note: review pass 5: good to go
-
+- 2026-10-11T13:54:52Z · close-out gate completed in 44s
+- 2026-10-11T13:54:54Z · status review→done, release:success
