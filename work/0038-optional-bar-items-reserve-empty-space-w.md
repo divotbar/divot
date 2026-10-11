@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-11T11:58:22Z"
-review_passes: 1
 id: "0038"
 title: Optional bar items reserve empty space when their extra content is off
 type: bug
@@ -11,6 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/optional-bar-items-reserve-empty-space-w
 created_at: "2026-10-11T11:54:01Z"
+updated_at: "2026-10-11T11:57:35Z"
 ---
 ## Problem
 
@@ -39,6 +38,3 @@ Fix in the item width calculation and layout, not in the readings. Keep changes 
 - 2026-10-11T11:54:04Z · status inbox→ready
 - 2026-10-11T11:54:05Z · status ready→active, branch
 - 2026-10-11T11:57:35Z · status active→review
-- 2026-10-11T11:57:36Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-11T11:58:22Z · note: review pass 1: good to go
-
