@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T12:42:35Z"
+updated_at: "2026-10-11T12:44:29Z"
 review_passes: 6
 review_rounds: 2
 handoff_signal_retry_count: 1
@@ -87,3 +87,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T12:42:35Z · needs_input
 - 2026-10-11T12:42:35Z · status review→active
 - 2026-10-11T12:42:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T12:44:29Z · note: shots: skipped — the diff (17 changed paths) touches no [[preview.paths]] globs — no UI change to capture
