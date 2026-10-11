@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/let-the-user-choose-the-time-format-in-s
 created_at: "2026-10-11T00:41:47Z"
-updated_at: "2026-10-11T13:18:26Z"
+updated_at: "2026-10-11T13:19:07Z"
 ---
 ## Problem
 
@@ -40,3 +40,4 @@ Depends on #0033, the date/time split. Keep this to the time item's formatting, 
 - 2026-10-11T13:08:15Z · status ready→active, branch
 - 2026-10-11T13:18:26Z · status active→review
 - 2026-10-11T13:18:26Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T13:19:07Z · note: review pass 1: needs some work
