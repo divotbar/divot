@@ -2,7 +2,7 @@
 id: "0037"
 title: Add a system light/dark toggle as a bar item
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-system-light-dark-toggle-as-a-bar-
 created_at: "2026-10-11T00:41:48Z"
-updated_at: "2026-10-11T13:58:25Z"
+updated_at: "2026-10-11T14:02:50Z"
 review_passes: 8
 check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-11T13:13:43.330Z: repoos check failed: native-core — 􁁛 Test configureKeepsUnchangedProvidersRunning() passed after 2.277 seconds."
@@ -106,3 +106,4 @@ This respects the "public API only" constraint while giving users convenient acc
 - 2026-10-11T13:58:25Z · needs_input
 - 2026-10-11T13:58:25Z · status review→active
 - 2026-10-11T13:58:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-11T14:02:50Z · status active→review
