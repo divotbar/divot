@@ -22,6 +22,8 @@ public enum DefaultWidgetProviders {
             case .battery: providers.append(BatteryProvider(reading: IOKitBatteryReading(),
                                                             keepAwake: keepAwake))
             case .clock: providers.append(ClockProvider(seconds: configuration.widgets.clock.seconds))
+            case .date: providers.append(DateProvider())
+            case .time: providers.append(TimeProvider(seconds: configuration.widgets.time.seconds))
             case .network: providers.append(NetworkProvider(reading: NWPathNetworkReading(),
                                                            readWifiName: configuration.widgets.network.showWifiName))
             case .volume: providers.append(VolumeProvider(reading: CoreAudioVolumeReading()))
@@ -34,8 +36,9 @@ public enum DefaultWidgetProviders {
 
     /// The built-in provider identifiers a configuration enables. Pure, so the
     /// "disabled providers stop" rule is testable without constructing readers.
+    /// The clock split into date and time (#0033); neither is the old clock.
     public static func placedProviderIDs(in configuration: DivotConfiguration) -> [BarItemID] {
-        let order: [BarItemID] = [.battery, .clock, .network, .volume, .frontApp]
+        let order: [BarItemID] = [.battery, .date, .time, .network, .volume, .frontApp]
         return order.filter { configuration.isPlaced($0) }
     }
 }

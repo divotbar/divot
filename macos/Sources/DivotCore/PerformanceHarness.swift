@@ -245,8 +245,8 @@ public enum PerformanceHarness {
 
     // MARK: Default workload
 
-    /// The reference first-launch workload: the five provider-backed items and
-    /// the workspace row. Deterministic values so repeated runs are comparable.
+    /// The reference first-launch workload: the provider-backed items and the
+    /// workspace row. Deterministic values so repeated runs are comparable.
     public static func defaultWorkloadStates() -> [WidgetState] {
         let instant = Date(timeIntervalSince1970: 1_800_000_000)
         return [
@@ -255,8 +255,10 @@ public enum PerformanceHarness {
                                                           percentage: 82,
                                                           isCharging: false,
                                                           isPluggedIn: true))),
-            WidgetState(id: .clock, revision: 1,
-                        content: .clock(ClockSnapshot(date: instant))),
+            WidgetState(id: .date, revision: 1,
+                        content: .date(ClockSnapshot(date: instant))),
+            WidgetState(id: .time, revision: 1,
+                        content: .time(ClockSnapshot(date: instant))),
             WidgetState(id: .network, revision: 1,
                         content: .network(NetworkSnapshot(isConnected: true, kind: .wifi))),
             WidgetState(id: .volume, revision: 1,

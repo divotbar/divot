@@ -14,7 +14,7 @@
     "workspaces"
   ],
   "right": [
-    "clock"
+    "time"
   ],
   "widgets": {
     "workspaces": {
@@ -22,9 +22,7 @@
       "showEmpty": false,
       "showAppIcons": false
     },
-    "clock": {
-      "weekday": false,
-      "date": true,
+    "time": {
       "seconds": false
     }
   }

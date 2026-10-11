@@ -285,8 +285,10 @@ private extension WidgetOptions {
         if !frontApp.isEmpty { object[BarItemID.frontApp.rawValue] = frontApp }
         let battery = battery.jsonObject
         if !battery.isEmpty { object[BarItemID.battery.rawValue] = battery }
-        let clock = clock.jsonObject
-        if !clock.isEmpty { object[BarItemID.clock.rawValue] = clock }
+        let date = date.jsonObject
+        if !date.isEmpty { object[BarItemID.date.rawValue] = date }
+        let time = time.jsonObject
+        if !time.isEmpty { object[BarItemID.time.rawValue] = time }
         let network = network.jsonObject
         if !network.isEmpty { object[BarItemID.network.rawValue] = network }
         let volume = volume.jsonObject
@@ -327,12 +329,19 @@ private extension BatteryConfiguration {
     }
 }
 
-private extension ClockConfiguration {
+private extension DateConfiguration {
     var jsonObject: [String: Any] {
         var object: [String: Any] = [:]
-        let defaults = ClockConfiguration.default
+        let defaults = DateConfiguration.default
         if weekday != defaults.weekday { object["weekday"] = weekday }
-        if date != defaults.date { object["date"] = date }
+        return object
+    }
+}
+
+private extension TimeConfiguration {
+    var jsonObject: [String: Any] {
+        var object: [String: Any] = [:]
+        let defaults = TimeConfiguration.default
         if seconds != defaults.seconds { object["seconds"] = seconds }
         return object
     }

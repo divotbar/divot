@@ -65,7 +65,7 @@ public enum WidgetActions {
             return .openSettings(.network)
         case .volume:
             return .openSettings(.sound)
-        case .clock:
+        case .clock, .date, .time:
             return .openSettings(.dateTime)
         case .workspaces:
             // Workspace activation belongs to the workspace adapter milestone.
