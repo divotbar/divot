@@ -2,7 +2,7 @@
 id: "0036"
 title: Toggle the battery percentage on or off in Settings
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/toggle-the-battery-percentage-on-or-off-
 created_at: "2026-10-11T00:41:47Z"
-updated_at: "2026-10-11T00:43:55Z"
+updated_at: "2026-10-11T00:50:22Z"
 ---
 ## Problem
 
@@ -37,3 +37,4 @@ Depends on #0028. Keep changes to the battery widget's label, not the battery re
 - 2026-10-11T00:41:47Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:54Z · status inbox→ready
 - 2026-10-11T00:43:55Z · status ready→active, branch
+- 2026-10-11T00:50:22Z · status active→review
