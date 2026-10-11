@@ -15,6 +15,10 @@ final class BarItemView: NSView {
     private let metrics: BarMetrics
     private var lastIconBundleIdentifier: String?
     private var presentation: WidgetPresentation?
+    /// The SF Symbol the view last resolved for its icon. Exposed so a test can
+    /// assert the symbol the bar item actually draws (e.g. the charging bolt)
+    /// without reaching into AppKit's private image state.
+    private(set) var displayedSymbolName: String?
     private var theme: BarTheme = .systemDefault
     private var indicatorRole: WidgetIndicator.Role?
     private var enablesChipStyle: Bool = false
@@ -51,6 +55,7 @@ final class BarItemView: NSView {
         self.presentation = presentation
 
         let image = resolveIcon(presentation)
+        displayedSymbolName = presentation.symbolName
         if let image {
             iconView.image = image
             iconView.isHidden = false

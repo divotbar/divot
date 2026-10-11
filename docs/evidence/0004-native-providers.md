@@ -29,7 +29,10 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
   optional, and emits once per boundary. No frame-rate or display-link loop.
 - **Battery/power** reads IOKit power sources and observes
   `IOPSNotificationCreateRunLoopSource` on a dedicated background run loop. A
-  desktop Mac reports a settled no-battery state, not an error.
+  desktop Mac reports a settled no-battery state, not an error. The internal
+  battery's `Is Charging`/`Is Charged` flags are read tolerantly (boolean or
+  numeric IOKit encoding), so the presentation always sees the live charging
+  state and can show the bolt; `SystemBatteryReadingTests` covers both encodings.
 - **Network** observes `NWPathMonitor` on a utility queue and maps transport,
   expensive, and constrained flags. It reads **no** SSID or other
   location-gated detail, so it never triggers a location prompt.

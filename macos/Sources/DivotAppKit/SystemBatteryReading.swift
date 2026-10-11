@@ -30,15 +30,35 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
             guard let raw = IOPSGetPowerSourceDescription(blob, source)?.takeUnretainedValue(),
                   let description = raw as? [String: Any] else { continue }
             guard (description[kIOPSTypeKey] as? String) == kIOPSInternalBatteryType else { continue }
-            return BatterySnapshot(
-                presence: .internalBattery,
-                percentage: percentage(from: description),
-                isCharging: description[kIOPSIsChargingKey] as? Bool ?? false,
-                isPluggedIn: (description[kIOPSPowerSourceStateKey] as? String) == kIOPSACPowerValue,
-                isFullyCharged: description[kIOPSIsChargedKey] as? Bool ?? false)
+            return snapshot(from: description)
         }
         // No internal battery: a desktop Mac. A settled state, not a failure.
         return .noBattery
+    }
+
+    /// Build the internal-battery snapshot from one IOKit power-source
+    /// description.
+    ///
+    /// IOKit has historically returned `Is Charging` / `Is Charged` either as a
+    /// `CFBoolean` or as a `CFNumber` (`1`/`0`) depending on the Mac and OS
+    /// build. A plain `as? Bool` only matches the former, so a numeric value
+    /// silently read as `false` and the bar lost the charging state. Reading
+    /// through `NSNumber.boolValue` accepts both, so the bolt cannot be dropped
+    /// between the power source and the presentation.
+    static func snapshot(from description: [String: Any]) -> BatterySnapshot {
+        BatterySnapshot(
+            presence: .internalBattery,
+            percentage: percentage(from: description),
+            isCharging: boolValue(description[kIOPSIsChargingKey]),
+            isPluggedIn: (description[kIOPSPowerSourceStateKey] as? String) == kIOPSACPowerValue,
+            isFullyCharged: boolValue(description[kIOPSIsChargedKey]))
+    }
+
+    /// A tolerant boolean read for an IOKit power-source value.
+    static func boolValue(_ value: Any?) -> Bool {
+        if let bool = value as? Bool { return bool }
+        if let number = value as? NSNumber { return number.boolValue }
+        return false
     }
 
     private static func percentage(from description: [String: Any]) -> Int? {
