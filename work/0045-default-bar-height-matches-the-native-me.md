@@ -39,3 +39,4 @@ Measured on 2026-10-11: NSScreen.main safeAreaInsets.top = 33, frame.maxY - visi
 - 2026-10-11T13:13:20Z · status inbox→ready
 - 2026-10-11T13:13:21Z · status ready→active, branch
 - 2026-10-11T13:23:30Z · status active→review
+- 2026-10-11T13:23:30Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
