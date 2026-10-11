@@ -599,13 +599,9 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(parsed.configuration.widgets.date.format == .custom("dd MMM yyyy"))
 }
 
-@Test func dateConfigurationWithInvalidFormatIsRejected() throws {
+@Test func dateConfigurationWithInvalidFormatFallsBackToDefault() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["date"],"right":[],"widgets":{"date":{"weekday":true,"format":"invalid pattern"}}}"##)
-    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
-    #expect(failure?.path == "widgets.date.format")
-    if let message = failure?.message {
-        #expect(message.contains("invalid date format pattern"))
-    } else {
-        #expect(Bool(false), "Expected a failure message")
-    }
+    let parsed = try ConfigurationParser.parse(jsonObject: value)
+    // Invalid format falls back to default instead of rejecting the document
+    #expect(parsed.configuration.widgets.date.format == .default)
 }

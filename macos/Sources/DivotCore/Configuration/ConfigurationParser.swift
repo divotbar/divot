@@ -271,11 +271,13 @@ public enum ConfigurationParser {
             if let presetValue = DateFormatPreset(rawValue: preset) {
                 return .preset(presetValue)
             }
-            // Otherwise treat as a custom pattern
+            // Otherwise treat as a custom pattern, but fall back to default if invalid
+            // (rather than failing the entire document parse)
             if ClockText.isValidPattern(preset) {
                 return .custom(preset)
             } else {
-                throw ConfigurationError(path: path, message: "invalid date format pattern '\(preset)'")
+                // Invalid pattern falls back to default instead of rejecting the document
+                return .default
             }
         }
         throw ConfigurationError(path: path, message: "expected string (preset or custom pattern)")

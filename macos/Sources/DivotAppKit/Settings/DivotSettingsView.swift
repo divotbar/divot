@@ -217,12 +217,15 @@ public struct DivotSettingsView: View {
     private var dateTimeSection: some View {
         Section("Date and time") {
             Toggle("Show weekday in the date", isOn: binding(\.widgets.date.weekday))
-            Picker("Date format", selection: pickerSelection) {
+            Text("The weekday toggle applies only when using preset formats. Custom patterns always use their full format.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Picker("Date format", selection: dateFormatModeBinding) {
                 ForEach(DateFormatPreset.allCases, id: \.self) { preset in
-                    Text(preset.displayName).tag(DateConfiguration.Format.preset(preset))
+                    Text(preset.displayName).tag(DateFormatMode.preset(preset))
                 }
                 Divider()
-                Text("Custom pattern...").tag(DateConfiguration.Format.custom(""))
+                Text("Custom pattern...").tag(DateFormatMode.custom)
             }
             if case .custom(let pattern) = model.configuration.widgets.date.format {
                 TextField("Custom pattern (e.g., MM/dd/yyyy)", text: customPatternBinding)
@@ -241,20 +244,26 @@ public struct DivotSettingsView: View {
         }
     }
 
-    private var pickerSelection: Binding<DateConfiguration.Format> {
+    private var dateFormatModeBinding: Binding<DateFormatMode> {
         Binding(
-            get: { model.configuration.widgets.date.format },
-            set: { newFormat in
-                if case .custom("") = newFormat {
-                    // User clicked "Custom pattern..." - keep current custom or switch to custom mode
+            get: {
+                if case .preset(let preset) = model.configuration.widgets.date.format {
+                    return .preset(preset)
+                } else {
+                    return .custom
+                }
+            },
+            set: { newMode in
+                switch newMode {
+                case .preset(let preset):
+                    model.setDateFormat(.preset(preset))
+                case .custom:
+                    // Switch to custom mode with empty pattern if not already custom
                     if case .custom = model.configuration.widgets.date.format {
                         // Already in custom mode, do nothing
                     } else {
-                        // Switch to custom mode with empty pattern
                         model.setDateFormat(.custom(""))
                     }
-                } else {
-                    model.setDateFormat(newFormat)
                 }
             }
         )
@@ -275,6 +284,7 @@ public struct DivotSettingsView: View {
     }
 
     private func formatDateExample(_ pattern: String) -> String {
+        guard ClockText.isValidPattern(pattern) else { return "" }
         let formatter = DateFormatter()
         formatter.dateFormat = pattern
         let date = Date() // Current date
@@ -455,4 +465,10 @@ public struct DivotSettingsView: View {
         Binding(get: { model.configuration[keyPath: keyPath] },
                 set: { newValue in model.update { $0[keyPath: keyPath] = newValue } })
     }
+}
+
+/// Helper enum to drive the date format picker.
+private enum DateFormatMode: Hashable {
+    case preset(DateFormatPreset)
+    case custom
 }
