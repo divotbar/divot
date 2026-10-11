@@ -2,7 +2,7 @@
 id: "0035"
 title: Let the user choose the time format in Settings (24-hour or AM/PM)
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0033"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T00:41:47Z"
-updated_at: "2026-10-11T00:41:47Z"
+updated_at: "2026-10-11T13:08:14Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Depends on #0033, the date/time split. Keep this to the time item's formatting, 
 ## Activity
 
 - 2026-10-11T00:41:47Z · created · njachowski@gmail.com
+- 2026-10-11T13:08:14Z · status inbox→ready
