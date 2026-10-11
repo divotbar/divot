@@ -295,7 +295,8 @@ public enum WidgetContent: Equatable, Sendable {
         if isUnavailable { return true }
         switch (id, self) {
         case (.frontApp, .frontApp), (.battery, .battery), (.network, .network),
-             (.volume, .volume), (.clock, .clock), (.appearance, .appearance):
+             (.volume, .volume), (.clock, .clock), (.date, .date), (.time, .time),
+             (.appearance, .appearance):
             return true
         default:
             return false
