@@ -147,7 +147,7 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(ethernet.symbolName == "cable.connector")
 }
 
-@Test func networkPresentationShowsErrorWhenLocationPermissionDenied() {
+@Test func networkPresentationShowsIconOnlyWhenLocationPermissionDenied() {
     let optionsOn = WidgetPresentationOptions(clock: ClockFormatOptions(),
                                               network: NetworkFormatOptions(showWifiName: true),
                                               locale: posix, timeZone: utc)
@@ -156,8 +156,8 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
         state: state(.network, .network(.init(isConnected: true, kind: .wifi, locationAuthorizationStatus: "denied"))),
         options: optionsOn)
     #expect(denied.text.isEmpty)
-    #expect(denied.isError)
-    #expect(denied.accessibilityLabel.contains("Location permission is needed"))
+    #expect(!denied.isError)
+    #expect(denied.symbolName == "wifi")
 }
 
 @Test func networkPresentationShowsWifiNameWhenLocationAuthorized() {

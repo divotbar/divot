@@ -61,8 +61,8 @@ public final class DivotSettingsModel {
             self?.errorMessage = nil
         }
 
-        // Observe location authorization status changes.
-        locationSubscription = locationTracker.requestAuthorizationAndObserve { [weak self] status in
+        // Observe location authorization status changes without requesting.
+        locationSubscription = locationTracker.observeAuthorization { [weak self] status in
             DispatchQueue.main.async {
                 self?.locationAuthorizationStatus = status
             }

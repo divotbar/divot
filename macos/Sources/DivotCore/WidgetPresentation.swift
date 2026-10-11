@@ -261,24 +261,14 @@ public enum WidgetPresenter {
         if snapshot.isConstrained { description += ", low data mode" }
 
         let text: String
-        var isError = false
-
-        if options.showWifiName, snapshot.kind == .wifi {
-            if snapshot.locationAuthorizationStatus == "denied" {
-                text = ""
-                description = "Location permission is needed to show the Wi-Fi name"
-                isError = true
-            } else if let wifiName = snapshot.wifiName {
-                text = wifiName
-                description += ", Wi-Fi network: \(wifiName)"
-            } else {
-                text = ""
-            }
+        if options.showWifiName, snapshot.kind == .wifi, let wifiName = snapshot.wifiName {
+            text = wifiName
+            description += ", Wi-Fi network: \(wifiName)"
         } else {
             text = ""
         }
 
-        return WidgetPresentation(symbolName: symbol, text: text, accessibilityLabel: description, isError: isError)
+        return WidgetPresentation(symbolName: symbol, text: text, accessibilityLabel: description)
     }
 
     private static func volumePresentation(_ snapshot: VolumeSnapshot,

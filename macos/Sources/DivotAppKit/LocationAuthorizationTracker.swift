@@ -41,6 +41,24 @@ public final class LocationAuthorizationTracker: NSObject, CLLocationManagerDele
         return status.toLocationAuthorizationStatus()
     }
 
+    /// Observe authorization status changes without requesting permission.
+    public func observeAuthorization(
+        handler: @escaping @Sendable (LocationAuthorizationStatus) -> Void
+    ) -> any ProviderSubscription {
+        queue.async { [weak self] in
+            self?.statusHandler = handler
+            let status = CLLocationManager.authorizationStatus()
+            let converted = status.toLocationAuthorizationStatus()
+            DispatchQueue.main.async {
+                handler(converted)
+            }
+        }
+
+        return CallbackSubscription { [weak self] in
+            self?.statusHandler = { _ in }
+        }
+    }
+
     /// Request location permission and observe status changes.
     public func requestAuthorizationAndObserve(
         handler: @escaping @Sendable (LocationAuthorizationStatus) -> Void

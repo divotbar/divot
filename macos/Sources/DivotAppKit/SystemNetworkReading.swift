@@ -58,7 +58,8 @@ public final class NWPathNetworkReading: NetworkReading, @unchecked Sendable {
         let interface = path.availableInterfaces.first { path.usesInterfaceType($0.type) }
             ?? path.availableInterfaces.first
         let kind = kind(of: path)
-        let wifiName = (readWifiName && kind == .wifi && locationStatus == "authorizedWhenInUse") ? attemptReadWifiName() : nil
+        let isAuthorized = locationStatus == "authorizedWhenInUse" || locationStatus == "authorizedAlways"
+        let wifiName = (readWifiName && kind == .wifi && isAuthorized) ? attemptReadWifiName() : nil
         return NetworkSnapshot(isConnected: path.status == .satisfied,
                                kind: kind,
                                interfaceName: interface?.name,
