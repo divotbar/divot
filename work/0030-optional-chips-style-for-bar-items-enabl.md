@@ -2,7 +2,7 @@
 id: "0030"
 title: "Optional chips style for bar items, enabled in Settings"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -38,4 +38,4 @@ Depends on #0028 so the notch-side geometry is settled first. Keep changes to it
 - 2026-10-11T00:39:23Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:50Z · status inbox→ready
 - 2026-10-11T00:43:51Z · status ready→active, branch
-- 2026-10-11T00:49:59Z · note: shots: skipped — the diff (10 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:49:59Z · status active→review
