@@ -290,6 +290,19 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
     #expect(!presentation.text.contains(","))
 }
 
+@Test func timePresentationShowsOnlyTime() {
+    let date = Date(timeIntervalSince1970: 1_600_000_000) // 2020-09-13T12:26:40Z
+    let presentation = WidgetPresenter.present(id: .time,
+                                               state: state(.time, .time(ClockSnapshot(date: date))),
+                                               options: options)
+    // The default presenter format is 24-hour, so the time item renders the clock time.
+    #expect(presentation.text == "12:26")
+    // Time should not carry the weekday or the date.
+    #expect(!presentation.text.contains("Sun"))
+    #expect(!presentation.text.contains("Sep"))
+    #expect(presentation.accessibilityLabel == presentation.text)
+}
+
 @Test func frontAppPresentationUsesTheApplicationName() {
     let presentation = WidgetPresenter.present(
         id: .frontApp,

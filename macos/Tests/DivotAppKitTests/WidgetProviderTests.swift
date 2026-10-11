@@ -380,9 +380,19 @@ private final class MockFrontAppReading: FrontAppReading {
     subscription.cancel()
 
     let contents = collector.contents
-    guard case .time? = contents.first else {
-        Issue.record("expected a time snapshot")
+    #expect(contents.count >= 2, "expected the initial snapshot plus a boundary tick")
+    guard case .time(let first)? = contents.first else {
+        Issue.record("expected a time snapshot on start")
         return
+    }
+    #expect(first.date == base)
+    // Every emission is a time payload; the provider never falls back to noData.
+    for content in contents {
+        #expect(!content.isUnavailable, "TimeProvider must never emit noData")
+        guard case .time = content else {
+            Issue.record("expected only .time content")
+            return
+        }
     }
     // The default time item wakes at the next minute boundary.
     #expect(source.sleeps.first == 60)
@@ -406,23 +416,6 @@ private final class MockFrontAppReading: FrontAppReading {
 
 @Test func dateProviderEmitsImmediatelyAndWakesAtTheDayBoundary() async {
     let base = Date(timeIntervalSinceReferenceDate: 0)
-    let source = TestClockSource(dates: [base, base, base])
-    let collector = ContentCollector()
-    let subscription = DateProvider(source: source).start { collector.append($0) }
-
-    await waitUntil { collector.contents.count >= 2 }
-    subscription.cancel()
-
-    guard case .date? = collector.contents.first else {
-        Issue.record("expected a date snapshot")
-        return
-    }
-    // A date changes once a day, so the loop must not wake every minute.
-    #expect((source.sleeps.first ?? 0) > 60 * 60)
-}
-
-@Test func dateProviderEmitsOnStartAndClockTick() async {
-    let base = Date(timeIntervalSinceReferenceDate: 0)
     let source = TestClockSource(dates: [base, base, base.addingTimeInterval(86400)])
     let collector = ContentCollector()
     let subscription = DateProvider(source: source).start { collector.append($0) }
@@ -431,56 +424,22 @@ private final class MockFrontAppReading: FrontAppReading {
     subscription.cancel()
 
     let contents = collector.contents
-    #expect(contents.count >= 2, "Expected at least 2 emissions (initial + one tick)")
-
+    #expect(contents.count >= 2, "expected the initial snapshot plus a day-boundary tick")
     guard case .date(let first)? = contents.first else {
         Issue.record("expected a date snapshot on start")
         return
     }
-    #expect(first.date == base, "Initial emission should be at the current time")
-
-    if contents.count > 1 {
-        guard case .date = contents[1] else {
-            Issue.record("expected a date snapshot on day boundary tick")
+    #expect(first.date == base)
+    // Every emission is a date payload; the provider never falls back to noData.
+    for content in contents {
+        #expect(!content.isUnavailable, "DateProvider must never emit noData")
+        guard case .date = content else {
+            Issue.record("expected only .date content")
             return
         }
     }
-
-    // Verify no noData is emitted
-    for content in contents {
-        #expect(!content.isUnavailable, "DateProvider should never emit noData")
-    }
-}
-
-@Test func timeProviderEmitsOnStartAndClockTick() async {
-    let base = Date(timeIntervalSinceReferenceDate: 0)
-    let source = TestClockSource(dates: [base, base, base.addingTimeInterval(60)])
-    let collector = ContentCollector()
-    let subscription = TimeProvider(source: source).start { collector.append($0) }
-
-    await waitUntil { collector.contents.count >= 2 }
-    subscription.cancel()
-
-    let contents = collector.contents
-    #expect(contents.count >= 2, "Expected at least 2 emissions (initial + one tick)")
-
-    guard case .time(let first)? = contents.first else {
-        Issue.record("expected a time snapshot on start")
-        return
-    }
-    #expect(first.date == base, "Initial emission should be at the current time")
-
-    if contents.count > 1 {
-        guard case .time = contents[1] else {
-            Issue.record("expected a time snapshot on minute boundary tick")
-            return
-        }
-    }
-
-    // Verify no noData is emitted
-    for content in contents {
-        #expect(!content.isUnavailable, "TimeProvider should never emit noData")
-    }
+    // A date changes once a day, so the loop must not wake every minute.
+    #expect((source.sleeps.first ?? 0) > 60 * 60)
 }
 
 @MainActor
