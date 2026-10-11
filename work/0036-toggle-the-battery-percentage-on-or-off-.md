@@ -44,3 +44,4 @@ Depends on #0028. Keep changes to the battery widget's label, not the battery re
 - 2026-10-11T00:51:06Z · note: review pass 1: needs some work
 - 2026-10-11T00:51:06Z · status review→active
 - 2026-10-11T00:56:03Z · status active→review
+- 2026-10-11T00:56:03Z · note: shots: skipped — the diff (11 changed paths) touches no [[preview.paths]] globs — no UI change to capture
