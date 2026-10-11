@@ -2,7 +2,7 @@
 id: "0031"
 title: Optional %/muted label on the volume item in Settings
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0028"]
@@ -37,4 +37,4 @@ Depends on #0028. Keep changes to the volume widget's label, not the volume read
 - 2026-10-11T00:39:23Z · created · njachowski@gmail.com
 - 2026-10-11T00:43:52Z · status inbox→ready
 - 2026-10-11T00:43:52Z · status ready→active, branch
-- 2026-10-11T00:50:16Z · note: shots: skipped — the diff (8 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-11T00:50:16Z · status active→review
