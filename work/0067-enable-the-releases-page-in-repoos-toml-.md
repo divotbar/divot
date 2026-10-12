@@ -14,7 +14,7 @@ branch: feat/enable-the-releases-page-in-repoos-toml-
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T16:08:50Z"
+updated_at: "2026-10-12T16:08:51Z"
 review_passes: 3
 check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
