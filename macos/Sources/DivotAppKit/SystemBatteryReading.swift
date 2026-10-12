@@ -1,13 +1,25 @@
 import Foundation
 import IOKit.ps
+import os
 import DivotCore
+
+/// Diagnostic logger for power-source reads.
+///
+/// Emitted at debug level so it is visible while streaming
+/// (`log stream --predicate 'subsystem == "com.divot.Divot"'`) but is not
+/// persisted by default. Each read carries the charging and plug flags, which
+/// is what confirms whether a notification arrived with a stale charging flag.
+private let powerSourceLog = Logger(subsystem: "com.divot.Divot", category: "battery")
 
 /// Live power state from IOKit's power-source API.
 ///
 /// Reading is a cheap property copy, never blocking disk or network I/O.
 /// Changes arrive through `IOPSNotificationCreateRunLoopSource` on a dedicated
-/// background run loop, so no polling is required and the main thread is never
-/// touched.
+/// background run loop, so the main thread is never touched. Because a
+/// notification can precede the charging flag flipping, each notification arms
+/// a bounded, fixed-interval re-check so the bolt appears within about a second
+/// instead of waiting for the next percentage change. The re-check closes after
+/// a few attempts, so this is not continuous polling.
 public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
     public init() {}
 
@@ -30,9 +42,13 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
             guard let raw = IOPSGetPowerSourceDescription(blob, source)?.takeUnretainedValue(),
                   let description = raw as? [String: Any] else { continue }
             guard (description[kIOPSTypeKey] as? String) == kIOPSInternalBatteryType else { continue }
-            return snapshot(from: description)
+            let snapshot = snapshot(from: description)
+            powerSourceLog.debug(
+                "power-source read charging=\(snapshot.isCharging, privacy: .public) plugged=\(snapshot.isPluggedIn, privacy: .public) level=\(snapshot.percentage ?? -1, privacy: .public)")
+            return snapshot
         }
         // No internal battery: a desktop Mac. A settled state, not a failure.
+        powerSourceLog.debug("power-source read no-battery")
         return .noBattery
     }
 
@@ -72,16 +88,24 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
 }
 
 /// Owns one background run loop with a power-source notification source.
+///
+/// Each notification reads immediately, then arms a bounded re-check timer:
+/// the timer fires on the window's fixed interval while attempts remain, so a
+/// charging flag that flips a moment after the notification is still observed.
 private final class PowerSourceRunLoopObserver: @unchecked Sendable {
     private let handler: @Sendable () -> Void
     private let lock = NSLock()
     private var thread: Thread?
     private var runLoop: CFRunLoop?
+    private var timer: Timer?
+    private var window: BatteryRecheckWindow
     private var stopped = false
     private let ready = DispatchSemaphore(value: 0)
 
-    init(handler: @escaping @Sendable () -> Void) {
+    init(handler: @escaping @Sendable () -> Void,
+         window: BatteryRecheckWindow = BatteryRecheckWindow()) {
         self.handler = handler
+        self.window = window
     }
 
     func start() {
@@ -101,13 +125,15 @@ private final class PowerSourceRunLoopObserver: @unchecked Sendable {
             return
         }
         stopped = true
+        window.close()
         let runLoop = self.runLoop
         lock.unlock()
         if let runLoop {
             // Queue the stop on the run loop rather than calling it directly:
             // this also covers the window where the source is installed but
             // `CFRunLoopRun` has not started yet, so the stop cannot be lost.
-            CFRunLoopPerformBlock(runLoop, CFRunLoopMode.defaultMode.rawValue as CFString) {
+            CFRunLoopPerformBlock(runLoop, CFRunLoopMode.defaultMode.rawValue as CFString) { [weak self] in
+                self?.tearDownScheduledTimer()
                 CFRunLoopStop(CFRunLoopGetCurrent())
             }
             CFRunLoopWakeUp(runLoop)
@@ -119,7 +145,7 @@ private final class PowerSourceRunLoopObserver: @unchecked Sendable {
         let context = Unmanaged.passUnretained(self).toOpaque()
         let callback: IOPowerSourceCallbackType = { context in
             guard let context else { return }
-            Unmanaged<PowerSourceRunLoopObserver>.fromOpaque(context).takeUnretainedValue().fire()
+            Unmanaged<PowerSourceRunLoopObserver>.fromOpaque(context).takeUnretainedValue().notificationArrived()
         }
         guard let source = IOPSNotificationCreateRunLoopSource(callback, context)?.takeRetainedValue() else {
             ready.signal()
@@ -136,12 +162,66 @@ private final class PowerSourceRunLoopObserver: @unchecked Sendable {
             CFRunLoopRemoveSource(currentRunLoop, source, .defaultMode)
             return
         }
-        fire()
+        // Seed the bar with the current state; this also arms the first window.
+        notificationArrived()
         CFRunLoopRun()
+        tearDownScheduledTimer()
         CFRunLoopRemoveSource(currentRunLoop, source, .defaultMode)
     }
 
-    private func fire() {
+    /// A power-source notification landed (or the observer started). Read once
+    /// now and keep a bounded re-check timer running while attempts remain.
+    private func notificationArrived() {
+        lock.lock()
+        window.notificationArrived()
+        let needsTimer = window.isActive
+        lock.unlock()
         handler()
+        if needsTimer { scheduleTimerIfNeeded() }
+    }
+
+    private func scheduleTimerIfNeeded() {
+        lock.lock()
+        if timer != nil || stopped {
+            lock.unlock()
+            return
+        }
+        let interval = window.interval
+        lock.unlock()
+        // Timer's block runs on the run loop thread this method is called from.
+        let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
+            self?.timerFired()
+        }
+        lock.lock()
+        // A concurrent notification may have scheduled the timer first.
+        if self.timer == nil, !stopped {
+            self.timer = timer
+            lock.unlock()
+            RunLoop.current.add(timer, forMode: .default)
+        } else {
+            lock.unlock()
+            timer.invalidate()
+        }
+    }
+
+    private func timerFired() {
+        lock.lock()
+        let due = window.consume()
+        let stillActive = window.isActive
+        let timer = self.timer
+        if !stillActive { self.timer = nil }
+        lock.unlock()
+        if due { handler() }
+        if !stillActive { timer?.invalidate() }
+    }
+
+    /// Invalidate the timer on the run loop thread. Safe to call whether or not
+    /// a timer was ever scheduled.
+    private func tearDownScheduledTimer() {
+        lock.lock()
+        let timer = self.timer
+        self.timer = nil
+        lock.unlock()
+        timer?.invalidate()
     }
 }

@@ -230,6 +230,48 @@ private final class MockFrontAppReading: FrontAppReading {
     #expect(reading.cancelCount == 1)
 }
 
+@Test func batteryProviderFollowsFakePowerSourcePlugInAndUnplug() {
+    // A fake power source drives a full plug-in then unplug transition. The
+    // provider must read the charging flag on each notification and emit it, so
+    // the bolt appears on plug-in and disappears on unplug rather than waiting
+    // for a percentage change.
+    let reading = MockBatteryReading()
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 60,
+                                  isCharging: false, isPluggedIn: false)
+    let collector = ContentCollector()
+    let subscription = BatteryProvider(reading: reading).start { collector.append($0) }
+    #expect(collector.contents.count == 1)
+
+    // Plug in: the state may be read before the charging flag flips, then a
+    // bounded re-check catches it.
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 60,
+                                  isCharging: false, isPluggedIn: true)
+    reading.fire()
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 60,
+                                  isCharging: true, isPluggedIn: true)
+    reading.fire()
+    guard case .battery(let charging)? = collector.contents.last else {
+        Issue.record("expected a charging battery snapshot")
+        return
+    }
+    #expect(charging.isCharging)
+    #expect(charging.isPluggedIn)
+
+    // Unplug: the flag clears at once.
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 60,
+                                  isCharging: false, isPluggedIn: false)
+    reading.fire()
+    guard case .battery(let unplugged)? = collector.contents.last else {
+        Issue.record("expected an unplugged battery snapshot")
+        return
+    }
+    #expect(!unplugged.isCharging)
+    #expect(!unplugged.isPluggedIn)
+    #expect(collector.contents.count == 4)
+
+    subscription.cancel()
+}
+
 @Test func batteryProviderReportsFailureInsteadOfGuessing() {
     let reading = MockBatteryReading()
     reading.snapshotValue = nil
