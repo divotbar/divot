@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-volume-and-wi-fi-icons-match-the
 created_at: "2026-10-12T08:36:24Z"
-updated_at: "2026-10-12T09:18:15Z"
+updated_at: "2026-10-12T09:20:26Z"
 review_rounds: 2
 review_passes: 3
 ---
@@ -23,11 +23,11 @@ The battery, volume and Wi-Fi icons on the Divot bar are small and hard to read 
 - The size follows the bar's icon size setting, so it scales with it.
 
 ## Acceptance criteria
-
 - Set the default symbol size for these three icons to match the native menu bar icon size, measured on the packaged app and recorded in the task.
-- Icons scale with the app icon size setting, with a test at the smallest and largest sizes.
+- Icons scale with the bar's text/icon size setting (`text.size`, which drives `BarMetrics.iconSize`), with a test at the smallest and largest sizes; the separate left-side `appIconSize` does not change them.
 - Verify the three icons read at the same visual weight as the native bar's; the maintainer confirms the look.
 - repoos check passes.
+
 
 ## Notes for AI
 
@@ -68,3 +68,4 @@ Before the change the same three symbols resolved at the SF Symbol default of 13
 - 2026-10-12T09:17:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T09:18:15Z · note: review pass 3: needs some work
 - 2026-10-12T09:18:15Z · status review→active
+- 2026-10-12T09:20:26Z · body: section Acceptance criteria
