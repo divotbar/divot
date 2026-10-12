@@ -3,16 +3,13 @@ id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
 status: review
-needs_input: true
-needs_input_reason: review-failed
-needs_input_detail: the cursor agent timed out after 900s
 priority: p1
 area: infra
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T15:05:39Z"
+updated_at: "2026-10-12T15:26:55Z"
 ---
 ## Problem
 Divot's repoos.toml has no [release] block and no [[distribution]] rows, so RepoOS shows no Releases page for this project.
@@ -40,3 +37,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T14:43:00Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T15:05:39Z · note: review pass 1: failed — no usable report
 - 2026-10-12T15:05:39Z · needs_input
+- 2026-10-12T15:26:55Z · needs_input
