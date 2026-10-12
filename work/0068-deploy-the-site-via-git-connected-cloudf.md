@@ -9,10 +9,10 @@ depends_on: ["0067"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/deploy-the-site-via-git-connected-cloudf
-cli_override: claude
-model_override: sonnet
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T14:43:34Z"
-updated_at: "2026-10-12T18:47:41Z"
+updated_at: "2026-10-12T18:47:55Z"
 ---
 ## Problem
 The site deploys through .github/workflows/site.yml (GitHub Actions to Cloudflare Pages, main only, skipped without secrets). The maintainer wants the same setup as the RepoOS repo: git-connected Cloudflare Workers, main = dev, prod = production at divotbar.app, plus the Deployments page in RepoOS.
@@ -40,3 +40,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 - 2026-10-12T17:48:47Z · watchdog: auto-surfaced stuck task · status active→ready · agent never started — no session exists for this task · next step: resume the session manually from the task's worktree and check for uncommitted work
 - 2026-10-12T18:21:32Z · status ready→active
 - 2026-10-12T18:47:41Z · watchdog: auto-surfaced stuck task · status active→ready · agent never started — no session exists for this task · next step: resume the session manually from the task's worktree and check for uncommitted work
+- 2026-10-12T18:47:55Z · cli_override, model_override
