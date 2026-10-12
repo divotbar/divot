@@ -2,14 +2,14 @@
 id: "0051"
 title: Keep-awake indicator should only show when Divot itself is keeping the Mac awake
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/keep-awake-indicator-should-only-show-wh
 created_at: "2026-10-12T06:54:32Z"
-updated_at: "2026-10-12T08:37:29Z"
+updated_at: "2026-10-12T08:39:08Z"
 review_passes: 2
 handoff_signal_retry_count: 1
 ---
@@ -51,3 +51,4 @@ Relevant code: the keep-awake provider (SystemKeepAwake / KeepAwake observation)
 - 2026-10-12T08:03:50Z · note: review pass 2: good to go
 - 2026-10-12T08:37:29Z · status review→active
 - 2026-10-12T08:37:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-12T08:39:08Z · status active→review
