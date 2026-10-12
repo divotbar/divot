@@ -10,7 +10,7 @@ The versioned parser, atomic store, file watcher, and settings window are implem
 
 ## One file, one model
 
-The intended location is `~/.config/divot/config.json`. Settings and file customization will share the same validated model. Changes apply atomically; an invalid edit leaves the last good configuration running.
+The intended location is `~/.config/divot/config.json`. Settings, the `divot config` command, and file customization share the same validated model. Changes apply atomically; an invalid edit leaves the last good configuration running.
 
 ```json
 {
@@ -24,9 +24,20 @@ The intended location is `~/.config/divot/config.json`. Settings and file custom
   "layout": { "height": 24, "padding": 6 },
   "text": { "size": 14, "font": "" },
   "left": ["workspaces", "front-app"],
-  "right": ["battery", "clock", "network", "volume"]
+  "right": ["battery", "time", "network", "volume"]
 }
 ```
+
+If you would rather not edit the file by hand, the same document is available from the command line, which is the discoverable path for an AI agent:
+
+```bash
+divot config schema --json          # every setting with its type, range, and default
+divot config set appearance.family gruvbox
+divot config set widgets.time.seconds true --diff
+divot config unset keepAwake.remember
+```
+
+Keys are dotted JSON paths and the edits validate through the same parser the app uses. See the [configuration reference](../reference/configuration#command-line-interface) for the full command list.
 
 ## Both sides, one model
 
@@ -50,7 +61,7 @@ Themes share the one configuration model, so you are not limited to a family's s
 
 ## Ordering
 
-The `left` and `right` arrays determine order on each side. Remove an identifier to disable that item, or move it to the other group. Duplicates, unknown identifiers, and an item on both sides are errors. The first contract supports `workspaces`, `front-app`, `battery`, `network`, `volume`, and `clock`.
+The `left` and `right` arrays determine order on each side. Remove an identifier to disable that item, or move it to the other group. Duplicates, unknown identifiers, and an item on both sides are errors. The contract supports `workspaces`, `front-app`, `battery`, `network`, `volume`, `date`, `time`, and `appearance`; the legacy combined `clock` is migrated to `date`/`time` on load.
 
 ## Notched displays
 
