@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-homebrew-cask-so-users-can-install
 created_at: "2026-10-11T12:47:11Z"
-updated_at: "2026-10-12T13:16:11Z"
+updated_at: "2026-10-12T13:16:12Z"
 ---
 ## Problem
 
@@ -40,3 +40,4 @@ Reference: ~/code/nick/homebrew-tap (repo-os/homebrew-tap) and repoos's release.
 - 2026-10-12T13:01:46Z · body: section Notes for AI
 - 2026-10-12T13:01:46Z · status ready→active, branch
 - 2026-10-12T13:16:11Z · status active→review
+- 2026-10-12T13:16:12Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
