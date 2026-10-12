@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 48294
-last_close_out_gate_at: "2026-10-12T09:25:16.727Z"
 id: "0057"
 title: "Battery, volume and Wi-Fi icons match the native menu bar icon size"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 2d8a949d64210a5183c6f902d3e75a5147605665
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-volume-and-wi-fi-icons-match-the
 created_at: "2026-10-12T08:36:24Z"
-updated_at: "2026-10-12T09:25:16Z"
+updated_at: "2026-10-12T09:25:19Z"
+last_close_out_gate_ms: 48294
+last_close_out_gate_at: "2026-10-12T09:25:16.727Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -76,4 +77,4 @@ Before the change the same three symbols resolved at the SF Symbol default of 13
 - 2026-10-12T09:21:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T09:22:42Z · note: review pass 4: good to go
 - 2026-10-12T09:25:16Z · close-out gate completed in 48s
-
+- 2026-10-12T09:25:19Z · status review→done, release:success
