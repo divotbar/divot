@@ -35,3 +35,4 @@ Reuse the #0006 config model and validation. Do not add a daemon or network API.
 - 2026-10-12T11:39:03Z · status inbox→ready
 - 2026-10-12T11:39:04Z · status ready→active, branch
 - 2026-10-12T11:47:41Z · status active→review
+- 2026-10-12T11:47:41Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
