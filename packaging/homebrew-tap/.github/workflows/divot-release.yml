@@ -1,0 +1,134 @@
+name: Update Divot cask
+
+on:
+  repository_dispatch:
+    types: [divot-release]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@f8d4222eb633e65c2a0157383cf80861fc7fae7f # 2026.09.07.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Derive everything from the published GitHub Release: the DMG download
+      # URL and the SHA-256 that the source repository uploads alongside it.
+      # Nothing about a release is hard-coded in the cask.
+      - name: Resolve release assets
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
+          VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_REPO"
+          test -n "$VERSION"
+          [[ "$SOURCE_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          TAG="v${VERSION}"
+          API="https://api.github.com/repos/${SOURCE_REPO}/releases/tags/${TAG}"
+          BASE_HEADERS=(
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
+
+          JSON=""
+          for attempt in {1..30}; do
+            AUTH_HEADERS=("${BASE_HEADERS[@]}")
+            if [[ -n "${GH_TOKEN:-}" ]]; then
+              AUTH_HEADERS+=(-H "Authorization: Bearer ${GH_TOKEN}")
+            fi
+            # A token scoped to this tap can be rejected for the source
+            # repository, but the source repository is public and its release
+            # metadata is still readable without credentials.
+            if JSON="$(curl --fail --silent --show-error "${AUTH_HEADERS[@]}" "$API")"; then
+              break
+            fi
+            if JSON="$(curl --fail --silent --show-error "${BASE_HEADERS[@]}" "$API")"; then
+              break
+            fi
+            JSON=""
+            if [[ "$attempt" -lt 30 ]]; then
+              echo "Release ${TAG} is not published yet (attempt ${attempt}/30); retrying in 10s…" >&2
+              sleep 10
+            fi
+          done
+          test -n "$JSON" || {
+            echo "Release ${TAG} did not appear after 5 minutes" >&2
+            exit 1
+          }
+
+          DMG_URL="$(jq -er --arg name "Divot.dmg" \
+            '.assets[] | select(.name == $name) | .browser_download_url' <<<"$JSON")"
+          SHA_URL="$(jq -er --arg name "Divot.dmg.sha256" \
+            '.assets[] | select(.name == $name) | .browser_download_url' <<<"$JSON")"
+          SHA256="$(curl --fail --silent --show-error "$SHA_URL" | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
+          [[ "$SHA256" =~ ^[0-9a-f]{64}$ ]] || {
+            echo "Divot.dmg.sha256 is not a hex SHA-256: ${SHA256}" >&2
+            exit 1
+          }
+
+          {
+            echo "version=${VERSION}"
+            echo "dmg_url=${DMG_URL}"
+            echo "sha256=${SHA256}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Update cask
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          DMG_URL: ${{ steps.release.outputs.dmg_url }}
+          SHA256: ${{ steps.release.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          VERSION="$VERSION" DMG_URL="$DMG_URL" SHA256="$SHA256" ruby <<'RUBY'
+          path = "Casks/divot.rb"
+          text = File.read(path)
+          version = ENV.fetch("VERSION")
+          url = ENV.fetch("DMG_URL")
+          sha256 = ENV.fetch("SHA256")
+          abort "DMG URL does not contain the version #{version}: #{url}" unless url.include?(version)
+          # Keep a versioned URL so the cask can be audited and bumped; the
+          # release URL carries the concrete version, which becomes the
+          # `version` interpolation used by every Homebrew cask.
+          url_template = url.sub(version, '#{version}')
+          [/^  version "[^"]+"/, /^  url "[^"]+"/, /^  sha256 "[^"]+"/].each do |field|
+            abort "Casks/divot.rb is missing an expected field: #{field}" unless text.match?(field)
+          end
+          updated = text
+            .sub(/^#\n# PLACEHOLDER-BEGIN\n.*?^# PLACEHOLDER-END\n/m, "")
+            .sub(/^  version "[^"]+"/, "  version \"#{version}\"")
+            .sub(/^  url "[^"]+"/, "  url \"#{url_template}\"")
+            .sub(/^  sha256 "[^"]+"/, "  sha256 \"#{sha256}\"")
+          File.write(path, updated)
+          puts "Updated Divot cask to #{version} (#{sha256})"
+          RUBY
+
+      - name: Audit cask
+        env:
+          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
+        run: brew audit --cask "$TAP_NAME/divot"
+
+      - name: Commit cask update
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/divot.rb
+          if git diff --cached --quiet; then
+            echo "Cask is already current."
+          else
+            git commit -m "divot ${VERSION}"
+            git push origin main
+          fi

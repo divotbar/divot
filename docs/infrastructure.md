@@ -9,6 +9,7 @@
 | `docs/` | Product/engineering requirements and ADRs |
 | `examples/` | Proposed versioned configuration examples |
 | `scripts/` | Local configuration and docs-drift checks |
+| `packaging/` | Homebrew tap contents under `packaging/homebrew-tap/`, pushed to `divotbar/homebrew-tap` |
 | `work/` | RepoOS task records; CLI/API writes only |
 | `.github/workflows/` | CI templates, active when hosted on GitHub |
 
@@ -84,8 +85,56 @@ Pushing a version tag (e.g., `v0.1.0`) triggers `.github/workflows/release.yml`,
 4. Creates `dist/Divot.dmg` using `scripts/make-dmg.sh` with a drag-to-Applications layout
 5. Generates `dist/Divot.dmg.sha256` for checksum verification
 6. Creates a GitHub Release with both files and release notes explaining that the build is unsigned
+7. Dispatches a `divot-release` event to the Homebrew tap so its cask updates from the release assets
 
 The workflow runs on `macos-26` (Apple silicon) in GitHub Actions.
+
+### Homebrew cask
+
+Users install the released DMG with Homebrew:
+
+```sh
+brew install --cask divotbar/tap/divot
+```
+
+The tap lives in its own repository (`divotbar/homebrew-tap`). Its contents are
+prepared here under `packaging/homebrew-tap/` so they are versioned with the
+app, and the maintainer pushes them to the tap repository:
+
+| Path | Responsibility |
+| --- | --- |
+| `packaging/homebrew-tap/Casks/divot.rb` | The cask; placeholders until the first release |
+| `packaging/homebrew-tap/.github/workflows/divot-release.yml` | Updates the cask from a `divot-release` dispatch |
+| `packaging/homebrew-tap/.github/workflows/tests.yml` | Style and audit the cask on every change |
+| `packaging/homebrew-tap/.github/workflows/autobump.yml` | Daily fallback bump via `brew bump --casks` |
+| `packaging/homebrew-tap/README.md` | Install and tap-maintenance notes |
+
+After the release job creates the GitHub Release, `release.yml` dispatches a
+`divot-release` event to the tap (with the version and the source repository)
+when the `HOMEBREW_TAP_TOKEN` secret exists, and skips with a clear message
+when it does not. The tap workflow reads the version, DMG download URL, and
+SHA-256 from the release assets and commits the updated `Casks/divot.rb`;
+nothing about a release is hard-coded in the cask. The cask matches the
+unsigned build and its caveats tell users to right-click and Open on first
+launch. It makes no notarization claim; signed distribution is a separate,
+planned task.
+
+#### One-time setup (maintainer only)
+
+1. Create the GitHub repository `divotbar/homebrew-tap`.
+2. Push the contents of `packaging/homebrew-tap/` as the repository root
+   (`Casks/`, `README.md`, and `.github/`).
+3. Create a token that can dispatch to the tap repository: a fine-grained
+   personal access token scoped to `divotbar/homebrew-tap` with
+   **Contents: Read and write**, or a classic personal access token with the
+   `repo` scope.
+4. Add the token as the `HOMEBREW_TAP_TOKEN` secret in the Divot repository
+   (Settings → Secrets and variables → Actions). Without it, the release
+   workflow skips the dispatch and the cask does not update.
+5. After the first release, confirm the tap workflow committed the updated
+   cask and that `brew install --cask divotbar/tap/divot` installs
+   `Divot.app`. That first-release check is a human step: no release exists
+   yet, so the cask carries clearly marked placeholders until then.
 
 ### Unsigned builds (current)
 

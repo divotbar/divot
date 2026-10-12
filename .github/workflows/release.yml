@@ -25,6 +25,8 @@ jobs:
       # Build markdown release notes using printf to avoid leading spaces.
       - name: Prepare release notes
         run: |
+          # GitHub Actions expands the workflow expressions before the shell sees them.
+          # shellcheck disable=SC2016
           printf '%s\n' \
             '# Divot ${{ github.ref_name }}' \
             '' \
@@ -51,3 +53,23 @@ jobs:
             dist/Divot.dmg.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The tap owns the cask and commits the update with its own
+      # repository-scoped GITHUB_TOKEN. This secret only needs permission to
+      # dispatch an event to the homebrew-tap repository. Skip cleanly (rather
+      # than fail the release) when the tap has not been set up yet; see
+      # docs/infrastructure.md for the one-time maintainer setup.
+      - name: Request Homebrew tap update
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          if [[ -z "$HOMEBREW_TAP_TOKEN" ]]; then
+            echo "HOMEBREW_TAP_TOKEN is not configured; skipping Homebrew tap update."
+            exit 0
+          fi
+          VERSION="${GITHUB_REF_NAME#v}"
+          curl --fail-with-body --silent --show-error \
+            -X POST "https://api.github.com/repos/divotbar/homebrew-tap/dispatches" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $HOMEBREW_TAP_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d "{\"event_type\":\"divot-release\",\"client_payload\":{\"version\":\"${VERSION}\",\"source_repo\":\"${GITHUB_REPOSITORY}\"}}"
