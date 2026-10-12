@@ -136,6 +136,20 @@ planned task.
    `Divot.app`. That first-release check is a human step: no release exists
    yet, so the cask carries clearly marked placeholders until then.
 
+### Public install guide
+
+The user-facing install instructions live in `site/guide/install.md`: the
+download link, the checksum note, the first-launch steps for the unsigned
+build, the Accessibility and Location permission setup, the Homebrew command,
+and the pointer to `site/guide/ai-setup.md`. The page is gated by one constant,
+`FIRST_RELEASE_PUBLISHED` in `site/.vitepress/release.ts`. While it is `false`,
+the page states plainly that the first release is not published and renders no
+download button, version, or checksum. When the first release is actually
+published, flip that one line to `true`; the page then renders the button
+pointed at the stable `https://github.com/divotbar/divot/releases/latest` URL,
+so no version or asset name is ever hard-coded. The guide makes no notarization
+claim and labels signed distribution as planned.
+
 ### Unsigned builds (current)
 
 Current releases are **unsigned**: ad-hoc signed only, not Developer ID signed or notarized. Users must right-click the Divot app and select "Open" once to bypass Gatekeeper. The release notes include these instructions.

@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-12T14:28:29Z"
-review_passes: 2
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
@@ -11,9 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-handoff_signal_retry_count: 2
-last_check_failure: "repoos check at 2026-10-12T13:47:26.018Z: repoos check failed: native-core — 􁁛 Test workspaceChipStyleAddsTheSamePaddingAsTheRightSideChip() passed after 2.279 seconds."
-review_rounds: 1
+updated_at: "2026-10-12T13:29:40Z"
 ---
 ## Problem
 
@@ -36,48 +32,10 @@ The site doesn't tell users how to get the app. Once the release exists, it shou
 
 Depends on the unsigned DMG release task. Do not promise signed or notarized builds yet.
 
-## Shots
-```json
-[
-{
-"label": "Install guide: first release not published, no download button",
-"target": "website",
-"route": "/guide/install",
-"highlight": ".install-pending"
-},
-{
-"label": "Landing page links to the install guide",
-"target": "website",
-"route": "/",
-"highlight": "a[href=\"/guide/install\"]"
-}
-]
-```
-
 ## Activity
 
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
 - 2026-10-12T13:23:45Z · body: section Acceptance criteria
 - 2026-10-12T13:23:46Z · status inbox→ready
 - 2026-10-12T13:23:46Z · status ready→active, branch
-- 2026-10-12T13:27:53Z · body: section Shots
 - 2026-10-12T13:29:40Z · status active→review
-- 2026-10-12T13:30:44Z · note: review pass 1: needs some work
-- 2026-10-12T13:30:44Z · status review→active
-- 2026-10-12T13:40:16Z · message_queued at 2026-10-12T13:40:16.047Z
-- 2026-10-12T13:40:16Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
-- 2026-10-12T13:45:19Z · message_delivered: 1 message(s)
-- 2026-10-12T14:16:33Z · watchdog: auto-surfaced stuck task · status active→review · agent exited without emitting the handoff signal · next step: the handoff signal may not have been detected — ask the agent to put `::repoos-handoff-ready::` at the start of a line (preferably alone) after checks pass
-- 2026-10-12T14:16:33Z · note: handoff requested (cli)
-- 2026-10-12T14:20:13Z · status active→review
-- 2026-10-12T14:20:13Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
-- 2026-10-12T14:20:13Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
-- 2026-10-12T14:20:28Z · note: review pass 2: failed — no usable report
-- 2026-10-12T14:20:28Z · needs_input
-- 2026-10-12T14:27:21Z · needs_input
-- 2026-10-12T14:27:21Z · status review→active
-- 2026-10-12T14:27:21Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-12T14:27:29Z · status active→review
-- 2026-10-12T14:27:29Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
-- 2026-10-12T14:28:29Z · note: review pass 3: good to go
-
