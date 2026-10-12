@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
@@ -65,3 +67,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:01:07Z · note: Shots/UI evidence: no preview target can render the RepoOS Releases page for this task. The only [[preview.targets]] is 'website' (VitePress site; paths=["site/**"], areas=["web","docs"]); the Releases nav is a RepoOS control-plane surface served by 'repoos serve', which the agent must not start. This task's area is 'infra' and the diff touches no site/** path, so shot-target resolution (changed paths -> area -> default command) resolves to none — a declared shot would record 'could not resolve a preview target', not an image. No shot declared; the human eye on the Releases nav at sign-off is the UI evidence. repoos check --changed main is green (all 5 steps passed, .repoos/check-results/latest.json passed=true).
 - 2026-10-12T16:01:53Z · status active→review
 - 2026-10-12T16:01:53Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+
