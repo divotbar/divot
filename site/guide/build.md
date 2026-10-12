@@ -42,7 +42,7 @@ just app-smoke     # package + verify structure, signature, checksum, and launch
 just app-run       # build and open the bundle
 ```
 
-The result is a **local preview**, not a downloadable release: it is signed ad-hoc (`codesign --sign -`), not Developer ID signed, and not notarized. `dist/` receives `Divot.app` plus a versioned archive, a SHA-256 checksum, and a manifest recording the build commit. The bundle does not install anything system-wide or change any security setting. The notched-display menu-bar detector may ask for Accessibility permission and degrades honestly without it. A person still has to check on-screen appearance, VoiceOver, fullscreen/Spaces, and performance on real hardware.
+The result is a **local preview**, not a downloadable release: it is signed ad-hoc (`codesign --sign -`), not Developer ID signed, and not notarized. `dist/` receives `Divot.app` plus a versioned archive, a SHA-256 checksum, and a manifest recording the build commit. The bundle does not install anything system-wide or change any security setting. When Accessibility is not already granted, Divot asks macOS for it once at launch (the prompt never repeats that launch) and degrades honestly without it. A person still has to check on-screen appearance, VoiceOver, fullscreen/Spaces, and performance on real hardware.
 
 ## Repository hosting
 
