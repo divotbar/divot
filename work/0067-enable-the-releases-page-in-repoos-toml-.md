@@ -2,7 +2,7 @@
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
-status: review
+status: active
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -14,7 +14,7 @@ branch: feat/enable-the-releases-page-in-repoos-toml-
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T16:08:32Z"
+updated_at: "2026-10-12T16:08:50Z"
 review_passes: 3
 check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
@@ -76,3 +76,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:07:20Z · needs_input
 - 2026-10-12T16:08:30Z · cli_override, model_override
 - 2026-10-12T16:08:32Z · model_override
+- 2026-10-12T16:08:50Z · status review→active
