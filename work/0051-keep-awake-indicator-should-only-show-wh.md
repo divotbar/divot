@@ -40,3 +40,4 @@ Relevant code: the keep-awake provider (SystemKeepAwake / KeepAwake observation)
 - 2026-10-12T06:54:33Z · status inbox→ready
 - 2026-10-12T06:54:33Z · status ready→active, branch
 - 2026-10-12T07:11:45Z · status active→review
+- 2026-10-12T07:11:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
