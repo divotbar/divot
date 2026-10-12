@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/wi-fi-item-should-open-the-wi-fi-pane-no
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T18:51:44Z"
-updated_at: "2026-10-12T18:51:48Z"
+updated_at: "2026-10-12T18:51:49Z"
 ---
 ## Problem
 Clicking the Wi-Fi item opens System Settings > Network. WidgetSettingsPane.network (macos/Sources/DivotCore/WidgetActions.swift) builds x-apple.systempreferences:com.apple.preference.network, which was only a design-time candidate (see its doc comment) and lands on the generic Network page.
@@ -31,3 +33,4 @@ Only the network item's URL changes. Keep the sound/battery panes as they are.
 - 2026-10-12T18:51:44Z · created · njachowski@gmail.com
 - 2026-10-12T18:51:47Z · status inbox→ready
 - 2026-10-12T18:51:48Z · status ready→active, branch
+- 2026-10-12T18:51:49Z · cli_override, model_override
