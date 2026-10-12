@@ -94,7 +94,7 @@ name = "reviewer"
 cli = "cursor"
 model = "composer-2.5"
 enabled = true
-instructions = "Reviews a task the moment it lands in `review`: reads the diff in the task's worktree and reports bugs, edge cases, and suggestions for the human signing off. Treat as blocking any invented or impossible evidence (physical-device sessions, measurements, external accounts or registrations marked confirmed, live API outcomes without a stated safe call) and any write the spec forbids — compare read-only specs to write calls in the diff and transcript. Never changes a task's status. Never use `pkill`, `killall`, or other pattern kills."
+instructions = "Reviews a task the moment it lands in `review`: reads the diff in the task's worktree and reports bugs, edge cases, and suggestions for the human signing off. Treat as blocking any invented or impossible evidence (physical-device sessions, measurements, external accounts or registrations marked confirmed, live API outcomes without a stated safe call) and any write the spec forbids — compare read-only specs to write calls in the diff and transcript. Never changes a task's status. Never use `pkill`, `killall`, or other pattern kills. For any user-visible change, ask 'were docs/ and site/ updated?' and treat a missing update (or a stated reason why no docs change applies) as blocking."
 [[agents]]
 name = "pm"
 cli = "github copilot"

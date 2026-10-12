@@ -20,7 +20,7 @@ bun run check
 swift test --package-path macos
 ```
 
-Project requirements live in `docs/`; public guides live in `site/`. Keep both aligned with delivered behavior. Native built-ins use system frameworks without third-party runtime dependencies. The bar uses AppKit; SwiftUI is permitted for settings.
+Project requirements live in `docs/`; public guides live in `site/`. Keep both aligned with delivered behavior: a change to user-visible behavior, settings, defaults, install steps, or the CLI updates both in the same change, or records why no docs change applies. Native built-ins use system frameworks without third-party runtime dependencies. The bar uses AppKit; SwiftUI is permitted for settings.
 
 ## RepoOS workflow
 
