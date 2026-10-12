@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/keep-awake-indicator-should-only-show-wh
 created_at: "2026-10-12T06:54:32Z"
-updated_at: "2026-10-12T08:00:59Z"
+updated_at: "2026-10-12T08:02:34Z"
 review_passes: 1
 handoff_signal_retry_count: 1
 ---
@@ -46,3 +46,4 @@ Relevant code: the keep-awake provider (SystemKeepAwake / KeepAwake observation)
 - 2026-10-12T07:30:42Z · status review→active
 - 2026-10-12T07:30:42Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T08:00:59Z · note: packaged-app evidence, 2026-10-12 ~15:00 +07:00 during an active Chrome WebRTC call: with Divot's own keep-awake toggle off, pmset -g assertions listed third-party assertions (Chrome 'WebRTC has active PeerConnections', coreaudiod mic+speaker, caffeinate, cameracaptured, Amphetamine) and NO Divot assertion; the battery item drew no keep-awake cup. The only green mark in the top-right is the macOS WindowServer 'StatusIndicator' privacy window (CGWindow layer 2147483630), which Divot does not draw and cannot remove. Captures in this run's transcript.
+- 2026-10-12T08:02:34Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
