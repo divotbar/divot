@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T11:44:43Z"
+review_passes: 1
 id: "0065"
 title: Require every task to update the site and docs it affects (AGENTS.md rule)
 type: chore
@@ -9,7 +11,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/require-every-task-to-update-the-site-an
 created_at: "2026-10-12T11:40:14Z"
-updated_at: "2026-10-12T11:44:43Z"
 ---
 ## Problem
 AGENTS.md step 3 says 'update directly affected docs' but does not name the public site (site/) or the landing page, and nothing checks it. Features have landed with docs updates only when the engineer remembered.
@@ -34,3 +35,4 @@ Edit AGENTS.md on the task branch only; never commit to main. Keep the rule shor
 - 2026-10-12T11:44:05Z · status active→review
 - 2026-10-12T11:44:06Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T11:44:43Z · note: review pass 1: good to go
+
