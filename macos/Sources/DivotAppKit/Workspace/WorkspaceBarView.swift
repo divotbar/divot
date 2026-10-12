@@ -227,18 +227,20 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // (#0047, #0052).
         button.isBordered = false
         button.wantsLayer = true
-        // The workspace chips follow the same `chips` opt-in as the status
-        // items (#0052). With chips off there is no box at all and focus is the
-        // semibold weight; with chips on every workspace chip matches the
-        // right-side chip shape, padding and colour, faded by the shared
-        // opacity. Focus is never conveyed by the box alone.
+        // Only the selected (focused) workspace draws the chip chrome, and it
+        // reuses the right-side chip shape, padding, colour and size (#0059).
+        // Unselected workspaces are a plain number plus app icons: no
+        // background, no border, no padding. With chips off the selected
+        // workspace has no box either and focus is the semibold weight (#0052),
+        // so state is never conveyed by the box alone.
         let transparencyFraction = CGFloat(chipOpacity) / 100.0
-        if enablesChipStyle {
-            button.contentPadding = BarMetrics.chipPadding
+        let drawsChip = enablesChipStyle && workspace.isFocused
+        button.metrics = metrics
+        button.drawsChip = drawsChip
+        if drawsChip {
             button.layer?.cornerRadius = 4
             button.layer?.backgroundColor = theme.selected.withAlphaComponent(1.0 - transparencyFraction).cgColor
         } else {
-            button.contentPadding = 0
             button.layer?.cornerRadius = 0
             button.layer?.backgroundColor = NSColor.clear.cgColor
         }
@@ -433,13 +435,19 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 /// A chip that reacts on the first click even though the bar panel is
 /// nonactivating and never becomes key.
 private final class ChipButton: NSButton {
-    /// Horizontal content padding applied when the chip style is on, so the
-    /// workspace chip matches `BarItemView`'s padded chip (#0052).
-    var contentPadding: CGFloat = 0
+    /// Whether this button draws chip chrome. Only the selected workspace sets
+    /// it, so the unselected workspaces stay a plain number plus app icons
+    /// (#0059).
+    var drawsChip = false
+    /// The bar rhythm, so the chip's padded size comes from the same
+    /// `BarMetrics.chipSize` the right-side chips use (#0059).
+    var metrics: BarMetrics = .default
 
     override var intrinsicContentSize: NSSize {
         let base = super.intrinsicContentSize
-        return NSSize(width: base.width + contentPadding * 2, height: base.height)
+        guard drawsChip else { return base }
+        let chip = metrics.chipSize(contentWidth: base.width, contentHeight: base.height)
+        return NSSize(width: chip.width, height: chip.height)
     }
 
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }

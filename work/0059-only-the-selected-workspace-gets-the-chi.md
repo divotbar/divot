@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-12T09:28:24Z"
-review_passes: 2
 id: "0059"
 title: Only the selected workspace gets the chip; match other chips' style and size
 type: bug
@@ -11,6 +9,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/only-the-selected-workspace-gets-the-chi
 created_at: "2026-10-12T09:13:35Z"
+updated_at: "2026-10-12T09:27:16Z"
+review_passes: 1
 ---
 ## Problem
 The bar draws every workspace (1, 2, 3) as a chip all the time. Only the selected workspace should have the chip style; unselected workspaces are plain number + app icons. (Maintainer screenshot 2026-10-12: all three workspaces are blue chips; the right-side RepoOS Hub chip is visibly larger than the workspace chips.)
@@ -41,7 +41,4 @@ Look at the workspace chip drawing in macos/Sources/DivotAppKit (WidgetViews.swi
 - 2026-10-12T09:25:00Z · note: review pass 1: good to go
 - 2026-10-12T09:25:27Z · status review→active
 - 2026-10-12T09:25:27Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-12T09:27:17Z · status active→review
-- 2026-10-12T09:27:17Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-12T09:28:24Z · note: review pass 2: good to go
-
+- 2026-10-12T09:27:16Z · status active→review

@@ -118,7 +118,7 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
 }
 
 @MainActor
-@Test func workspaceChipsMatchTheRightSideChipWhenChipStyleIsOn() async {
+@Test func selectedWorkspaceChipMatchesTheRightSideChipWhenChipStyleIsOn() async {
     let feed = WorkspaceFeed()
     let theme = BarTheme.resolve(gruvboxDark, dark: true)
     let view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil,
@@ -132,12 +132,17 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
     let occupied = try! #require(workspaceChip("2", in: view))
     let empty = try! #require(workspaceChip("3", in: view))
 
-    // With chips on, every workspace chip uses the same selected fill and
-    // rounded shape as the right-side status items (#0052). Focus is the
-    // semibold weight, never a different box.
-    for chip in [focused, occupied, empty] {
-        #expect(colorMatches(chip.layer?.backgroundColor, theme.selected))
-        #expect(chip.layer?.cornerRadius == 4)
+    // Only the selected workspace draws the chip chrome, and it reuses the
+    // right-side selected fill and rounded shape (#0059).
+    #expect(colorMatches(focused.layer?.backgroundColor, theme.selected))
+    #expect(focused.layer?.cornerRadius == 4)
+    #expect(focused.layer?.borderWidth == 0)
+
+    // Unselected workspaces never draw a chip: no fill, no border, no corners
+    // (#0059).
+    for chip in [occupied, empty] {
+        #expect(colorMatches(chip.layer?.backgroundColor, .clear))
+        #expect(chip.layer?.cornerRadius == 0)
         #expect(chip.layer?.borderWidth == 0)
     }
     #expect(nameColor(of: focused.attributedTitle) == theme.foreground)
@@ -189,15 +194,22 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
         return try #require(workspaceChip("1", in: view))
     }
 
-    // A plain borderless button carries no side padding; the chip adds 4 pt on
-    // each side, matching `BarItemView`'s chip padding (#0052).
+    // A plain borderless button carries no padding; the selected chip adds
+    // `chipPadding` on every side through the same `BarMetrics.chipSize` the
+    // right-side chips use, so the two are the same size, not just the same
+    // width (#0059).
     let compact = try await makeChip(enablesChipStyle: false)
     let chipped = try await makeChip(enablesChipStyle: true)
+    let expected = BarMetrics.default.chipSize(contentWidth: compact.intrinsicContentSize.width,
+                                               contentHeight: compact.intrinsicContentSize.height)
+    #expect(chipped.intrinsicContentSize.width == expected.width)
+    #expect(chipped.intrinsicContentSize.height == expected.height)
     #expect(chipped.intrinsicContentSize.width == compact.intrinsicContentSize.width + BarMetrics.chipPadding * 2)
+    #expect(chipped.intrinsicContentSize.height == compact.intrinsicContentSize.height + BarMetrics.chipPadding * 2)
 }
 
 @MainActor
-@Test func workspaceChipOpacityFadesEveryChip() async throws {
+@Test func selectedWorkspaceChipOpacityStillApplies() async throws {
     let snapshot = WorkspaceSnapshot(manager: .aerospace,
                                      workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
                                                   Workspace(id: WorkspaceID("2"))])
@@ -214,17 +226,21 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
         return (try #require(workspaceChip("1", in: view)), try #require(workspaceChip("2", in: view)))
     }
 
+    // The one workspace chip that exists (the selected one) still fades with
+    // the shared opacity setting (#0059).
     let op0 = try await chip(focusedAtOpacity: 0)
     #expect(colorMatches(op0.focused.layer?.backgroundColor, theme.selected))
-    #expect(colorMatches(op0.other.layer?.backgroundColor, theme.selected))
 
     let op50 = try await chip(focusedAtOpacity: 50)
     #expect(colorMatches(op50.focused.layer?.backgroundColor, theme.selected.withAlphaComponent(0.5)))
-    #expect(colorMatches(op50.other.layer?.backgroundColor, theme.selected.withAlphaComponent(0.5)))
 
     let op100 = try await chip(focusedAtOpacity: 100)
     #expect(colorMatches(op100.focused.layer?.backgroundColor, theme.selected.withAlphaComponent(0.0)))
-    #expect(colorMatches(op100.other.layer?.backgroundColor, theme.selected.withAlphaComponent(0.0)))
+
+    // An unselected workspace never draws a chip at any opacity.
+    for result in [op0, op50, op100] {
+        #expect(colorMatches(result.other.layer?.backgroundColor, .clear))
+    }
 }
 
 @MainActor

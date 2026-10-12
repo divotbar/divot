@@ -191,10 +191,16 @@ final class BarItemView: NSView {
             contentWidth += metrics.iconSpacing
         }
 
+        // The native-symbol box (#0057) can be taller than the status-icon
+        // square, so the row content must clear the tallest of the icon, the
+        // status icon and the label (#0057).
         let contentHeight = max(icon.height, max(metrics.iconSize, textField.fittingSize.height))
-        let chipPadding = enablesChipStyle ? BarMetrics.chipPadding : 0.0
-        return NSSize(width: contentWidth + chipPadding * 2,
-                      height: contentHeight + chipPadding * 2)
+        // The chip chrome pads every side through the one shared metric, so a
+        // right-side chip and the selected workspace chip are the same size
+        // (#0059).
+        guard enablesChipStyle else { return NSSize(width: contentWidth, height: contentHeight) }
+        let chip = metrics.chipSize(contentWidth: contentWidth, contentHeight: contentHeight)
+        return NSSize(width: chip.width, height: chip.height)
     }
 
     /// The box the leading icon draws in. The battery, network and volume

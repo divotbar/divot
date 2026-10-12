@@ -79,10 +79,22 @@ public struct BarMetrics: Equatable, Sendable {
     /// reads comfortably on the maintainer's display (#0022).
     public static let defaultTextSize: CGFloat = 14
 
-    /// Horizontal padding around a bar item's content when chips are drawn
-    /// (#0030). Shared by the status item chips and the workspace chips so the
-    /// two match (#0052).
+    /// Padding around a bar item's content when chips are drawn (#0030).
+    /// Shared by the status item chips and the workspace chips so the two
+    /// match (#0052).
     public static let chipPadding: CGFloat = 4
+
+    /// The size of a chip's box around its content. Chip chrome adds
+    /// `chipPadding` on every side, so the selected workspace chip and the
+    /// right-side status chips share one shape and size at any text size
+    /// (#0059). This is the single tested metric the AppKit views consume
+    /// rather than each adding its own padding.
+    public func chipSize(contentWidth: CGFloat, contentHeight: CGFloat) -> CGSize {
+        let width = contentWidth.isFinite ? max(0, contentWidth) : 0
+        let height = contentHeight.isFinite ? max(0, contentHeight) : 0
+        return CGSize(width: width + Self.chipPadding * 2,
+                      height: height + Self.chipPadding * 2)
+    }
 
     /// The gap on the leading side of the front-app item. It is fixed so the
     /// front app keeps its own rhythm beside the Divot mark and never follows
