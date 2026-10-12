@@ -272,6 +272,27 @@ private final class MockFrontAppReading: FrontAppReading {
     subscription.cancel()
 }
 
+@Test func batteryProviderDoesNotReemitAnUnchangedSnapshot() {
+    // The bounded re-check can read the same state several times; only a real
+    // change should reach the pipeline, so the bar does not redraw needlessly.
+    let reading = MockBatteryReading()
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 42, isCharging: true)
+    let collector = ContentCollector()
+    let subscription = BatteryProvider(reading: reading).start { collector.append($0) }
+    #expect(collector.contents.count == 1)
+
+    reading.fire()
+    reading.fire()
+    #expect(collector.contents.count == 1)
+
+    // A real change still emits.
+    reading.snapshotValue = .init(presence: .internalBattery, percentage: 43, isCharging: true)
+    reading.fire()
+    #expect(collector.contents.count == 2)
+
+    subscription.cancel()
+}
+
 @Test func batteryProviderReportsFailureInsteadOfGuessing() {
     let reading = MockBatteryReading()
     reading.snapshotValue = nil

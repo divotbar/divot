@@ -1,7 +1,56 @@
 import Foundation
 import IOKit.ps
 import Testing
+import DivotCore
 @testable import DivotAppKit
+
+/// Reports plugged-but-not-charging on its first read, then charging on every
+/// later read — the exact lag the bounded re-check exists for.
+private final class LaggingChargingSource: @unchecked Sendable {
+    private let lock = NSLock()
+    private var readCount = 0
+    private var snapshots: [BatterySnapshot] = []
+
+    func read() -> BatterySnapshot {
+        lock.lock()
+        defer { lock.unlock() }
+        readCount += 1
+        let snapshot = BatterySnapshot(presence: .internalBattery,
+                                       percentage: 60,
+                                       isCharging: readCount > 1,
+                                       isPluggedIn: true)
+        snapshots.append(snapshot)
+        return snapshot
+    }
+
+    var observed: [BatterySnapshot] {
+        lock.lock()
+        defer { lock.unlock() }
+        return snapshots
+    }
+}
+
+/// One notification reads the stale flag, then the bounded timer re-reads on
+/// its fixed interval until the charging flag flips. This exercises the
+/// observer timer path that the provider-level fake does not cover.
+@Test func powerSourceObserverRechecksUntilTheChargingFlagFlips() async throws {
+    let source = LaggingChargingSource()
+    let observer = PowerSourceRunLoopObserver(
+        window: BatteryRecheckWindow(interval: 0.1, maxAttempts: 10)) {
+            _ = source.read()
+        }
+    observer.start()
+    defer { observer.stop() }
+
+    let deadline = Date().addingTimeInterval(2)
+    while Date() < deadline && !source.observed.contains(where: { $0.isCharging }) {
+        try await Task.sleep(nanoseconds: 10_000_000)
+    }
+
+    let observed = source.observed
+    #expect(observed.first?.isCharging == false)
+    #expect(observed.contains { $0.isCharging })
+}
 
 /// The `Is Charging` / `Is Charged` flags are read through
 /// `NSNumber.boolValue`, so both the `CFBoolean` and the numeric `CFNumber`

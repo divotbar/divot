@@ -212,13 +212,19 @@ public struct BatteryProvider: WidgetProvider {
     public func start(emit: @escaping @Sendable (WidgetContent) -> Void) -> any ProviderSubscription {
         let reading = self.reading
         let keepAwake = self.keepAwake
+        let last = LastBatteryEmission()
         let push: @Sendable () -> Void = {
             let active = keepAwake?.isActive ?? false
+            let content: WidgetContent
             if let snapshot = reading.snapshot() {
-                emit(.battery(snapshot.withKeepingAwake(active)))
+                content = .battery(snapshot.withKeepingAwake(active))
             } else {
-                emit(.unavailable(.init(kind: .failed, message: "Battery state is unavailable")))
+                content = .unavailable(.init(kind: .failed, message: "Battery state is unavailable"))
             }
+            // The bounded re-check and some notifications can read the same
+            // state again; emit only on a real change so the bar does not bump
+            // its revision for an unchanged snapshot.
+            if last.record(content) { emit(content) }
         }
         let bag = SubscriptionBag()
         push()
@@ -227,6 +233,22 @@ public struct BatteryProvider: WidgetProvider {
             bag.add(keepAwake.observe { _ in push() })
         }
         return bag
+    }
+}
+
+/// Remembers the last content a battery provider emitted so repeated reads of
+/// an unchanged snapshot do not produce redundant bar updates.
+private final class LastBatteryEmission: @unchecked Sendable {
+    private let lock = NSLock()
+    private var content: WidgetContent?
+
+    /// Record `content` and return whether it differs from the last one.
+    func record(_ content: WidgetContent) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard self.content != content else { return false }
+        self.content = content
+        return true
     }
 }
 

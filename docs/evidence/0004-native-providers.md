@@ -37,8 +37,10 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
   system starts charging a moment later), so each notification arms a bounded,
   fixed-interval re-read (`DivotCore.BatteryRecheckWindow`, 1s for a few
   attempts) that catches the bolt within about a second and then closes; it is
-  not continuous polling. `BatteryRecheckWindow` is unit-tested, and the
-  provider's plug-in/unplug path is tested with a fake power source.
+  not continuous polling. The provider emits only on a changed snapshot, so
+  re-check ticks do not redraw the bar. `BatteryRecheckWindow` is unit-tested,
+  the observer's timer path is covered by a lagging-source integration test, and
+  the provider's plug-in/unplug path is tested with a fake power source.
   Debug reads log the charging/plug flags for hardware confirmation.
 - **Network** observes `NWPathMonitor` on a utility queue and maps transport,
   expensive, and constrained flags. It reads **no** SSID or other

@@ -6,9 +6,10 @@ import DivotCore
 /// Diagnostic logger for power-source reads.
 ///
 /// Emitted at debug level so it is visible while streaming
-/// (`log stream --predicate 'subsystem == "com.divot.Divot"'`) but is not
-/// persisted by default. Each read carries the charging and plug flags, which
-/// is what confirms whether a notification arrived with a stale charging flag.
+/// (`log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'`)
+/// but is not persisted by default. Each read carries the charging and plug
+/// flags, which is what confirms whether a notification arrived with a stale
+/// charging flag.
 private let powerSourceLog = Logger(subsystem: "com.divot.Divot", category: "battery")
 
 /// Live power state from IOKit's power-source API.
@@ -92,7 +93,7 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
 /// Each notification reads immediately, then arms a bounded re-check timer:
 /// the timer fires on the window's fixed interval while attempts remain, so a
 /// charging flag that flips a moment after the notification is still observed.
-private final class PowerSourceRunLoopObserver: @unchecked Sendable {
+final class PowerSourceRunLoopObserver: @unchecked Sendable {
     private let handler: @Sendable () -> Void
     private let lock = NSLock()
     private var thread: Thread?
@@ -102,10 +103,10 @@ private final class PowerSourceRunLoopObserver: @unchecked Sendable {
     private var stopped = false
     private let ready = DispatchSemaphore(value: 0)
 
-    init(handler: @escaping @Sendable () -> Void,
-         window: BatteryRecheckWindow = BatteryRecheckWindow()) {
-        self.handler = handler
+    init(window: BatteryRecheckWindow = BatteryRecheckWindow(),
+         handler: @escaping @Sendable () -> Void) {
         self.window = window
+        self.handler = handler
     }
 
     func start() {

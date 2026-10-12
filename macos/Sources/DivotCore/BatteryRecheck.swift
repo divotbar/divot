@@ -22,7 +22,7 @@ public struct BatteryRecheckWindow: Equatable, Sendable {
     public let maxAttempts: Int
     private var attemptsRemaining: Int
 
-    public init(interval: TimeInterval = 1, maxAttempts: Int = 4) {
+    public init(interval: TimeInterval = 1, maxAttempts: Int = 8) {
         // A zero or negative interval would make the timer fire continuously;
         // clamp to a small positive floor.
         self.interval = max(0.1, interval)
