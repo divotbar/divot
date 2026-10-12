@@ -2,7 +2,7 @@
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
-status: active
+status: review
 needs_input: true
 needs_input_reason: review-rounds-exhausted
 needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
@@ -79,4 +79,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:08:32Z · model_override
 - 2026-10-12T16:08:50Z · status review→active
 - 2026-10-12T16:08:59Z · review_cli_override, review_model_override
-- 2026-10-12T16:10:31Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T16:10:31Z · status active→review
