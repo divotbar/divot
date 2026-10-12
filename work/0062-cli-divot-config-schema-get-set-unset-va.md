@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 66913
-last_close_out_gate_at: "2026-10-12T11:51:32.176Z"
 id: "0062"
 title: "CLI: divot config schema/get/set/unset/validate with --json"
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: d7e68b499fa98af7943f263534e780826ca94f4f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-divot-config-schema-get-set-unset-va
 created_at: "2026-10-12T11:38:56Z"
-updated_at: "2026-10-12T11:51:32Z"
+updated_at: "2026-10-12T11:51:35Z"
+last_close_out_gate_ms: 66913
+last_close_out_gate_at: "2026-10-12T11:51:32.176Z"
 review_passes: 1
 ---
 ## Problem
@@ -41,4 +42,4 @@ Reuse the #0006 config model and validation. Do not add a daemon or network API.
 - 2026-10-12T11:47:41Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T11:48:25Z · note: review pass 1: good to go
 - 2026-10-12T11:51:32Z · close-out gate completed in 67s
-
+- 2026-10-12T11:51:35Z · status review→done, release:success
