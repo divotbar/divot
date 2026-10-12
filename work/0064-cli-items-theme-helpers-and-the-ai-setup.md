@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T12:22:21Z"
+review_passes: 1
 id: "0064"
 title: "CLI: items/theme helpers and the AI-setup docs snippet"
 type: feature
@@ -10,7 +12,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-items-theme-helpers-and-the-ai-setup
 created_at: "2026-10-12T11:39:01Z"
-updated_at: "2026-10-12T12:22:21Z"
 ---
 ## Problem
 Reordering items and switching themes are the most common chat requests; users also need a copy-paste way to tell an agent how to drive Divot.
@@ -47,3 +48,4 @@ Builds on #0062; do not claim features that are not implemented.
 - 2026-10-12T12:20:50Z · body: section Shots
 - 2026-10-12T12:21:28Z · status active→review
 - 2026-10-12T12:22:21Z · note: review pass 1: needs some work
+
