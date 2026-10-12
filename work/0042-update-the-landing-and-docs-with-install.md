@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T13:30:44Z"
+updated_at: "2026-10-12T13:40:16Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -62,3 +62,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T13:29:40Z · status active→review
 - 2026-10-12T13:30:44Z · note: review pass 1: needs some work
 - 2026-10-12T13:30:44Z · status review→active
+- 2026-10-12T13:40:16Z · message_queued at 2026-10-12T13:40:16.047Z
