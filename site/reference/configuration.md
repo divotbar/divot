@@ -76,7 +76,7 @@ The bar's text size and font are an optional root `text` object. The icon scales
 | `size` | Number 10–20 | `14` | Bar text size in points; icon and chip sizes follow it |
 | `font` | String | `""` | Installed font family name, or `""` for the system font |
 
-`size` is the single knob: the status icon is two points larger and the chip font one point smaller, so changing it keeps the row in proportion. The app icons drawn on the left default to the status icon size and are controlled separately by `appIconSize`. `font` accepts any installed font family name; a name that is not installed falls back to the system font at render time rather than failing the load. Settings exposes these controls and applies changes to the bar without a relaunch.
+`size` is the single knob: the status icon is two points larger and the chip font one point smaller, so changing it keeps the row in proportion. The battery, network and volume symbols draw at that status icon size, matched to the native menu-bar symbol size (16 pt by default), so the three scale with this setting; the other items keep the compact square status-icon box. The app icons drawn on the left default to the status icon size and are controlled separately by `appIconSize`. `font` accepts any installed font family name; a name that is not installed falls back to the system font at render time rather than failing the load. Settings exposes these controls and applies changes to the bar without a relaunch.
 
 ```json
 "text": { "size": 16, "font": "Helvetica" }

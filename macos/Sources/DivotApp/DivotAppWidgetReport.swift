@@ -32,6 +32,18 @@ enum DivotAppWidgetReport {
         // line lets the packaged-app smoke test assert it (#0052).
         print("# divot widget report (live built-in providers, \(duration)s window)")
         print("metrics.iconSize=\(Int(metrics.iconSize)) metrics.appIconSize=\(Int(metrics.appIconSize))")
+        // The battery, network and volume symbols draw at this point size; the
+        // default is the native menu-bar symbol size (#0057).
+        print("metrics.statusSymbolSize=\(Int(metrics.statusSymbolPointSize))")
+        // The image each of the three symbols resolves to at that point size,
+        // so a packaged-app run records the measured icon size, not just the
+        // configured number.
+        for (id, symbol) in [(BarItemID.battery, "battery.100"),
+                             (BarItemID.network, "wifi"),
+                             (BarItemID.volume, "speaker.wave.2.fill")] {
+            let size = NativeStatusSymbol.image(symbolName: symbol, metrics: metrics)?.size ?? .zero
+            print("statusSymbol.\(id.rawValue)=\(symbol) \(Int(size.width))x\(Int(size.height))pt")
+        }
         print("layout.left=\(BarLayout.default.left.map(\.rawValue).joined(separator: ","))")
         print("layout.right=\(BarLayout.default.right.map(\.rawValue).joined(separator: ","))")
         for id in BarItemID.placeableItems {

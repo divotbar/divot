@@ -1,19 +1,19 @@
 ---
-updated_at: "2026-10-12T08:47:53Z"
-review_passes: 3
 id: "0056"
 title: Battery charging state updates immediately when plugging and unplugging
 type: bug
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p1
 area: macos
+merged_commit: b3a02cb96e20d0c3d0a4df08a64acd0ffd7e8a93
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
+updated_at: "2026-10-12T09:24:27Z"
+last_close_out_gate_ms: 56920
+last_close_out_gate_at: "2026-10-12T09:24:25.382Z"
+review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -127,4 +127,5 @@ not treat this section as that evidence.
 - 2026-10-12T08:46:44Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T08:47:53Z · note: review pass 3: needs some work
 - 2026-10-12T08:47:53Z · needs_input
-
+- 2026-10-12T09:24:25Z · close-out gate completed in 57s
+- 2026-10-12T09:24:27Z · status review→done, release:success

@@ -92,6 +92,19 @@ APP_ICON_SIZE="$(printf '%s\n' "$WIDGETS" | sed -n 's/.*metrics\.appIconSize=\([
 [ -n "$ICON_SIZE" ] || fail "widget report did not print the status icon size"
 [ -n "$APP_ICON_SIZE" ] || fail "widget report did not print the app icon size"
 [ "$ICON_SIZE" = "$APP_ICON_SIZE" ] || fail "default app icon size $APP_ICON_SIZE does not match status icon size $ICON_SIZE"
+# The battery, network and volume symbols must default to the native menu-bar
+# symbol size (#0057). This is a packaged-app observation of the computed
+# point size, not a visual claim.
+STATUS_SYMBOL_SIZE="$(printf '%s\n' "$WIDGETS" | sed -n 's/.*metrics\.statusSymbolSize=\([0-9][0-9]*\).*/\1/p' | head -1)"
+[ -n "$STATUS_SYMBOL_SIZE" ] || fail "widget report did not print the status symbol size"
+[ "$STATUS_SYMBOL_SIZE" = "16" ] || fail "default status symbol size $STATUS_SYMBOL_SIZE pt is not the native 16 pt"
+# Each of the three symbols must resolve to a non-empty image at that size.
+for ICON_ITEM in battery network volume; do
+  case "$WIDGETS" in
+    *"statusSymbol.$ICON_ITEM="*) ;;
+    *) fail "widget report did not measure the $ICON_ITEM status symbol" ;;
+  esac
+done
 pass "default bar layout and matching default app icon size through the packaged app"
 
 [ -f "$MANIFEST" ] || fail "missing manifest $MANIFEST"

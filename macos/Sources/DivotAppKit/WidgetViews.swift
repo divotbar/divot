@@ -1,6 +1,20 @@
 import AppKit
 import DivotCore
 
+/// Resolves the SF Symbol the battery, network and volume items draw (#0057).
+///
+/// The three symbols use the bar's native-matching symbol size, so the bar and
+/// the packaged-app report resolve the same image instead of duplicating the
+/// `NSImage.SymbolConfiguration` call.
+public enum NativeStatusSymbol {
+    public static func image(symbolName: String, metrics: BarMetrics) -> NSImage? {
+        let configuration = NSImage.SymbolConfiguration(pointSize: metrics.statusSymbolPointSize,
+                                                        weight: .regular)
+        return NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
+            .withSymbolConfiguration(configuration)
+    }
+}
+
 /// Renders one bar item: an optional SF Symbol plus compact text.
 ///
 /// The view is thin. All decision-making (state → text/icon) lives in
@@ -13,6 +27,10 @@ final class BarItemView: NSView {
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
     private let metrics: BarMetrics
+    /// True for the battery, network and volume items: their SF Symbol is drawn
+    /// at the native menu-bar point size and occupies the symbol's own box, not
+    /// the square status-icon box (#0057).
+    private let usesNativeSymbolBox: Bool
     private var lastIconBundleIdentifier: String?
     private var presentation: WidgetPresentation?
     /// The SF Symbol the view last resolved for its icon. Exposed so a test can
@@ -32,8 +50,12 @@ final class BarItemView: NSView {
     /// whole bar fades together (#0052).
     private let chipOpacity: Int
 
-    init(metrics: BarMetrics = .default, enablesChipStyle: Bool = false, chipOpacity: Int = 0) {
+    init(metrics: BarMetrics = .default,
+         item: BarItemID? = nil,
+         enablesChipStyle: Bool = false,
+         chipOpacity: Int = 0) {
         self.metrics = metrics
+        self.usesNativeSymbolBox = item?.drawsNativeStatusSymbol ?? false
         self.enablesChipStyle = enablesChipStyle
         self.chipOpacity = max(0, min(chipOpacity, 100))
         super.init(frame: .zero)
@@ -154,7 +176,8 @@ final class BarItemView: NSView {
     }
 
     override var intrinsicContentSize: NSSize {
-        let iconWidth = iconView.isHidden ? 0 : metrics.iconSize
+        let icon = leadingIconSize
+        let iconWidth = iconView.isHidden ? 0 : icon.width
         let textWidth = measuredTextWidth
         let indicatorWidth = indicatorView.isHidden ? 0 : metrics.iconSize
         var contentWidth = iconWidth + textWidth + indicatorWidth
@@ -168,13 +191,30 @@ final class BarItemView: NSView {
             contentWidth += metrics.iconSpacing
         }
 
-        let contentHeight = max(metrics.iconSize, textField.fittingSize.height)
+        // The native-symbol box (#0057) can be taller than the status-icon
+        // square, so the row content must clear the tallest of the icon, the
+        // status icon and the label (#0057).
+        let contentHeight = max(icon.height, max(metrics.iconSize, textField.fittingSize.height))
         // The chip chrome pads every side through the one shared metric, so a
         // right-side chip and the selected workspace chip are the same size
         // (#0059).
         guard enablesChipStyle else { return NSSize(width: contentWidth, height: contentHeight) }
         let chip = metrics.chipSize(contentWidth: contentWidth, contentHeight: contentHeight)
         return NSSize(width: chip.width, height: chip.height)
+    }
+
+    /// The box the leading icon draws in. The battery, network and volume
+    /// symbols (#0057) use the symbol's own size, so a wide battery or a tall
+    /// Wi-Fi glyph is not squeezed into the square status-icon box; every other
+    /// icon keeps that square.
+    private var leadingIconSize: NSSize {
+        guard !iconView.isHidden else { return NSSize(width: 0, height: 0) }
+        if usesNativeSymbolBox,
+           let image = iconView.image,
+           image.size.width > 0, image.size.height > 0 {
+            return image.size
+        }
+        return NSSize(width: metrics.iconSize, height: metrics.iconSize)
     }
 
     /// The width the label cell actually draws. `NSTextField.intrinsicContentSize`
@@ -198,7 +238,13 @@ final class BarItemView: NSView {
         }
         lastIconBundleIdentifier = nil
         guard let symbol = presentation.symbolName else { return nil }
-        return NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        guard usesNativeSymbolBox else {
+            return NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+        }
+        // The battery, network and volume symbols are drawn at the bar's icon
+        // size (#0057), so they read at the same size as the native menu bar
+        // and scale with the text-size setting.
+        return NativeStatusSymbol.image(symbolName: symbol, metrics: metrics)
     }
 
     override func layout() {
@@ -206,9 +252,10 @@ final class BarItemView: NSView {
         let chipPadding = enablesChipStyle ? BarMetrics.chipPadding : 0.0
         var x: CGFloat = chipPadding
         if !iconView.isHidden {
-            iconView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
-                                    width: metrics.iconSize, height: metrics.iconSize)
-            x += metrics.iconSize + metrics.iconSpacing
+            let icon = leadingIconSize
+            iconView.frame = CGRect(x: x, y: (bounds.height - icon.height) / 2,
+                                    width: icon.width, height: icon.height)
+            x += icon.width + metrics.iconSpacing
         }
         if !textField.isHidden {
             let size = textField.fittingSize
@@ -332,7 +379,7 @@ final class BarContentView: NSView, BarContentLifecycle {
                 addSubview(view)
                 continue
             }
-            let view = BarItemView(metrics: metrics, enablesChipStyle: enablesChipStyle, chipOpacity: chipOpacity)
+            let view = BarItemView(metrics: metrics, item: id, enablesChipStyle: enablesChipStyle, chipOpacity: chipOpacity)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
             view.apply(theme: theme)
             itemViews[id] = view

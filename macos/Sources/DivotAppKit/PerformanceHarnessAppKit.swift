@@ -41,7 +41,7 @@ public enum PerformanceHarnessAppKit {
                     let theme = BarTheme.resolve(AppearanceConfiguration(family: family), dark: dark)
                     for state in states {
                         let action = WidgetActions.defaultAction(for: state.id, content: state.content)
-                        let view = BarItemView()
+                        let view = BarItemView(item: state.id)
                         view.apply(theme: theme)
                         view.update(WidgetPresenter.present(id: state.id, state: state), action: action)
 
