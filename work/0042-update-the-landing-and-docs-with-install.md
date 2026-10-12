@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T14:27:29Z"
+updated_at: "2026-10-12T14:28:00Z"
 handoff_signal_retry_count: 2
 last_check_failure: "repoos check at 2026-10-12T13:47:26.018Z: repoos check failed: native-core — 􁁛 Test workspaceChipStyleAddsTheSamePaddingAsTheRightSideChip() passed after 2.279 seconds."
 review_rounds: 1
