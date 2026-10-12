@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/leave-a-gap-in-the-top-right-corner-only
 created_at: "2026-10-12T08:20:42Z"
-updated_at: "2026-10-12T08:35:50Z"
+updated_at: "2026-10-12T08:36:47Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -60,3 +60,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T08:35:25Z · body: section Live verification
 - 2026-10-12T08:35:50Z · status active→review
 - 2026-10-12T08:35:50Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T08:36:47Z · note: review pass 3: needs some work
