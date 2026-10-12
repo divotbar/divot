@@ -2,7 +2,7 @@
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
-status: active
+status: review
 priority: p1
 area: infra
 assigned_to: ""
@@ -33,4 +33,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T14:36:55Z · status inbox→ready
 - 2026-10-12T14:36:56Z · status ready→active, branch
 - 2026-10-12T14:42:10Z · note: versionFile decision: Divot's committed version is the root VERSION file (plain text, currently 0.1.0-preview.1); package.json had no version and neither does macos/. RepoOS's release provider reads versionFile as JSON and requires a .version property (installed repoos v0.5.70). To make the Releases page functional, added "version": "0.1.0-preview.1" to package.json and set versionFile = "package.json"; VERSION remains the separate local-preview version scripts/package-app.sh packages. Relationship documented in docs/infrastructure.md. No RepoOS Settings control exists for the release/distribution keys, and no [[deployments]] rows were added.
-- 2026-10-12T14:42:59Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T14:42:59Z · status active→review
