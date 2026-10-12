@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 52439
-last_close_out_gate_at: "2026-10-12T10:56:12.842Z"
 id: "0058"
 title: "Show only the charging bolt in green, not the battery outline"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
 depends_on: ["0057"]
+merged_commit: 7a6c2f03cf5bb4730a27a4975c8cf41aed1ebf9e
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/show-only-the-charging-bolt-in-green-not
 created_at: "2026-10-12T08:36:25Z"
-updated_at: "2026-10-12T10:56:12Z"
+updated_at: "2026-10-12T10:56:15Z"
+last_close_out_gate_ms: 52439
+last_close_out_gate_at: "2026-10-12T10:56:12.842Z"
 review_passes: 2
 ---
 ## Problem
@@ -73,4 +74,4 @@ So the packaged app resolves the plain battery outline plus a `bolt.fill` badge 
 - 2026-10-12T10:52:14Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T10:53:04Z · note: review pass 2: good to go
 - 2026-10-12T10:56:12Z · close-out gate completed in 52s
-
+- 2026-10-12T10:56:15Z · status review→done, release:success
