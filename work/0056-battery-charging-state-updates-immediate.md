@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
-updated_at: "2026-10-12T08:42:50Z"
+updated_at: "2026-10-12T08:43:46Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -91,7 +91,7 @@ The acceptance criterion to log a real plug-in and unplug on the packaged app
 has not been performed: it needs a Mac with an internal battery and a person to
 plug/unplug while streaming
 
-  log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'
+log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'
 
 The captured `charging=`/`plugged=` lines must be recorded here by a human. Do
 not treat this section as that evidence.
@@ -108,3 +108,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:41:40Z · note: review pass 1: needs some work
 - 2026-10-12T08:41:40Z · status review→active
 - 2026-10-12T08:42:50Z · body: section Fix and evidence
+- 2026-10-12T08:43:46Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
