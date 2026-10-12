@@ -6,9 +6,11 @@ import Foundation
 ///
 /// Divot deliberately does not mirror the system's own menu extras. Its click
 /// behavior is an explicit, narrow choice: a status item either opens the
-/// matching native settings pane or activates an application. These "open a
-/// pane" links are the design-time candidates; the exact pane identifiers are a
-/// physical-validation item for the target OS, and a later milestone may replace
+/// matching native settings pane or activates an application. The network pane
+/// uses the macOS 13+ Wi-Fi Settings extension id (confirmed against the local
+/// `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex` bundle on macOS 26),
+/// with the older Network pane as a fallback. The remaining pane identifiers are
+/// physical-validation items for the target OS, and a later milestone may replace
 /// the volume/network links with a native control popover (see
 /// `docs/evidence/0004-native-providers.md`).
 public enum WidgetSettingsPane: String, Equatable, Sendable, CaseIterable {
@@ -18,9 +20,32 @@ public enum WidgetSettingsPane: String, Equatable, Sendable, CaseIterable {
     case dateTime = "datetime"
     case general
 
-    /// Candidate deep link for the pane. `nil` when the URL cannot be formed.
+    /// Deep link for the pane. `nil` when the URL cannot be formed.
+    ///
+    /// The network item points at the macOS 13+ Wi-Fi Settings extension
+    /// (`com.apple.wifi-settings-extension`, the bundle identifier of
+    /// `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex`) so a click opens
+    /// System Settings › Wi-Fi directly. The remaining panes keep the older
+    /// `com.apple.preference.*` candidates.
     public var url: URL? {
-        URL(string: "x-apple.systempreferences:com.apple.preference.\(rawValue)")
+        switch self {
+        case .network:
+            return URL(string: "x-apple.systempreferences:com.apple.wifi-settings-extension")
+        default:
+            return URL(string: "x-apple.systempreferences:com.apple.preference.\(rawValue)")
+        }
+    }
+
+    /// A secondary deep link used only when `url` cannot be opened. The network
+    /// item falls back to the generic Network pane on systems that do not host
+    /// the Wi-Fi Settings extension. `nil` for panes with no fallback.
+    public var fallbackURL: URL? {
+        switch self {
+        case .network:
+            return URL(string: "x-apple.systempreferences:com.apple.preference.network")
+        default:
+            return nil
+        }
     }
 }
 

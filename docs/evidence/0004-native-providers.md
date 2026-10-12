@@ -86,7 +86,12 @@ explicit default action (`WidgetActions`): front-app activates the running app;
 network, volume, and clock open the matching System Settings pane; the battery
 item toggles keep-awake (task 0018), which is a provider action rather than a
 settings link; the workspaces item owns no action here (that is the
-workspace-adapter milestone). The pane links use candidate
+workspace-adapter milestone). The network item opens System Settings › Wi-Fi via
+the macOS 13+ extension id `x-apple.systempreferences:com.apple.wifi-settings-extension`
+(confirmed against the local `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex`
+bundle on macOS 26), and falls back to the legacy generic Network pane
+(`com.apple.preference.network`) when the extension link cannot be opened. The
+volume and clock panes use candidate
 `x-apple.systempreferences:com.apple.preference.*` identifiers and **still need
 validation on the target OS**; a later milestone may replace the volume/network
 links with a native control popover.
@@ -146,7 +151,9 @@ helpers.
 - Any on-screen rendering, truncation, or readability of the widgets on a real
   display at real scales.
 - Whether a click on a nonactivating panel actually reaches an item and opens
-  the intended System Settings pane; the pane identifiers above are candidates.
+  the intended System Settings pane; the network item's Wi-Fi id is confirmed,
+  but the remaining pane identifiers above are candidates and no click has been
+  observed end to end.
 - Real battery/network/volume/front-app values under sleep/wake, hot-plug,
   external displays, and audio-device changes.
 - Whether any provider's callback fires on main on real hardware for a long run.

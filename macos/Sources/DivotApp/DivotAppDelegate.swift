@@ -344,7 +344,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     private func perform(_ action: WidgetAction) {
         switch action {
         case .openSettings(let pane):
-            if let url = pane.url { NSWorkspace.shared.open(url) }
+            // Prefer the pane's primary link; fall back to the legacy link when
+            // the system does not host the newer extension (e.g. the Wi-Fi item
+            // on a build without the Wi-Fi Settings extension).
+            if let url = pane.url, NSWorkspace.shared.open(url) { break }
+            if let fallback = pane.fallbackURL { NSWorkspace.shared.open(fallback) }
         case .activateApplication(let bundleIdentifier):
             NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier)
                 .first?.activate()
