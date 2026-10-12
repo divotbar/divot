@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/clicking-the-appearance-bar-item-crashes
 created_at: "2026-10-12T05:09:55Z"
-updated_at: "2026-10-12T05:21:27Z"
+updated_at: "2026-10-12T05:22:10Z"
 ---
 ## Problem
 
@@ -97,3 +97,4 @@ app still needs a human to confirm on hardware.
 - 2026-10-12T05:19:41Z · body: section Evidence
 - 2026-10-12T05:21:27Z · status active→review
 - 2026-10-12T05:21:27Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T05:22:10Z · note: review pass 1: good to go
