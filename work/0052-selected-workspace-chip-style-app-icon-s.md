@@ -2,14 +2,14 @@
 id: "0052"
 title: "Selected workspace chip style, app icon size setting, and chip opacity for all chips"
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T06:59:51Z"
-updated_at: "2026-10-12T06:59:51Z"
+updated_at: "2026-10-12T06:59:52Z"
 ---
 ## Problem
 
@@ -41,3 +41,4 @@ This supersedes the selected-chip part of #0047, which is marked done but still 
 ## Activity
 
 - 2026-10-12T06:59:51Z · created · njachowski@gmail.com
+- 2026-10-12T06:59:52Z · status inbox→ready
