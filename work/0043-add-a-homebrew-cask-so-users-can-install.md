@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-12T13:17:52Z"
-review_passes: 1
+last_close_out_gate_ms: 50274
+last_close_out_gate_at: "2026-10-12T13:20:18.193Z"
 id: "0043"
 title: Add a Homebrew cask so users can install Divot with brew
 type: feature
@@ -12,6 +12,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/add-a-homebrew-cask-so-users-can-install
 created_at: "2026-10-11T12:47:11Z"
+updated_at: "2026-10-12T13:20:18Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -43,4 +45,5 @@ Reference: ~/code/nick/homebrew-tap (repo-os/homebrew-tap) and repoos's release.
 - 2026-10-12T13:16:11Z · status active→review
 - 2026-10-12T13:16:12Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T13:17:52Z · note: review pass 1: good to go
+- 2026-10-12T13:20:18Z · close-out gate completed in 50s
 
