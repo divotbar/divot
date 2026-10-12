@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 71353
-last_close_out_gate_at: "2026-10-12T12:09:58.773Z"
 id: "0066"
 title: Audit site and docs against shipped behaviour
 type: chore
-status: review
+status: done
 priority: p1
 area: [docs, web]
+merged_commit: d0839eabac5bba84e255fe3ebae1f660dae0f3d7
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/audit-site-and-docs-against-shipped-beha
 created_at: "2026-10-12T11:40:14Z"
-updated_at: "2026-10-12T12:09:58Z"
+updated_at: "2026-10-12T12:10:01Z"
+last_close_out_gate_ms: 71353
+last_close_out_gate_at: "2026-10-12T12:09:58.773Z"
 review_passes: 1
 ---
 ## Problem
@@ -122,4 +123,4 @@ smoke test). No install/download copy was touched (#0042 owns it).
 - 2026-10-12T12:01:56Z · status active→review
 - 2026-10-12T12:02:40Z · note: review pass 1: good to go
 - 2026-10-12T12:09:58Z · close-out gate completed in 71s
-
+- 2026-10-12T12:10:01Z · status review→done, release:success
