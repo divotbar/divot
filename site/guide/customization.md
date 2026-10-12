@@ -35,10 +35,13 @@ divot config schema --json          # every setting with its type, range, and de
 divot config set appearance.family gruvbox
 divot config set widgets.time.seconds true --diff
 divot config unset keepAwake.remember
+divot items add date --side left --at 0
+divot items move workspaces --side right
+divot theme set gruvbox --mode dark
 divot status --json                 # version, running state, permissions, adapter, config
 ```
 
-Keys are dotted JSON paths and the edits validate through the same parser the app uses. `divot status --json` is the read-only way to check what the app currently sees: version, running state, Accessibility and Location permissions, the workspace adapter, and the config path and validity. It never grants a permission; a missing one is reported with the System Settings pane to open. See the [configuration reference](../reference/configuration#command-line-interface) for the full command list.
+Keys are dotted JSON paths and the edits validate through the same parser the app uses. `divot items list|add|remove|move` reorders the `left` and `right` groups, and `divot theme set <family> [--mode]` switches the family and light/dark mode; both reject an invalid item or value and keep the last good file. `divot status --json` is the read-only way to check what the app currently sees: version, running state, Accessibility and Location permissions, the workspace adapter, and the config path and validity. It never grants a permission; a missing one is reported with the System Settings pane to open. See the [configuration reference](../reference/configuration#command-line-interface) for the full command list, or [set up Divot with your AI](./ai-setup) for a copy-pasteable agent prompt.
 
 ## Both sides, one model
 
