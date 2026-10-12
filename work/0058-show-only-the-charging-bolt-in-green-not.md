@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/show-only-the-charging-bolt-in-green-not
 created_at: "2026-10-12T08:36:25Z"
-updated_at: "2026-10-12T09:38:13Z"
+updated_at: "2026-10-12T09:38:46Z"
 ---
 ## Problem
 
@@ -59,3 +59,4 @@ So the packaged app resolves the plain battery outline plus a `bolt.fill` badge 
 - 2026-10-12T09:31:22Z · status ready→active, branch
 - 2026-10-12T09:36:57Z · body: section Observed Results
 - 2026-10-12T09:38:13Z · body: section Observed Results
+- 2026-10-12T09:38:46Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
