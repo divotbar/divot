@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-items-theme-helpers-and-the-ai-setup
 created_at: "2026-10-12T11:39:01Z"
-updated_at: "2026-10-12T12:13:19Z"
+updated_at: "2026-10-12T12:20:50Z"
 ---
 ## Problem
 Reordering items and switching themes are the most common chat requests; users also need a copy-paste way to tell an agent how to drive Divot.
@@ -27,8 +27,21 @@ Reordering items and switching themes are the most common chat requests; users a
 ## Notes for AI
 Builds on #0062; do not claim features that are not implemented.
 
+## Shots
+```json
+[
+{
+  "label": "New “Set up Divot with your AI” guide page",
+  "target": "default",
+  "route": "/guide/ai-setup",
+  "highlight": ".vp-doc"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-12T11:39:01Z · created · njachowski@gmail.com
 - 2026-10-12T12:13:18Z · status inbox→ready
 - 2026-10-12T12:13:19Z · status ready→active, branch
+- 2026-10-12T12:20:50Z · body: section Shots
