@@ -31,6 +31,9 @@ stale-emission rejection for provider cancellation, rapid native-menu-bar
 reveal/hide placement, the default action mapping, and the view-level
 accessibility/render contract.
 
+> Note: this record predates task 0033; the default workload now uses the split
+> `date`/`time` items rather than the combined clock.
+
 The harness reports the build configuration it ran in and warns when it is not
 Release. It leaves the commit, hardware, display configuration, appearance, and
 power source blank unless a person supplies them, and it names the

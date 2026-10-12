@@ -22,11 +22,12 @@ appearance mode, theme family, and whether Accessibility permission was granted.
 ## VoiceOver
 
 - [ ] Launch Divot and turn VoiceOver on. Every bar item is reachable and reads
-      its full label (battery, clock with weekday/date, network, volume,
-      front-app, workspace chips), not just its glyph.
+      its full label (battery, date, time, network, volume, front-app,
+      appearance, workspace chips), not just its glyph.
 - [ ] The reading order matches the visual left/right groups on each display.
 - [ ] Activating an interactive item with `VO-Space` performs the same action as
-      a click: battery toggles keep-awake, network/volume/clock open the matching
+      a click: battery toggles keep-awake, the appearance item toggles Divot's
+      own light/dark rendering, network/volume/date/time items open the matching
       System Settings pane, front-app activates the running app.
 - [ ] The keep-awake state is announced, and turning it on/off updates the
       announcement without a relaunch.

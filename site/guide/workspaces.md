@@ -14,7 +14,7 @@ Native macOS Spaces is researched, not planned. Public APIs expose displays and 
 
 ## Right of the camera
 
-The default status group is battery percentage, a minute clock with weekday and date, network status, and volume. Both sides are configurable, so you can reorder items or move them between groups. The website's Wi-Fi glyph is illustrative of the planned network item.
+The default status group is battery percentage, a minute time, network status, and volume; the optional date item can sit beside the time. Both sides are configurable, so you can reorder items or move them between groups. The website's Wi-Fi glyph is illustrative of the planned network item.
 
 ## A real gap
 

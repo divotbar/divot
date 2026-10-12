@@ -8,7 +8,7 @@ Swift and AppKit, a shallow view hierarchy, cached text/icons, and targeted upda
 
 ## The targets
 
-The initial engineering budgets are below 0.5% of one CPU core at idle, below 50 MiB physical footprint for the default setup, and below 16 ms p95 from event receipt to committed view update. The reference default is the first-launch bar: workspaces and the active app on the left; battery, a clock with weekday and date, network, and volume on the right. These are **targets, not achieved measurements**. A committed update is not the same as a visible frame.
+The initial engineering budgets are below 0.5% of one CPU core at idle, below 50 MiB physical footprint for the default setup, and below 16 ms p95 from event receipt to committed view update. The reference default is the first-launch bar: workspaces and the active app on the left; battery, a minute time, network, and volume on the right (the date item is optional). These are **targets, not achieved measurements**. A committed update is not the same as a visible frame.
 
 ## How we will measure
 
@@ -20,4 +20,4 @@ Physical validation also covers negative display origins, mixed scales, 60/120 H
 
 ## What helps
 
-Use a minute clock, avoid constant graphs when unnecessary, choose opaque material when you prefer it, and enable only useful integrations. The built-in status providers update from system notifications (power, network path, audio, and app activation) and the clock wakes at the next minute boundary, so there is no polling loop; their measured cost is not yet documented and needs the physical performance run.
+Use a minute time, avoid constant graphs when unnecessary, choose opaque material when you prefer it, and enable only useful integrations. The built-in status providers update from system notifications (power, network path, audio, and app activation) and the time wakes at the next minute boundary, so there is no polling loop; their measured cost is not yet documented and needs the physical performance run.
