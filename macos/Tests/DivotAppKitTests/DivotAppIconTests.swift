@@ -34,6 +34,15 @@ private func appIcon(in view: NSView) -> DivotAppIconButton? {
 }
 
 @MainActor
+@Test func appIconButtonUsesTheConfiguredAppIconSize() throws {
+    // The Divot app icon uses the same configured size as the workspace app
+    // icons, which can differ from the status icon size (#0052).
+    let metrics = BarMetrics.scaled(textSize: 14, appIconSize: 22)
+    let button = DivotAppIconButton(metrics: metrics)
+    #expect(button.intrinsicContentSize == NSSize(width: 22, height: 22))
+}
+
+@MainActor
 @Test func appIconButtonIsFocusableLabelledAndHasNoNativeTooltip() {
     let button = DivotAppIconButton()
 

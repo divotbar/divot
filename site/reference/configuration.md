@@ -20,6 +20,9 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `showOccupiedDot` | Boolean | Optional; show the occupied marker on workspace chips (default `true`) |
 | `showEmptyDot` | Boolean | Optional; show the empty marker on workspace chips (default `true`) |
 | `bottomShadow` | Boolean | Optional; draw a drop shadow along the bar's bottom edge (default `false`) |
+| `chipStyle` | Boolean | Optional; draw each item in its own rounded chip (default `false`) |
+| `chipOpacity` | Integer 0–100 | Optional; fade every chip's background (default `0`) |
+| `appIconSize` | Number 8–24 | Optional; point size of the app icons on the left (default `16`, the status icon size) |
 
 The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
@@ -69,7 +72,7 @@ The bar's text size and font are an optional root `text` object. The icon scales
 | `size` | Number 10–20 | `14` | Bar text size in points; icon and chip sizes follow it |
 | `font` | String | `""` | Installed font family name, or `""` for the system font |
 
-`size` is the single knob: the status icon is two points larger and the workspace chip one point smaller, so changing it keeps the row in proportion. `font` accepts any installed font family name; a name that is not installed falls back to the system font at render time rather than failing the load. Settings exposes both controls and applies changes to the bar without a relaunch.
+`size` is the single knob: the status icon is two points larger and the chip font one point smaller, so changing it keeps the row in proportion. The app icons drawn on the left default to the status icon size and are controlled separately by `appIconSize`. `font` accepts any installed font family name; a name that is not installed falls back to the system font at render time rather than failing the load. Settings exposes these controls and applies changes to the bar without a relaunch.
 
 ```json
 "text": { "size": 16, "font": "Helvetica" }
@@ -83,10 +86,26 @@ Divot can show its own mark at the start of the left group, before the workspace
 | --- | --- | --- | --- |
 | `showAppIcon` | Boolean | `false` | Show the Divot mark before the workspaces; clicking it opens Divot settings |
 
-The mark is the same template image as the menu-bar item, so it follows the bar's light and dark theme, and it scales with `text.size`. Settings has a matching toggle, and toggling it updates the bar live.
+The mark is the same template image as the menu-bar item, so it follows the bar's light and dark theme, and it scales with the app icon size. Settings has a matching toggle, and toggling it updates the bar live.
 
 ```json
 "showAppIcon": true
+```
+
+## Chips and opacity
+
+With `chipStyle` on, every item — the workspace chips and the right-side status items — sits in its own rounded chip with the same padding and theme colour. Off (the default), items blend together and the workspace chips draw no background, so the focused workspace is shown by its semibold title rather than a box. `chipOpacity` fades the background of every chip on the bar; `0` keeps the current appearance and `100` makes the chip background match the bar background, leaving only the content. `appIconSize` sets the point size (8–24) of the app icons drawn on the left: the per-workspace app icons and the Divot mark. It defaults to `16`, the status icon size, so the left icons match the right-side ones.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `chipStyle` | Boolean | `false` | Draw each item in its own rounded chip |
+| `chipOpacity` | Integer 0–100 | `0` | Fade every chip's background; `100` matches the bar background |
+| `appIconSize` | Number 8–24 | `16` | Point size of the app icons on the left (workspace chips and the Divot mark) |
+
+```json
+"chipStyle": true,
+"chipOpacity": 40,
+"appIconSize": 18
 ```
 
 ## Workspace markers

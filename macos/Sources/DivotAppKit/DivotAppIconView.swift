@@ -50,7 +50,7 @@ final class DivotAppIconButton: NSButton {
     }
 
     override var intrinsicContentSize: NSSize {
-        NSSize(width: metrics.iconSize, height: metrics.iconSize)
+        NSSize(width: metrics.appIconSize, height: metrics.appIconSize)
     }
 
     /// Re-color for a new theme without re-reading the asset.
@@ -60,7 +60,7 @@ final class DivotAppIconButton: NSButton {
     }
 
     private func applyIcon() {
-        let mark = DivotMenuBarMark.image(pointSize: metrics.iconSize)
+        let mark = DivotMenuBarMark.image(pointSize: metrics.appIconSize)
         // The mark is already a template image; keep it explicit so the tint
         // below is what carries the theme color.
         mark?.isTemplate = true

@@ -122,6 +122,36 @@ private func firstChip(_ id: String, in view: NSView) -> NSButton? {
 }
 
 @MainActor
+@Test func workspaceChipAppIconsUseTheConfiguredAppIconSize() async {
+    let apps = [WorkspaceApp(identity: .init(bundleID: "com.apple.Safari", name: "Safari"), pid: 1, windowID: 1)]
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), apps: apps)])
+
+    // The left app icons use the configured size, which can differ from the
+    // status icon size (#0052).
+    let metrics = BarMetrics.scaled(textSize: 14, appIconSize: 22)
+    let feed = WorkspaceFeed()
+    let view = WorkspaceBarView(feed: feed, icons: SolidIconProvider(), displayScreensID: nil, metrics: metrics)
+    view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
+    feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+               eventSourceProvider: nil,
+               options: .init(showAppIcons: true))
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let chip = try! #require(firstChip("1", in: view))
+    var attachmentBounds: CGRect?
+    chip.attributedTitle.enumerateAttribute(.attachment,
+                                            in: NSRange(location: 0, length: chip.attributedTitle.length)) { value, _, _ in
+        if let attachment = value as? NSTextAttachment, attachmentBounds == nil {
+            attachmentBounds = attachment.bounds
+        }
+    }
+    #expect(attachmentBounds?.width == 22)
+    #expect(attachmentBounds?.height == 22)
+}
+
+@MainActor
 private func uniqueColors(in image: NSImage) -> Int {
     guard let tiff = image.tiffRepresentation, let representation = NSBitmapImageRep(data: tiff) else { return 0 }
     var colors = Set<String>()
@@ -138,7 +168,11 @@ private func uniqueColors(in image: NSImage) -> Int {
 @MainActor
 @Test func workspaceBarViewDrawsContentBeyondTheChrome() async {
     let feed = WorkspaceFeed()
-    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil)
+    // Chips on so the focused workspace draws a background; this test verifies
+    // the view renders content beyond the segment chrome, not the chip policy
+    // (#0052).
+    let view = WorkspaceBarView(feed: feed, icons: NoIconProvider(), displayScreensID: nil,
+                                enablesChipStyle: true)
     view.frame = NSRect(x: 0, y: 0, width: 400, height: 32)
     view.wantsLayer = true
 
