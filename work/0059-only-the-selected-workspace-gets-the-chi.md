@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 46417
-last_close_out_gate_at: "2026-10-12T09:30:05.530Z"
 id: "0059"
 title: Only the selected workspace gets the chip; match other chips' style and size
 type: bug
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: bb67e77ffb885913742a895ef5cf3c65afc65884
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/only-the-selected-workspace-gets-the-chi
 created_at: "2026-10-12T09:13:35Z"
-updated_at: "2026-10-12T09:30:05Z"
+updated_at: "2026-10-12T09:30:07Z"
+last_close_out_gate_ms: 46417
+last_close_out_gate_at: "2026-10-12T09:30:05.530Z"
 review_passes: 2
 ---
 ## Problem
@@ -47,4 +48,4 @@ Look at the workspace chip drawing in macos/Sources/DivotAppKit (WidgetViews.swi
 - 2026-10-12T09:27:17Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T09:28:24Z · note: review pass 2: good to go
 - 2026-10-12T09:30:05Z · close-out gate completed in 46s
-
+- 2026-10-12T09:30:07Z · status review→done, release:success
