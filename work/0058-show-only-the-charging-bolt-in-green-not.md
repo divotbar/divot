@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/show-only-the-charging-bolt-in-green-not
 created_at: "2026-10-12T08:36:25Z"
-updated_at: "2026-10-12T10:51:54Z"
+updated_at: "2026-10-12T10:52:13Z"
 review_passes: 1
 ---
 ## Problem
@@ -67,3 +67,4 @@ So the packaged app resolves the plain battery outline plus a `bolt.fill` badge 
 - 2026-10-12T09:39:49Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T10:51:53Z · status active→review
 - 2026-10-12T10:51:54Z · note: handoff requested (cli)
+- 2026-10-12T10:52:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
