@@ -12,7 +12,7 @@ swift test --package-path macos
 
 No default web telemetry or third-party fonts. Keep the native bar free of web views and SwiftUI; SwiftUI is allowed for settings. Never put subprocess work, file reads, or network requests on the main thread. Prefer small, explicit interfaces and system frameworks to dependencies.
 
-For task work use the assigned branch/worktree, update affected docs, run `repoos check`, then request review. Human approval and RepoOS own landing. Do not manually edit `work/*.md` or move a task to done as a substitute for close-out.
+For task work use the assigned branch/worktree, update affected docs **and** the matching `site/` pages in the same change (or say in the task why no docs change applies), run `repoos check`, then request review. Human approval and RepoOS own landing. Do not manually edit `work/*.md` or move a task to done as a substitute for close-out.
 
 A real-device QA matrix and signing proof are release requirements, not outcomes an AI may invent. Report test machine, OS, commit, widget set, measurement method, and limitations with every performance result.
 
