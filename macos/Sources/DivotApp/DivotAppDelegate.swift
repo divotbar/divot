@@ -40,6 +40,11 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// The manager the running workspace feed was started with, so a config
     /// change applies options without re-probing and a re-added item restarts.
     private var startedWorkspaceManager: WorkspaceManagerKind?
+    /// The one-shot Accessibility prompt check. It is a value because the
+    /// "already requested this launch" latch lives inside it; every later call
+    /// after the first eligible one is a no-op, so a refused grant can never
+    /// loop the prompt.
+    private var accessibilityPrompt = AccessibilityPermissionPrompt()
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -127,6 +132,12 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         // the bar, an invalid one reports its field error and changes nothing.
         controller.reloadAsync()
         controller.startWatching()
+
+        // Ask the system to prompt for Accessibility at most once per launch and
+        // only when untrusted, so the notched-display probe can resolve instead
+        // of staying indeterminate. The check itself decides; it is not tied to
+        // any observation so a refused grant never re-asks.
+        accessibilityPrompt.requestPromptIfNeeded()
 
         if !coordinator.accessibilityPermissionGranted {
             // Reported once at launch; the notched-display detector stays
