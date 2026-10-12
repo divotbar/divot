@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-12T16:07:21Z"
-review_passes: 3
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
@@ -13,7 +11,11 @@ area: infra
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
+cli_override: claude code
+model_override: default
 created_at: "2026-10-12T14:36:53Z"
+updated_at: "2026-10-12T16:08:30Z"
+review_passes: 3
 check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 review_rounds: 2
@@ -72,4 +74,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:01:53Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T16:07:20Z · note: review pass 5: needs some work
 - 2026-10-12T16:07:20Z · needs_input
-
+- 2026-10-12T16:08:30Z · cli_override, model_override
