@@ -2,7 +2,7 @@
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
-status: review
+status: active
 priority: p1
 area: [macos, docs]
 assigned_to: ""
