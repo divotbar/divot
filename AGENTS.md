@@ -28,8 +28,9 @@ For a RepoOS-managed task runner:
 2. Work in the task branch and dedicated worktree RepoOS assigned. The server
    owns activation and worktree setup; do not claim another task or edit its
    frontmatter directly.
-3. Implement the task, update directly affected docs, and run
-   `repoos check --changed main`. It must pass before handoff.
+3. Implement the task, update the docs and public site it affects (see
+   **Definition of done**), and run `repoos check --changed main`. It must pass
+   before handoff.
 4. Request handoff with `repoos mv <id> review` or finish your reply with
    `::repoos-handoff-ready::`, then end your turn. In your own runner session,
    both record a request without changing status. RepoOS commits the branch,
@@ -45,6 +46,17 @@ close-out — check `.repoos/locks/<id>.json` if unsure. Outside a managed
 runner, `repoos mv <id> review` writes metadata that the server intercepts
 asynchronously; wait for finalization, not just the CLI command's return.
 Runner-only signals do not apply there.
+
+## Definition of done
+
+A change to user-visible behaviour, settings, defaults, install steps, or the
+CLI is not done until it updates **both** `docs/` and the matching `site/`
+pages (the guide, `site/reference/configuration.md`, and the landing page) in
+the same branch. If no docs change applies, the task says so and why. Public
+copy distinguishes implemented from planned behaviour and never invents
+release links or availability. `scripts/docs-drift.ts`, run by `bun run check`,
+fails a native-configuration change that does not update the configuration
+reference and contract.
 
 ## Review and sign-off
 

@@ -8,7 +8,7 @@
 | `site/` | Landing page, public guides, reference, contributor docs |
 | `docs/` | Product/engineering requirements and ADRs |
 | `examples/` | Proposed versioned configuration examples |
-| `scripts/` | Local configuration checks |
+| `scripts/` | Local configuration and docs-drift checks |
 | `work/` | RepoOS task records; CLI/API writes only |
 | `.github/workflows/` | CI templates, active when hosted on GitHub |
 
@@ -32,7 +32,7 @@ scripts/smoke-app-bundle.sh   # package + verify + launch the bundled executable
 repoos check
 ```
 
-The RepoOS plan declares web configuration validation/static build, native core tests, an app build gate (`native-app`), and a local preview package-and-launch gate (`native-app-bundle`). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md) and the [local preview](local-preview.md).
+The RepoOS plan declares web configuration validation/static build, native core tests, an app build gate (`native-app`), and a local preview package-and-launch gate (`native-app-bundle`). `bun run check` also runs `scripts/docs-drift.ts`, which fails a native configuration-source change that does not update `docs/configuration.md` and `site/reference/configuration.md` (`DOCS_DRIFT_ALLOW=1` overrides it when a task records why no docs change applies). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md) and the [local preview](local-preview.md).
 
 ## Continuous integration
 
