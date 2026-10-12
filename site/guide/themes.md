@@ -25,7 +25,7 @@ Each variant is tested against a per-role contrast floor: body text clears WCAG 
 
 ## Appearance
 
-`appearance.mode` values are `system`, `dark`, and `light`. `system` follows the Mac's appearance; an explicit override applies app-wide, so the bar, settings window, menus, and popovers agree. Changing family or mode invalidates appearance-dependent caches only and does not restart providers. An accent must be a six-digit hex color such as `#B7CEFF`; leaving it at the built-in default uses each family's signature accent.
+`appearance.mode` values are `system`, `dark`, and `light`. `system` follows the Mac's appearance; an explicit override applies app-wide, so the bar, settings window, menus, and popovers agree. Changing family or mode invalidates appearance-dependent caches only and does not restart providers. An accent must be a six-digit hex color such as `#B7CEFF`; leaving it at the built-in default uses each family's signature accent. From the command line, `divot theme set gruvbox --mode dark` writes the same fields, `divot theme show --json` reads them back, and omitting `--mode` keeps the current mode.
 
 ## Custom palette overrides
 

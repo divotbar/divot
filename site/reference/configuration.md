@@ -225,12 +225,18 @@ divot config set widgets.time.seconds true
 divot config set layout.height 30 --dry-run --diff
 divot config unset keepAwake.remember
 divot config validate --file ./config.json
+divot items list --json
+divot items add date --side left --at 0
+divot items move workspaces --side right
+divot theme set gruvbox --mode dark
 divot status --json                 # app, permissions, workspace adapter, config
 ```
 
 Keys are dotted JSON paths (`appearance.mode`, `layout.leftItemSpacing`, `widgets.workspaces.showAppIcons`, `menuBar.alwaysBelow`). `schema --json` describes every documented field above and is generated from the same model the loader and Settings UI use, so the list cannot drift. An invalid edit names the field and its valid values (`layout.height: expected 24–40`). `set` validates before writing, `--dry-run` validates without writing, and `--diff` shows the changed lines. `unset` restores the declared default (removing it from the file when the default is omitted). Exit codes: `0` success, `1` invalid value or file, `2` usage error.
 
 `divot status --json` reports the app version, whether a Divot app instance is running, the Accessibility and Location permission readings, the detected workspace adapter (AeroSpace or yabai, with every supported manager found and where the choice came from), and the config path with its validity and migration state. It is read-only: it never prompts for or grants a permission, launches the app, or writes a file. A missing permission is reported with the System Settings pane to open — `Privacy & Security › Accessibility` or `Privacy & Security › Location Services` — and an invalid config is listed as a problem, noting that the running app keeps the last valid configuration. The plain form is the same reading in words; `--json` is for scripts and agents.
+
+The `items` and `theme` subcommands are focused helpers over the same `left`/`right` and `appearance` fields, for the two edits that come up most. `divot items list|add|remove|move` reads and writes the ordered groups: `add` appends to the right unless `--side` says otherwise, `move` keeps the item's current side unless `--side` is given, `--at` names a zero-based slot, and removing an item also clears its per-item options so the document stays valid. An unknown or legacy (`clock`) spelling, adding an item that is already placed, and an `--at` outside the destination group are refused. `divot theme set <family> [--mode system|dark|light]` validates through the same schema as `divot config set appearance.family`/`appearance.mode` and keeps the current mode when `--mode` is omitted. Both write atomically through the same store and use the same exit codes: `0` success, `1` invalid item/value or file, `2` usage error. There is a copy-pasteable ["set up Divot with your AI"](/guide/ai-setup) prompt built on `divot config schema --json` and `divot status --json`.
 
 ## Invalid reloads
 
