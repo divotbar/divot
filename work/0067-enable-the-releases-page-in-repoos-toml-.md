@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T16:12:08Z"
+review_passes: 4
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
@@ -16,8 +18,6 @@ model_override: sonnet
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T16:12:08Z"
-review_passes: 3
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 review_rounds: 2
 ---
@@ -84,3 +84,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:12:08Z · note: review pass 6: needs some work
 - 2026-10-12T16:12:08Z · needs_input
 - 2026-10-12T16:12:08Z · needs_input
+
