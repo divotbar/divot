@@ -2,13 +2,13 @@
 id: "0068"
 title: "Deploy the site via git-connected Cloudflare Workers (main dev, prod production) and enable the Deployments page"
 type: chore
-status: ready
+status: active
 priority: p1
 area: [infra, web]
 depends_on: ["0067"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/deploy-the-site-via-git-connected-cloudf
 cli_override: claude
 model_override: sonnet
 created_at: "2026-10-12T14:43:34Z"
@@ -36,3 +36,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 - 2026-10-12T14:43:34Z · created · njachowski@gmail.com
 - 2026-10-12T17:20:27Z · cli_override, model_override
 - 2026-10-12T17:25:20Z · status inbox→ready
+- 2026-10-12T17:25:20Z · status ready→active, branch
