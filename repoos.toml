@@ -122,3 +122,44 @@ name = "divot"
 kind = "process"
 command = "swift run --package-path macos divot"
 label = "Divot bar"
+
+# Product releases are opt-in (#0067). Pushing an annotated v<version> tag from
+# clean main triggers .github/workflows/release.yml, which builds the DMG and
+# creates the GitHub Release. RepoOS reads the committed semantic version from
+# package.json; the root VERSION file is the separate local-preview version used
+# by scripts/package-app.sh, and the two stay at the same number until the
+# preview becomes a real release. See docs/infrastructure.md.
+[release]
+enabled = true
+provider = "git-tag"
+name = "Publish Divot"
+branch = "main"
+versionFile = "package.json"
+tagPrefix = "v"
+remote = "origin"
+repository = "divotbar/divot"
+workflow = ".github/workflows/release.yml"
+
+# Where end users install a release from; rendered as the Releases page's
+# "Published to" summary. Each channel's published version is checked against
+# the release being viewed over a credential-free public endpoint, so an outage
+# stays on its own row and never hides the others. These are install channels,
+# not deploy environments: there are deliberately no [[deployments]] rows here
+# until the maintainer supplies the Cloudflare values (a separate task).
+[[distribution]]
+name = "GitHub Releases"
+kind = "github-release"
+repository = "divotbar/divot"
+url = "https://github.com/divotbar/divot/releases/tag/{tag}"
+install = ["Download Divot.dmg from the GitHub release then drag Divot.app into Applications"]
+
+[[distribution]]
+name = "Homebrew"
+kind = "homebrew"
+package = "divotbar/tap/divot"
+url = "https://github.com/divotbar/homebrew-tap/blob/main/Casks/divot.rb"
+versionUrl = "https://raw.githubusercontent.com/divotbar/homebrew-tap/main/Casks/divot.rb"
+# The cask declares its version on a `version "x.y.z"` line; this tells RepoOS's
+# public, read-only status check how to read that same line.
+versionRegex = 'version\s+"([^"]+)"'
+install = ["brew install --cask divotbar/tap/divot"]
