@@ -144,8 +144,7 @@ workflow = ".github/workflows/release.yml"
 # "Published to" summary. Each channel's published version is checked against
 # the release being viewed over a credential-free public endpoint, so an outage
 # stays on its own row and never hides the others. These are install channels,
-# not deploy environments: there are deliberately no [[deployments]] rows here
-# until the maintainer supplies the Cloudflare values (a separate task).
+# not deploy environments; hosting is tracked by the deployments block below.
 [[distribution]]
 name = "GitHub Releases"
 kind = "github-release"
@@ -163,3 +162,27 @@ versionUrl = "https://raw.githubusercontent.com/divotbar/homebrew-tap/main/Casks
 # public, read-only status check how to read that same line.
 versionRegex = 'version\s+"([^"]+)"'
 install = ["brew install --cask divotbar/tap/divot"]
+
+# Deployed surfaces (#0068) for RepoOS's Deployments page. The site is one
+# Cloudflare Worker (`divot-site`) connected to this git repository; pushing to
+# `main` publishes the dev site, and fast-forwarding `main` into `prod`
+# publishes production at https://divotbar.app. `subdir` scopes RepoOS's
+# freshness lookup to the site's source, so a native-only change does not read
+# as a site deploy. `dashboard_url` is account-specific and cannot be derived;
+# the maintainer pastes it per row once the Cloudflare setup exists.
+# See docs/infrastructure.md.
+[[deployments]]
+name = "Site (prod)"
+service = "Site"
+branch = "prod"
+provider = "cloudflare-workers"
+url = "https://divotbar.app"
+subdir = "site"
+
+[[deployments]]
+name = "Site (dev)"
+service = "Site"
+branch = "main"
+provider = "cloudflare-workers"
+url = "https://main-divot-site.njachowski.workers.dev"
+subdir = "site"

@@ -41,31 +41,33 @@ Web CI runs on Linux with Bun and uploads the static output. Core CI runs on a m
 
 ## Static hosting and deployment
 
-The site builds to `site/.vitepress/dist/` and deploys to Cloudflare Pages at https://divotbar.app via GitHub Actions. The workflow (`.github/workflows/site.yml`) runs on pushes to main and can be triggered manually. Pull requests trigger a dry-run build without deployment.
+The site builds to `site/.vitepress/dist/` and is deployed to **Cloudflare Workers** (static assets) as the `divot-site` Worker. `wrangler.jsonc` at the repository root declares the pure static-assets config — no Worker script — with `assets.directory` `./site/.vitepress/dist` and `not_found_handling` `404-page`. Cloudflare's git-connected build runs `bun install && bun run build` and deploys the output, so there is no GitHub Actions deploy job: `.github/workflows/site.yml` only builds the site (on pull requests and pushes to `main`) and uploads the static output as a debugging artifact.
+
+Branch convention, matching the RepoOS sites:
+
+| Branch | Environment | Domain |
+| --- | --- | --- |
+| `main` | dev/staging | `https://main-divot-site.njachowski.workers.dev` |
+| `prod` | production | `https://divotbar.app` |
+
+`main` is the working branch and publishes the dev site on every push. `prod` advances **only** by an infrequent, deliberate fast-forward merge of `main` — production never moves on its own. RepoOS's Deployments page renders both rows from the `[[deployments]]` block in `repoos.toml` and can run the push/fast-forward itself.
 
 ### One-time setup (maintainer only)
 
-1. **Create a Cloudflare Pages project:**
-   - Log in to https://dash.cloudflare.com
-   - Go to Workers & Pages
-   - Create a new Pages project named `divotbar`
-   - Select "Direct upload" and upload the built `site/.vitepress/dist/` directory once to initialize the project
+1. **Create a git-connected Worker:**
+   - Log in to https://dash.cloudflare.com and go to Workers & Pages → Create → Connect to Git
+   - Select this repository. Cloudflare's current flow creates git-connected static sites as Workers driven by `wrangler.jsonc`, not the older "Pages project" direct-upload flow — there is no root-directory/output-directory pair to fill in.
+2. **Build settings (Advanced):**
+   - **Build command:** `bun install && bun run build`
+   - **Deploy command:** leave the default (`npx wrangler deploy`)
+   - **Path:** the repository root — `package.json` and `wrangler.jsonc` both live there, so no subdirectory override is needed
+   - **Production branch:** `prod`
+   - **Builds for non-production branches:** on (so `main` publishes the dev URL)
+   - Let Cloudflare auto-create the API token; no manual secret is needed
+3. **Add the custom domain:** in the production environment, add `divotbar.app` and follow Cloudflare's DNS steps.
+4. **Paste the dashboard URL:** each `[[deployments]]` row in `repoos.toml` has an empty `dashboard_url`; paste the account-specific Worker dashboard link (visible in the dash.cloudflare.com URL) once the Worker exists.
 
-2. **Add the custom domain:**
-   - In the Pages project settings, add the custom domain `divotbar.app`
-   - Follow Cloudflare's DNS configuration steps (or update the nameservers if the domain's registrar is Cloudflare)
-
-3. **Create GitHub secrets:**
-   - Go to the repository Settings → Secrets and variables → Actions
-   - Add `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID (visible in the dash.cloudflare.com URL or account settings)
-   - Add `CLOUDFLARE_API_TOKEN`: a scoped API token with Cloudflare Pages access
-     - Create at https://dash.cloudflare.com/profile/api-tokens
-     - Use the "Edit Cloudflare Workers" template or create a custom token with `Pages:Edit` permission
-   - The workflow will skip deploy with a clear message if these secrets are missing
-
-4. **Verify the deployment:**
-   - After the first push to main, the workflow will deploy to https://divotbar.app
-   - Check the Actions tab to monitor the build and deploy job
+The **first deploy is a human step**: the maintainer verifies it after the Cloudflare setup above. This repository does not claim a working deployment until then. Verify the config locally with `bun run build && bunx wrangler deploy --dry-run` (this needs wrangler; skip it when offline).
 
 ### Configuration
 
@@ -158,14 +160,17 @@ a tag by hand: RepoOS writes the version into `package.json` and pushes the
 matching `v<version>` tag, so the manifest and the tag agree — a hand-pushed tag
 that disagrees would confuse the release view. The release and distribution keys
 are set in `repoos.toml` — there is no RepoOS Settings-window control for them,
-so the Settings page is not a place to edit them. **No `[[deployments]]` rows**
-are declared: the Deployments surface needs Cloudflare account/project values the
-maintainer has not supplied yet (a separate task). No tag or release exists yet,
-so the Releases page shows its empty state. This is a maintainer-facing RepoOS
-surface, so no `site/` page changes: the public install guide already covers the
-download and Homebrew commands, and it must not claim availability before a
-release exists. Whether the nav entry renders is verified by RepoOS when the
-server loads `repoos.toml`; `bun run check` only validates the config shape.
+so the Settings page is not a place to edit them. The `[[deployments]]` rows
+(#0068) instead cover hosting: **Site (dev)** on `main` and **Site (prod)** on
+`prod`, both `cloudflare-workers`, with `subdir = "site"` scoping RepoOS's
+freshness lookup to the site's source and `dashboard_url` left blank for the
+maintainer to paste; see [Static hosting and
+deployment](#static-hosting-and-deployment). Like the Releases surface, this is
+maintainer-facing infrastructure, so no `site/` page changes: the public site
+documents the product, not the pipeline. No tag or release exists yet, so the
+Releases page shows its empty state. Whether a nav entry renders is verified by
+RepoOS when the server loads `repoos.toml`; `bun run check` only validates the
+config shape.
 
 ### Public install guide
 
