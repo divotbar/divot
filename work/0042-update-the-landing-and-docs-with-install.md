@@ -2,12 +2,12 @@
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
-status: ready
+status: active
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
 updated_at: "2026-10-12T13:23:46Z"
 ---
@@ -37,3 +37,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
 - 2026-10-12T13:23:45Z · body: section Acceptance criteria
 - 2026-10-12T13:23:46Z · status inbox→ready
+- 2026-10-12T13:23:46Z · status ready→active, branch
