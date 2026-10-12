@@ -1,0 +1,39 @@
+# Validates the cask on every change. The cask is only installable after the
+# first release; until then the update workflow (.github/workflows/divot-release.yml)
+# replaces the placeholders and audits the cask.
+name: Cask CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+jobs:
+  syntax:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@f8d4222eb633e65c2a0157383cf80861fc7fae7f # 2026.09.07.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tap syntax
+        run: brew test-bot --only-tap-syntax
+
+      - name: Style and audit cask
+        env:
+          TAP_NAME: ${{ steps.set-up-homebrew.outputs.tap-name }}
+        run: |
+          brew style --cask "$TAP_NAME/divot"
+          brew audit --cask "$TAP_NAME/divot"
