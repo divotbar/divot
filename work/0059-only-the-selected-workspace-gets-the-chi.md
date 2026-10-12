@@ -12,7 +12,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T09:13:35Z"
-updated_at: "2026-10-12T09:13:35Z"
+updated_at: "2026-10-12T09:13:38Z"
 ---
 ## Problem
 The bar draws every workspace (1, 2, 3) as a chip all the time. Only the selected workspace should have the chip style; unselected workspaces are plain number + app icons. (Maintainer screenshot 2026-10-12: all three workspaces are blue chips; the right-side RepoOS Hub chip is visibly larger than the workspace chips.)
@@ -28,7 +28,11 @@ The bar draws every workspace (1, 2, 3) as a chip all the time. Only the selecte
 - Chip opacity setting still applies to all chips.
 - Maintainer confirms by eye on the packaged app.
 
+## Notes for AI
+Look at the workspace chip drawing in macos/Sources/DivotAppKit (WidgetViews.swift) and BarMetrics. #0030, #0047 and #0052 touched this; the selected-only behaviour regressed or was never applied. Reuse the right-side chip metrics rather than new constants.
+
 ## Activity
 
 - 2026-10-12T09:13:35Z · created · njachowski@gmail.com
 - 2026-10-12T09:13:35Z · needs_input
+- 2026-10-12T09:13:38Z · body: section Notes for AI
