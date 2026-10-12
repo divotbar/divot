@@ -2,7 +2,7 @@
 id: "0059"
 title: Only the selected workspace gets the chip; match other chips' style and size
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -41,4 +41,4 @@ Look at the workspace chip drawing in macos/Sources/DivotAppKit (WidgetViews.swi
 - 2026-10-12T09:25:00Z · note: review pass 1: good to go
 - 2026-10-12T09:25:27Z · status review→active
 - 2026-10-12T09:25:27Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-12T09:27:17Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T09:27:17Z · status active→review
