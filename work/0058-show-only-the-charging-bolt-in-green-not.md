@@ -2,7 +2,7 @@
 id: "0058"
 title: "Show only the charging bolt in green, not the battery outline"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0057"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/show-only-the-charging-bolt-in-green-not
 created_at: "2026-10-12T08:36:25Z"
-updated_at: "2026-10-12T09:31:22Z"
+updated_at: "2026-10-12T09:38:46Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Depends on the icon-size task, which changes the same battery symbol drawing.
 - 2026-10-12T08:36:28Z · depends_on
 - 2026-10-12T09:31:21Z · status inbox→ready
 - 2026-10-12T09:31:22Z · status ready→active, branch
+- 2026-10-12T09:38:46Z · status active→review
