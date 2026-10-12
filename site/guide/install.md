@@ -20,13 +20,15 @@ You can still [build and run a local preview from source](./build) today.
 
 ## Download and verify
 
+<div v-if="FIRST_RELEASE_PUBLISHED">
+
 Every published release attaches two files to its GitHub Release:
 
 - `Divot.dmg` — the disk image. Open it and drag **Divot** into your
   Applications folder. It includes an `Applications` shortcut for exactly that.
 - `Divot.dmg.sha256` — the SHA-256 checksum of the DMG.
 
-To verify a download before opening it:
+To verify the download before opening it:
 
 ```sh
 cd ~/Downloads
@@ -36,6 +38,18 @@ shasum -a 256 -c Divot.dmg.sha256
 A line ending in `Divot.dmg: OK` means the file matches the checksum published
 with the release. Download only from this project's GitHub Releases — never a
 mirror or a re-uploaded copy.
+
+</div>
+
+<div v-else>
+
+The first release is not published yet, so there is no disk image and no
+checksum file to verify. Each release will publish `Divot.dmg` together with
+its `Divot.dmg.sha256` checksum, and this section will then show the exact
+`shasum` command to check the download. Get builds only from this project's
+GitHub Releases — never a mirror or a re-uploaded copy.
+
+</div>
 
 Requirements: macOS 26+ on Apple silicon.
 
