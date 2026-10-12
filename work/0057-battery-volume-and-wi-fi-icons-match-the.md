@@ -2,14 +2,14 @@
 id: "0057"
 title: "Battery, volume and Wi-Fi icons match the native menu bar icon size"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-volume-and-wi-fi-icons-match-the
 created_at: "2026-10-12T08:36:24Z"
-updated_at: "2026-10-12T08:36:31Z"
+updated_at: "2026-10-12T08:47:54Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ Keep the change to these three icons' symbol sizing. Do not change spacing or al
 - 2026-10-12T08:36:24Z · created · njachowski@gmail.com
 - 2026-10-12T08:36:31Z · status inbox→ready
 - 2026-10-12T08:36:31Z · status ready→active, branch
+- 2026-10-12T08:47:54Z · status active→review
