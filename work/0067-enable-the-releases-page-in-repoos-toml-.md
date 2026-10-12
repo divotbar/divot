@@ -3,9 +3,6 @@ id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
 status: active
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: infra
 assigned_to: ""
@@ -16,7 +13,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: claude code
 review_model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T16:38:24Z"
+updated_at: "2026-10-12T16:38:30Z"
 review_passes: 4
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 review_rounds: 2
@@ -90,3 +87,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:29:04Z · message_queued at 2026-10-12T16:29:04.692Z
 - 2026-10-12T16:29:04Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-12T16:38:24Z · cli_override, model_override
+- 2026-10-12T16:38:30Z · needs_input
