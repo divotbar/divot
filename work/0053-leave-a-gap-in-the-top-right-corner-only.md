@@ -1,19 +1,16 @@
 ---
-updated_at: "2026-10-12T08:36:47Z"
-review_passes: 3
 id: "0053"
 title: Leave a gap in the top-right corner only while the camera or mic is in use
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/leave-a-gap-in-the-top-right-corner-only
 created_at: "2026-10-12T08:20:42Z"
+updated_at: "2026-10-12T09:06:10Z"
+review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -65,4 +62,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T08:35:50Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:36:47Z · note: review pass 3: needs some work
 - 2026-10-12T08:36:47Z · needs_input
-
+- 2026-10-12T09:06:10Z · needs_input
