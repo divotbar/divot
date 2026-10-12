@@ -275,10 +275,11 @@ private final class MockFrontAppReading: FrontAppReading {
 }
 
 /// The cup means "Divot is holding its own assertion right now", never "some
-/// app is keeping the Mac awake". A call can hold the microphone and speaker
-/// sleep assertions while Divot's toggle is off; the battery item must stay
-/// cup-free through those power notifications and only draw the cup once
-/// Divot's own assertion is on.
+/// app is keeping the Mac awake". The battery provider never inspects system
+/// sleep state: its only keep-awake input is Divot's own controller, so a
+/// power-source refresh (the kind that arrives while a call holds the mic and
+/// speaker sleep assertions) still leaves the item cup-free until Divot's own
+/// assertion is on.
 @Test func batteryProviderShowsTheCupOnlyForDivotsOwnAssertion() {
     let reading = MockBatteryReading()
     // A plugged-in, charging power source is typical of an active call and is
