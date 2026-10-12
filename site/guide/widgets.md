@@ -15,7 +15,7 @@ The native providers below are implemented and unit-tested in the Swift package,
 | `battery` | right | Charge and power state; click toggles keep-awake | System power notifications |
 | `date` | off by default | Local date | Emits immediately, then at each day boundary |
 | `time` | right | Local time | Emits immediately, then at each minute boundary by default; seconds optional |
-| `network` | right | Wi-Fi/network status | Network path notifications |
+| `network` | right | Wi-Fi/network status; click opens the read-only Wi-Fi popover | Network path notifications |
 | `volume` | right | Output volume | Audio notifications |
 | `appearance` | off by default | Current light/dark mode (sun or moon); click toggles Divot's own bar theme | System appearance notifications |
 
@@ -35,9 +35,15 @@ A disabled provider removes its observers and cancels outstanding work. A failed
 
 The date, time, battery, volume, and frontmost-app items need no special permission themselves. Divot asks macOS for Accessibility once at launch when it is not already granted, because the notched-display menu-bar probe uses it; denying it leaves the rest of the bar running. The network item can optionally display the current Wi-Fi network name (SSID); this feature requires Location permission on macOS and is only requested when the user turns the toggle on. If permission is denied, the Settings row says so and links to the Location Services pane while the bar shows the icon only.
 
+Listing nearby networks in the Wi-Fi popover also needs Location permission, because macOS gates network names on it. Divot does not prompt from the popover: without permission it shows a short message and a button that opens **System Settings → Privacy & Security → Location Services**, rather than an empty list.
+
 ## Click behavior
 
-Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; and the date, time, network, and volume items open the matching System Settings pane. The network item opens System Settings › Wi-Fi directly (falling back to the generic Network pane if that link cannot be opened). The other pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
+Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; the date, time, and volume items open the matching System Settings pane; and the network item opens a read-only Wi-Fi popover.
+
+The Wi-Fi popover lists the nearby networks with their signal and a lock for secured ones, marks the connected network, and ends with **Open Wi-Fi Settings…**, which opens System Settings › Wi-Fi directly (falling back to the generic Network pane if that link cannot be opened). It is read-only: it never joins a network and never asks for a password. Divot scans once each time the popover opens — never on a timer — and the scan runs off the main thread with a timeout, so the popover always settles into a list, an empty state, or an error. This is implemented and unit-tested in the Swift package; the popover on screen is not physically validated yet.
+
+The volume and date/time pane links still need validation on the target OS; a later milestone may replace the volume link with a native control popover.
 
 ## Future script widgets
 

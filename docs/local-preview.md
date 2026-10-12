@@ -247,8 +247,13 @@ observe; leave unobserved items blank rather than marking them done.
 - [ ] VoiceOver and keyboard traversal of every item and the Settings window
       ([accessibility physical checks](accessibility-physical-checks.md)).
 - [ ] Click behavior: battery toggles keep-awake; the appearance item toggles
-      Divot's own light/dark rendering; status items open the intended System
-      Settings pane or activate the frontmost app.
+      Divot's own light/dark rendering; the network item opens the read-only
+      Wi-Fi popover and its last row opens the Wi-Fi pane; the other status items
+      open the intended System Settings pane or activate the frontmost app.
+- [ ] With Location granted for the packaged app, clicking the network item lists
+      the real nearby networks with the current one marked, and with Location
+      denied the popover shows the permission message and its Location Services
+      button instead of an empty list (task 0070, a human step).
 - [ ] Light/dark and all four theme families are readable on real glass.
 - [ ] Release performance on the stable reference machine
       (`divot --bench`, [performance protocol](performance.md)).
