@@ -2,7 +2,7 @@
 id: "0064"
 title: "CLI: items/theme helpers and the AI-setup docs snippet"
 type: feature
-status: active
+status: review
 priority: p2
 area: [macos, docs]
 depends_on: ["0062"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-items-theme-helpers-and-the-ai-setup
 created_at: "2026-10-12T11:39:01Z"
-updated_at: "2026-10-12T12:22:21Z"
+updated_at: "2026-10-12T12:24:02Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -50,3 +50,4 @@ Builds on #0062; do not claim features that are not implemented.
 - 2026-10-12T12:21:28Z · status active→review
 - 2026-10-12T12:22:21Z · note: review pass 1: needs some work
 - 2026-10-12T12:22:21Z · status review→active
+- 2026-10-12T12:24:02Z · status active→review
