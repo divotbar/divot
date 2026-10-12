@@ -5,8 +5,9 @@
 # This is the automated launch gate: it assembles the bundle, checks its
 # structure and Info.plist, verifies the ad-hoc signature and the archive
 # checksum, and then actually runs the bundled Mach-O (`--help`, `--report`,
-# `--widgets`). It never opens a window, changes a security setting, or claims a
-# person looked at the bar. Anything visual stays on the hardware checklist.
+# `--widgets`, and `status --json`). It never opens a window, changes a security
+# setting, or claims a person looked at the bar. Anything visual stays on the
+# hardware checklist.
 #
 # Usage: scripts/smoke-app-bundle.sh [package-app.sh options]
 
@@ -64,6 +65,19 @@ case "$HELP" in
   *) fail "--help did not print usage" ;;
 esac
 pass "bundled app launches (--help)"
+
+# The headless status reading must report the bundled preview version (not the
+# development fallback), so a packaged build proves the app-version field.
+STATUS="$("$APP/Contents/MacOS/divot" status --json)" || fail "status --json exited non-zero"
+case "$STATUS" in
+  *"\"version\" : \"$(plist_value DivotPreviewVersion)\""*) ;;
+  *) fail "status --json did not report the bundled preview version" ;;
+esac
+case "$STATUS" in
+  *'"running" :'*) ;;
+  *) fail "status --json did not report a running state" ;;
+esac
+pass "bundled app reports its version (status --json)"
 
 REPORT="$("$APP/Contents/MacOS/divot" --report)" || fail "--report exited non-zero"
 case "$REPORT" in

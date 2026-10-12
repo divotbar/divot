@@ -28,6 +28,10 @@ yabai is the second adapter, chosen by the same policy as AeroSpace. Divot needs
 
 Both configurable sides, per-item options, layout, the System/Light/Dark variant, and the theme family are implemented and applied by the native app. Theme family colors and custom palettes are validated, saved, and resolved to the bar's semantic tokens. The browser examples and preview remain design artifacts; the local preview runs the real app from source but is not a public release.
 
+## Check what the app sees
+
+Run `divot status --json` for a read-only diagnostic snapshot: the app version, whether a Divot app instance is running, the Accessibility and Location permission readings, the detected workspace adapter (AeroSpace or yabai), and the config path with its validity. The plain `divot status` prints the same facts in words. It never asks for or grants a permission; when Accessibility or Location is missing, the report names the System Settings pane to open (`Privacy & Security › Accessibility` or `Privacy & Security › Location Services`). If the config file is invalid, the status lists the failing field and notes that the running app keeps the last valid configuration. Because the app watches the file, a valid `divot config set` applies without a restart.
+
 ## Report a problem
 
 When repository hosting is provisioned, include OS, hardware, commit, enabled widgets, display layout, expected behavior, actual behavior, and minimal reproduction. Remove secrets from configurations and captures. Performance reports also need the measurement method.
