@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
-updated_at: "2026-10-12T08:46:44Z"
+updated_at: "2026-10-12T08:47:53Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -122,3 +122,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:45:44Z · body: section Fix and evidence
 - 2026-10-12T08:46:44Z · status active→review
 - 2026-10-12T08:46:44Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T08:47:53Z · note: review pass 3: needs some work
