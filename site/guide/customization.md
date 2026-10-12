@@ -10,7 +10,7 @@ The versioned parser, atomic store, file watcher, and settings window are implem
 
 ## One file, one model
 
-The intended location is `~/.config/divot/config.json`. Settings, the `divot config` command, and file customization share the same validated model. Changes apply atomically; an invalid edit leaves the last good configuration running.
+The intended location is `~/.config/divot/config.json`. Settings, the `divot config` command, and file customization share the same validated model. Changes apply atomically, and the running app watches the file, so a valid edit takes effect without a restart; an invalid edit leaves the last good configuration running.
 
 ```json
 {
@@ -35,9 +35,10 @@ divot config schema --json          # every setting with its type, range, and de
 divot config set appearance.family gruvbox
 divot config set widgets.time.seconds true --diff
 divot config unset keepAwake.remember
+divot status --json                 # version, running state, permissions, adapter, config
 ```
 
-Keys are dotted JSON paths and the edits validate through the same parser the app uses. See the [configuration reference](../reference/configuration#command-line-interface) for the full command list.
+Keys are dotted JSON paths and the edits validate through the same parser the app uses. `divot status --json` is the read-only way to check what the app currently sees: version, running state, Accessibility and Location permissions, the workspace adapter, and the config path and validity. It never grants a permission; a missing one is reported with the System Settings pane to open. See the [configuration reference](../reference/configuration#command-line-interface) for the full command list.
 
 ## Both sides, one model
 

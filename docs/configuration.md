@@ -34,7 +34,7 @@ See `examples/default.json`, `examples/focus.json`, `examples/opaque.json`, `exa
 
 ## Command-line interface
 
-The `divot` binary has a `config` subcommand for agents and scripts. It reads and writes the same `~/.config/divot/config.json` document through the same `ConfigurationParser` and `ConfigurationStore` the app and Settings window use, so a value the CLI accepts loads natively and a value it rejects keeps the last good file. Writes are atomic (staged and renamed). The command talks to the file directly: there is no daemon, no network API, and no runtime dependency.
+The `divot` binary has a `config` subcommand for agents and scripts. It reads and writes the same `~/.config/divot/config.json` document through the same `ConfigurationParser` and `ConfigurationStore` the app and Settings window use, so a value the CLI accepts loads natively and a value it rejects keeps the last good file. Writes are atomic (staged and renamed). The running app watches that file's directory, so a `divot config set` takes effect without restarting the app: a valid edit is applied, and an invalid one is refused and the app keeps the last valid configuration. The command talks to the file directly: there is no daemon, no network API, and no runtime dependency.
 
 ```bash
 divot config schema --json          # every setting: key, type, range, default, one-line description
@@ -44,11 +44,14 @@ divot config set widgets.time.seconds true
 divot config set layout.height 30 --dry-run --diff
 divot config unset keepAwake.remember
 divot config validate --file ./config.json
+divot status --json                 # app, permissions, workspace adapter, config
 ```
 
 Keys are dotted JSON paths (`appearance.mode`, `layout.leftItemSpacing`, `widgets.workspaces.showAppIcons`, `menuBar.alwaysBelow`). `schema --json` is generated from `DivotCore.ConfigurationSchema`, the registry wired to the same `DivotConfiguration` fields the loader, store, and Settings UI edit; a test fails if the model serializes a setting with no schema entry, so the documented list cannot go stale. On an invalid edit the CLI names the field and the valid values (`appearance.family: expected native | gruvbox | ayu | dracula | tokyo-night`, `layout.height: expected 24–40`).
 
 `set` validates before it writes; `--dry-run` validates without touching the file and `--diff` shows the changed lines. `unset` restores the setting's declared default, which removes it from the document when the default is omitted. `validate` checks the default file (a missing file is the valid first-launch defaults) or the path passed to `--file`. Exit codes are stable: `0` success, `1` an invalid value or file, `2` a usage error. Use `divot config schema` as the source of truth for what can be set; the corresponding values all live in the versioned contract above.
+
+`divot status --json` is the read-only diagnostics path for an agent or a person. It reports the app version, whether a Divot app instance is running, the Accessibility and Location permission readings, the detected workspace adapter (AeroSpace or yabai, with every supported manager found and where the choice came from), and the config path with its current validity and migration state. The command never prompts for or grants a permission: a missing Accessibility or Location grant is reported with the System Settings pane to open (`Privacy & Security › Accessibility`, `Privacy & Security › Location Services`), and an invalid config is listed as a problem alongside the message that the running app keeps the last valid configuration. It launches no app and writes nothing. Exit codes: `0` for a successful reading, `2` for a usage error.
 
 ## Migration and extension
 

@@ -213,7 +213,7 @@ An options object may set any subset of its options. Built-in defaults: `workspa
 
 ## Command-line interface
 
-The `divot` binary has a `config` subcommand for agents and scripts. It edits the same `~/.config/divot/config.json` document through the same parser and atomic store the app and Settings window use, so a value it accepts loads natively and a value it rejects leaves the last good file in place. There is no daemon, no network API, and no runtime dependency.
+The `divot` binary has a `config` subcommand for agents and scripts. It edits the same `~/.config/divot/config.json` document through the same parser and atomic store the app and Settings window use, so a value it accepts loads natively and a value it rejects leaves the last good file in place. The running app watches the file's directory, so an edit takes effect without a restart: a valid change is applied and an invalid one is refused while the app keeps the last valid configuration. There is no daemon, no network API, and no runtime dependency.
 
 ```bash
 divot config schema --json          # every setting: key, type, range, default, description
@@ -223,9 +223,12 @@ divot config set widgets.time.seconds true
 divot config set layout.height 30 --dry-run --diff
 divot config unset keepAwake.remember
 divot config validate --file ./config.json
+divot status --json                 # app, permissions, workspace adapter, config
 ```
 
 Keys are dotted JSON paths (`appearance.mode`, `layout.leftItemSpacing`, `widgets.workspaces.showAppIcons`, `menuBar.alwaysBelow`). `schema --json` describes every documented field above and is generated from the same model the loader and Settings UI use, so the list cannot drift. An invalid edit names the field and its valid values (`layout.height: expected 24–40`). `set` validates before writing, `--dry-run` validates without writing, and `--diff` shows the changed lines. `unset` restores the declared default (removing it from the file when the default is omitted). Exit codes: `0` success, `1` invalid value or file, `2` usage error.
+
+`divot status --json` reports the app version, whether a Divot app instance is running, the Accessibility and Location permission readings, the detected workspace adapter (AeroSpace or yabai, with every supported manager found and where the choice came from), and the config path with its validity and migration state. It is read-only: it never prompts for or grants a permission, launches the app, or writes a file. A missing permission is reported with the System Settings pane to open — `Privacy & Security › Accessibility` or `Privacy & Security › Location Services` — and an invalid config is listed as a problem, noting that the running app keeps the last valid configuration. The plain form is the same reading in words; `--json` is for scripts and agents.
 
 ## Invalid reloads
 
