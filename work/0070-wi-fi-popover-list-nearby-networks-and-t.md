@@ -1,20 +1,21 @@
 ---
-last_close_out_gate_ms: 53514
-last_close_out_gate_at: "2026-10-12T19:20:13.978Z"
 id: "0070"
 title: "Wi-Fi popover: list nearby networks and the current one (read-only spike)"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
 depends_on: ["0069"]
+merged_commit: 437478d212f0eb14331fd7ffaf2b16da03ae9d0b
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/wi-fi-popover-list-nearby-networks-and-t
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T18:53:13Z"
-updated_at: "2026-10-12T19:20:13Z"
+updated_at: "2026-10-12T19:20:16Z"
+last_close_out_gate_ms: 53514
+last_close_out_gate_at: "2026-10-12T19:20:13.978Z"
 review_passes: 1
 handoff_signal_retry_count: 1
 ---
@@ -62,4 +63,4 @@ Depends on #0069 for the Settings pane URL. Joining networks and password entry 
 - 2026-10-12T19:14:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T19:15:21Z · note: review pass 1: good to go
 - 2026-10-12T19:20:13Z · close-out gate completed in 54s
-
+- 2026-10-12T19:20:16Z · status review→done, release:success
