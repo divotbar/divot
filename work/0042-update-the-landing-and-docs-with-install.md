@@ -70,3 +70,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T14:16:33Z · watchdog: auto-surfaced stuck task · status active→review · agent exited without emitting the handoff signal · next step: the handoff signal may not have been detected — ask the agent to put `::repoos-handoff-ready::` at the start of a line (preferably alone) after checks pass
 - 2026-10-12T14:16:33Z · note: handoff requested (cli)
 - 2026-10-12T14:20:13Z · status active→review
+- 2026-10-12T14:20:13Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
