@@ -27,8 +27,12 @@ appearance mode, theme family, and whether Accessibility permission was granted.
 - [ ] The reading order matches the visual left/right groups on each display.
 - [ ] Activating an interactive item with `VO-Space` performs the same action as
       a click: battery toggles keep-awake, the appearance item toggles Divot's
-      own light/dark rendering, network/volume/date/time items open the matching
-      System Settings pane, front-app activates the running app.
+      own light/dark rendering, the network item opens the read-only Wi-Fi
+      popover (whose last row opens the Wi-Fi pane), volume/date/time items open
+      the matching System Settings pane, front-app activates the running app.
+- [ ] A network row in the Wi-Fi popover is announced with its name, secure/open
+      state, signal bars, and the connected mark rather than as an unlabeled
+      group.
 - [ ] The keep-awake state is announced, and turning it on/off updates the
       announcement without a relaunch.
 - [ ] An unavailable widget (permission denied, failed, no manager) is announced

@@ -26,6 +26,7 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | Provider wrappers | `macos/Sources/DivotAppKit/WidgetProviders.swift` | Clock, front-app, battery, network, volume providers over small reading protocols. |
 | System readings | `macos/Sources/DivotAppKit/System*Reading.swift` | IOKit power sources, `NWPathMonitor`, Core Audio property listeners, `NSWorkspace` front app. |
 | Bar views | `macos/Sources/DivotAppKit/WidgetViews.swift`, `BarPanels.swift` | Per-item views, per-side content, panels; only changed items re-render. |
+| Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
 | App wiring | `macos/Sources/DivotApp/DivotAppDelegate.swift`, `DivotAppWidgetReport.swift` | First-launch defaults, main-actor sink, action handling, `divot --widgets`. |
 
 ## Providers and lifecycle
@@ -83,18 +84,65 @@ spaces.
 
 Divot deliberately does not mirror the system's menu extras. Each item has one
 explicit default action (`WidgetActions`): front-app activates the running app;
-network, volume, and clock open the matching System Settings pane; the battery
-item toggles keep-awake (task 0018), which is a provider action rather than a
-settings link; the workspaces item owns no action here (that is the
-workspace-adapter milestone). The network item opens System Settings › Wi-Fi via
-the macOS 13+ extension id `x-apple.systempreferences:com.apple.wifi-settings-extension`
-(confirmed against the local `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex`
-bundle on macOS 26), and falls back to the legacy generic Network pane
-(`com.apple.preference.network`) when the extension link cannot be opened. The
-volume and clock panes use candidate
-`x-apple.systempreferences:com.apple.preference.*` identifiers and **still need
-validation on the target OS**; a later milestone may replace the volume/network
-links with a native control popover.
+volume and clock open the matching System Settings pane; the battery item toggles
+keep-awake (task 0018), which is a provider action rather than a settings link;
+the workspaces item owns no action here (that is the workspace-adapter
+milestone). The network item opens the read-only Wi-Fi popover below (task 0070);
+its last row opens System Settings › Wi-Fi via the macOS 13+ extension id
+`x-apple.systempreferences:com.apple.wifi-settings-extension` (confirmed against
+the local `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex` bundle on macOS
+26), with the legacy generic Network pane (`com.apple.preference.network`) as the
+fallback when the extension link cannot be opened. The volume and clock panes use
+candidate `x-apple.systempreferences:com.apple.preference.*` identifiers and
+**still need validation on the target OS**; a later milestone may replace the
+volume link with a native control popover.
+
+## Wi-Fi popover (task 0070)
+
+Clicking the network item opens an `NSPopover` anchored to the item
+(`WifiPopover.swift`) that lists nearby networks: SSID, a signal glyph, a lock
+for a secured network, and the connected network marked and pinned first. The
+behavior is read-only — there is no join, no password field, and no network
+configuration. The last row is **Open Wi-Fi Settings…** (the #0069 pane link).
+
+The scan runs through the `WifiNetworkScanning` seam (`DivotAppKit`), once per
+open and never on a timer; closing the popover cancels an in-flight scan. The
+live scanner (`CoreWLANNetworkScanner`) uses public CoreWLAN only
+(`CWWiFiClient.shared().interface()`, `CWInterface.scanForNetworks(withSSID:)`),
+runs the blocking call on its own serial queue rather than the main actor, and
+races it against an 8-second timeout so a wedged scan still settles into a
+visible state. `WifiNetworks` in `DivotCore` is the pure list logic: dedupe by
+SSID keeping the strongest reading (a signal tie keeps the secure entry so a
+lock is never dropped), drop blank/hidden SSIDs, mark and pin the current
+network, then sort by signal descending and name. States are explicit:
+`.networks`, `.permissionDenied`, `.unavailable` (no interface), and `.failed`
+(message shown verbatim). Without Location authorization the popover shows the
+permission message and a button to **Privacy & Security › Location Services**
+instead of an empty list; on a dev build without an `Info.plist` the same
+permission/unavailable state is what a person sees.
+
+Findings recorded for the follow-up decision (no behavior was invented):
+
+- **Hidden SSIDs.** A hidden network reports a `nil` (or empty) `ssid`; the
+  scanner drops it and `WifiNetworks` drops a blank name again as a safety net.
+  No hidden network appeared in the local probe below, so the drop path is
+  asserted by unit tests, not observed against a real hidden AP.
+- **Without Location permission.** In a local probe on the authoring machine
+  (macOS 26.5, a non-bundled command-line process, `CLLocationManager`
+  authorization `.notDetermined`), `CWInterface.ssid()` returned `nil` while
+  `scanForNetworks(withSSID: nil)` still returned 19 named results. That is a
+  single observation and not device validation: it does not establish whether
+  TCC attributed the scan to a parent process that already holds Location, and
+  Divot's shipped path is the permission-gated one the acceptance criteria ask
+  for. A packaged app with Location denied is still the check a person must run.
+- **Joining known networks.** The public CoreWLAN header exposes
+  `CWInterface.associate(to:password:)` (macOS 10.7+) and
+  `associate(toEnterpriseNetwork:identity:username:password:)`, so the API
+  surface exists; whether it works for an unsandboxed app without extra
+  entitlements is unverified, and credential prompting, keychain use, and
+  failure UX are out of scope for this read-only spike. A follow-up task decides.
+- **Duplicate SSIDs are real.** The same probe returned the SSID `ARISTA` twice
+  (RSSI −60 and −70), which is the multi-BSSID case the dedupe rule collapses.
 
 ## Tests
 
@@ -130,14 +178,21 @@ asserted, by category:
 - **Presentation**: battery (including a sane desktop no-battery state),
   network (connected/offline/metered), volume (mute/no-output/level), clock
   (locale + zone), front-app, and honest unavailable states.
+- **Wi-Fi list shaping** (task 0070, `WifiNetworksTests`): dedupe keeps the
+  strongest duplicate reading, a signal tie keeps the secure entry, blank/hidden
+  names are dropped, the current network is marked and pinned first, the rest
+  sort by signal then name, the dBm-to-bars bands are pinned, and every scan
+  response maps to its honest state. The scan model is driven by a fake scanner
+  through the seam, so the permission-denied and scanned paths are asserted
+  without standing up CoreWLAN, and the Location Services deep link is pinned.
 
 ## Honest status by claim
 
 **Implemented and covered by tests** (see the table above): provider lifecycle,
 generations and stale rejection, independent per-item failure, coalescing,
 off-main start with a main-actor sink, the minute clock and its text, the item
-presentation, the default layout, the click-action mapping, and the subscription
-helpers.
+presentation, the default layout, the click-action mapping, the Wi-Fi list
+shaping and scan-model states, and the subscription helpers.
 
 **Implemented but only asserted by construction, not observed:**
 
@@ -145,15 +200,21 @@ helpers.
   compile and are wired, but only their pure mapping/presentation is tested here.
 - The AppKit item views, their layout, click handling (`acceptsFirstMouse`,
   `mouseDown`, accessibility press), and the panel content swap.
+- The live `CoreWLANNetworkScanner` and the `WifiPopoverController`/AppKit
+  popover itself: the seam and pure logic are tested, but no scan result or
+  popover was rendered and observed in an app.
 
 **Not verified at all — a human must supply (do not treat as working):**
 
 - Any on-screen rendering, truncation, or readability of the widgets on a real
   display at real scales.
 - Whether a click on a nonactivating panel actually reaches an item and opens
-  the intended System Settings pane; the network item's Wi-Fi id is confirmed,
-  but the remaining pane identifiers above are candidates and no click has been
-  observed end to end.
+  the intended System Settings pane or the Wi-Fi popover; the network item's
+  Wi-Fi id is confirmed, but the remaining pane identifiers above are candidates
+  and no click has been observed end to end.
+- Whether a packaged app with Location **granted** lists real nearby networks in
+  the popover (the human step in task 0070), and how the popover behaves with
+  Location denied on that packaged app.
 - Real battery/network/volume/front-app values under sleep/wake, hot-plug,
   external displays, and audio-device changes.
 - Whether any provider's callback fires on main on real hardware for a long run.
@@ -170,8 +231,11 @@ benchmark.
 ## Permissions
 
 No new permission is required for battery, clock, network, volume, or front-app.
-Network details that would need a location prompt (SSID) are deliberately not
-read. Accessibility remains required only for the notched-display native-menu-bar
+The network **provider** reads no SSID, so it never triggers a location prompt.
+The Wi-Fi popover (task 0070) is the one part that reads network names, and it is
+gated on Location authorization: without it the popover explains and links to
+**Privacy & Security › Location Services** rather than showing an empty list.
+Accessibility remains required only for the notched-display native-menu-bar
 detector (0003/0009) and is unrelated to these widgets. A denied or failed
 provider emits its own unavailable state and leaves the rest of the bar working.
 

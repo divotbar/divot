@@ -12,6 +12,10 @@ The native app reads and validates the versioned config: both sides, per-widget 
 
 The Wi-Fi name needs Location permission, which macOS requires for reading the current SSID. Turn the name on in Settings to ask for it once. If you denied it, the Settings row explains and links to the Location Services pane; the bar then shows the network icon without a name. Divot never reads the name while the permission is off.
 
+## The Wi-Fi popover shows no networks
+
+Clicking the network item opens a read-only popover of nearby networks. That list also needs Location permission, because macOS gates network names on it. Without permission the popover shows a short message and a button to **System Settings → Privacy & Security → Location Services** instead of an empty list; grant access there and click the item again. Divot scans only when the popover opens, so a network that appears later shows up on the next open. The popover never joins a network and never asks for a password; use **Open Wi-Fi Settings…** at its last row for anything beyond looking.
+
 ## Website build fails on a link
 
 VitePress treats dead internal links as errors. Check the target Markdown filename and path. Run `bun run check` after correcting the source; do not disable dead-link checks.

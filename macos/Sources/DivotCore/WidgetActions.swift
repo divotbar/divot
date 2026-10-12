@@ -19,6 +19,10 @@ public enum WidgetSettingsPane: String, Equatable, Sendable, CaseIterable {
     case sound
     case dateTime = "datetime"
     case general
+    /// Privacy & Security › Location Services. Used by the Wi-Fi popover when
+    /// Location permission is missing, so the list can explain itself instead
+    /// of showing nothing.
+    case locationServices
 
     /// Deep link for the pane. `nil` when the URL cannot be formed.
     ///
@@ -31,6 +35,8 @@ public enum WidgetSettingsPane: String, Equatable, Sendable, CaseIterable {
         switch self {
         case .network:
             return URL(string: "x-apple.systempreferences:com.apple.wifi-settings-extension")
+        case .locationServices:
+            return URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")
         default:
             return URL(string: "x-apple.systempreferences:com.apple.preference.\(rawValue)")
         }
