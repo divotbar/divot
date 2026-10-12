@@ -2,14 +2,14 @@
 id: "0066"
 title: Audit site and docs against shipped behaviour
 type: chore
-status: inbox
+status: ready
 priority: p1
 area: [docs, web]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T11:40:14Z"
-updated_at: "2026-10-12T11:40:14Z"
+updated_at: "2026-10-12T11:40:16Z"
 ---
 ## Problem
 Many features landed on 2026-10-11/12 (split date/time, chips, spacing and right inset, charging colour, keep-awake cup, Wi-Fi name and Location, Appearance item, native icon sizes). Docs were updated per task, so drift is likely in the guide pages, getting-started, roadmap, troubleshooting and the landing page.
@@ -28,3 +28,4 @@ Compare against the code and docs/configuration.md. Do not touch install/downloa
 ## Activity
 
 - 2026-10-12T11:40:14Z · created · njachowski@gmail.com
+- 2026-10-12T11:40:16Z · status inbox→ready
