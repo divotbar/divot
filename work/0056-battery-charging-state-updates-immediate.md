@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
-updated_at: "2026-10-12T08:40:32Z"
+updated_at: "2026-10-12T08:41:40Z"
 ---
 ## Problem
 
@@ -94,3 +94,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:39:42Z · body: section Fix and evidence
 - 2026-10-12T08:40:32Z · status active→review
 - 2026-10-12T08:40:32Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T08:41:40Z · note: review pass 1: needs some work
