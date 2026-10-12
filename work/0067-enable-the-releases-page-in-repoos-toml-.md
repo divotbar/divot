@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T15:46:20Z"
+updated_at: "2026-10-12T15:46:30Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -52,3 +52,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T15:46:20Z · note: review pass 3: needs some work
 - 2026-10-12T15:46:20Z · message_delivered: 1 message(s)
 - 2026-10-12T15:46:20Z · status review→active
+- 2026-10-12T15:46:30Z · message_queued at 2026-10-12T15:46:30.770Z
