@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T12:47:11Z"
-updated_at: "2026-10-12T13:01:45Z"
+updated_at: "2026-10-12T13:01:46Z"
 ---
 ## Problem
 
@@ -29,8 +29,7 @@ Users who prefer Homebrew have no install command. The maintainer wants a cask t
 - repoos check passes.
 
 ## Notes for AI
-
-Depends on the unsigned DMG release (#0041). Unsigned casks are accepted by Homebrew for now; do not add notarization claims.
+Reference: ~/code/nick/homebrew-tap (repo-os/homebrew-tap) and repoos's release.yml lines ~86-125. Do not create GitHub repos, push, tag or set secrets: those are maintainer actions. No release exists yet, so everything must work from release data at dispatch time. Leave the first-release verification as a human step.
 
 ## Activity
 
@@ -38,3 +37,4 @@ Depends on the unsigned DMG release (#0041). Unsigned casks are accepted by Home
 - 2026-10-12T11:38:53Z · status inbox→ready
 - 2026-10-12T13:01:45Z · body: section Desired UX
 - 2026-10-12T13:01:45Z · body: section Acceptance criteria
+- 2026-10-12T13:01:46Z · body: section Notes for AI
