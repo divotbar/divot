@@ -3,6 +3,9 @@ id: "0053"
 title: Leave a gap in the top-right corner only while the camera or mic is in use
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 hold: true
 priority: p1
 area: macos
@@ -72,3 +75,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T09:06:33Z · status active→review
 - 2026-10-12T09:06:33Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T09:07:39Z · note: review pass 4: needs some work
+- 2026-10-12T09:07:39Z · needs_input
