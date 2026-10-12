@@ -24,7 +24,7 @@ The native parser, store, migration, settings surface, and theme resolution are 
 | `chipOpacity` | Integer 0–100 | Optional; fade every drawn chip's background (default `0`) |
 | `appIconSize` | Number 8–24 | Optional; point size of the app icons on the left (default `16`, the status icon size) |
 
-The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group; `battery`, `network`, and `volume` accept no widget options yet. JSON does not support comments. No environment substitution or executable expressions are proposed.
+The starter validator rejects missing fields, unknown fields, wrong types, and invalid ranges. An item may appear in only one group. JSON does not support comments. No environment substitution or executable expressions are proposed.
 
 ## Appearance
 
@@ -176,14 +176,14 @@ Turning `moveBelowOnCursorReveal` off leaves Divot in its current placement; the
 
 ## Items
 
-Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `clock`. Leave `widgets` out to use the built-in defaults.
+Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `date`, `time`, `appearance`. Leave `widgets` out to use the built-in defaults.
 
 ```json
 "left": ["workspaces", "front-app"],
-"right": ["battery", "clock", "network", "volume"]
+"right": ["battery", "time", "network", "volume"]
 ```
 
-Default left is `workspaces`, `front-app`; default right is `battery`, `clock`, `network`, `volume`. Both groups are configurable and items can move between them.
+Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
 
 ## Widget options
 
@@ -196,11 +196,36 @@ Default left is `workspaces`, `front-app`; default right is `battery`, `clock`, 
 | `workspaces` | `maxAppIconsPerWorkspace` | Integer 0–32 | Cap app icons per workspace; unset shows all |
 | `front-app` | `showIcon` | Boolean | Show the application icon |
 | `front-app` | `showName` | Boolean | Show the application name |
-| `clock` | `weekday` | Boolean | Include the day of week |
-| `clock` | `date` | Boolean | Include the date |
-| `clock` | `seconds` | Boolean | Use second resolution instead of the default minute |
+| `battery` | `showPercentage` | Boolean | Show the battery percentage (default `true`) |
+| `date` | `weekday` | Boolean | Include the day of week (default `true`) |
+| `date` | `year` | Boolean | Include the year (default `false`) |
+| `date` | `dayFirst` | Boolean | Show the day before the month (default `false`) |
+| `date` | `separator` | String | Separator between date components (default `" "`) |
+| `date` | `customPattern` | String | Custom date format pattern; an invalid pattern falls back to the generated one |
+| `time` | `seconds` | Boolean | Show seconds (default `false`) |
+| `time` | `timeFormat` | `24-hour`, `AM/PM`, `custom` | Time format (default `AM/PM`) |
+| `time` | `customPattern` | String | Custom time pattern, used when `timeFormat` is `custom` |
+| `network` | `showWifiName` | Boolean | Show the connected Wi-Fi network name (default `false`; asks for Location permission) |
+| `volume` | `showVolumePercent` | Boolean | Show the volume percentage (default `true`) |
+| `volume` | `showVolumeMuted` | Boolean | Show the muted indicator (default `true`) |
 
-An options object may set any subset of its options. Built-in defaults: `workspaces` shows empty workspaces (`showEmpty: true`), hides app icons (`showAppIcons: false`), shows details (`showDetails: true`), and shows every icon when enabled (`maxAppIconsPerWorkspace` unset); `front-app` shows both icon and name; `clock` shows weekday and date at minute resolution (`seconds: false`). The native app applies every one of these options: `workspaces` options drive the workspace row, `front-app` and `clock` options drive that item's presentation.
+An options object may set any subset of its options. Built-in defaults: `workspaces` shows empty workspaces (`showEmpty: true`), hides app icons (`showAppIcons: false`), shows details (`showDetails: true`), and shows every icon when enabled (`maxAppIconsPerWorkspace` unset); `front-app` shows both icon and name; `battery` shows the percentage; `date` shows the weekday, hides the year, and follows the system date order; `time` shows minutes in 12-hour form; `network` hides the Wi-Fi name; `volume` shows the percentage and the muted indicator. The native app applies every one of these options: `workspaces` options drive the workspace row, and the others drive that item's presentation.
+
+## Command-line interface
+
+The `divot` binary has a `config` subcommand for agents and scripts. It edits the same `~/.config/divot/config.json` document through the same parser and atomic store the app and Settings window use, so a value it accepts loads natively and a value it rejects leaves the last good file in place. There is no daemon, no network API, and no runtime dependency.
+
+```bash
+divot config schema --json          # every setting: key, type, range, default, description
+divot config show --json            # the effective document
+divot config get widgets.time.seconds
+divot config set widgets.time.seconds true
+divot config set layout.height 30 --dry-run --diff
+divot config unset keepAwake.remember
+divot config validate --file ./config.json
+```
+
+Keys are dotted JSON paths (`appearance.mode`, `layout.leftItemSpacing`, `widgets.workspaces.showAppIcons`, `menuBar.alwaysBelow`). `schema --json` describes every documented field above and is generated from the same model the loader and Settings UI use, so the list cannot drift. An invalid edit names the field and its valid values (`layout.height: expected 24–40`). `set` validates before writing, `--dry-run` validates without writing, and `--diff` shows the changed lines. `unset` restores the declared default (removing it from the file when the default is omitted). Exit codes: `0` success, `1` invalid value or file, `2` usage error.
 
 ## Invalid reloads
 
