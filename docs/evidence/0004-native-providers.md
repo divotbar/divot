@@ -6,6 +6,11 @@ do, what is covered by tests, and what still needs a person on real hardware. It
 is not a claim that permissions, click behavior, or on-screen rendering were
 observed working.
 
+> Note: this record predates task 0033, which split the combined `clock` item
+> into the separate `date` and `time` providers. The clock rows below describe
+> the task 0004 state; current behavior is the split item list in
+> [configuration](../configuration.md) and the public guide.
+
 Story: [A beautiful bar from the first launch](../../stories/a-beautiful-bar-from-the-first-launch.md).
 Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 

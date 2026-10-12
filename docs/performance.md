@@ -8,9 +8,9 @@ produce one, and a person on the reference machine supplies the numbers.
 ## Default workload
 
 The reference workload is the first-launch bar: workspaces and the frontmost app
-on the left; battery percentage, a minute clock with weekday and date, network,
-and volume on the right, with the native theme and system appearance. Other
-configurations are measured against this baseline.
+on the left; battery percentage, a minute time, network, and volume on the
+right (the date item is optional), with the native theme and system appearance.
+Other configurations are measured against this baseline.
 
 ## Targets
 
@@ -51,7 +51,7 @@ diagnostics, and animation/hitch traces. The protocol covers, at minimum:
 
 | Scenario | What to capture |
 | --- | --- |
-| Native default workload | Idle CPU, memory, update latency, main-thread work for network/volume/front-app/clock (time + weekday + date)/battery |
+| Native default workload | Idle CPU, memory, update latency, main-thread work for network/volume/front-app/time (and optional date)/battery |
 | Both appearance modes | Light and dark, on the native family and the four families |
 | All four theme families | Gruvbox, Ayu, Dracula, and Tokyo Night, each light/dark, plus material variants |
 | Workspace bursts | Rapid switches and a snapshot burst; coalescing and no growing queue |
@@ -84,8 +84,8 @@ macos/.build/release/divot --bench --json \
 
 The harness covers the deterministic, in-process part of the matrix:
 
-- **default workload** — presentation of network, volume, front-app, clock
-  (time + weekday + date), and battery;
+- **default workload** — presentation of network, volume, front-app, date/time,
+  and battery;
 - **appearance modes** — resolving every family under light and dark;
 - **theme families** — resolving and contrast-auditing all four families ×
   light/dark;

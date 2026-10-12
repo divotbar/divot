@@ -46,7 +46,7 @@ The bar has two ordered groups, `left` and `right`. Each lists supported items, 
 
 ## A smaller bar
 
-For a distraction-free setup, use `examples/focus.json`: a 28-point opaque bar with occupied workspaces only and a minute clock without the day of week. For an opaque themed layout, use `examples/opaque.json`.
+For a distraction-free setup, use `examples/focus.json`: a 28-point opaque bar with occupied workspaces only and a minute time. For an opaque themed layout, use `examples/opaque.json`.
 
 ## Your own type
 

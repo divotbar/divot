@@ -102,8 +102,8 @@ shasum -a 256 -c Divot-0.1.0-preview.1-<commit>.zip.sha256
    Divot under System Settings → Privacy & Security → Accessibility (remove the
    stale row first, then add the new `dist/Divot.app`).
 5. The bar should appear as a single row: workspaces and the frontmost app on
-   the left; battery %, clock (time + weekday/date), network, and volume on the
-   right. No configuration file is required for these defaults.
+   the left; battery %, a minute time, network, and volume on the right. No
+   configuration file is required for these defaults.
 6. Quit Divot from its menu-bar item when you are done.
 
 To stop a preview build, quit Divot itself; it is a normal user process. Do not
@@ -113,8 +113,12 @@ use pattern kills (`pkill`/`killall`).
 
 - **Left:** workspace navigation (`workspaces`) and the frontmost app
   (`front-app`).
-- **Right:** battery percentage (`battery`), clock with time + weekday + date
-  (`clock`), Wi-Fi/network status (`network`), and volume (`volume`).
+- **Right:** battery percentage (`battery`), a minute time (`time`) with an
+  optional date (`date`), Wi-Fi/network status (`network`), and volume
+  (`volume`).
+- **Appearance:** the optional `appearance` item shows the current light/dark
+  mode and toggles Divot's own bar rendering (never the macOS system
+  appearance).
 - **Themes:** the native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night
   families, each with light and dark variants, selectable from Settings or the
   configuration file (`appearance.family`, `appearance.mode`). Custom
@@ -242,8 +246,9 @@ observe; leave unobserved items blank rather than marking them done.
 - [ ] Fullscreen, Spaces, and multiple displays (add/remove, sleep/wake).
 - [ ] VoiceOver and keyboard traversal of every item and the Settings window
       ([accessibility physical checks](accessibility-physical-checks.md)).
-- [ ] Click behavior: battery toggles keep-awake; status items open the intended
-      System Settings pane or activate the frontmost app.
+- [ ] Click behavior: battery toggles keep-awake; the appearance item toggles
+      Divot's own light/dark rendering; status items open the intended System
+      Settings pane or activate the frontmost app.
 - [ ] Light/dark and all four theme families are readable on real glass.
 - [ ] Release performance on the stable reference machine
       (`divot --bench`, [performance protocol](performance.md)).

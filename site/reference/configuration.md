@@ -58,12 +58,14 @@ All sizes are logical points, not physical pixels.
 
 | Field | Range | Meaning |
 | --- | --- | --- |
-| `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
+| `height` | 24–40 | Panel height. Left at the default `32`, the bar computes the row height from the display's native menu-bar band at run time (the camera-housing top on a notched display, the native menu-bar height on a notch-free one) so the row lines up with the system bar; `32` remains the fallback when the band cannot be read. Clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
 | `rightItemSpacing` | 0–32 | Gap between right-side items (default 8) |
 | `leftItemSpacing` | 0–32 | Gap between left-side items (default 8); the Divot-icon-to-workspace gap and the front-app gap both follow it |
 
 Item spacing is independent per side and defaults to the pre-#0054 uniform 8 points. Settings exposes both side spacings as sliders. A fixed 17-point inset is always left between the rightmost item and the screen edge so the camera-in-use indicator never overlaps the bar.
+
+`layout.height` keeps its stored default of `32`, but when it is left there the app resolves the effective row height per display from the native menu-bar band (`DivotCore.ScreenGeometry.defaultBarHeight`): the camera-housing top on a notched display and the native menu-bar height on a notch-free one. `32` is the fallback when that band is unknown, and an explicit non-default height always wins.
 
 On notched displays the bar hugs the notch with zero padding and the color extends 6 points into the notch area to cover the gap and corners. Legacy configuration files may contain a `notchGap` field; it is ignored during load and omitted when the file is next saved.
 
@@ -183,7 +185,7 @@ Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `dat
 "right": ["battery", "time", "network", "volume"]
 ```
 
-Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
+Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The `appearance` item shows the current light/dark mode and toggles Divot's own rendering (never the macOS system appearance). The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
 
 ## Widget options
 
