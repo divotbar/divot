@@ -18,6 +18,10 @@ private func jsonObject(_ outcome: CLIOutcome) throws -> [String: Any] {
     return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 }
 
+/// A present-but-invalid document (`layout.height` is above the 24–40 range),
+/// so a helper must report it and never overwrite it with defaults.
+private let invalidConfig = ##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":900,"padding":10},"left":[],"right":[]}"##
+
 // MARK: - Items
 
 @Suite struct ItemsCommandTests {
@@ -165,6 +169,21 @@ private func jsonObject(_ outcome: CLIOutcome) throws -> [String: Any] {
         #expect(object["path"] is String)
     }
 
+    @Test func mutationsRefuseAnInvalidFileAndLeaveItUntouched() throws {
+        let (store, url) = try makeStore()
+        try Data(invalidConfig.utf8).write(to: url)
+        let command = ItemsCommand(store: store)
+
+        for arguments in [
+            ["list"], ["add", "date"], ["remove", "workspaces"], ["move", "workspaces", "--side", "right"]
+        ] {
+            let result = command.run(arguments)
+            #expect(result.exitCode == 1, "\(arguments) should refuse an invalid file")
+            #expect(result.output.contains("layout.height"))
+        }
+        #expect(try String(contentsOf: url, encoding: .utf8) == invalidConfig)
+    }
+
     @Test func usageErrorsCarryExitCodeTwo() throws {
         let (store, _) = try makeStore()
         let command = ItemsCommand(store: store)
@@ -238,6 +257,17 @@ private func jsonObject(_ outcome: CLIOutcome) throws -> [String: Any] {
         #expect(object["family"] as? String == "ayu")
         #expect(object["mode"] as? String == "light")
         #expect(object["path"] is String)
+    }
+
+    @Test func setRefusesAnInvalidFileAndLeavesItUntouched() throws {
+        let (store, url) = try makeStore()
+        try Data(invalidConfig.utf8).write(to: url)
+        let command = ThemeCommand(store: store)
+
+        let result = command.run(["set", "gruvbox", "--mode", "dark"])
+        #expect(result.exitCode == 1)
+        #expect(result.output.contains("layout.height"))
+        #expect(try String(contentsOf: url, encoding: .utf8) == invalidConfig)
     }
 
     @Test func usageErrorsCarryExitCodeTwo() throws {
