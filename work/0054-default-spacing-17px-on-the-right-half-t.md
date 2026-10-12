@@ -2,7 +2,7 @@
 id: "0054"
 title: "Default spacing: 17px on the right, half that between the Divot icon and workspaces, and 12px for the front app"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -55,4 +55,4 @@ Pending human verification: the on-screen packaged-app pixel measurements and th
 - 2026-10-12T08:30:33Z · status inbox→ready
 - 2026-10-12T08:30:33Z · status ready→active, branch
 - 2026-10-12T08:43:32Z · body: section Verification
-- 2026-10-12T08:46:55Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T08:46:55Z · status active→review
