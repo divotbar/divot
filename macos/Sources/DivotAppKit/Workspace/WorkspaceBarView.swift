@@ -33,6 +33,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
     /// and focus highlight stay either way.
     private let showOccupiedDot: Bool
     private let showEmptyDot: Bool
+    /// Whether the workspace chips opt into the same chip chrome as the
+    /// right-side status items (#0052).
+    private let enablesChipStyle: Bool
     private let chipOpacity: Int
 
     private let horizontalInset: CGFloat
@@ -51,6 +54,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                 metrics: BarMetrics = .default,
                 showOccupiedDot: Bool = true,
                 showEmptyDot: Bool = true,
+                enablesChipStyle: Bool = false,
                 chipOpacity: Int = 0) {
         self.feed = feed
         self.icons = icons
@@ -60,6 +64,7 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         self.metrics = metrics
         self.showOccupiedDot = showOccupiedDot
         self.showEmptyDot = showEmptyDot
+        self.enablesChipStyle = enablesChipStyle
         self.chipOpacity = chipOpacity
         self.horizontalInset = metrics.rowInset
         self.chipSpacing = metrics.chipSpacing
@@ -216,31 +221,27 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         button.refusesFirstResponder = false
         button.alignment = .center
         button.identifier = NSUserInterfaceItemIdentifier(workspace.id.rawValue)
-        // The themed chip draws its own background so the selected state is the
-        // family's `selected` color, not the system accent. Focus also remains
-        // the control's selected state and an accessibility value, so state is
-        // never color alone (#0047: focused chip now matches other chips).
+        // The chip draws its own background from the theme, not the system
+        // accent. Focus remains the control's selected state, its semibold
+        // title, and an accessibility value, so state is never colour alone
+        // (#0047, #0052).
         button.isBordered = false
         button.wantsLayer = true
-        // Flat chrome (#0025): square corners, a flat selected fill, and a flat
-        // focused stroke. No rounded corners or bevel.
-        button.layer?.cornerRadius = 0
-        // All chips use the same style, with opacity control. Focus is shown via
-        // the number's semibold weight (#0047). At opacity 0, the current chip
-        // appearance is preserved: focused gets theme.selected, others get clear.
-        // At opacity 100, all chips fade to transparent. In between, we
-        // interpolate: start from each chip's natural color and fade toward
-        // transparent.
+        // The workspace chips follow the same `chips` opt-in as the status
+        // items (#0052). With chips off there is no box at all and focus is the
+        // semibold weight; with chips on every workspace chip matches the
+        // right-side chip shape, padding and colour, faded by the shared
+        // opacity. Focus is never conveyed by the box alone.
         let transparencyFraction = CGFloat(chipOpacity) / 100.0
-        let backgroundColor: NSColor
-        if workspace.isFocused {
-            backgroundColor = theme.selected.withAlphaComponent(1.0 - transparencyFraction)
+        if enablesChipStyle {
+            button.contentPadding = BarMetrics.chipPadding
+            button.layer?.cornerRadius = 4
+            button.layer?.backgroundColor = theme.selected.withAlphaComponent(1.0 - transparencyFraction).cgColor
         } else {
-            // Non-focused chips start clear and remain clear as we fade
-            // (they never have a background at opacity 0).
-            backgroundColor = NSColor.clear.withAlphaComponent(0)
+            button.contentPadding = 0
+            button.layer?.cornerRadius = 0
+            button.layer?.backgroundColor = NSColor.clear.cgColor
         }
-        button.layer?.backgroundColor = backgroundColor.cgColor
         button.layer?.borderWidth = 0
         button.layer?.borderColor = NSColor.clear.cgColor
 
@@ -296,7 +297,9 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         let markerAttributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: markerColor]
 
         let title = NSMutableAttributedString(string: workspace.id.rawValue, attributes: nameAttributes)
-        let iconSize = max(8, metrics.chipFontSize.rounded())
+        // The app icons on the left use the configured app icon size, which
+        // defaults to the right-side status icon size (#0052).
+        let iconSize = max(8, metrics.appIconSize.rounded())
         for identity in WorkspaceLayout.displayApps(for: workspace, options: options) {
             guard let icon = icons.icon(for: identity.bundleID, pointSize: iconSize) else { continue }
             let attachment = NSTextAttachment()
@@ -406,5 +409,14 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
 /// A chip that reacts on the first click even though the bar panel is
 /// nonactivating and never becomes key.
 private final class ChipButton: NSButton {
+    /// Horizontal content padding applied when the chip style is on, so the
+    /// workspace chip matches `BarItemView`'s padded chip (#0052).
+    var contentPadding: CGFloat = 0
+
+    override var intrinsicContentSize: NSSize {
+        let base = super.intrinsicContentSize
+        return NSSize(width: base.width + contentPadding * 2, height: base.height)
+    }
+
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }

@@ -184,11 +184,20 @@ public final class DivotSettingsModel {
         update { $0.chipStyle = enabled }
     }
 
-    /// Set the workspace chip background opacity (0–100). The bar rebuilds live
-    /// from the published snapshot and the setting survives a relaunch through
-    /// the store.
+    /// Set the chip background opacity (0–100), which applies to every chip on
+    /// the bar. The bar rebuilds live from the published snapshot and the
+    /// setting survives a relaunch through the store.
     public func setChipOpacity(_ opacity: Int) {
         update { $0.chipOpacity = max(0, min(opacity, 100)) }
+    }
+
+    /// Set the app icon size (8–24 pt). The bar rebuilds live from the published
+    /// snapshot and the setting survives a relaunch through the store.
+    public func setAppIconSize(_ size: Double) {
+        update {
+            $0.appIconSize = max(DivotConfiguration.appIconSizeRange.lowerBound,
+                                 min(size, DivotConfiguration.appIconSizeRange.upperBound))
+        }
     }
 
     // MARK: Network

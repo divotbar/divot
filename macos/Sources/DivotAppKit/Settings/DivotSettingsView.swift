@@ -49,7 +49,7 @@ public struct DivotSettingsView: View {
         Section("Bar") {
             Toggle("Show the Divot icon before the workspaces",
                    isOn: showAppIconBinding)
-            Text("Clicking the icon opens Divot settings. The mark follows the bar's theme and text size.")
+            Text("Clicking the icon opens Divot settings. The mark follows the bar's theme and the app icon size.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Toggle("Bottom shadow", isOn: bottomShadowBinding)
@@ -62,7 +62,7 @@ public struct DivotSettingsView: View {
                 .foregroundStyle(.secondary)
             VStack(alignment: .leading) {
                 HStack {
-                    Text("Workspace chip opacity")
+                    Text("Chip opacity")
                     Spacer()
                     Text("\(model.configuration.chipOpacity)%")
                         .foregroundStyle(.secondary)
@@ -71,7 +71,7 @@ public struct DivotSettingsView: View {
                                       set: { model.setChipOpacity(Int($0)) }),
                        in: 0...100, step: 1)
             }
-            Text("Controls the workspace chips only. 0% shows the current appearance; 100% makes them match the bar background.")
+            Text("Controls every chip on the bar. 0% shows the current appearance; 100% makes them match the bar background.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -186,6 +186,20 @@ public struct DivotSettingsView: View {
                    isOn: binding(\.widgets.workspaces.showEmpty))
             Toggle("Show app icons",
                    isOn: binding(\.widgets.workspaces.showAppIcons))
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("App icon size")
+                    Spacer()
+                    Text("\(Int(model.configuration.appIconSize)) pt")
+                        .foregroundStyle(.secondary)
+                }
+                Slider(value: Binding(get: { model.configuration.appIconSize },
+                                      set: { model.setAppIconSize($0) }),
+                       in: DivotConfiguration.appIconSizeRange, step: 1)
+            }
+            Text("Point size of the app icons Divot draws on the left, including the Divot and per-workspace icons. Defaults to the right-side status icon size.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             Toggle("Show details (app count and current program)",
                    isOn: binding(\.widgets.workspaces.showDetails))
             Stepper(value: maxAppIconsBinding, in: 0...32) {

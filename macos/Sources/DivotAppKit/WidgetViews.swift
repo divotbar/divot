@@ -28,10 +28,14 @@ final class BarItemView: NSView {
     private(set) var displayedIndicatorSymbolName: String?
     /// Whether the state indicator (the keep-awake cup) is currently drawn.
     var isIndicatorVisible: Bool { !indicatorView.isHidden }
+    /// The chip background opacity, 0–100, matching the workspace chips so the
+    /// whole bar fades together (#0052).
+    private let chipOpacity: Int
 
-    init(metrics: BarMetrics = .default, enablesChipStyle: Bool = false) {
+    init(metrics: BarMetrics = .default, enablesChipStyle: Bool = false, chipOpacity: Int = 0) {
         self.metrics = metrics
         self.enablesChipStyle = enablesChipStyle
+        self.chipOpacity = max(0, min(chipOpacity, 100))
         super.init(frame: .zero)
         wantsLayer = true
         iconView.imageScaling = .scaleProportionallyDown
@@ -100,6 +104,9 @@ final class BarItemView: NSView {
         if let indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: indicatorRole)
         }
+        // The chip fill lives in `updateLayer`, so a theme change must ask for a
+        // redraw to pick up the new `selected` color.
+        needsDisplay = true
     }
 
     private func applyColors() {
@@ -162,7 +169,7 @@ final class BarItemView: NSView {
         }
 
         let contentHeight = max(metrics.iconSize, textField.fittingSize.height)
-        let chipPadding = enablesChipStyle ? 4.0 : 0.0
+        let chipPadding = enablesChipStyle ? BarMetrics.chipPadding : 0.0
         return NSSize(width: contentWidth + chipPadding * 2,
                       height: contentHeight + chipPadding * 2)
     }
@@ -193,7 +200,7 @@ final class BarItemView: NSView {
 
     override func layout() {
         super.layout()
-        let chipPadding = enablesChipStyle ? 4.0 : 0.0
+        let chipPadding = enablesChipStyle ? BarMetrics.chipPadding : 0.0
         var x: CGFloat = chipPadding
         if !iconView.isHidden {
             iconView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
@@ -246,7 +253,8 @@ final class BarItemView: NSView {
 
     override func updateLayer() {
         guard enablesChipStyle else { return }
-        layer?.backgroundColor = theme.selected.cgColor
+        let transparency = CGFloat(chipOpacity) / 100.0
+        layer?.backgroundColor = theme.selected.withAlphaComponent(1.0 - transparency).cgColor
         layer?.cornerRadius = 4
         layer?.borderWidth = 0
     }
@@ -315,12 +323,13 @@ final class BarContentView: NSView, BarContentLifecycle {
                                             metrics: metrics,
                                             showOccupiedDot: showOccupiedDot,
                                             showEmptyDot: showEmptyDot,
+                                            enablesChipStyle: enablesChipStyle,
                                             chipOpacity: chipOpacity)
                 workspaceViews[id] = view
                 addSubview(view)
                 continue
             }
-            let view = BarItemView(metrics: metrics, enablesChipStyle: enablesChipStyle)
+            let view = BarItemView(metrics: metrics, enablesChipStyle: enablesChipStyle, chipOpacity: chipOpacity)
             view.onActivate = { [weak self] action in self?.onActivate?(action) }
             view.apply(theme: theme)
             itemViews[id] = view

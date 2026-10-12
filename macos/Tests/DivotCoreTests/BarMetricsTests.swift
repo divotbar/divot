@@ -77,6 +77,19 @@ import Testing
     #expect(small.chipFontSize == small.textFontSize - 1)
 }
 
+@Test func appIconSizeDefaultsToTheStatusIconSize() {
+    // The app icons on the left match the right-side status icons until the
+    // configuration overrides the size (#0052).
+    let metrics = BarMetrics.scaled(textSize: 14)
+    #expect(metrics.appIconSize == metrics.iconSize)
+    #expect(BarMetrics.default.appIconSize == BarMetrics.default.iconSize)
+
+    // An explicit size is honored, and a non-finite one falls back to the
+    // status icon size instead of poisoning layout.
+    #expect(BarMetrics.scaled(textSize: 14, appIconSize: 22).appIconSize == 22)
+    #expect(BarMetrics.scaled(textSize: 14, appIconSize: .nan).appIconSize == 16)
+}
+
 @Test func scaledCarriesTheConfiguredHeightPaddingAndFont() {
     let metrics = BarMetrics.scaled(textSize: 16, height: 30, rowInset: 10, fontFamily: "Helvetica")
     #expect(metrics.height == 30)

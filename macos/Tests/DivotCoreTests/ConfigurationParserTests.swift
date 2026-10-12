@@ -631,6 +631,57 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(!configuration.rendersSameBar(as: .default))
 }
 
+@Test func appIconSizeDefaultsToTheStatusIconSizeAndParsesExplicitly() throws {
+    // Absent keeps the app icons matching the status icon size.
+    let without = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[]}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: without).configuration.appIconSize == Double(BarMetrics.default.iconSize))
+
+    let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"appIconSize":20}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.appIconSize == 20)
+
+    let wrongType = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"appIconSize":"big"}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: wrongType) }
+    #expect(failure?.path == "appIconSize")
+}
+
+@Test func appIconSizeValidatesItsRange() throws {
+    let tooLow = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"appIconSize":2}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: tooLow) }
+    #expect(failure?.path == "appIconSize")
+
+    let tooHigh = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":[],"appIconSize":40}"##)
+    let failureHigh = error { try ConfigurationParser.parse(jsonObject: tooHigh) }
+    #expect(failureHigh?.path == "appIconSize")
+}
+
+@Test func appIconSizeRoundTripsThroughTheCanonicalJSON() throws {
+    var configuration = DivotConfiguration.default
+    configuration.appIconSize = 20
+    let encoded = try JSONSerialization.data(withJSONObject: configuration.jsonObject,
+                                             options: [.sortedKeys])
+    let reparsed = try ConfigurationParser.parse(encoded)
+    #expect(reparsed.configuration == configuration)
+    #expect(reparsed.configuration.appIconSize == 20)
+
+    // The default writes no key, so the first-launch document is identical.
+    #expect(DivotConfiguration.default.jsonObject["appIconSize"] == nil)
+}
+
+@Test func appIconSizeClampsDuringInit() throws {
+    #expect(DivotConfiguration(appIconSize: 2).appIconSize == DivotConfiguration.appIconSizeRange.lowerBound)
+    #expect(DivotConfiguration(appIconSize: 40).appIconSize == DivotConfiguration.appIconSizeRange.upperBound)
+    #expect(DivotConfiguration(appIconSize: 20).appIconSize == 20)
+}
+
+@Test func appIconSizeChangesMakesTheBarsRenderDifferently() {
+    // The app icon size changes the left icon drawing, so changing it must
+    // rebuild the panels.
+    var configuration = DivotConfiguration.default
+    #expect(configuration.rendersSameBar(as: .default))
+    configuration.appIconSize = 20
+    #expect(!configuration.rendersSameBar(as: .default))
+}
+
 // MARK: - Version 1 migration fixtures
 
 @Test func starterV1DefaultMigratesToAVersionTwoDocument() throws {
