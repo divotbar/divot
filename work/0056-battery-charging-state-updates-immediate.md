@@ -3,6 +3,9 @@ id: "0056"
 title: Battery charging state updates immediately when plugging and unplugging
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 assigned_to: ""
@@ -123,3 +126,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:46:44Z · status active→review
 - 2026-10-12T08:46:44Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T08:47:53Z · note: review pass 3: needs some work
+- 2026-10-12T08:47:53Z · needs_input
