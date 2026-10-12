@@ -1,16 +1,17 @@
 ---
-updated_at: "2026-10-12T08:47:50Z"
-review_passes: 1
 id: "0054"
 title: "Default spacing: 17px on the right, half that between the Divot icon and workspaces, and 12px for the front app"
 type: feature
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/default-spacing-17px-on-the-right-half-t
 created_at: "2026-10-12T08:30:32Z"
+updated_at: "2026-10-12T08:47:50Z"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 
@@ -59,4 +60,4 @@ Pending human verification: the on-screen packaged-app pixel measurements and th
 - 2026-10-12T08:46:55Z · status active→review
 - 2026-10-12T08:46:56Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:47:50Z · note: review pass 1: needs some work
-
+- 2026-10-12T08:47:50Z · status review→active
