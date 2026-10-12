@@ -238,8 +238,17 @@ describe('release configuration rejection', () => {
 })
 
 describe('release version sources', () => {
-  test('the package.json release version matches the VERSION preview', () => {
+  const SEMVER = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/
+
+  test('package.json carries a semver release version', () => {
+    expect(String(packageJson.version)).toMatch(SEMVER)
+  })
+
+  test('while VERSION is a preview, package.json matches it', () => {
+    // Once RepoOS cuts a real release it writes package.json only; VERSION
+    // stays the local-preview number, so the two may then differ.
+    if (!PREVIEW_VERSION.test(version)) return
+    if (!PREVIEW_VERSION.test(String(packageJson.version))) return
     expect(packageJson.version).toBe(version)
-    expect(packageJson.version).toMatch(PREVIEW_VERSION)
   })
 })
