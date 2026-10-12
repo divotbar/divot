@@ -8,6 +8,10 @@ There isn't one yet. Divot is pre-alpha, and there is no signed public download.
 
 The native app reads and validates the versioned config: both sides, per-widget options, layout height/padding, the System/Light/Dark variant, and the theme family all apply, and the settings window writes the same file. Theme family colors and custom palettes are resolved to semantic tokens and repaint the bar. You can run the native app as a local preview (`just app-run`); there is still no signed public download to install. The browser examples and preview remain design artifacts and do not modify macOS.
 
+## The Wi-Fi network name doesn't appear
+
+The Wi-Fi name needs Location permission, which macOS requires for reading the current SSID. Turn the name on in Settings to ask for it once. If you denied it, the Settings row explains and links to the Location Services pane; the bar then shows the network icon without a name. Divot never reads the name while the permission is off.
+
 ## Website build fails on a link
 
 VitePress treats dead internal links as errors. Check the target Markdown filename and path. Run `bun run check` after correcting the source; do not disable dead-link checks.

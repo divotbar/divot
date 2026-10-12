@@ -22,7 +22,8 @@ const name = computed(() => ['Write', 'Build', 'Browse', 'Listen'][active.value 
         <span v-if="preset !== 'focus'" class="app-name">↗ &nbsp; Finder</span>
         <svg v-if="preset !== 'focus'" class="wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-label="Illustrative Wi-Fi status" role="img"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
         <span v-if="preset !== 'focus'" class="battery"><span aria-hidden="true"></span>84%</span>
-        <span class="demo-clock">Sat 10 Oct &nbsp; 09:41</span>
+        <span class="demo-date">Sat 10 Oct</span>
+        <span class="demo-time">09:41</span>
       </div>
     </div>
     <div v-if="!compact" class="preview-controls">

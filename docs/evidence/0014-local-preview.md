@@ -69,6 +69,9 @@ indeterminate without Accessibility permission. `divot --widgets` from the
 packaged bundle printed the default layout `layout.left=workspaces,front-app`
 and `layout.right=battery,clock,network,volume` with live provider values.
 
+> Note: this capture predates task 0033; the default right group is now
+> `battery,time,network,volume` after the clock split.
+
 ## a-bar inspection (read-only)
 
 - a-bar 1.6.0 installed via Homebrew cask at `/Applications/a-bar.app`.

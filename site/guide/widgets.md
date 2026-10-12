@@ -13,13 +13,19 @@ The native providers below are implemented and unit-tested in the Swift package,
 | `workspaces` | left | Window-manager workspaces | Manager events or bounded refresh (AeroSpace and yabai adapters delivered; not physically validated) |
 | `front-app` | left | Frontmost application | Workspace/application notifications |
 | `battery` | right | Charge and power state; click toggles keep-awake | System power notifications |
-| `clock` | right | Local time with weekday and date | Next minute boundary by default |
+| `date` | off by default | Local date | Emits immediately, then at each day boundary |
+| `time` | right | Local time | Emits immediately, then at each minute boundary by default; seconds optional |
 | `network` | right | Wi-Fi/network status | Network path notifications |
 | `volume` | right | Output volume | Audio notifications |
+| `appearance` | off by default | Current light/dark mode (sun or moon); click toggles Divot's own bar theme | System appearance notifications |
 
 Both sides are ordered item groups and every supported item can move between them. The native app fills this default bar from built-in providers — no setup questionnaire and no shell polling. Workspace app icons and empty-state visibility are optional settings on `workspaces`.
 
-Clicking the battery item toggles a Caffeine-style keep-awake assertion and shows a cup indicator while it is held. The cup tracks Divot's own assertion only: another app preventing sleep — for example a call holding the microphone and speaker sleep assertions — does not show it while Divot's toggle is off. Keep-awake uses the public IOKit power-assertion API only; quitting the app releases any assertion it holds. Whether the state is remembered across launches is an opt-in setting (default off). This is implemented and unit-tested in the Swift package, not physically validated.
+The date and time are separate items (task 0033). The default `right` group is `battery`, `time`, `network`, `volume`: the time is on at first launch and the date is off. The date can include the weekday and the year, use a day-first order, a custom separator, or a custom pattern; the time can show seconds and use 24-hour, AM/PM, or a custom pattern. Both edit the `widgets.date` and `widgets.time` objects the [configuration reference](../reference/configuration) documents. The legacy combined `clock` item is accepted and migrated to `date`/`time` on load.
+
+While the Mac is charging, the battery item draws the bolt as a separate badge in the theme accent green over the plain battery outline; the outline and label keep the normal foreground colour. When charging stops, there is no bolt.
+
+Clicking the battery item toggles a Caffeine-style keep-awake assertion and shows a cup indicator while it is held. The cup and the charging bolt stay separate: the cup is the keep-awake state, the bolt is the charge state. The cup tracks Divot's own assertion only: another app preventing sleep — for example a call holding the microphone and speaker sleep assertions — does not show it while Divot's toggle is off. Keep-awake uses the public IOKit power-assertion API only; quitting the app releases any assertion it holds. Whether the state is remembered across launches is an opt-in setting (default off). This is implemented and unit-tested in the Swift package, not physically validated.
 
 ## Failure and unavailable states
 
@@ -27,11 +33,11 @@ A disabled provider removes its observers and cancels outstanding work. A failed
 
 ## Permissions
 
-The clock, battery, volume, and frontmost-app items need no special permission. Accessibility is only relevant to detecting the native menu bar on notched displays, not to these widgets. The network item can optionally display the current Wi-Fi network name (SSID); this feature requires location permission on macOS and is only requested when the user explicitly enables it in Settings.
+The date, time, battery, volume, and frontmost-app items need no special permission themselves. Divot asks macOS for Accessibility once at launch when it is not already granted, because the notched-display menu-bar probe uses it; denying it leaves the rest of the bar running. The network item can optionally display the current Wi-Fi network name (SSID); this feature requires Location permission on macOS and is only requested when the user turns the toggle on. If permission is denied, the Settings row says so and links to the Location Services pane while the bar shows the icon only.
 
 ## Click behavior
 
-Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app, the battery item toggles keep-awake, and the network, volume, and clock items open the matching System Settings pane. The exact pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
+Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; and the date, time, network, and volume items open the matching System Settings pane. The exact pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
 
 ## Future script widgets
 
