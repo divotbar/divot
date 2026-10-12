@@ -2,7 +2,7 @@
 id: "0057"
 title: "Battery, volume and Wi-Fi icons match the native menu bar icon size"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -59,4 +59,4 @@ Before the change the same three symbols resolved at the SF Symbol default of 13
 - 2026-10-12T08:48:30Z · note: review pass 1: good to go
 - 2026-10-12T09:11:28Z · status review→active
 - 2026-10-12T09:11:28Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-12T09:13:44Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T09:13:44Z · status active→review
