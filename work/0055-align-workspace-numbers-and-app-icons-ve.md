@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-12T08:38:22Z"
-review_passes: 2
+last_close_out_gate_ms: 50271
+last_close_out_gate_at: "2026-10-12T09:05:03.654Z"
 id: "0055"
 title: Align workspace numbers and app icons vertically at every icon size
 type: bug
@@ -11,6 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-workspace-numbers-and-app-icons-ve
 created_at: "2026-10-12T08:31:59Z"
+updated_at: "2026-10-12T09:05:03Z"
+review_passes: 2
 review_rounds: 1
 ---
 ## Problem
@@ -45,4 +47,5 @@ This is layout alignment only. Do not change the icon size setting, the spacing 
 - 2026-10-12T08:37:23Z · status active→review
 - 2026-10-12T08:37:23Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T08:38:22Z · note: review pass 2: good to go
+- 2026-10-12T09:05:03Z · close-out gate completed in 50s
 
