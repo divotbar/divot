@@ -2,14 +2,14 @@
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
-status: inbox
+status: ready
 priority: p1
 area: infra
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T14:36:53Z"
+updated_at: "2026-10-12T14:36:55Z"
 ---
 ## Problem
 Divot's repoos.toml has no [release] block and no [[distribution]] rows, so RepoOS shows no Releases page for this project.
@@ -30,3 +30,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 ## Activity
 
 - 2026-10-12T14:36:53Z · created · njachowski@gmail.com
+- 2026-10-12T14:36:55Z · status inbox→ready
