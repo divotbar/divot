@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-12T07:17:11Z"
-review_passes: 1
+last_close_out_gate_ms: 63393
+last_close_out_gate_at: "2026-10-12T07:39:44.571Z"
 id: "0052"
 title: "Selected workspace chip style, app icon size setting, and chip opacity for all chips"
 type: feature
@@ -11,6 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/selected-workspace-chip-style-app-icon-s
 created_at: "2026-10-12T06:59:51Z"
+updated_at: "2026-10-12T07:39:44Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -47,4 +49,5 @@ This supersedes the selected-chip part of #0047, which is marked done but still 
 - 2026-10-12T07:16:07Z · status active→review
 - 2026-10-12T07:16:07Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T07:17:11Z · note: review pass 1: good to go
+- 2026-10-12T07:39:44Z · close-out gate completed in 63s
 
