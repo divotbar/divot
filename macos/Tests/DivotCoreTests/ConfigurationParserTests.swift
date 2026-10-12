@@ -233,15 +233,15 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "expected 24–40")
 }
 
-@Test func itemSpacingDefaultsToSeventeenAndHalfAndParsesExplicitly() throws {
+@Test func itemSpacingDefaultsToTheUniformEightAndParsesExplicitly() throws {
     // A document written before #0054 omits both keys; the parser keeps the
-    // maintainer's defaults instead of rejecting it.
+    // restored pre-#0054 uniform 8 pt default instead of rejecting it (#0060).
     let omitted = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
     let defaults = try ConfigurationParser.parse(jsonObject: omitted).configuration
-    #expect(defaults.layout.rightItemSpacing == 17)
-    #expect(defaults.layout.leftItemSpacing == 8.5)
-    #expect(defaults.barMetrics.rightItemSpacing == 17)
-    #expect(defaults.barMetrics.leftItemSpacing == 8.5)
+    #expect(defaults.layout.rightItemSpacing == 8)
+    #expect(defaults.layout.leftItemSpacing == 8)
+    #expect(defaults.barMetrics.rightItemSpacing == 8)
+    #expect(defaults.barMetrics.leftItemSpacing == 8)
 
     // Explicit values are honored and reach the render metrics.
     let explicit = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"rightItemSpacing":20,"leftItemSpacing":9},"left":["clock"],"right":[]}"##)

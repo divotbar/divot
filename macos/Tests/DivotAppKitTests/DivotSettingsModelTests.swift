@@ -211,11 +211,11 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem(),
 @Test func itemSpacingDefaultsAndEachSidePersistsIndependently() throws {
     let (model, controller) = try makeModel()
 
-    // The defaults are 17 pt on the right and half that on the left (#0054).
-    #expect(model.configuration.layout.rightItemSpacing == 17)
-    #expect(model.configuration.layout.leftItemSpacing == 8.5)
-    #expect(model.configuration.barMetrics.rightItemSpacing == 17)
-    #expect(model.configuration.barMetrics.leftItemSpacing == 8.5)
+    // The defaults are the restored pre-#0054 uniform 8 pt on both sides (#0060).
+    #expect(model.configuration.layout.rightItemSpacing == 8)
+    #expect(model.configuration.layout.leftItemSpacing == 8)
+    #expect(model.configuration.barMetrics.rightItemSpacing == 8)
+    #expect(model.configuration.barMetrics.leftItemSpacing == 8)
 
     model.setRightItemSpacing(20)
     model.setLeftItemSpacing(11)
