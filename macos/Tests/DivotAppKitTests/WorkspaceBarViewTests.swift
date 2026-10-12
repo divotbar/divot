@@ -196,6 +196,12 @@ private func isAppIconPixel(_ color: NSColor) -> Bool {
     }
     #expect(attachmentBounds?.width == 22)
     #expect(attachmentBounds?.height == 22)
+    // The offset is derived from the row and the icon, not a fixed nudge, so a
+    // regression to a constant is caught directly here (#0055).
+    let expectedOffset = WorkspaceBarView.appIconBaselineOffset(iconSize: 22,
+                                                                rowHeight: metrics.height,
+                                                                font: BarFont.chip(metrics, weight: .regular))
+    #expect(attachmentBounds?.origin.y == expectedOffset)
 }
 
 @MainActor
@@ -207,8 +213,12 @@ private func isAppIconPixel(_ color: NSColor) -> Bool {
         let apps = [WorkspaceApp(identity: .init(bundleID: "com.apple.Safari", name: "Safari"),
                                  pid: 1,
                                  windowID: 1)]
+        // A focused chip (semibold, no marker) and a non-focused occupied chip
+        // (regular, with an occupancy marker after the icon) so the marker path
+        // is exercised too.
         let snapshot = WorkspaceSnapshot(manager: .aerospace,
-                                         workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true, apps: apps)])
+                                         workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true, apps: apps),
+                                                      Workspace(id: WorkspaceID("2"), apps: apps)])
 
         let metrics = BarMetrics.scaled(textSize: 14, appIconSize: iconSize)
         let feed = WorkspaceFeed()
@@ -224,21 +234,24 @@ private func isAppIconPixel(_ color: NSColor) -> Bool {
         await feed.waitForPendingWork()
         view.layoutSubtreeIfNeeded()
 
-        let chip = try #require(firstChip("1", in: view), "chip missing at icon size \(iconSize)")
-        let bitmap = try #require(renderedBitmap(of: chip), "chip did not render at icon size \(iconSize)")
+        for id in ["1", "2"] {
+            let chip = try #require(firstChip(id, in: view), "chip \(id) missing at icon size \(iconSize)")
+            let bitmap = try #require(renderedBitmap(of: chip), "chip \(id) did not render at icon size \(iconSize)")
 
-        // The icon is the solid blue square; the number is the text drawn ahead
-        // of it. Measure their actual drawn vertical centres.
-        let iconBox = try #require(boundingBox(in: bitmap, where: { _, _, color in isAppIconPixel(color) }),
-                                   "no icon pixels at icon size \(iconSize)")
-        let numberBox = try #require(boundingBox(in: bitmap, where: { x, _, color in
-            // Restrict to the left of the icon so an anti-aliased icon edge can
-            // never drag the number's measured centre toward the icon.
-            x < iconBox.minX - 1 && color.alphaComponent > 0.5 && !isAppIconPixel(color)
-        }), "no number pixels at icon size \(iconSize)")
+            // The icon is the solid blue square; the number is the text drawn
+            // ahead of it. Measure their actual drawn vertical centres.
+            let iconBox = try #require(boundingBox(in: bitmap, where: { _, _, color in isAppIconPixel(color) }),
+                                       "no icon pixels in chip \(id) at icon size \(iconSize)")
+            let numberBox = try #require(boundingBox(in: bitmap, where: { x, _, color in
+                // Restrict to the left of the icon so an anti-aliased icon edge
+                // (or the marker to the right) can never drag the number's
+                // measured centre toward the icon.
+                x < iconBox.minX - 1 && color.alphaComponent > 0.5 && !isAppIconPixel(color)
+            }), "no number pixels in chip \(id) at icon size \(iconSize)")
 
-        #expect(abs(numberBox.centreY - iconBox.centreY) <= 0.5,
-                "number and icons out of line at icon size \(iconSize)")
+            #expect(abs(numberBox.centreY - iconBox.centreY) <= 0.5,
+                    "number and icons out of line in chip \(id) at icon size \(iconSize)")
+        }
     }
 }
 
