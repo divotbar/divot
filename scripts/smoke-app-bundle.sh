@@ -85,7 +85,14 @@ case "$WIDGETS" in
   *"layout.right=battery,time,network,volume"*) ;;
   *) fail "default right group is not battery,time,network,volume" ;;
 esac
-pass "default bar layout through the packaged app"
+# The left app icons must default to the status icon size (#0052). This is a
+# packaged-app observation of the computed metrics, not a visual claim.
+ICON_SIZE="$(printf '%s\n' "$WIDGETS" | sed -n 's/.*metrics\.iconSize=\([0-9][0-9]*\).*/\1/p' | head -1)"
+APP_ICON_SIZE="$(printf '%s\n' "$WIDGETS" | sed -n 's/.*metrics\.appIconSize=\([0-9][0-9]*\).*/\1/p' | head -1)"
+[ -n "$ICON_SIZE" ] || fail "widget report did not print the status icon size"
+[ -n "$APP_ICON_SIZE" ] || fail "widget report did not print the app icon size"
+[ "$ICON_SIZE" = "$APP_ICON_SIZE" ] || fail "default app icon size $APP_ICON_SIZE does not match status icon size $ICON_SIZE"
+pass "default bar layout and matching default app icon size through the packaged app"
 
 [ -f "$MANIFEST" ] || fail "missing manifest $MANIFEST"
 ARCHIVE="$(sed -n 's/^archive=//p' "$MANIFEST")"

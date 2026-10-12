@@ -185,6 +185,29 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem(),
 }
 
 @MainActor
+@Test func appIconSizeStartsAtTheStatusIconSizeAndPersists() throws {
+    let (model, controller) = try makeModel()
+
+    // The default matches the status icon size so the left app icons line up
+    // with the right-side icons (#0052).
+    #expect(model.configuration.appIconSize == Double(BarMetrics.default.iconSize))
+    #expect(model.configuration.barMetrics.appIconSize == model.configuration.barMetrics.iconSize)
+
+    model.setAppIconSize(20)
+    #expect(model.configuration.appIconSize == 20)
+    #expect(model.configuration.barMetrics.appIconSize == 20)
+
+    // The change survives a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.appIconSize == 20)
+
+    // An out-of-range edit is clamped to the slider range rather than written.
+    model.setAppIconSize(100)
+    #expect(model.configuration.appIconSize == DivotConfiguration.appIconSizeRange.upperBound)
+}
+
+@MainActor
 @Test func menuBarCursorRevealDefaultsOnAndTheFallbackOffThenPersist() throws {
     let (model, controller) = try makeModel()
 

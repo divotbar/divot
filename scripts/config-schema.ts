@@ -139,7 +139,7 @@ function options(id: string, value: unknown) {
 }
 
 export function validate(value: unknown) {
-  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar', 'showAppIcon', 'showOccupiedDot', 'showEmptyDot', 'bottomShadow'], 'root')
+  shape(value, ['version', 'appearance', 'layout', 'left', 'right'], ['text', 'widgets', 'keepAwake', 'menuBar', 'showAppIcon', 'showOccupiedDot', 'showEmptyDot', 'bottomShadow', 'chipStyle', 'chipOpacity', 'appIconSize'], 'root')
   if (value.version !== 2) throw new Error('version: expected 2')
   appearance(value.appearance)
   layout(value.layout)
@@ -152,6 +152,9 @@ export function validate(value: unknown) {
   if ('showOccupiedDot' in value) boolean(value.showOccupiedDot, 'showOccupiedDot')
   if ('showEmptyDot' in value) boolean(value.showEmptyDot, 'showEmptyDot')
   if ('bottomShadow' in value) boolean(value.bottomShadow, 'bottomShadow')
+  if ('chipStyle' in value) boolean(value.chipStyle, 'chipStyle')
+  if ('chipOpacity' in value) range(value.chipOpacity, 0, 100, 'chipOpacity')
+  if ('appIconSize' in value) range(value.appIconSize, 8, 24, 'appIconSize')
   if ('widgets' in value) {
     shape(value.widgets, [], ITEMS, 'widgets')
     for (const id of Object.keys(value.widgets)) {

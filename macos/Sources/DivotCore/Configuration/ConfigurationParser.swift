@@ -55,7 +55,8 @@ public enum ConfigurationParser {
     private static func validateV2(_ value: Any) throws -> DivotConfiguration {
         let root = try shape(value, required: ["version", "appearance", "layout", "left", "right"],
                              optional: ["text", "widgets", "keepAwake", "menuBar", "showAppIcon",
-                                        "showOccupiedDot", "showEmptyDot", "bottomShadow", "chipStyle", "chipOpacity"], path: "root")
+                                        "showOccupiedDot", "showEmptyDot", "bottomShadow", "chipStyle", "chipOpacity",
+                                        "appIconSize"], path: "root")
         let appearance = try appearance(root["appearance"], path: "appearance")
         let layout = try layout(root["layout"], path: "layout")
         let text = try textOptions(root["text"])
@@ -93,6 +94,10 @@ public enum ConfigurationParser {
         // (#0047).
         var chipOpacity = 0
         if let raw = root["chipOpacity"] { chipOpacity = try intRange(raw, DivotConfiguration.chipOpacityRange, path: "chipOpacity") }
+        // App icon size defaults to the status icon size, so the left app icons
+        // match the right-side icons until it is overridden (#0052).
+        var appIconSize = Double(BarMetrics.default.iconSize)
+        if let raw = root["appIconSize"] { appIconSize = try range(raw, DivotConfiguration.appIconSizeRange, path: "appIconSize") }
         return DivotConfiguration(version: DivotConfiguration.currentVersion,
                                   appearance: appearance,
                                   layout: layout,
@@ -107,7 +112,8 @@ public enum ConfigurationParser {
                                   showEmptyDot: showEmptyDot,
                                   bottomShadow: bottomShadow,
                                   chipStyle: chipStyle,
-                                  chipOpacity: chipOpacity)
+                                  chipOpacity: chipOpacity,
+                                  appIconSize: appIconSize)
     }
 
     private static func appearance(_ value: Any?, path: String) throws -> AppearanceConfiguration {

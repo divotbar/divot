@@ -110,16 +110,21 @@ private func workspaceChip(_ id: String, in view: NSView) -> NSButton? {
 }
 
 @MainActor
-@Test func workspaceChipsCarryThemedSelectedAndOccupiedColors() async {
-    let snapshot = WorkspaceSnapshot(manager: .aerospace,
-                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
-                                                  Workspace(id: WorkspaceID("2"), apps: [WorkspaceApp(identity: .init(bundleID: "com.example.app", name: "App"), pid: 1, windowID: 1)]),
-                                                  Workspace(id: WorkspaceID("3"))])
+private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
+    WorkspaceSnapshot(manager: .aerospace,
+                      workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
+                                   Workspace(id: WorkspaceID("2"), apps: [WorkspaceApp(identity: .init(bundleID: "com.example.app", name: "App"), pid: 1, windowID: 1)]),
+                                   Workspace(id: WorkspaceID("3"))])
+}
+
+@MainActor
+@Test func workspaceChipsMatchTheRightSideChipWhenChipStyleIsOn() async {
     let feed = WorkspaceFeed()
     let theme = BarTheme.resolve(gruvboxDark, dark: true)
-    let view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme)
+    let view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil,
+                                theme: theme, enablesChipStyle: true)
     view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
-    feed.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
+    feed.start(adapter: ThemeStubAdapter(snapshotValue: themedWorkspaceSnapshot()), eventSourceProvider: nil, options: .default)
     await feed.waitForPendingWork()
     view.layoutSubtreeIfNeeded()
 
@@ -127,72 +132,121 @@ private func workspaceChip(_ id: String, in view: NSView) -> NSButton? {
     let occupied = try! #require(workspaceChip("2", in: view))
     let empty = try! #require(workspaceChip("3", in: view))
 
-    // At opacity 0 (current appearance), focused uses theme.selected, others use
-    // clear. All use the foreground text color (#0047).
-    #expect(colorMatches(focused.layer?.backgroundColor, theme.selected))
-    #expect(colorMatches(occupied.layer?.backgroundColor, .clear))
-    #expect(colorMatches(empty.layer?.backgroundColor, .clear))
-    #expect(nameColor(of: occupied.attributedTitle) == theme.foreground)
+    // With chips on, every workspace chip uses the same selected fill and
+    // rounded shape as the right-side status items (#0052). Focus is the
+    // semibold weight, never a different box.
+    for chip in [focused, occupied, empty] {
+        #expect(colorMatches(chip.layer?.backgroundColor, theme.selected))
+        #expect(chip.layer?.cornerRadius == 4)
+        #expect(chip.layer?.borderWidth == 0)
+    }
     #expect(nameColor(of: focused.attributedTitle) == theme.foreground)
+    #expect(nameColor(of: occupied.attributedTitle) == theme.foreground)
 
-    // Flat chrome (#0025): square chips with no focus border (#0047).
-    #expect(focused.layer?.cornerRadius == 0)
-    #expect(occupied.layer?.cornerRadius == 0)
-    #expect(focused.layer?.borderWidth == 0)
-    #expect(occupied.layer?.borderWidth == 0)
-
-    // The occupancy marker carries the occupied/disabled role; the name stays in
-    // the foreground so state is never color alone.
+    // The occupancy marker still carries the occupied/disabled role, so state
+    // is never color alone.
     #expect(markerColor(of: occupied.attributedTitle) == theme.occupied)
     #expect(markerColor(of: empty.attributedTitle) == theme.disabled)
-    #expect(nameColor(of: occupied.attributedTitle) == theme.foreground)
     #expect(focused.state == .on)
 }
 
 @MainActor
-@Test func workspaceChipOpacityFadesTheSelectedBackgroundAtDifferentLevels() async {
+@Test func workspaceChipsHaveNoBoxWhenChipStyleIsOff() async {
+    // The default has chips off: the focused workspace must not draw the old
+    // bordered box that the other workspaces and right-side items lack (#0052).
+    let feed = WorkspaceFeed()
+    let theme = BarTheme.resolve(gruvboxDark, dark: true)
+    let view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme)
+    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+    feed.start(adapter: ThemeStubAdapter(snapshotValue: themedWorkspaceSnapshot()), eventSourceProvider: nil, options: .default)
+    await feed.waitForPendingWork()
+    view.layoutSubtreeIfNeeded()
+
+    let focused = try! #require(workspaceChip("1", in: view))
+    let occupied = try! #require(workspaceChip("2", in: view))
+    for chip in [focused, occupied] {
+        #expect(colorMatches(chip.layer?.backgroundColor, .clear))
+        #expect(chip.layer?.cornerRadius == 0)
+        #expect(chip.layer?.borderWidth == 0)
+    }
+    // Focus remains the control's selected state and the semibold title.
+    #expect(focused.state == .on)
+}
+
+@MainActor
+@Test func workspaceChipStyleAddsTheSamePaddingAsTheRightSideChip() async throws {
+    let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                     workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true)])
+
+    func makeChip(enablesChipStyle: Bool) async throws -> NSButton {
+        let feed = WorkspaceFeed()
+        let view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil,
+                                    enablesChipStyle: enablesChipStyle)
+        view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+        feed.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
+        await feed.waitForPendingWork()
+        view.layoutSubtreeIfNeeded()
+        return try #require(workspaceChip("1", in: view))
+    }
+
+    // A plain borderless button carries no side padding; the chip adds 4 pt on
+    // each side, matching `BarItemView`'s chip padding (#0052).
+    let compact = try await makeChip(enablesChipStyle: false)
+    let chipped = try await makeChip(enablesChipStyle: true)
+    #expect(chipped.intrinsicContentSize.width == compact.intrinsicContentSize.width + BarMetrics.chipPadding * 2)
+}
+
+@MainActor
+@Test func workspaceChipOpacityFadesEveryChip() async throws {
     let snapshot = WorkspaceSnapshot(manager: .aerospace,
                                      workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true),
                                                   Workspace(id: WorkspaceID("2"))])
     let theme = BarTheme.resolve(gruvboxDark, dark: true)
 
-    // Test opacity 0: focused has full opacity, others are clear.
-    let feed = WorkspaceFeed()
-    var view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme, chipOpacity: 0)
-    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
-    feed.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
-    await feed.waitForPendingWork()
-    view.layoutSubtreeIfNeeded()
+    func chip(focusedAtOpacity opacity: Int) async throws -> (focused: NSButton, other: NSButton) {
+        let feed = WorkspaceFeed()
+        let view = WorkspaceBarView(feed: feed, icons: ThemeIconProvider(), displayScreensID: nil,
+                                    theme: theme, enablesChipStyle: true, chipOpacity: opacity)
+        view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
+        feed.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
+        await feed.waitForPendingWork()
+        view.layoutSubtreeIfNeeded()
+        return (try #require(workspaceChip("1", in: view)), try #require(workspaceChip("2", in: view)))
+    }
 
-    let focusedOp0 = try! #require(workspaceChip("1", in: view))
-    let occupiedOp0 = try! #require(workspaceChip("2", in: view))
-    #expect(colorMatches(focusedOp0.layer?.backgroundColor, theme.selected))
-    #expect(colorMatches(occupiedOp0.layer?.backgroundColor, .clear))
+    let op0 = try await chip(focusedAtOpacity: 0)
+    #expect(colorMatches(op0.focused.layer?.backgroundColor, theme.selected))
+    #expect(colorMatches(op0.other.layer?.backgroundColor, theme.selected))
 
-    // Test opacity 50: focused has 50% opacity (halfway between selected and transparent).
-    let feed50 = WorkspaceFeed()
-    view = WorkspaceBarView(feed: feed50, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme, chipOpacity: 50)
-    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
-    feed50.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
-    await feed50.waitForPendingWork()
-    view.layoutSubtreeIfNeeded()
+    let op50 = try await chip(focusedAtOpacity: 50)
+    #expect(colorMatches(op50.focused.layer?.backgroundColor, theme.selected.withAlphaComponent(0.5)))
+    #expect(colorMatches(op50.other.layer?.backgroundColor, theme.selected.withAlphaComponent(0.5)))
 
-    let focusedOp50 = try! #require(workspaceChip("1", in: view))
-    let expectedOp50 = theme.selected.withAlphaComponent(0.5)
-    #expect(colorMatches(focusedOp50.layer?.backgroundColor, expectedOp50))
-
-    // Test opacity 100: focused is fully transparent (matches bar background).
-    let feed100 = WorkspaceFeed()
-    view = WorkspaceBarView(feed: feed100, icons: ThemeIconProvider(), displayScreensID: nil, theme: theme, chipOpacity: 100)
-    view.frame = NSRect(x: 0, y: 0, width: 480, height: 32)
-    feed100.start(adapter: ThemeStubAdapter(snapshotValue: snapshot), eventSourceProvider: nil, options: .default)
-    await feed100.waitForPendingWork()
-    view.layoutSubtreeIfNeeded()
-
-    let focusedOp100 = try! #require(workspaceChip("1", in: view))
-    let expectedOp100 = theme.selected.withAlphaComponent(0.0)
-    #expect(colorMatches(focusedOp100.layer?.backgroundColor, expectedOp100))
+    let op100 = try await chip(focusedAtOpacity: 100)
+    #expect(colorMatches(op100.focused.layer?.backgroundColor, theme.selected.withAlphaComponent(0.0)))
+    #expect(colorMatches(op100.other.layer?.backgroundColor, theme.selected.withAlphaComponent(0.0)))
 }
+
+@MainActor
+@Test func rightSideChipsUseTheSharedOpacity() {
+    let theme = BarTheme.resolve(gruvboxDark, dark: true)
+    let presentation = WidgetPresentation(symbolName: "battery.25", text: "50%", accessibilityLabel: "Battery: 50%")
+
+    func chip(opacity: Int) -> BarItemView {
+        let view = BarItemView(metrics: .default, enablesChipStyle: true, chipOpacity: opacity)
+        view.apply(theme: theme)
+        view.update(presentation, action: .none)
+        view.updateLayer()
+        return view
+    }
+
+    // The right-side chips fade with the same shared value as the left workspaces
+    // (#0052).
+    #expect(colorMatches(chip(opacity: 0).layer?.backgroundColor, theme.selected))
+    #expect(colorMatches(chip(opacity: 50).layer?.backgroundColor, theme.selected.withAlphaComponent(0.5)))
+    #expect(colorMatches(chip(opacity: 100).layer?.backgroundColor, theme.selected.withAlphaComponent(0.0)))
+}
+
 
 private func markerColor(of string: NSAttributedString) -> NSColor? {
     guard string.length > 0 else { return nil }

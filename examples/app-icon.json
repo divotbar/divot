@@ -20,5 +20,6 @@
     "network",
     "volume"
   ],
-  "showAppIcon": true
+  "showAppIcon": true,
+  "appIconSize": 18
 }
