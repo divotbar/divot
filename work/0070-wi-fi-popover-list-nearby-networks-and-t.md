@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-12T19:15:21Z"
-review_passes: 1
+last_close_out_gate_ms: 53514
+last_close_out_gate_at: "2026-10-12T19:20:13.978Z"
 id: "0070"
 title: "Wi-Fi popover: list nearby networks and the current one (read-only spike)"
 type: feature
@@ -14,6 +14,8 @@ branch: feat/wi-fi-popover-list-nearby-networks-and-t
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T18:53:13Z"
+updated_at: "2026-10-12T19:20:13Z"
+review_passes: 1
 handoff_signal_retry_count: 1
 ---
 ## Problem
@@ -59,4 +61,5 @@ Depends on #0069 for the Settings pane URL. Joining networks and password entry 
 - 2026-10-12T19:14:35Z · status active→review
 - 2026-10-12T19:14:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T19:15:21Z · note: review pass 1: good to go
+- 2026-10-12T19:20:13Z · close-out gate completed in 54s
 
