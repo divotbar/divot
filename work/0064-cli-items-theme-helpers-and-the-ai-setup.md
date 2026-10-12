@@ -2,7 +2,7 @@
 id: "0064"
 title: "CLI: items/theme helpers and the AI-setup docs snippet"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: [macos, docs]
 depends_on: ["0062"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T11:39:01Z"
-updated_at: "2026-10-12T11:39:01Z"
+updated_at: "2026-10-12T12:13:18Z"
 ---
 ## Problem
 Reordering items and switching themes are the most common chat requests; users also need a copy-paste way to tell an agent how to drive Divot.
@@ -30,3 +30,4 @@ Builds on #0062; do not claim features that are not implemented.
 ## Activity
 
 - 2026-10-12T11:39:01Z · created · njachowski@gmail.com
+- 2026-10-12T12:13:18Z · status inbox→ready
