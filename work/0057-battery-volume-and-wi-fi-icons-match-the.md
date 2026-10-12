@@ -2,14 +2,14 @@
 id: "0057"
 title: "Battery, volume and Wi-Fi icons match the native menu bar icon size"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-volume-and-wi-fi-icons-match-the
 created_at: "2026-10-12T08:36:24Z"
-updated_at: "2026-10-12T09:20:31Z"
+updated_at: "2026-10-12T09:21:32Z"
 review_rounds: 2
 review_passes: 3
 ---
@@ -70,3 +70,4 @@ Before the change the same three symbols resolved at the SF Symbol default of 13
 - 2026-10-12T09:18:15Z · status review→active
 - 2026-10-12T09:20:26Z · body: section Acceptance criteria
 - 2026-10-12T09:20:31Z · body: section Observed Results
+- 2026-10-12T09:21:32Z · status active→review
