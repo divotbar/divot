@@ -2,7 +2,7 @@
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
-status: review
+status: active
 priority: p1
 area: infra
 assigned_to: ""
@@ -10,8 +10,8 @@ created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
 created_at: "2026-10-12T14:36:53Z"
 updated_at: "2026-10-12T15:46:20Z"
+review_rounds: 2
 review_passes: 2
-review_rounds: 1
 ---
 ## Problem
 Divot's repoos.toml has no [release] block and no [[distribution]] rows, so RepoOS shows no Releases page for this project.
@@ -51,3 +51,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T15:45:01Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T15:46:20Z · note: review pass 3: needs some work
 - 2026-10-12T15:46:20Z · message_delivered: 1 message(s)
+- 2026-10-12T15:46:20Z · status review→active
