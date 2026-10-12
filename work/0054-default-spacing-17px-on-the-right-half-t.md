@@ -65,3 +65,4 @@ Pending human verification: the on-screen packaged-app pixel measurements and th
 - 2026-10-12T08:47:50Z · status review→active
 - 2026-10-12T08:49:20Z · body: section Verification
 - 2026-10-12T08:49:47Z · status active→review
+- 2026-10-12T08:49:47Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
