@@ -122,6 +122,28 @@ public struct WidgetIndicator: Equatable, Sendable {
     }
 }
 
+/// A small symbol drawn over an item's leading symbol.
+///
+/// The charging bolt is the first user: it is a separate element on top of the
+/// battery outline so the outline keeps the bar's normal colour while the bolt
+/// draws in the theme's accent green. It is deliberately distinct from
+/// `WidgetIndicator`, which sits after the text rather than over the icon.
+public struct WidgetBadge: Equatable, Sendable {
+    /// The semantic color role the view resolves for the current appearance.
+    public enum Role: String, Equatable, Sendable {
+        /// Charging: the bolt is drawn from the theme's accent set.
+        case charging
+    }
+
+    public let symbolName: String
+    public let role: Role
+
+    public init(symbolName: String, role: Role) {
+        self.symbolName = symbolName
+        self.role = role
+    }
+}
+
 /// How one item should look: an optional SF Symbol, compact text, and the
 /// accessible description. Kept pure so it is testable without a window server
 /// and so every widget shares one presentation path.
@@ -139,19 +161,23 @@ public struct WidgetPresentation: Equatable, Sendable {
     public let isError: Bool
     /// An optional state indicator drawn after the text (e.g. the keep-awake cup).
     public let indicator: WidgetIndicator?
+    /// An optional symbol drawn over the leading icon (e.g. the charging bolt).
+    public let badge: WidgetBadge?
 
     public init(symbolName: String?,
                 iconBundleIdentifier: String? = nil,
                 text: String,
                 accessibilityLabel: String,
                 isError: Bool = false,
-                indicator: WidgetIndicator? = nil) {
+                indicator: WidgetIndicator? = nil,
+                badge: WidgetBadge? = nil) {
         self.symbolName = symbolName
         self.iconBundleIdentifier = iconBundleIdentifier
         self.text = text
         self.accessibilityLabel = accessibilityLabel
         self.isError = isError
         self.indicator = indicator
+        self.badge = badge
     }
 }
 
@@ -256,7 +282,14 @@ public enum WidgetPresenter {
                                       accessibilityLabel: description,
                                       indicator: indicator)
         case .internalBattery:
-            let symbol = batterySymbol(percentage: snapshot.percentage, charging: snapshot.isCharging)
+            // The charging outline stays the full battery it drew before; only
+            // the bolt is split out so it can be tinted on its own (#0058).
+            let symbol = snapshot.isCharging ? "battery.100" : batterySymbol(percentage: snapshot.percentage)
+            // The bolt is a separate green element over the battery outline, so
+            // the outline keeps the normal foreground colour (#0058).
+            let badge = snapshot.isCharging
+                ? WidgetBadge(symbolName: "bolt.fill", role: .charging)
+                : nil
             let text = options.showPercentage ? (snapshot.percentage.map { "\($0)%" } ?? "") : ""
             let percentageText = snapshot.percentage.map { "\($0)%" } ?? "state unknown"
             var description = "Battery \(percentageText)"
@@ -267,12 +300,12 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: symbol,
                                       text: text,
                                       accessibilityLabel: description,
-                                      indicator: indicator)
+                                      indicator: indicator,
+                                      badge: badge)
         }
     }
 
-    private static func batterySymbol(percentage: Int?, charging: Bool) -> String {
-        if charging { return "battery.100.bolt" }
+    private static func batterySymbol(percentage: Int?) -> String {
         switch percentage ?? 0 {
         case ..<13: return "battery.0"
         case ..<38: return "battery.25"

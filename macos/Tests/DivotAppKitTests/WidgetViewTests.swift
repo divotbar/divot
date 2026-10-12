@@ -45,24 +45,71 @@ private func imageViews(in view: NSView) -> [NSImageView] {
                                                                  isCharging: charging))))
     }
 
-    // A charging snapshot resolves the bolt symbol on the bar item.
+    // While charging the outline is the plain full battery and the bolt is a
+    // separate element over it, so the outline keeps the bar's normal colour
+    // (#0058).
     let charging = BarItemView()
     charging.update(presentation(charging: true), action: .none)
-    #expect(charging.displayedSymbolName == "battery.100.bolt")
+    #expect(charging.displayedSymbolName == "battery.100")
+    #expect(charging.displayedBadgeSymbolName == "bolt.fill")
+    #expect(charging.isBadgeVisible)
     #expect(imageViews(in: charging).contains { !$0.isHidden && $0.image != nil })
 
-    // The same level without charging resolves the plain battery symbol.
+    // Not charging: the same plain battery symbol and no bolt at all.
     let plain = BarItemView()
     plain.update(presentation(charging: false), action: .none)
     #expect(plain.displayedSymbolName == "battery.75")
+    #expect(plain.displayedBadgeSymbolName == nil)
+    #expect(!plain.isBadgeVisible)
     #expect(imageViews(in: plain).contains { !$0.isHidden && $0.image != nil })
 
     // A live switch on the same view re-resolves the icon, so the bolt appears
     // and disappears with the power source.
     charging.update(presentation(charging: false), action: .none)
-    #expect(charging.displayedSymbolName == "battery.75")
+    #expect(charging.displayedBadgeSymbolName == nil)
+    #expect(!charging.isBadgeVisible)
     charging.update(presentation(charging: true), action: .none)
-    #expect(charging.displayedSymbolName == "battery.100.bolt")
+    #expect(charging.displayedBadgeSymbolName == "bolt.fill")
+    #expect(charging.isBadgeVisible)
+}
+
+/// Only the charging bolt takes the theme's accent green: the battery outline
+/// and the label keep the foreground colour, and with no charge there is no
+/// green at all (#0058).
+@MainActor
+@Test func onlyTheChargingBoltUsesTheThemeAccentGreen() {
+    // The built-in theme accent is the fixed green the bolt draws with.
+    let theme = BarTheme.systemDefault
+    let green = try! #require(NSColor(hexString: "#D6F58A"))
+    #expect(theme.accent.isEqual(green))
+
+    func presentation(charging: Bool) -> WidgetPresentation {
+        WidgetPresenter.present(
+            id: .battery,
+            state: WidgetState(id: .battery, revision: 1,
+                               content: .battery(BatterySnapshot(presence: .internalBattery,
+                                                                 percentage: 80,
+                                                                 isCharging: charging))))
+    }
+
+    let charging = BarItemView()
+    charging.apply(theme: theme)
+    charging.update(presentation(charging: true), action: .none)
+    let badgeTint = try! #require(charging.badgeTintColor)
+    #expect(badgeTint.isEqual(theme.accent))
+    // The outline and the label are the foreground, never the bolt green.
+    #expect(charging.iconTintColor.isEqual(theme.foreground))
+    #expect(charging.itemTextColor.isEqual(theme.foreground))
+    #expect(!charging.iconTintColor.isEqual(theme.accent))
+    #expect(!charging.itemTextColor.isEqual(theme.accent))
+
+    // Not charging: no bolt, so nothing carries the accent green.
+    let plain = BarItemView()
+    plain.apply(theme: theme)
+    plain.update(presentation(charging: false), action: .none)
+    #expect(plain.badgeTintColor == nil)
+    #expect(!plain.iconTintColor.isEqual(theme.accent))
+    #expect(!plain.itemTextColor.isEqual(theme.accent))
 }
 
 /// The keep-awake cup is the battery item's only state mark. A second mark (a
@@ -77,7 +124,7 @@ private func imageViews(in view: NSView) -> [NSImageView] {
             state: WidgetState(id: .battery, revision: 1,
                                content: .battery(BatterySnapshot(presence: .internalBattery,
                                                                  percentage: 63,
-                                                                 isCharging: true,
+                                                                 isCharging: false,
                                                                  isKeepingAwake: keepingAwake))))
     }
 
