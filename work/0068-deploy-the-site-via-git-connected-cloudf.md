@@ -12,7 +12,7 @@ branch: feat/deploy-the-site-via-git-connected-cloudf
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T14:43:34Z"
-updated_at: "2026-10-12T18:53:16Z"
+updated_at: "2026-10-12T18:54:12Z"
 ---
 ## Problem
 The site deploys through .github/workflows/site.yml (GitHub Actions to Cloudflare Pages, main only, skipped without secrets). The maintainer wants the same setup as the RepoOS repo: git-connected Cloudflare Workers, main = dev, prod = production at divotbar.app, plus the Deployments page in RepoOS.
@@ -44,3 +44,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 - 2026-10-12T18:47:55Z · status ready→active
 - 2026-10-12T18:53:15Z · status active→review
 - 2026-10-12T18:53:16Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T18:54:12Z · note: review pass 1: good to go
