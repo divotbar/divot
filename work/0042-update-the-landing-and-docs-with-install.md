@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T13:23:46Z"
+updated_at: "2026-10-12T13:27:53Z"
 ---
 ## Problem
 
@@ -32,9 +32,28 @@ The site doesn't tell users how to get the app. Once the release exists, it shou
 
 Depends on the unsigned DMG release task. Do not promise signed or notarized builds yet.
 
+## Shots
+```json
+[
+{
+  "label": "Install guide: first release not published, no download button",
+  "target": "website",
+  "route": "/guide/install",
+  "highlight": ".install-pending"
+},
+{
+  "label": "Landing page links to the install guide",
+  "target": "website",
+  "route": "/",
+  "highlight": "a[href=\"/guide/install\"]"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
 - 2026-10-12T13:23:45Z · body: section Acceptance criteria
 - 2026-10-12T13:23:46Z · status inbox→ready
 - 2026-10-12T13:23:46Z · status ready→active, branch
+- 2026-10-12T13:27:53Z · body: section Shots
