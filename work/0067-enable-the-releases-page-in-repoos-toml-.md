@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-12T17:16:58.283Z: repoos check failed: ◆ Check plan"
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
@@ -15,7 +17,6 @@ review_model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
 updated_at: "2026-10-12T17:16:57Z"
 review_passes: 4
-last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 review_rounds: 2
 ---
 ## Problem
@@ -91,3 +92,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:38:31Z · message_queued at 2026-10-12T16:38:31.208Z
 - 2026-10-12T16:48:06Z · cli_override, model_override
 - 2026-10-12T17:16:57Z · message_delivered: 2 message(s)
+
