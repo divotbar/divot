@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 56588
-last_close_out_gate_at: "2026-10-12T11:50:20.409Z"
 id: "0061"
 title: Prompt for Accessibility permission at launch when missing
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: ea1ed5f6f4b1283614b7ff0cf3319cb43f8e892e
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/prompt-for-accessibility-permission-at-l
 created_at: "2026-10-12T11:38:56Z"
-updated_at: "2026-10-12T11:50:20Z"
+updated_at: "2026-10-12T11:50:24Z"
+last_close_out_gate_ms: 56588
+last_close_out_gate_at: "2026-10-12T11:50:20.409Z"
 review_passes: 1
 ---
 ## Problem
@@ -39,4 +40,4 @@ No private APIs, no polling. Keep the existing stderr message.
 - 2026-10-12T11:45:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T11:46:30Z · note: review pass 1: good to go
 - 2026-10-12T11:50:20Z · close-out gate completed in 57s
-
+- 2026-10-12T11:50:24Z · status review→done, release:success
