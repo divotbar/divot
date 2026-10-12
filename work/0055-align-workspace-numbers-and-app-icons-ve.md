@@ -2,14 +2,14 @@
 id: "0055"
 title: Align workspace numbers and app icons vertically at every icon size
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/align-workspace-numbers-and-app-icons-ve
 created_at: "2026-10-12T08:31:59Z"
-updated_at: "2026-10-12T08:32:01Z"
+updated_at: "2026-10-12T08:35:25Z"
 ---
 ## Problem
 
@@ -36,3 +36,4 @@ This is layout alignment only. Do not change the icon size setting, the spacing 
 - 2026-10-12T08:31:59Z · created · njachowski@gmail.com
 - 2026-10-12T08:32:00Z · status inbox→ready
 - 2026-10-12T08:32:01Z · status ready→active, branch
+- 2026-10-12T08:35:25Z · status active→review
