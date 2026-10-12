@@ -3,6 +3,9 @@ id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
 status: review
+needs_input: true
+needs_input_reason: review-failed
+needs_input_detail: the cursor agent timed out after 900s
 priority: p1
 area: infra
 assigned_to: ""
@@ -36,3 +39,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T14:42:59Z · status active→review
 - 2026-10-12T14:43:00Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T15:05:39Z · note: review pass 1: failed — no usable report
+- 2026-10-12T15:05:39Z · needs_input
