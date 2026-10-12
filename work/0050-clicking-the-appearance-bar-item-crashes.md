@@ -2,7 +2,7 @@
 id: "0050"
 title: Clicking the Appearance bar item crashes Divot (SIGTRAP)
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -95,4 +95,4 @@ app still needs a human to confirm on hardware.
 - 2026-10-12T05:09:55Z · status inbox→ready
 - 2026-10-12T05:09:56Z · status ready→active, branch
 - 2026-10-12T05:19:41Z · body: section Evidence
-- 2026-10-12T05:21:27Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T05:21:27Z · status active→review
