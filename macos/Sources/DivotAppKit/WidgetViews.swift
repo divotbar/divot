@@ -169,9 +169,12 @@ final class BarItemView: NSView {
         }
 
         let contentHeight = max(metrics.iconSize, textField.fittingSize.height)
-        let chipPadding = enablesChipStyle ? BarMetrics.chipPadding : 0.0
-        return NSSize(width: contentWidth + chipPadding * 2,
-                      height: contentHeight + chipPadding * 2)
+        // The chip chrome pads every side through the one shared metric, so a
+        // right-side chip and the selected workspace chip are the same size
+        // (#0059).
+        guard enablesChipStyle else { return NSSize(width: contentWidth, height: contentHeight) }
+        let chip = metrics.chipSize(contentWidth: contentWidth, contentHeight: contentHeight)
+        return NSSize(width: chip.width, height: chip.height)
     }
 
     /// The width the label cell actually draws. `NSTextField.intrinsicContentSize`

@@ -78,6 +78,32 @@ import Testing
     #expect(defaults.leftItemSpacing == 8.5)
 }
 
+// MARK: - Chip size (#0059)
+
+@Test func chipSizePadsEverySideSoEveryChipSharesOneShape() {
+    // The selected workspace chip and the right-side status chips both pad their
+    // content through `chipSize`, so they are the same size at any text scale.
+    // Before #0059 the workspace chip added the padding to its width only and
+    // stayed visibly shorter than the right-side chip.
+    let m = BarMetrics()
+    let size = m.chipSize(contentWidth: 40, contentHeight: 16)
+    #expect(size.width == 40 + BarMetrics.chipPadding * 2)
+    #expect(size.height == 16 + BarMetrics.chipPadding * 2)
+    // Padding is symmetric on both axes, so width and height grow together.
+    #expect(size.width - 40 == size.height - 16)
+    #expect(size.width - 40 == BarMetrics.chipPadding * 2)
+}
+
+@Test func chipSizeGuardsNonFiniteAndNegativeContent() {
+    let m = BarMetrics()
+    let guarded = m.chipSize(contentWidth: .nan, contentHeight: -4)
+    #expect(guarded.width == BarMetrics.chipPadding * 2)
+    #expect(guarded.height == BarMetrics.chipPadding * 2)
+    let infinite = m.chipSize(contentWidth: .infinity, contentHeight: .infinity)
+    #expect(infinite.width == BarMetrics.chipPadding * 2)
+    #expect(infinite.height == BarMetrics.chipPadding * 2)
+}
+
 // MARK: - Text size and proportional icons (#0022)
 
 @Test func defaultTextSizeIsLargerThanTheOldFixedSize() {
