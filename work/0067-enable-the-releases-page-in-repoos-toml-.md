@@ -1,6 +1,4 @@
 ---
-check_retry_count: 1
-last_check_failure: "repoos check at 2026-10-12T17:16:58.283Z: repoos check failed: ◆ Check plan"
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
@@ -15,7 +13,9 @@ model_override: sonnet
 review_cli_override: claude code
 review_model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T17:16:57Z"
+updated_at: "2026-10-12T17:20:02Z"
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-12T17:16:58.283Z: repoos check failed: ◆ Check plan"
 review_passes: 4
 review_rounds: 2
 ---
@@ -92,4 +92,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:38:31Z · message_queued at 2026-10-12T16:38:31.208Z
 - 2026-10-12T16:48:06Z · cli_override, model_override
 - 2026-10-12T17:16:57Z · message_delivered: 2 message(s)
-
+- 2026-10-12T17:20:02Z · note: Automated verification (review pass 6, latest): Browser console-error check (handoff evidence): skipped — UI handoff browser verification did not apply to this task. Guard `Publish Divot`: passed — negative-test evidence in scripts/release-config.test.ts. Guard `GitHub Releases`: passed. Guard `github-release`: passed. Guard `Homebrew`: passed. Guard `homebrew`: passed. Nothing in the section is failed or not run, so it cannot clamp a verdict; the review's own 'needs some work' text is not produced by this section. The handoff check failure was the flaky site step timing out after 600s (check run 582); the automatic retry (run 584) and a fresh repoos check --changed main both pass.
