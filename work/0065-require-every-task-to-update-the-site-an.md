@@ -2,14 +2,14 @@
 id: "0065"
 title: Require every task to update the site and docs it affects (AGENTS.md rule)
 type: chore
-status: ready
+status: active
 priority: p1
 area: docs
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/require-every-task-to-update-the-site-an
 created_at: "2026-10-12T11:40:14Z"
-updated_at: "2026-10-12T11:40:15Z"
+updated_at: "2026-10-12T11:40:18Z"
 ---
 ## Problem
 AGENTS.md step 3 says 'update directly affected docs' but does not name the public site (site/) or the landing page, and nothing checks it. Features have landed with docs updates only when the engineer remembered.
@@ -30,3 +30,4 @@ Edit AGENTS.md on the task branch only; never commit to main. Keep the rule shor
 
 - 2026-10-12T11:40:14Z · created · njachowski@gmail.com
 - 2026-10-12T11:40:15Z · status inbox→ready
+- 2026-10-12T11:40:18Z · status ready→active, branch
