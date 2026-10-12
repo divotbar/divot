@@ -2,14 +2,14 @@
 id: "0053"
 title: Leave a gap in the top-right corner only while the camera or mic is in use
 type: feature
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/leave-a-gap-in-the-top-right-corner-only
 created_at: "2026-10-12T08:20:42Z"
-updated_at: "2026-10-12T09:06:10Z"
+updated_at: "2026-10-12T09:06:11Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -63,3 +63,5 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T08:36:47Z · note: review pass 3: needs some work
 - 2026-10-12T08:36:47Z · needs_input
 - 2026-10-12T09:06:10Z · needs_input
+- 2026-10-12T09:06:11Z · status review→active
+- 2026-10-12T09:06:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
