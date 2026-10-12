@@ -10,16 +10,15 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T12:47:11Z"
-updated_at: "2026-10-12T11:38:53Z"
+updated_at: "2026-10-12T13:01:45Z"
 ---
 ## Problem
 
 Users who prefer Homebrew have no install command. The maintainer wants a cask that installs the released DMG.
 
 ## Desired UX
-
-- `brew install --cask divot` installs the latest released Divot.app.
-- The cask points at the GitHub Release DMG and its checksum, and is updated on each release.
+- `brew install --cask divotbar/tap/divot` (or the final tap name) installs the latest released Divot.app.
+- Same approach as RepoOS: a separate tap repo owns the cask and updates itself; the release workflow only dispatches an event to the tap after the GitHub Release exists.
 
 ## Acceptance criteria
 
@@ -36,3 +35,4 @@ Depends on the unsigned DMG release (#0041). Unsigned casks are accepted by Home
 
 - 2026-10-11T12:47:11Z · created · njachowski@gmail.com
 - 2026-10-12T11:38:53Z · status inbox→ready
+- 2026-10-12T13:01:45Z · body: section Desired UX
