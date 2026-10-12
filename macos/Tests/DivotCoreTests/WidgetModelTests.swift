@@ -262,6 +262,21 @@ import Testing
     }
 }
 
+@Test func networkPaneOpensTheWifiSettingsExtension() {
+    // The Wi-Fi Settings extension id is the bundle identifier of
+    // /System/Library/ExtensionKit/Extensions/Wi-Fi.appex on macOS 13+.
+    #expect(WidgetSettingsPane.network.url?.absoluteString
+            == "x-apple.systempreferences:com.apple.wifi-settings-extension")
+}
+
+@Test func networkPaneFallsBackToTheLegacyNetworkPane() {
+    #expect(WidgetSettingsPane.network.fallbackURL?.absoluteString
+            == "x-apple.systempreferences:com.apple.preference.network")
+    // Only the network item carries a fallback; the other panes are unchanged.
+    #expect(WidgetSettingsPane.sound.fallbackURL == nil)
+    #expect(WidgetSettingsPane.battery.fallbackURL == nil)
+}
+
 // MARK: - Date format
 
 @Test func dateFormatGeneratesValidPatterns() {
