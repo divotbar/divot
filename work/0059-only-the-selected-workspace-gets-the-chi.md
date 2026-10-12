@@ -2,15 +2,12 @@
 id: "0059"
 title: Only the selected workspace gets the chip; match other chips' style and size
 type: bug
-status: ready
-needs_input: true
-needs_input_reason: underspecified
-needs_input_detail: "missing sections: Notes for AI"
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/only-the-selected-workspace-gets-the-chi
 created_at: "2026-10-12T09:13:35Z"
 updated_at: "2026-10-12T09:19:27Z"
 ---
@@ -37,3 +34,4 @@ Look at the workspace chip drawing in macos/Sources/DivotAppKit (WidgetViews.swi
 - 2026-10-12T09:13:35Z · needs_input
 - 2026-10-12T09:13:38Z · body: section Notes for AI
 - 2026-10-12T09:19:27Z · status inbox→ready
+- 2026-10-12T09:19:27Z · status ready→active, needs_input, branch
