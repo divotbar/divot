@@ -2,12 +2,12 @@
 id: "0054"
 title: "Default spacing: 17px on the right, half that between the Divot icon and workspaces, and 12px for the front app"
 type: feature
-status: ready
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/default-spacing-17px-on-the-right-half-t
 created_at: "2026-10-12T08:30:32Z"
 updated_at: "2026-10-12T08:30:33Z"
 ---
@@ -42,3 +42,4 @@ Keep the change to item spacing in the layout code. Do not change the chips, the
 
 - 2026-10-12T08:30:32Z · created · njachowski@gmail.com
 - 2026-10-12T08:30:33Z · status inbox→ready
+- 2026-10-12T08:30:33Z · status ready→active, branch
