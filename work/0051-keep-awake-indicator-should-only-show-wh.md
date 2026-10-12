@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 47564
-last_close_out_gate_at: "2026-10-12T09:11:14.813Z"
 id: "0051"
 title: Keep-awake indicator should only show when Divot itself is keeping the Mac awake
 type: bug
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: 74b7f71a4833f7d6a3153c36ed2d9a9fd438d288
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/keep-awake-indicator-should-only-show-wh
 created_at: "2026-10-12T06:54:32Z"
-updated_at: "2026-10-12T09:11:14Z"
+updated_at: "2026-10-12T09:11:17Z"
+last_close_out_gate_ms: 47564
+last_close_out_gate_at: "2026-10-12T09:11:14.813Z"
 review_passes: 3
 handoff_signal_retry_count: 1
 ---
@@ -57,4 +58,4 @@ Relevant code: the keep-awake provider (SystemKeepAwake / KeepAwake observation)
 - 2026-10-12T08:39:09Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:40:17Z · note: review pass 3: good to go
 - 2026-10-12T09:11:14Z · close-out gate completed in 48s
-
+- 2026-10-12T09:11:17Z · status review→done, release:success
