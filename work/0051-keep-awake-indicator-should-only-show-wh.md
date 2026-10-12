@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/keep-awake-indicator-should-only-show-wh
 created_at: "2026-10-12T06:54:32Z"
-updated_at: "2026-10-12T07:11:45Z"
+updated_at: "2026-10-12T07:12:39Z"
 handoff_signal_retry_count: 1
 ---
 ## Problem
@@ -41,3 +41,4 @@ Relevant code: the keep-awake provider (SystemKeepAwake / KeepAwake observation)
 - 2026-10-12T06:54:33Z · status ready→active, branch
 - 2026-10-12T07:11:45Z · status active→review
 - 2026-10-12T07:11:45Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T07:12:39Z · note: review pass 1: needs some work
