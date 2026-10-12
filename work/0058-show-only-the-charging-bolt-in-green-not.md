@@ -1,10 +1,8 @@
 ---
-updated_at: "2026-10-12T09:39:39Z"
-review_passes: 1
 id: "0058"
 title: "Show only the charging bolt in green, not the battery outline"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 depends_on: ["0057"]
@@ -12,6 +10,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/show-only-the-charging-bolt-in-green-not
 created_at: "2026-10-12T08:36:25Z"
+updated_at: "2026-10-12T09:39:49Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -63,4 +63,5 @@ So the packaged app resolves the plain battery outline plus a `bolt.fill` badge 
 - 2026-10-12T09:38:46Z · status active→review
 - 2026-10-12T09:38:47Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T09:39:39Z · note: review pass 1: good to go
-
+- 2026-10-12T09:39:49Z · status review→active
+- 2026-10-12T09:39:49Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
