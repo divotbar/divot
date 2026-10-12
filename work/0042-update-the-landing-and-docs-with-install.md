@@ -2,7 +2,7 @@
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
-status: review
+status: active
 priority: p1
 area: [macos, docs]
 assigned_to: ""
@@ -75,3 +75,5 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T14:20:28Z · note: review pass 2: failed — no usable report
 - 2026-10-12T14:20:28Z · needs_input
 - 2026-10-12T14:27:21Z · needs_input
+- 2026-10-12T14:27:21Z · status review→active
+- 2026-10-12T14:27:21Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
