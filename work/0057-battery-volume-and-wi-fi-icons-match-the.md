@@ -1,16 +1,16 @@
 ---
-updated_at: "2026-10-12T08:48:30Z"
-review_passes: 1
 id: "0057"
 title: "Battery, volume and Wi-Fi icons match the native menu bar icon size"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-volume-and-wi-fi-icons-match-the
 created_at: "2026-10-12T08:36:24Z"
+updated_at: "2026-10-12T09:11:28Z"
+review_passes: 1
 ---
 ## Problem
 
@@ -57,4 +57,5 @@ Before the change the same three symbols resolved at the SF Symbol default of 13
 - 2026-10-12T08:47:54Z · status active→review
 - 2026-10-12T08:47:54Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:48:30Z · note: review pass 1: good to go
-
+- 2026-10-12T09:11:28Z · status review→active
+- 2026-10-12T09:11:28Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
