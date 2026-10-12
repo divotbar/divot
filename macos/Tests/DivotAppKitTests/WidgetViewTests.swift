@@ -83,7 +83,7 @@ private func imageViews(in view: NSView) -> [NSImageView] {
 
     let on = BarItemView()
     on.update(presentation(keepingAwake: true), action: .toggleKeepAwake)
-    #expect(on.displayedIndicatorSymbolName == "cup.and.saucer.fill")
+    #expect(on.displayedIndicatorSymbolName == "mug.fill")
     #expect(on.isIndicatorVisible)
     // Exactly two visible images: the battery icon and the cup. Nothing else
     // (no dot, badge, or bezel) is drawn over the cup.

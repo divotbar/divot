@@ -238,8 +238,11 @@ public enum WidgetPresenter {
 
     private static func batteryPresentation(_ snapshot: BatterySnapshot,
                                             options: BatteryFormatOptions) -> WidgetPresentation {
+        // A single cup glyph: `cup.and.saucer.fill` also draws a saucer, which
+        // reads as a second green dot beside the camera privacy indicator. The
+        // mug is the same "cup is held" signal with one mark only (#0051).
         let indicator = snapshot.isKeepingAwake
-            ? WidgetIndicator(symbolName: "cup.and.saucer.fill",
+            ? WidgetIndicator(symbolName: "mug.fill",
                               role: .keepAwakeActive,
                               accessibilityLabel: "Keep awake on")
             : nil
