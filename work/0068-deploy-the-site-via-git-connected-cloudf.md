@@ -1,20 +1,21 @@
 ---
-last_close_out_gate_ms: 54444
-last_close_out_gate_at: "2026-10-12T18:56:14.949Z"
 id: "0068"
 title: "Deploy the site via git-connected Cloudflare Workers (main dev, prod production) and enable the Deployments page"
 type: chore
-status: review
+status: done
 priority: p1
 area: [infra, web]
 depends_on: ["0067"]
+merged_commit: 2b66d226fe7c1f5292259b7a88e6bd8ed130bd45
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/deploy-the-site-via-git-connected-cloudf
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T14:43:34Z"
-updated_at: "2026-10-12T18:56:14Z"
+updated_at: "2026-10-12T18:56:17Z"
+last_close_out_gate_ms: 54444
+last_close_out_gate_at: "2026-10-12T18:56:14.949Z"
 review_passes: 1
 ---
 ## Problem
@@ -49,4 +50,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 - 2026-10-12T18:53:16Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T18:54:12Z · note: review pass 1: good to go
 - 2026-10-12T18:56:14Z · close-out gate completed in 54s
-
+- 2026-10-12T18:56:17Z · status review→done, release:success
