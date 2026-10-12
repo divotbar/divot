@@ -2,14 +2,14 @@
 id: "0069"
 title: "Wi-Fi item should open the Wi-Fi pane, not the generic Network pane"
 type: bug
-status: inbox
+status: ready
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T18:51:44Z"
-updated_at: "2026-10-12T18:51:44Z"
+updated_at: "2026-10-12T18:51:47Z"
 ---
 ## Problem
 Clicking the Wi-Fi item opens System Settings > Network. WidgetSettingsPane.network (macos/Sources/DivotCore/WidgetActions.swift) builds x-apple.systempreferences:com.apple.preference.network, which was only a design-time candidate (see its doc comment) and lands on the generic Network page.
@@ -29,3 +29,4 @@ Only the network item's URL changes. Keep the sound/battery panes as they are.
 ## Activity
 
 - 2026-10-12T18:51:44Z · created · njachowski@gmail.com
+- 2026-10-12T18:51:47Z · status inbox→ready
