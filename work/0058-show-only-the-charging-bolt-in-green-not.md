@@ -2,7 +2,7 @@
 id: "0058"
 title: "Show only the charging bolt in green, not the battery outline"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 depends_on: ["0057"]
