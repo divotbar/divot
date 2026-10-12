@@ -2,14 +2,14 @@
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
-status: active
+status: review
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T13:27:53Z"
+updated_at: "2026-10-12T13:29:40Z"
 ---
 ## Problem
 
@@ -36,16 +36,16 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 ```json
 [
 {
-  "label": "Install guide: first release not published, no download button",
-  "target": "website",
-  "route": "/guide/install",
-  "highlight": ".install-pending"
+"label": "Install guide: first release not published, no download button",
+"target": "website",
+"route": "/guide/install",
+"highlight": ".install-pending"
 },
 {
-  "label": "Landing page links to the install guide",
-  "target": "website",
-  "route": "/",
-  "highlight": "a[href=\"/guide/install\"]"
+"label": "Landing page links to the install guide",
+"target": "website",
+"route": "/",
+"highlight": "a[href=\"/guide/install\"]"
 }
 ]
 ```
@@ -57,3 +57,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T13:23:46Z · status inbox→ready
 - 2026-10-12T13:23:46Z · status ready→active, branch
 - 2026-10-12T13:27:53Z · body: section Shots
+- 2026-10-12T13:29:40Z · status active→review
