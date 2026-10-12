@@ -27,6 +27,11 @@ public struct BarMetrics: Equatable, Sendable {
     /// attachments and the Divot mark. Defaults to `iconSize`, so the app icons
     /// match the status icons until the configuration overrides it (#0052).
     public var appIconSize: CGFloat
+    /// The SF Symbol point size for the battery, network and volume status
+    /// icons. It is the bar's icon size, so the three symbols follow the text
+    /// size setting; the default is 16 pt, the native menu-bar symbol size
+    /// (#0057). The other items keep their compact square status-icon box.
+    public var statusSymbolPointSize: CGFloat { iconSize }
     /// Gap between an item's icon and its text.
     public var iconSpacing: CGFloat
     /// Font size for status item text.

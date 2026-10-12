@@ -44,6 +44,16 @@ public enum BarItemID: String, CaseIterable, Codable, Sendable {
     public static var placeableItems: [BarItemID] {
         allCases.filter { $0 != .clock }
     }
+
+    /// True for the battery, network and volume items, whose SF Symbol is drawn
+    /// at the native menu-bar symbol size (#0057). Every other item keeps the
+    /// compact square status-icon box.
+    public var drawsNativeStatusSymbol: Bool {
+        switch self {
+        case .battery, .network, .volume: return true
+        case .workspaces, .frontApp, .clock, .date, .time, .appearance: return false
+        }
+    }
 }
 
 // MARK: - Unavailable states
