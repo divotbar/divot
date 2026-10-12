@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 81300
-last_close_out_gate_at: "2026-10-12T12:08:42.692Z"
 id: "0063"
 title: "CLI: live config reload and divot status --json"
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
 depends_on: ["0062"]
+merged_commit: 413e2da545ce0e38c74b151a203de8630f3edda1
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-live-config-reload-and-divot-status-
 created_at: "2026-10-12T11:39:01Z"
-updated_at: "2026-10-12T12:08:42Z"
+updated_at: "2026-10-12T12:08:46Z"
+last_close_out_gate_ms: 81300
+last_close_out_gate_at: "2026-10-12T12:08:42.692Z"
 review_passes: 1
 ---
 ## Problem
@@ -41,4 +42,4 @@ Builds on the config CLI from #0062.
 - 2026-10-12T12:04:57Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T12:06:00Z · note: review pass 1: good to go
 - 2026-10-12T12:08:42Z · close-out gate completed in 81s
-
+- 2026-10-12T12:08:46Z · status review→done, release:success
