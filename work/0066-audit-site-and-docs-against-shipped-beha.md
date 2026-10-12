@@ -2,14 +2,14 @@
 id: "0066"
 title: Audit site and docs against shipped behaviour
 type: chore
-status: active
+status: review
 priority: p1
 area: [docs, web]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/audit-site-and-docs-against-shipped-beha
 created_at: "2026-10-12T11:40:14Z"
-updated_at: "2026-10-12T12:01:21Z"
+updated_at: "2026-10-12T12:01:56Z"
 ---
 ## Problem
 Many features landed on 2026-10-11/12 (split date/time, chips, spacing and right inset, charging colour, keep-awake cup, Wi-Fi name and Location, Appearance item, native icon sizes). Docs were updated per task, so drift is likely in the guide pages, getting-started, roadmap, troubleshooting and the landing page.
@@ -101,10 +101,10 @@ smoke test). No install/download copy was touched (#0042 owns it).
 ```json
 [
 {
-  "label": "Landing bar preview with split date and time items",
-  "target": "default",
-  "route": "/",
-  "highlight": ".demo-time"
+"label": "Landing bar preview with split date and time items",
+"target": "default",
+"route": "/",
+"highlight": ".demo-time"
 }
 ]
 ```
@@ -116,3 +116,4 @@ smoke test). No install/download copy was touched (#0042 owns it).
 - 2026-10-12T11:55:20Z · status ready→active, branch
 - 2026-10-12T12:00:51Z · body: section Audit log
 - 2026-10-12T12:01:21Z · body: section Shots
+- 2026-10-12T12:01:56Z · status active→review
