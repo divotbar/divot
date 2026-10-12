@@ -2,14 +2,14 @@
 id: "0062"
 title: "CLI: divot config schema/get/set/unset/validate with --json"
 type: feature
-status: ready
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/cli-divot-config-schema-get-set-unset-va
 created_at: "2026-10-12T11:38:56Z"
-updated_at: "2026-10-12T11:39:03Z"
+updated_at: "2026-10-12T11:39:04Z"
 ---
 ## Problem
 Users should be able to have an AI agent configure Divot via chat. The JSON config at ~/.config/divot/config.json is documented but there is no safe, discoverable interface.
@@ -33,3 +33,4 @@ Reuse the #0006 config model and validation. Do not add a daemon or network API.
 
 - 2026-10-12T11:38:56Z · created · njachowski@gmail.com
 - 2026-10-12T11:39:03Z · status inbox→ready
+- 2026-10-12T11:39:04Z · status ready→active, branch
