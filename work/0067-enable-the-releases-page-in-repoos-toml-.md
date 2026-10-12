@@ -8,12 +8,12 @@ area: infra
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
-cli_override: opencode
-model_override: opencode-go/deepseek-v4.1-flash
+cli_override: claude
+model_override: sonnet
 review_cli_override: claude code
 review_model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T16:38:31Z"
+updated_at: "2026-10-12T16:48:06Z"
 review_passes: 4
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 review_rounds: 2
@@ -89,3 +89,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:38:24Z · cli_override, model_override
 - 2026-10-12T16:38:30Z · needs_input
 - 2026-10-12T16:38:31Z · message_queued at 2026-10-12T16:38:31.208Z
+- 2026-10-12T16:48:06Z · cli_override, model_override
