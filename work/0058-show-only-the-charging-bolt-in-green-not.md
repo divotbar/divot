@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/show-only-the-charging-bolt-in-green-not
 created_at: "2026-10-12T08:36:25Z"
-updated_at: "2026-10-12T10:51:53Z"
+updated_at: "2026-10-12T10:51:54Z"
 review_passes: 1
 ---
 ## Problem
@@ -66,3 +66,4 @@ So the packaged app resolves the plain battery outline plus a `bolt.fill` badge 
 - 2026-10-12T09:39:49Z · status review→active
 - 2026-10-12T09:39:49Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T10:51:53Z · status active→review
+- 2026-10-12T10:51:54Z · note: handoff requested (cli)
