@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 54607
-last_close_out_gate_at: "2026-10-12T18:57:13.262Z"
 id: "0069"
 title: "Wi-Fi item should open the Wi-Fi pane, not the generic Network pane"
 type: bug
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 69484cb5571078b2f7f178417af6b6ebd1f4620f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/wi-fi-item-should-open-the-wi-fi-pane-no
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T18:51:44Z"
-updated_at: "2026-10-12T18:57:13Z"
+updated_at: "2026-10-12T18:57:15Z"
+last_close_out_gate_ms: 54607
+last_close_out_gate_at: "2026-10-12T18:57:13.262Z"
 review_passes: 1
 ---
 ## Problem
@@ -51,4 +52,4 @@ Only the network item's URL changes. Keep the sound/battery panes as they are.
 - 2026-10-12T18:54:33Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T18:55:04Z · note: review pass 1: good to go
 - 2026-10-12T18:57:13Z · close-out gate completed in 55s
-
+- 2026-10-12T18:57:15Z · status review→done, release:success
