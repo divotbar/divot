@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
-updated_at: "2026-10-12T08:44:42Z"
+updated_at: "2026-10-12T08:45:44Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -51,17 +51,21 @@ cause; the hardware log below is still required to confirm it.
 
 - `DivotCore.BatteryRecheckWindow` is a pure, unit-tested value type for a
 bounded follow-up window: each notification arms up to `maxAttempts` (8)
-re-checks on a fixed `interval` (1s), and the window closes on its own
-(`close()`/exhaustion). It is not continuous polling. The 8-attempt bound
-widens the catch window past the reviewer's ~4s edge case; a flip later than
-the bound still waits for the next level notification, which is the accepted
-limit of a bounded design.
-- `PowerSourceRunLoopObserver` (SystemBatteryReading.swift) fires the handler
-immediately on every power-source notification, then runs a repeating run-loop
-`Timer` on the same dedicated background run loop while the window is active.
-Each tick re-reads the full snapshot, so a charging flag that flips a moment
-after the notification is observed within about a second. The timer is
-invalidated when the window closes or the observer stops.
+re-checks on a fixed `interval` (1s). It is not continuous polling. The
+8-attempt bound widens the catch window past the reviewer's ~4s edge case; a
+flip later than the bound still waits for the next level notification, which
+is the accepted limit of a bounded design (document if observed on hardware).
+- `BatteryRecheckWindow.isTransient` is false for unplugged, already-charging,
+or fully-charged snapshots. `PowerSourceRunLoopObserver` closes the window as
+soon as a read is settled, so an idle laptop or a desktop Mac never keeps
+re-reading, and the bolt is correct as soon as `Is Charging` flips.
+- `PowerSourceRunLoopObserver` (SystemBatteryReading.swift) reads immediately on
+every power-source notification, then runs a repeating run-loop `Timer` on the
+same dedicated background run loop while the window is active. Each tick
+re-reads the full snapshot, so a charging flag that flips a moment after the
+notification is observed within about a second. The timer is invalidated when
+the window closes or the observer stops. The observer owns the read and passes
+the snapshot to the subscriber, so a tick is a single IOKit read.
 - `BatteryProvider` emits only when the produced `WidgetContent` changes
 (`LastBatteryEmission`), so re-check ticks and redundant notifications no
 longer bump the pipeline revision or redraw the bar for an unchanged snapshot.
@@ -78,6 +82,9 @@ non-positive interval is clamped.
 drives the real `PowerSourceRunLoopObserver` with a lagging source that is
 plugged-but-not-charging on the first read and charging afterwards, and
 asserts the timer path observes the flip.
+- `SystemBatteryReadingTests.powerSourceObserverStopsRecheckingOnceTheStateIsSettled`
+asserts a settled (already-charging) read closes the window after a single
+read, so no further ticks run.
 - `WidgetProviderTests.batteryProviderFollowsFakePowerSourcePlugInAndUnplug`
 drives a fake power source through unplugged → plugged (flag flips) →
 unplugged and asserts each emission.
@@ -91,7 +98,7 @@ The acceptance criterion to log a real plug-in and unplug on the packaged app
 has not been performed: it needs a Mac with an internal battery and a person to
 plug/unplug while streaming
 
-log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'
+  log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'
 
 The captured `charging=`/`plugged=` lines must be recorded here by a human. Do
 not treat this section as that evidence.
@@ -112,3 +119,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:43:46Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T08:44:42Z · note: review pass 2: needs some work
 - 2026-10-12T08:44:42Z · status review→active
+- 2026-10-12T08:45:44Z · body: section Fix and evidence
