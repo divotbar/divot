@@ -2,7 +2,7 @@
 id: "0056"
 title: Battery charging state updates immediately when plugging and unplugging
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -108,4 +108,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:41:40Z · note: review pass 1: needs some work
 - 2026-10-12T08:41:40Z · status review→active
 - 2026-10-12T08:42:50Z · body: section Fix and evidence
-- 2026-10-12T08:43:46Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T08:43:46Z · status active→review
