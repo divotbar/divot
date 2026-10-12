@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0070"
 title: "Wi-Fi popover: list nearby networks and the current one (read-only spike)"
 type: feature
@@ -40,3 +41,4 @@ Depends on #0069 for the Settings pane URL. Joining networks and password entry 
 - 2026-10-12T18:57:18Z · status inbox→ready
 - 2026-10-12T18:57:19Z · status ready→active, branch
 - 2026-10-12T18:57:19Z · cli_override, model_override
+
