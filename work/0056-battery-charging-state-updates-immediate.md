@@ -121,3 +121,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:44:42Z · status review→active
 - 2026-10-12T08:45:44Z · body: section Fix and evidence
 - 2026-10-12T08:46:44Z · status active→review
+- 2026-10-12T08:46:44Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
