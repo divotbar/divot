@@ -22,6 +22,12 @@ final class BarItemView: NSView {
     private var theme: BarTheme = .systemDefault
     private var indicatorRole: WidgetIndicator.Role?
     private var enablesChipStyle: Bool = false
+    /// The SF Symbol the indicator view currently draws, or `nil` when no
+    /// indicator is shown. Exposed so a test can prove the keep-awake cup is the
+    /// only state mark the battery item adds (and that no stray dot is drawn).
+    private(set) var displayedIndicatorSymbolName: String?
+    /// Whether the state indicator (the keep-awake cup) is currently drawn.
+    var isIndicatorVisible: Bool { !indicatorView.isHidden }
     /// The chip background opacity, 0–100, matching the workspace chips so the
     /// whole bar fades together (#0052).
     private let chipOpacity: Int
@@ -37,6 +43,10 @@ final class BarItemView: NSView {
         addSubview(iconView)
         indicatorView.imageScaling = .scaleProportionallyDown
         indicatorView.translatesAutoresizingMaskIntoConstraints = true
+        // A plain image only: no AppKit bezel, frame, or selection chrome can
+        // draw a second mark around the keep-awake cup (#0051).
+        indicatorView.imageFrameStyle = .none
+        indicatorView.isEditable = false
         addSubview(indicatorView)
         textField.font = BarFont.text(metrics)
         // Truncation is a safety net for genuinely constrained layouts, never the
@@ -116,10 +126,12 @@ final class BarItemView: NSView {
             indicatorView.isHidden = true
             indicatorView.toolTip = nil
             indicatorRole = nil
+            displayedIndicatorSymbolName = nil
             return
         }
         indicatorView.image = image
         indicatorRole = indicator.role
+        displayedIndicatorSymbolName = indicator.symbolName
         indicatorView.contentTintColor = indicatorColor(for: indicator.role)
         indicatorView.isHidden = false
         // A native tooltip is the one thing AGENTS.md forbids; the state is

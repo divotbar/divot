@@ -65,6 +65,38 @@ private func imageViews(in view: NSView) -> [NSImageView] {
     #expect(charging.displayedSymbolName == "battery.100.bolt")
 }
 
+/// The keep-awake cup is the battery item's only state mark. A second mark (a
+/// green dot drawn over the cup) must never appear, and with keep-awake off the
+/// item draws no indicator at all, so another app's sleep assertion cannot
+/// light one up.
+@MainActor
+@Test func batteryItemDrawsOnlyTheKeepAwakeCupAsItsStateMark() {
+    func presentation(keepingAwake: Bool) -> WidgetPresentation {
+        WidgetPresenter.present(
+            id: .battery,
+            state: WidgetState(id: .battery, revision: 1,
+                               content: .battery(BatterySnapshot(presence: .internalBattery,
+                                                                 percentage: 63,
+                                                                 isCharging: true,
+                                                                 isKeepingAwake: keepingAwake))))
+    }
+
+    let on = BarItemView()
+    on.update(presentation(keepingAwake: true), action: .toggleKeepAwake)
+    #expect(on.displayedIndicatorSymbolName == "cup.and.saucer.fill")
+    #expect(on.isIndicatorVisible)
+    // Exactly two visible images: the battery icon and the cup. Nothing else
+    // (no dot, badge, or bezel) is drawn over the cup.
+    #expect(imageViews(in: on).filter { !$0.isHidden && $0.image != nil }.count == 2)
+
+    let off = BarItemView()
+    off.update(presentation(keepingAwake: false), action: .toggleKeepAwake)
+    #expect(off.displayedIndicatorSymbolName == nil)
+    #expect(!off.isIndicatorVisible)
+    // Only the battery icon remains; no stale cup or dot.
+    #expect(imageViews(in: off).filter { !$0.isHidden && $0.image != nil }.count == 1)
+}
+
 @MainActor
 @Test func itemViewMeasuresTheWholeLabel() {
     let view = BarItemView()
