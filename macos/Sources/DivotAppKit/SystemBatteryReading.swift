@@ -39,6 +39,11 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
     /// Build the internal-battery snapshot from one IOKit power-source
     /// description.
     ///
+    /// Keep-awake is deliberately absent: the raw power read must never infer it
+    /// from system-wide sleep prevention. Only `BatteryProvider` merges Divot's
+    /// own assertion state into the snapshot, so the cup never appears for
+    /// another app's assertion (#0051).
+    ///
     /// IOKit has historically returned `Is Charging` / `Is Charged` either as a
     /// `CFBoolean` or as a `CFNumber` (`1`/`0`) depending on the Mac and OS
     /// build. A plain `as? Bool` only matches the former, so a numeric value

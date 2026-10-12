@@ -25,6 +25,13 @@ public protocol PowerAssertionCreating: Sendable {
 
 /// Reads the shared keep-awake state and reports changes, so a widget provider
 /// can fold it into its snapshots without owning the assertion itself.
+///
+/// This is Divot's own assertion state only: an implementation reports whether
+/// Divot created and still holds its assertion (through
+/// `PowerAssertionCreating`), never system-wide sleep prevention or another
+/// app's assertion. `BatteryProvider` folds it into the battery snapshot to
+/// draw the cup, so a system-wide read here would light the cup for unrelated
+/// apps such as a call holding the microphone and speaker assertions (#0051).
 public protocol KeepAwakeObserving: Sendable {
     var isActive: Bool { get }
     func observe(_ handler: @escaping @Sendable (Bool) -> Void) -> any ProviderSubscription
