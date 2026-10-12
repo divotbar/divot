@@ -47,6 +47,7 @@ function value(source: string, key: string): string | undefined {
 
 interface ReleaseConfig {
   enabled?: string
+  name?: string
   provider?: string
   branch?: string
   versionFile?: string
@@ -61,6 +62,7 @@ function parseReleaseConfig(source: string): ReleaseConfig {
   const release = section(source, '[release]')
   const config: ReleaseConfig = {
     enabled: value(release, 'enabled'),
+    name: value(release, 'name'),
     provider: value(release, 'provider'),
     branch: value(release, 'branch'),
     versionFile: value(release, 'versionFile'),
@@ -71,6 +73,9 @@ function parseReleaseConfig(source: string): ReleaseConfig {
   }
   if (config.enabled !== 'true') throw new Error('release.enabled must be true')
   if (config.provider !== 'git-tag') throw new Error('release.provider must be git-tag')
+  if (config.name !== undefined && !config.name.trim()) {
+    throw new Error('release.name must not be blank')
+  }
   if (!config.branch) throw new Error('release.branch is required')
   if (!config.versionFile?.endsWith('.json')) {
     throw new Error('release.versionFile must name a JSON manifest')
@@ -144,6 +149,7 @@ const distributions = parseDistributions(repoos)
 describe('release configuration', () => {
   test('opts into git-tag releases from main read from package.json', () => {
     expect(release.enabled).toBe('true')
+    expect(release.name).toBe('Publish Divot')
     expect(release.provider).toBe('git-tag')
     expect(release.branch).toBe('main')
     expect(release.tagPrefix).toBe('v')
@@ -186,6 +192,13 @@ describe('release configuration rejection', () => {
     expect(() =>
       parseReleaseConfig(valid.replace('provider = "git-tag"', 'provider = "github-releases"')),
     ).toThrow()
+  })
+
+  test('rejects a blank release name', () => {
+    expect(() => parseReleaseConfig(valid.replace('enabled = true', 'enabled = true\nname = ""'))).toThrow()
+    expect(() =>
+      parseReleaseConfig(valid.replace('enabled = true', 'enabled = true\nname = "Publish Divot"')),
+    ).not.toThrow()
   })
 
   test('rejects a versionFile that is not a JSON manifest', () => {
