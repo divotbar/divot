@@ -87,10 +87,14 @@ shasum -a 256 -c Divot-0.1.0-preview.1-<commit>.zip.sha256
 3. Open it: `open dist/Divot.app` — or drag `Divot.app` into `/Applications` and
    open it there. Divot is an accessory app (`LSUIElement`), so it has no Dock
    tile; it shows a small menu-bar item to open Settings and Quit.
-4. On a notched display, macOS may ask for Accessibility permission the first
-   time the notched-menu-bar detector is used. The request is contextual; deny
-   it and the rest of the bar still runs, with the notched case reported as
-   indeterminate rather than guessed. See
+4. When Accessibility is not already granted, Divot asks macOS to show the
+   prompt once at launch (`AXIsProcessTrustedWithOptions` with
+   `kAXTrustedCheckOptionPrompt`). It never repeats during that launch. Deny it
+   and the rest of the bar still runs, with the notched case reported as
+   indeterminate rather than guessed. Running unbundled (`swift run`, or the raw
+   build binary) the grant attaches to the host terminal or app instead of
+   Divot, so a development grant does not carry over: `dist/Divot.app` is where
+   it lasts. See
    [app shell evidence](evidence/0003-app-shell.md). The preview is **ad-hoc
    signed**, so every repackage changes its code signature and a grant from a
    previous build no longer matches the new one: if `divot --report` prints
@@ -221,6 +225,12 @@ observe; leave unobserved items blank rather than marking them done.
       or the notch.
 - [ ] Default left/right content matches the list above at this display width,
       with no clipped labels.
+- [ ] Accessibility permission prompt: launch a packaged `dist/Divot.app` while
+      Accessibility is not granted for it. macOS shows the prompt once, and it
+      does not reappear during that launch even if left unanswered. Granting it
+      (then relaunching if macOS requires) makes the notched-display probe
+      resolve instead of staying indeterminate. Record whether the dialog
+      appeared and whether the grant needed a relaunch.
 - [ ] Native menu-bar reveal/hide: move the pointer to the top edge and confirm
       Divot slides below the revealed bar, then returns to the top when the
       pointer leaves (`menuBar.moveBelowOnCursorReveal`, on by default). On a

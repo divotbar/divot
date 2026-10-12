@@ -10,6 +10,15 @@ suite.
 Record for each run: commit, macOS version, hardware, display configuration,
 appearance mode, theme family, and whether Accessibility permission was granted.
 
+## Accessibility permission prompt
+
+- [ ] Launch a packaged `dist/Divot.app` while Accessibility is not granted for
+      it. macOS shows the Accessibility prompt once; it does not reappear during
+      that same launch, even if it is ignored. Granting it (and relaunching if
+      macOS requires) makes the notched-display probe resolve instead of
+      staying indeterminate. Record whether the dialog appeared and whether the
+      grant needed a relaunch.
+
 ## VoiceOver
 
 - [ ] Launch Divot and turn VoiceOver on. Every bar item is reachable and reads
