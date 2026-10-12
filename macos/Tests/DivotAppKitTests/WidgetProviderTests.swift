@@ -1,5 +1,6 @@
 import Foundation
 import CoreAudio
+import IOKit.ps
 import Testing
 import DivotCore
 @testable import DivotAppKit
@@ -271,6 +272,76 @@ private final class MockFrontAppReading: FrontAppReading {
     subscription.cancel()
     #expect(reading.cancelCount == 1)
     #expect(keepAwake.cancelCount == 1)
+}
+
+/// The cup means "Divot is holding its own assertion right now", never "some
+/// app is keeping the Mac awake". A call can hold the microphone and speaker
+/// sleep assertions while Divot's toggle is off; the battery item must stay
+/// cup-free through those power notifications and only draw the cup once
+/// Divot's own assertion is on.
+@Test func batteryProviderShowsTheCupOnlyForDivotsOwnAssertion() {
+    let reading = MockBatteryReading()
+    // A plugged-in, charging power source is typical of an active call and is
+    // the state during which other apps' sleep assertions appear.
+    reading.snapshotValue = .init(presence: .internalBattery,
+                                  percentage: 63,
+                                  isCharging: true,
+                                  isPluggedIn: true)
+    let keepAwake = MockKeepAwake()
+    let collector = ContentCollector()
+    let subscription = BatteryProvider(reading: reading, keepAwake: keepAwake)
+        .start { collector.append($0) }
+
+    // Toggle off: no cup, even though the machine may be held awake elsewhere.
+    guard case .battery(let off)? = collector.contents.last else {
+        Issue.record("expected an initial battery snapshot")
+        return
+    }
+    #expect(!off.isKeepingAwake)
+    #expect(WidgetPresenter.present(id: .battery,
+                                    state: WidgetState(id: .battery, revision: 1, content: .battery(off)))
+        .indicator == nil)
+
+    // A power-source notification (another app's assertion changing) must not
+    // draw the cup while Divot's own toggle is off.
+    reading.fire()
+    guard case .battery(let stillOff)? = collector.contents.last else {
+        Issue.record("expected a battery snapshot after the power notification")
+        return
+    }
+    #expect(!stillOff.isKeepingAwake)
+
+    // Divot's own assertion on: the cup appears.
+    keepAwake.set(true)
+    guard case .battery(let on)? = collector.contents.last else {
+        Issue.record("expected a keep-awake emission")
+        return
+    }
+    #expect(on.isKeepingAwake)
+    let presentation = WidgetPresenter.present(id: .battery,
+                                               state: WidgetState(id: .battery, revision: 1, content: .battery(on)))
+    #expect(presentation.indicator?.role == .keepAwakeActive)
+
+    subscription.cancel()
+    #expect(reading.cancelCount == 1)
+    #expect(keepAwake.cancelCount == 1)
+}
+
+/// The raw IOKit power-source read must never infer keep-awake: only the
+/// provider merges Divot's own assertion. If this ever flips, the cup would
+/// light up for any app that prevents sleep.
+@Test func batteryReadingNeverInfersKeepAwakeFromSystemPowerState() {
+    let description: [String: Any] = [
+        kIOPSCurrentCapacityKey: 80,
+        kIOPSMaxCapacityKey: 100,
+        kIOPSIsChargingKey: true,
+        kIOPSIsChargedKey: false,
+        kIOPSPowerSourceStateKey: kIOPSACPowerValue,
+    ]
+    let snapshot = IOKitBatteryReading.snapshot(from: description)
+    #expect(snapshot.presence == .internalBattery)
+    #expect(snapshot.isCharging)
+    #expect(!snapshot.isKeepingAwake)
 }
 
 @Test func networkProviderForwardsPathSnapshots() {

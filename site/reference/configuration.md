@@ -120,7 +120,7 @@ The shadow is a soft gradient drawn just below the bar, so it runs along the bot
 
 ## Keep awake
 
-Clicking the battery item toggles a Caffeine-style keep-awake assertion (public IOKit power assertions), and the battery shows a cup indicator while it is held. The optional root `keepAwake` object controls whether that state survives a relaunch. It is a root object rather than a `widgets.battery` option so it stays valid when the battery item is not placed.
+Clicking the battery item toggles a Caffeine-style keep-awake assertion (public IOKit power assertions), and the battery shows a cup indicator while it is held. The cup reflects Divot's own assertion only, not system-wide sleep prevention: another app that prevents sleep while Divot's toggle is off does not show it. The optional root `keepAwake` object controls whether that state survives a relaunch. It is a root object rather than a `widgets.battery` option so it stays valid when the battery item is not placed.
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
