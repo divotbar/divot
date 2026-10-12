@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
@@ -65,3 +66,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T13:40:16Z · message_queued at 2026-10-12T13:40:16.047Z
 - 2026-10-12T13:40:16Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-12T13:45:19Z · message_delivered: 1 message(s)
+
