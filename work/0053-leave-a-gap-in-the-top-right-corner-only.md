@@ -2,7 +2,7 @@
 id: "0053"
 title: Leave a gap in the top-right corner only while the camera or mic is in use
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -53,4 +53,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T08:30:28Z · note: review pass 1: needs some work
 - 2026-10-12T08:30:28Z · status review→active
 - 2026-10-12T08:31:35Z · body: section Live verification
-- 2026-10-12T08:32:34Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T08:32:34Z · status active→review
