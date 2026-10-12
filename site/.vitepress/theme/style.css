@@ -117,3 +117,13 @@
 .landing-dark .closing { background: #0e1c20; }
 @media (hover: hover) { .landing-dark .text-link:hover, .landing-dark .guide-links > a:hover { color: #b9dce1; } }
 @media (max-width: 720px) { .theme-toggle { margin-left: auto; margin-right: 18px; padding: 7px 10px; font-size: 10px !important; } .mobile-toggle { margin-left: 0; } }
+
+/* Install guide: a clear download button when a release exists, and an honest
+   "not published yet" note until then. */
+.vp-doc .install-download-wrap { margin: 22px 0 8px; }
+.vp-doc .install-download { display: inline-flex; align-items: center; padding: 14px 24px; border-radius: 5px; background: #276b76; color: #fff !important; font-weight: 600; text-decoration: none; }
+.vp-doc .install-download:hover { background: #2c7d89; }
+.vp-doc .install-download:focus-visible { outline: 3px solid #247d99; outline-offset: 3px; }
+.vp-doc .install-pending { margin: 22px 0 8px; padding: 16px 20px; border: 1px solid #cbd3cb; border-left: 4px solid #276b76; border-radius: 5px; background: var(--vp-c-bg-soft); }
+.vp-doc .install-pending p { margin: 0; }
+.dark .vp-doc .install-pending { border-color: #405853; border-left-color: #94c4cd; }
