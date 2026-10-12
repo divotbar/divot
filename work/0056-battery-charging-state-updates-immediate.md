@@ -2,14 +2,14 @@
 id: "0056"
 title: Battery charging state updates immediately when plugging and unplugging
 type: bug
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T08:36:23Z"
-updated_at: "2026-10-12T08:36:23Z"
+updated_at: "2026-10-12T08:36:29Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Relevant code: SystemBatteryReading.swift (notification callback and the isCharg
 ## Activity
 
 - 2026-10-12T08:36:23Z · created · njachowski@gmail.com
+- 2026-10-12T08:36:29Z · status inbox→ready
