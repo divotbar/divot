@@ -70,3 +70,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T09:06:15Z · status active→review
 - 2026-10-12T09:06:15Z · note: handoff requested (cli)
 - 2026-10-12T09:06:33Z · status active→review
+- 2026-10-12T09:06:33Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
