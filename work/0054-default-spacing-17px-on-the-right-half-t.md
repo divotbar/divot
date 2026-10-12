@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 50500
-last_close_out_gate_at: "2026-10-12T09:04:09.776Z"
 id: "0054"
 title: "Default spacing: 17px on the right, half that between the Divot icon and workspaces, and 12px for the front app"
 type: feature
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: 456fddc664682fb671d69f3eca24799cbfe30e38
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/default-spacing-17px-on-the-right-half-t
 created_at: "2026-10-12T08:30:32Z"
-updated_at: "2026-10-12T09:04:09Z"
+updated_at: "2026-10-12T09:04:12Z"
+last_close_out_gate_ms: 50500
+last_close_out_gate_at: "2026-10-12T09:04:09.776Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -74,4 +75,4 @@ Pending human verification: the on-screen packaged-app pixel measurements and th
 - 2026-10-12T08:51:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:52:15Z · note: review pass 3: good to go
 - 2026-10-12T09:04:09Z · close-out gate completed in 51s
-
+- 2026-10-12T09:04:12Z · status review→done, release:success
