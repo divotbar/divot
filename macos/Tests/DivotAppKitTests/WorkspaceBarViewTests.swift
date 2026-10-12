@@ -59,6 +59,53 @@ private func firstChip(_ id: String, in view: NSView) -> NSButton? {
     allSubviews(of: NSButton.self, in: view).first { $0.identifier?.rawValue == id }
 }
 
+/// A view rendered to a bitmap so a test can measure what is actually drawn,
+/// not just where the layout manager places frames.
+@MainActor
+private func renderedBitmap(of view: NSView) -> NSBitmapImageRep? {
+    guard view.bounds.width > 0, view.bounds.height > 0,
+          let representation = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return nil }
+    view.cacheDisplay(in: view.bounds, to: representation)
+    return representation
+}
+
+private struct PixelBox {
+    var minX: Int
+    var minY: Int
+    var maxX: Int
+    var maxY: Int
+
+    var centreY: CGFloat { (CGFloat(minY) + CGFloat(maxY)) / 2 }
+}
+
+/// The bounding box of every pixel matching `predicate`, in bitmap
+/// coordinates, or `nil` when nothing matches.
+private func boundingBox(in representation: NSBitmapImageRep,
+                         where predicate: (Int, Int, NSColor) -> Bool) -> PixelBox? {
+    var box: PixelBox?
+    for x in 0..<representation.pixelsWide {
+        for y in 0..<representation.pixelsHigh {
+            guard let color = representation.colorAt(x: x, y: y)?.usingColorSpace(.sRGB),
+                  predicate(x, y, color) else { continue }
+            if var current = box {
+                current.minX = min(current.minX, x)
+                current.minY = min(current.minY, y)
+                current.maxX = max(current.maxX, x)
+                current.maxY = max(current.maxY, y)
+                box = current
+            } else {
+                box = PixelBox(minX: x, minY: y, maxX: x, maxY: y)
+            }
+        }
+    }
+    return box
+}
+
+/// The solid-blue square `SolidIconProvider` draws, not the neutral text.
+private func isAppIconPixel(_ color: NSColor) -> Bool {
+    color.alphaComponent > 0.3 && color.blueComponent - color.redComponent > 0.2
+}
+
 @MainActor
 @Test func workspaceBarViewBuildsWithoutAManager() {
     let feed = WorkspaceFeed()
@@ -149,6 +196,65 @@ private func firstChip(_ id: String, in view: NSView) -> NSButton? {
     }
     #expect(attachmentBounds?.width == 22)
     #expect(attachmentBounds?.height == 22)
+}
+
+@MainActor
+@Test func workspaceChipNumbersAndAppIconsShareAVerticalCentreAtEveryIconSize() async throws {
+    // Smallest, default and largest configured app icon sizes (the range is
+    // 8...24). The number and the icons must share one vertical centre line at
+    // each, not only at the smallest size (#0055).
+    for iconSize in [8.0, 16.0, 24.0] {
+        let apps = [WorkspaceApp(identity: .init(bundleID: "com.apple.Safari", name: "Safari"),
+                                 pid: 1,
+                                 windowID: 1)]
+        let snapshot = WorkspaceSnapshot(manager: .aerospace,
+                                         workspaces: [Workspace(id: WorkspaceID("1"), isFocused: true, apps: apps)])
+
+        let metrics = BarMetrics.scaled(textSize: 14, appIconSize: iconSize)
+        let feed = WorkspaceFeed()
+        let view = WorkspaceBarView(feed: feed,
+                                    icons: SolidIconProvider(),
+                                    displayScreensID: nil,
+                                    theme: BarTheme.resolve(AppearanceConfiguration(family: .gruvbox), dark: true),
+                                    metrics: metrics)
+        view.frame = NSRect(x: 0, y: 0, width: 400, height: metrics.height)
+        feed.start(adapter: StubAdapter(availability: .available(.full), snapshotValue: snapshot),
+                   eventSourceProvider: nil,
+                   options: .init(showAppIcons: true))
+        await feed.waitForPendingWork()
+        view.layoutSubtreeIfNeeded()
+
+        let chip = try #require(firstChip("1", in: view), "chip missing at icon size \(iconSize)")
+        let bitmap = try #require(renderedBitmap(of: chip), "chip did not render at icon size \(iconSize)")
+
+        // The icon is the solid blue square; the number is the text drawn ahead
+        // of it. Measure their actual drawn vertical centres.
+        let iconBox = try #require(boundingBox(in: bitmap, where: { _, _, color in isAppIconPixel(color) }),
+                                   "no icon pixels at icon size \(iconSize)")
+        let numberBox = try #require(boundingBox(in: bitmap, where: { x, _, color in
+            // Restrict to the left of the icon so an anti-aliased icon edge can
+            // never drag the number's measured centre toward the icon.
+            x < iconBox.minX - 1 && color.alphaComponent > 0.5 && !isAppIconPixel(color)
+        }), "no number pixels at icon size \(iconSize)")
+
+        #expect(abs(numberBox.centreY - iconBox.centreY) <= 0.5,
+                "number and icons out of line at icon size \(iconSize)")
+    }
+}
+
+@MainActor
+@Test func appIconBaselineOffsetKeepsIconsOnTheNumberLineAtEverySize() {
+    let font = NSFont.systemFont(ofSize: BarMetrics.default.chipFontSize)
+    for iconSize in [8.0, 16.0, 24.0] {
+        let offset = WorkspaceBarView.appIconBaselineOffset(iconSize: iconSize,
+                                                            rowHeight: BarMetrics.default.height,
+                                                            font: font)
+        // The number's line centre and the icon's centre, measured from the
+        // baseline, must coincide within half a point.
+        let numberCentre = (font.ascender + font.descender) / 2
+        let iconCentre = offset + iconSize / 2
+        #expect(abs(numberCentre - iconCentre) <= 0.5)
+    }
 }
 
 @MainActor
