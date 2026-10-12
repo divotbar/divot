@@ -2,7 +2,7 @@
 id: "0050"
 title: Clicking the Appearance bar item crashes Divot (SIGTRAP)
 type: bug
-status: inbox
+status: ready
 priority: p0
 area: macos
 assigned_to: ""
@@ -38,3 +38,4 @@ Scope is Divot's own bar theme only (rescoped in #0037). Do not use AppleScript,
 ## Activity
 
 - 2026-10-12T05:09:55Z · created · njachowski@gmail.com
+- 2026-10-12T05:09:55Z · status inbox→ready
