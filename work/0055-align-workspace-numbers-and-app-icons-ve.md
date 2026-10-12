@@ -37,3 +37,4 @@ This is layout alignment only. Do not change the icon size setting, the spacing 
 - 2026-10-12T08:32:00Z · status inbox→ready
 - 2026-10-12T08:32:01Z · status ready→active, branch
 - 2026-10-12T08:35:25Z · status active→review
+- 2026-10-12T08:35:25Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
