@@ -96,3 +96,4 @@ app still needs a human to confirm on hardware.
 - 2026-10-12T05:09:56Z · status ready→active, branch
 - 2026-10-12T05:19:41Z · body: section Evidence
 - 2026-10-12T05:21:27Z · status active→review
+- 2026-10-12T05:21:27Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
