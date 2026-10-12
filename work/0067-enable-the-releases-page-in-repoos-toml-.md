@@ -3,6 +3,9 @@ id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
 status: review
+needs_input: true
+needs_input_reason: review-failed
+needs_input_detail: "the cursor agent exited without output: Cannot use this model: composer-2.5. Available models:"
 priority: p1
 area: infra
 assigned_to: ""
@@ -57,3 +60,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T15:54:33Z · status active→review
 - 2026-10-12T15:54:33Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T15:57:22Z · note: review pass 4: failed — no usable report
+- 2026-10-12T15:57:22Z · needs_input
