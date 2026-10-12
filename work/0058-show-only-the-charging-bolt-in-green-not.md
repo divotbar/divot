@@ -2,7 +2,7 @@
 id: "0058"
 title: "Show only the charging bolt in green, not the battery outline"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0057"]
@@ -67,4 +67,4 @@ So the packaged app resolves the plain battery outline plus a `bolt.fill` badge 
 - 2026-10-12T09:39:49Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T10:51:53Z · status active→review
 - 2026-10-12T10:51:54Z · note: handoff requested (cli)
-- 2026-10-12T10:52:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T10:52:13Z · status active→review
