@@ -11,6 +11,19 @@ private func makeDirectory() throws -> URL {
 
 private let validV2 = ##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"notchGap":10},"left":["time"],"right":["battery"]}"##
 
+/// Poll a main-actor condition while the file watcher's event hop is delivered.
+/// The watcher posts from a private queue and hops back to the main actor, so
+/// the sleep yields the main actor for that hop rather than blocking it.
+@MainActor
+private func waitFor(_ condition: @MainActor () -> Bool, timeout: TimeInterval = 3) async -> Bool {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+        if condition() { return true }
+        try? await Task.sleep(nanoseconds: 25_000_000)
+    }
+    return condition()
+}
+
 @MainActor
 @Test func controllerPublishesALoadedFile() throws {
     let url = try makeDirectory().appendingPathComponent("config.json")
@@ -158,6 +171,63 @@ private final class FailingThenWorkingWriter: @unchecked Sendable {
     // The date item is provider-backed once it is placed.
     configuration.move(.date, to: .right)
     #expect(DefaultWidgetProviders.placedProviderIDs(in: configuration) == [.date, .time, .frontApp])
+}
+
+// MARK: - Live file watching
+
+@MainActor
+@Test func watchingAppliesAValidExternalEdit() async throws {
+    let url = try makeDirectory().appendingPathComponent("config.json")
+    try Data(validV2.utf8).write(to: url, options: .atomic)
+    let controller = ConfigurationController(store: ConfigurationStore(configURL: url))
+    controller.reload()
+    controller.startWatching()
+    defer { controller.stopWatching() }
+
+    var published: [DivotConfiguration] = []
+    controller.addObserver { published.append($0) }
+
+    let edited = validV2.replacingOccurrences(of: "\"height\":32", with: "\"height\":30")
+    try Data(edited.utf8).write(to: url, options: .atomic)
+
+    #expect(await waitFor { controller.configuration.layout.height == 30 })
+    #expect(published.last?.layout.height == 30)
+    #expect(controller.lastError == nil)
+}
+
+@MainActor
+@Test func watchingKeepsTheLastGoodConfigurationOnAnInvalidExternalEdit() async throws {
+    let url = try makeDirectory().appendingPathComponent("config.json")
+    try Data(validV2.utf8).write(to: url, options: .atomic)
+    let controller = ConfigurationController(store: ConfigurationStore(configURL: url))
+    controller.reload()
+    let good = controller.configuration
+    controller.startWatching()
+    defer { controller.stopWatching() }
+
+    let invalid = validV2.replacingOccurrences(of: "\"height\":32", with: "\"height\":900")
+    try Data(invalid.utf8).write(to: url, options: .atomic)
+
+    #expect(await waitFor { controller.lastError != nil })
+    #expect(controller.configuration == good)
+    #expect(controller.lastError?.path == "layout.height")
+}
+
+@MainActor
+@Test func cliConfigEditIsPickedUpWhileWatching() async throws {
+    let url = try makeDirectory().appendingPathComponent("config.json")
+    try Data(validV2.utf8).write(to: url, options: .atomic)
+    let controller = ConfigurationController(store: ConfigurationStore(configURL: url))
+    controller.reload()
+    controller.startWatching()
+    defer { controller.stopWatching() }
+
+    // A separate store stands in for the `divot config set` process: it writes
+    // the same file atomically and the running controller must apply it.
+    let command = ConfigurationCommand(store: ConfigurationStore(configURL: url))
+    #expect(command.run(["set", "layout.height", "30"]).exitCode == 0)
+
+    #expect(await waitFor { controller.configuration.layout.height == 30 })
 }
 
 private extension Result {

@@ -2,18 +2,10 @@ import Foundation
 
 // MARK: - Outcome
 
-/// The result of one `divot config` invocation: text to print and the process
-/// exit code. Keeping the command pure (no printing, no `exit`) makes the
-/// round-trip and rejection tests deterministic.
-public struct ConfigurationCommandOutcome: Equatable, Sendable {
-    public let output: String
-    public let exitCode: Int32
-
-    public init(output: String, exitCode: Int32 = 0) {
-        self.output = output
-        self.exitCode = exitCode
-    }
-}
+/// The result of one `divot config` invocation. `CLIOutcome` is the shared
+/// shape (`output` + `exitCode`); the alias keeps the established name for the
+/// config command while `divot status` returns the same type.
+public typealias ConfigurationCommandOutcome = CLIOutcome
 
 // MARK: - Command
 
