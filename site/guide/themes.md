@@ -6,7 +6,7 @@ The visual direction is alpine: lake blue, pine green, and warm paper. The actua
 
 Alongside the comfortable native default, Divot ships four curated hacker families: **Gruvbox**, **Ayu**, **Dracula**, and **Tokyo Night**. Family and appearance are separate settings, so switching between System, Light, and Dark keeps the chosen family.
 
-The native family follows macOS semantic colors and the system accent, so it keeps vibrancy and accessibility behavior. The four families resolve to semantic color tokens — foreground, background, accent, selected, occupied, and error — and repaint the bar's background, border, item text and icons, selected/occupied/disabled workspace states, and error text. Color alone never identifies a selected workspace: focus is also the control's selected state and an accessibility value, and occupancy has a shape marker.
+The native family follows macOS semantic colors and the system accent, so it keeps vibrancy and accessibility behavior. The four families resolve to semantic color tokens — foreground, background, accent, selected, occupied, and error — and repaint the bar's background, border, item text and icons, the charging bolt, selected/occupied/disabled workspace states, and error text. Color alone never identifies a selected workspace: focus is also the control's selected state and an accessibility value, and occupancy has a shape marker.
 
 Every family ships a light and a dark variant, pinned to its upstream palette with source and license recorded per variant:
 
