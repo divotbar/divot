@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T11:46:30Z"
+review_passes: 1
 id: "0061"
 title: Prompt for Accessibility permission at launch when missing
 type: feature
@@ -9,7 +11,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/prompt-for-accessibility-permission-at-l
 created_at: "2026-10-12T11:38:56Z"
-updated_at: "2026-10-12T11:46:30Z"
 ---
 ## Problem
 Divot only checks AXIsProcessTrusted() and prints a stderr line (DivotAppDelegate.swift, SystemMenuBarProbe.swift:134), so users are never prompted and notched-display menu-bar detection stays indeterminate.
@@ -35,3 +36,4 @@ No private APIs, no polling. Keep the existing stderr message.
 - 2026-10-12T11:45:52Z · status active→review
 - 2026-10-12T11:45:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T11:46:30Z · note: review pass 1: good to go
+
