@@ -2,7 +2,7 @@
 id: "0068"
 title: "Deploy the site via git-connected Cloudflare Workers (main dev, prod production) and enable the Deployments page"
 type: chore
-status: inbox
+status: ready
 priority: p1
 area: [infra, web]
 depends_on: ["0067"]
@@ -12,7 +12,7 @@ branch: ""
 cli_override: claude
 model_override: sonnet
 created_at: "2026-10-12T14:43:34Z"
-updated_at: "2026-10-12T17:20:27Z"
+updated_at: "2026-10-12T17:25:20Z"
 ---
 ## Problem
 The site deploys through .github/workflows/site.yml (GitHub Actions to Cloudflare Pages, main only, skipped without secrets). The maintainer wants the same setup as the RepoOS repo: git-connected Cloudflare Workers, main = dev, prod = production at divotbar.app, plus the Deployments page in RepoOS.
@@ -35,3 +35,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 
 - 2026-10-12T14:43:34Z · created · njachowski@gmail.com
 - 2026-10-12T17:20:27Z · cli_override, model_override
+- 2026-10-12T17:25:20Z · status inbox→ready
