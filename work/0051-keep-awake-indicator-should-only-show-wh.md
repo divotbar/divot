@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0051"
 title: Keep-awake indicator should only show when Divot itself is keeping the Mac awake
 type: bug
@@ -38,3 +39,4 @@ Relevant code: the keep-awake provider (SystemKeepAwake / KeepAwake observation)
 - 2026-10-12T06:54:32Z · created · njachowski@gmail.com
 - 2026-10-12T06:54:33Z · status inbox→ready
 - 2026-10-12T06:54:33Z · status ready→active, branch
+
