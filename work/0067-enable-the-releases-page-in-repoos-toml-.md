@@ -18,7 +18,6 @@ review_model_override: default
 created_at: "2026-10-12T14:36:53Z"
 updated_at: "2026-10-12T16:08:59Z"
 review_passes: 3
-check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-12T16:06:47.982Z: repoos check failed: ◆ Check plan"
 review_rounds: 2
 ---
@@ -80,3 +79,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:08:32Z · model_override
 - 2026-10-12T16:08:50Z · status review→active
 - 2026-10-12T16:08:59Z · review_cli_override, review_model_override
+
