@@ -150,10 +150,15 @@ RepoOS reads the committed release version from `package.json` (`version`),
 because its release provider requires a JSON manifest. The root `VERSION` file
 is the separate local-preview version that `scripts/package-app.sh` packages
 (see the [local preview](local-preview.md)); the two carry the same number until
-the preview becomes a real release. The release and distribution keys are set
-in `repoos.toml` — there is no RepoOS Settings-window control for them, so the
-Settings page is not a place to edit them. **No `[[deployments]]` rows** are
-declared: the Deployments surface needs Cloudflare account/project values the
+the preview becomes a real release. `scripts/release-config.test.ts`, run by
+`bun run check`, fails if the `package.json` version and `VERSION` disagree, so
+a version bump must update both. Cut releases through RepoOS rather than pushing
+a tag by hand: RepoOS writes the version into `package.json` and pushes the
+matching `v<version>` tag, so the manifest and the tag agree — a hand-pushed tag
+that disagrees would confuse the release view. The release and distribution keys
+are set in `repoos.toml` — there is no RepoOS Settings-window control for them,
+so the Settings page is not a place to edit them. **No `[[deployments]]` rows**
+are declared: the Deployments surface needs Cloudflare account/project values the
 maintainer has not supplied yet (a separate task). No tag or release exists yet,
 so the Releases page shows its empty state.
 
