@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
-updated_at: "2026-10-12T08:41:40Z"
+updated_at: "2026-10-12T08:42:50Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -50,30 +50,39 @@ cause; the hardware log below is still required to confirm it.
 ### Fix
 
 - `DivotCore.BatteryRecheckWindow` is a pure, unit-tested value type for a
-bounded follow-up window: each notification arms up to `maxAttempts` (4)
+bounded follow-up window: each notification arms up to `maxAttempts` (8)
 re-checks on a fixed `interval` (1s), and the window closes on its own
-(`close()`/exhaustion). It is not continuous polling.
+(`close()`/exhaustion). It is not continuous polling. The 8-attempt bound
+widens the catch window past the reviewer's ~4s edge case; a flip later than
+the bound still waits for the next level notification, which is the accepted
+limit of a bounded design.
 - `PowerSourceRunLoopObserver` (SystemBatteryReading.swift) fires the handler
 immediately on every power-source notification, then runs a repeating run-loop
 `Timer` on the same dedicated background run loop while the window is active.
 Each tick re-reads the full snapshot, so a charging flag that flips a moment
 after the notification is observed within about a second. The timer is
 invalidated when the window closes or the observer stops.
+- `BatteryProvider` emits only when the produced `WidgetContent` changes
+(`LastBatteryEmission`), so re-check ticks and redundant notifications no
+longer bump the pipeline revision or redraw the bar for an unchanged snapshot.
 - `IOKitBatteryReading.read()` logs each read at debug level with
 `charging=` and `plugged=` so a person can confirm the notification timing on
 hardware.
-- The provider's update path is unchanged: it re-reads `reading.snapshot()` and
-emits on every handler call, so the bar re-renders whenever the state changes.
 
 ### Tests
 
 - `DivotCoreTests.BatteryRecheckTests` covers the bounded window: attempts are
 limited, a new notification restarts it, it can be disabled/closed, and a
 non-positive interval is clamped.
+- `SystemBatteryReadingTests.powerSourceObserverRechecksUntilTheChargingFlagFlips`
+drives the real `PowerSourceRunLoopObserver` with a lagging source that is
+plugged-but-not-charging on the first read and charging afterwards, and
+asserts the timer path observes the flip.
 - `WidgetProviderTests.batteryProviderFollowsFakePowerSourcePlugInAndUnplug`
-drives a fake power source through unplugged → plugged (flag lags, then flips)
-→ unplugged and asserts each emission, so a plug/unplug transition is covered
-without real hardware.
+drives a fake power source through unplugged → plugged (flag flips) →
+unplugged and asserts each emission.
+- `WidgetProviderTests.batteryProviderDoesNotReemitAnUnchangedSnapshot` covers
+the dedup.
 - `REPOOS_CHECK_CHANGED=main repoos check` passes.
 
 ### Still needed from a human (not observed in this run)
@@ -82,7 +91,7 @@ The acceptance criterion to log a real plug-in and unplug on the packaged app
 has not been performed: it needs a Mac with an internal battery and a person to
 plug/unplug while streaming
 
-log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'
+  log stream --predicate 'subsystem == "com.divot.Divot" && category == "battery"'
 
 The captured `charging=`/`plugged=` lines must be recorded here by a human. Do
 not treat this section as that evidence.
@@ -98,3 +107,4 @@ not treat this section as that evidence.
 - 2026-10-12T08:40:32Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T08:41:40Z · note: review pass 1: needs some work
 - 2026-10-12T08:41:40Z · status review→active
+- 2026-10-12T08:42:50Z · body: section Fix and evidence
