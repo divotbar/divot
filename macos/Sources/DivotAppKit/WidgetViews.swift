@@ -24,6 +24,8 @@ final class BarItemView: NSView {
     private let iconView = NSImageView()
     private let textField = NSTextField(labelWithString: "")
     private let indicatorView = NSImageView()
+    /// The symbol drawn over the leading icon (the charging bolt, #0058).
+    private let badgeView = NSImageView()
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
     private let metrics: BarMetrics
@@ -46,6 +48,22 @@ final class BarItemView: NSView {
     private(set) var displayedIndicatorSymbolName: String?
     /// Whether the state indicator (the keep-awake cup) is currently drawn.
     var isIndicatorVisible: Bool { !indicatorView.isHidden }
+    /// The SF Symbol the badge view currently draws, or `nil` when no badge is
+    /// shown. Exposed so a test can prove the charging bolt is a separate
+    /// element from the battery outline (#0058).
+    private(set) var displayedBadgeSymbolName: String?
+    /// Whether the badge (the charging bolt) is currently drawn.
+    var isBadgeVisible: Bool { !badgeView.isHidden }
+    /// The tint the badge draws with, or `nil` when no badge is shown. Lets a
+    /// test prove only the bolt uses the theme accent green (#0058).
+    var badgeTintColor: NSColor? { badgeView.isHidden ? nil : badgeView.contentTintColor }
+    /// The tint the leading icon draws with, so a test can prove the battery
+    /// outline does not take the badge green (#0058).
+    var iconTintColor: NSColor { iconView.contentTintColor ?? .labelColor }
+    /// The text colour, so the green is proven to be only the bolt (#0058).
+    var itemTextColor: NSColor { textField.textColor ?? .labelColor }
+    /// The semantic role of the badge currently drawn, or `nil` with no badge.
+    private var badgeRole: WidgetBadge.Role?
     /// The chip background opacity, 0–100, matching the workspace chips so the
     /// whole bar fades together (#0052).
     private let chipOpacity: Int
@@ -63,6 +81,12 @@ final class BarItemView: NSView {
         iconView.imageScaling = .scaleProportionallyDown
         iconView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(iconView)
+        // The badge draws over the leading icon, so it must sit above it in the
+        // subview order but below the text and the trailing indicator (#0058).
+        badgeView.imageScaling = .scaleProportionallyDown
+        badgeView.translatesAutoresizingMaskIntoConstraints = true
+        badgeView.isHidden = true
+        addSubview(badgeView)
         indicatorView.imageScaling = .scaleProportionallyDown
         indicatorView.translatesAutoresizingMaskIntoConstraints = true
         // A plain image only: no AppKit bezel, frame, or selection chrome can
@@ -105,6 +129,7 @@ final class BarItemView: NSView {
         applyColors()
 
         applyIndicator(presentation.indicator)
+        applyBadge(presentation.badge)
 
         setAccessibilityRole(action == .none ? .staticText : .button)
         setAccessibilityLabel(presentation.accessibilityLabel)
@@ -125,6 +150,9 @@ final class BarItemView: NSView {
         applyColors()
         if let indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: indicatorRole)
+        }
+        if let badgeRole {
+            badgeView.contentTintColor = badgeColor(for: badgeRole)
         }
         // The chip fill lives in `updateLayer`, so a theme change must ask for a
         // redraw to pick up the new `selected` color.
@@ -159,6 +187,33 @@ final class BarItemView: NSView {
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
         indicatorView.toolTip = nil
+    }
+
+    /// Draw (or hide) the symbol that sits over the leading icon. The charging
+    /// bolt draws in the theme's accent green, so only the bolt is green while
+    /// the battery outline keeps the foreground colour (#0058).
+    private func applyBadge(_ badge: WidgetBadge?) {
+        guard let badge,
+              let image = NSImage(systemSymbolName: badge.symbolName, accessibilityDescription: nil) else {
+            badgeView.image = nil
+            badgeView.isHidden = true
+            displayedBadgeSymbolName = nil
+            badgeRole = nil
+            return
+        }
+        badgeView.image = image
+        badgeRole = badge.role
+        badgeView.contentTintColor = badgeColor(for: badge.role)
+        badgeView.isHidden = false
+        displayedBadgeSymbolName = badge.symbolName
+    }
+
+    /// The badge tint: the theme's accent set, so the charging bolt is the fixed
+    /// green from the theme rather than a colour hard-coded in this view (#0058).
+    private func badgeColor(for role: WidgetBadge.Role) -> NSColor {
+        switch role {
+        case .charging: return theme.accent
+        }
     }
 
     /// The indicator tint: the audited native hex for the native family, or the
@@ -268,6 +323,11 @@ final class BarItemView: NSView {
             indicatorView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
                                          width: metrics.iconSize, height: metrics.iconSize)
         }
+        // The badge overlaps the leading icon, so the battery keeps its box and
+        // the bolt is centred on top of it rather than widening the item.
+        if !badgeView.isHidden, !iconView.isHidden {
+            badgeView.frame = iconView.frame
+        }
     }
 
     // MARK: Interaction
@@ -296,6 +356,9 @@ final class BarItemView: NSView {
         super.viewDidChangeEffectiveAppearance()
         if let role = indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: role)
+        }
+        if let badgeRole {
+            badgeView.contentTintColor = badgeColor(for: badgeRole)
         }
     }
 

@@ -44,6 +44,15 @@ enum DivotAppWidgetReport {
             let size = NativeStatusSymbol.image(symbolName: symbol, metrics: metrics)?.size ?? .zero
             print("statusSymbol.\(id.rawValue)=\(symbol) \(Int(size.width))x\(Int(size.height))pt")
         }
+        // The charging bolt is a separate badge tinted with the theme accent;
+        // print the resolved colour so a packaged-app run records the green the
+        // bar will draw (#0058).
+        if let rgb = BarTheme.systemDefault.accent.usingColorSpace(.sRGB) {
+            print(String(format: "theme.accent=#%02X%02X%02X",
+                         Int((rgb.redComponent * 255).rounded()),
+                         Int((rgb.greenComponent * 255).rounded()),
+                         Int((rgb.blueComponent * 255).rounded())))
+        }
         print("layout.left=\(BarLayout.default.left.map(\.rawValue).joined(separator: ","))")
         print("layout.right=\(BarLayout.default.right.map(\.rawValue).joined(separator: ","))")
         for id in BarItemID.placeableItems {
@@ -54,6 +63,9 @@ enum DivotAppWidgetReport {
             let presentation = WidgetPresenter.present(id: id, state: state)
             let text = presentation.text.isEmpty ? "(icon \(presentation.symbolName ?? "-"))" : presentation.text
             print("\(id.rawValue): \(text) · \(presentation.accessibilityLabel)")
+            if let badge = presentation.badge {
+                print("\(id.rawValue).badge=\(badge.symbolName) role=\(badge.role.rawValue)")
+            }
         }
     }
 }
