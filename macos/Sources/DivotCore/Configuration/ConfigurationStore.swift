@@ -216,6 +216,9 @@ public extension DivotConfiguration {
         // Chip opacity is 0 by default, so only non-default values are written
         // (#0047).
         if chipOpacity != 0 { object["chipOpacity"] = chipOpacity }
+        // The app icon size defaults to the status icon size, so only a
+        // non-default value is written (#0052).
+        if appIconSize != Double(BarMetrics.default.iconSize) { object["appIconSize"] = appIconSize }
         return object
     }
 }

@@ -473,6 +473,10 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// migrated explicitly by the parser; unknown versions are rejected.
     public static let currentVersion = 2
     public static let chipOpacityRange: ClosedRange<Int> = 0...100
+    /// The app-icon point-size range shown as a Settings slider. The default is
+    /// the status-icon size from `BarMetrics`, so the left app icons match the
+    /// right-side icons until the user changes it (#0052).
+    public static let appIconSizeRange: ClosedRange<Double> = 8...24
 
     public var version: Int
     public var appearance: AppearanceConfiguration
@@ -509,11 +513,15 @@ public struct DivotConfiguration: Equatable, Sendable {
     /// together; when on, each item sits in its own chip with the same padding
     /// and theme colours (#0030).
     public var chipStyle: Bool
-    /// The workspace chip background opacity, 0–100. 0 is the current chip
-    /// appearance (matching `backgroundColor` color); 100 makes the chip
-    /// background match the bar background, so chips are invisible and only
-    /// the workspace content shows (#0047).
+    /// The chip background opacity, 0–100. 0 is the current chip appearance
+    /// (matching `backgroundColor` color); 100 makes every chip background match
+    /// the bar background, so chips are invisible and only their content shows
+    /// (#0047, widened to every chip by #0052).
     public var chipOpacity: Int
+    /// Point size of the app icons drawn on the left: the workspace-chip app
+    /// attachments and the Divot mark. Defaults to the status-icon size so the
+    /// left app icons match the right-side icons (#0052).
+    public var appIconSize: Double
 
     public init(version: Int = DivotConfiguration.currentVersion,
                 appearance: AppearanceConfiguration = .default,
@@ -529,7 +537,8 @@ public struct DivotConfiguration: Equatable, Sendable {
                 showEmptyDot: Bool = true,
                 bottomShadow: Bool = false,
                 chipStyle: Bool = false,
-                chipOpacity: Int = 0) {
+                chipOpacity: Int = 0,
+                appIconSize: Double = Double(BarMetrics.default.iconSize)) {
         self.version = version
         self.appearance = appearance
         self.layout = layout
@@ -545,6 +554,8 @@ public struct DivotConfiguration: Equatable, Sendable {
         self.bottomShadow = bottomShadow
         self.chipStyle = chipStyle
         self.chipOpacity = max(0, min(chipOpacity, 100))
+        self.appIconSize = max(DivotConfiguration.appIconSizeRange.lowerBound,
+                               min(appIconSize, DivotConfiguration.appIconSizeRange.upperBound))
     }
 
     /// Default left is `workspaces`, `front-app`.
@@ -586,6 +597,7 @@ public struct DivotConfiguration: Equatable, Sendable {
             && bottomShadow == other.bottomShadow
             && chipStyle == other.chipStyle
             && chipOpacity == other.chipOpacity
+            && appIconSize == other.appIconSize
     }
 
     public func side(of id: BarItemID) -> BarSide? { barLayout.side(of: id) }
@@ -622,7 +634,8 @@ public struct DivotConfiguration: Equatable, Sendable {
         BarMetrics.scaled(textSize: CGFloat(text.size),
                           height: CGFloat(layout.height),
                           rowInset: CGFloat(layout.padding),
-                          fontFamily: text.fontFamily)
+                          fontFamily: text.fontFamily,
+                          appIconSize: CGFloat(appIconSize))
     }
 
     // MARK: Editing

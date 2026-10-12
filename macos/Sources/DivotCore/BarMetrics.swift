@@ -21,8 +21,12 @@ public struct BarMetrics: Equatable, Sendable {
     /// Leading/trailing inset of each group inside its panel, so content never
     /// runs edge-to-edge and the left/right groups keep consistent spacing.
     public var rowInset: CGFloat
-    /// SF Symbol (icon) point size.
+    /// SF Symbol (icon) point size for status items.
     public var iconSize: CGFloat
+    /// Point size for the app icons drawn on the left: the workspace-chip app
+    /// attachments and the Divot mark. Defaults to `iconSize`, so the app icons
+    /// match the status icons until the configuration overrides it (#0052).
+    public var appIconSize: CGFloat
     /// Gap between an item's icon and its text.
     public var iconSpacing: CGFloat
     /// Font size for status item text.
@@ -40,6 +44,7 @@ public struct BarMetrics: Equatable, Sendable {
                 itemSpacing: CGFloat = 8,
                 rowInset: CGFloat = 6,
                 iconSize: CGFloat = 16,
+                appIconSize: CGFloat = 16,
                 iconSpacing: CGFloat = 4,
                 textFontSize: CGFloat = 14,
                 chipFontSize: CGFloat = 13,
@@ -49,6 +54,7 @@ public struct BarMetrics: Equatable, Sendable {
         self.itemSpacing = itemSpacing
         self.rowInset = rowInset
         self.iconSize = iconSize
+        self.appIconSize = appIconSize
         self.iconSpacing = iconSpacing
         self.textFontSize = textFontSize
         self.chipFontSize = chipFontSize
@@ -62,6 +68,11 @@ public struct BarMetrics: Equatable, Sendable {
     /// reads comfortably on the maintainer's display (#0022).
     public static let defaultTextSize: CGFloat = 14
 
+    /// Horizontal padding around a bar item's content when chips are drawn
+    /// (#0030). Shared by the status item chips and the workspace chips so the
+    /// two match (#0052).
+    public static let chipPadding: CGFloat = 4
+
     /// Derive the whole render rhythm from a configured text size.
     ///
     /// Icon and chip sizes are expressed relative to the text so the row stays
@@ -71,12 +82,18 @@ public struct BarMetrics: Equatable, Sendable {
     public static func scaled(textSize: CGFloat,
                               height: CGFloat = BarMetrics.default.height,
                               rowInset: CGFloat = BarMetrics.default.rowInset,
-                              fontFamily: String? = nil) -> BarMetrics {
+                              fontFamily: String? = nil,
+                              appIconSize: CGFloat? = nil) -> BarMetrics {
         let size = (textSize.isFinite ? textSize : defaultTextSize).rounded()
         let clamped = max(1, size)
+        // The app icon defaults to the status icon size so the left app icons
+        // match the right-side icons until the configuration overrides it
+        // (#0052). A non-finite override falls back to that default.
+        let requestedAppIcon = appIconSize.map { $0.isFinite ? $0 : clamped + 2 } ?? (clamped + 2)
         return BarMetrics(height: height,
                           rowInset: rowInset,
                           iconSize: clamped + 2,
+                          appIconSize: max(1, requestedAppIcon.rounded()),
                           textFontSize: clamped,
                           chipFontSize: max(1, clamped - 1),
                           fontFamily: fontFamily)

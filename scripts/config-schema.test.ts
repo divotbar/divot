@@ -177,6 +177,40 @@ describe('validate', () => {
     expect(() => validate(config)).toThrow('bottomShadow: expected boolean')
   })
 
+  test('accepts the chip controls and the app icon size', () => {
+    const config = base()
+    config.chipStyle = true
+    config.chipOpacity = 40
+    config.appIconSize = 20
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects out-of-range chip opacity', () => {
+    const high = base()
+    high.chipOpacity = 101
+    expect(() => validate(high)).toThrow('chipOpacity: expected 0–100')
+
+    const low = base()
+    low.chipOpacity = -1
+    expect(() => validate(low)).toThrow('chipOpacity: expected 0–100')
+  })
+
+  test('rejects a non-boolean chip style', () => {
+    const config = base()
+    config.chipStyle = 'yes'
+    expect(() => validate(config)).toThrow('chipStyle: expected boolean')
+  })
+
+  test('rejects an out-of-range or non-numeric app icon size', () => {
+    const tooBig = base()
+    tooBig.appIconSize = 40
+    expect(() => validate(tooBig)).toThrow('appIconSize: expected 8–24')
+
+    const wrongType = base()
+    wrongType.appIconSize = 'big'
+    expect(() => validate(wrongType)).toThrow('appIconSize: expected 8–24')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }

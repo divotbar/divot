@@ -27,7 +27,11 @@ enum DivotAppWidgetReport {
         task.cancel()
         Task { await pipeline.stop() }
 
+        let metrics = DivotConfiguration.default.barMetrics
+        // The default app icon size must equal the status icon size, and this
+        // line lets the packaged-app smoke test assert it (#0052).
         print("# divot widget report (live built-in providers, \(duration)s window)")
+        print("metrics.iconSize=\(Int(metrics.iconSize)) metrics.appIconSize=\(Int(metrics.appIconSize))")
         print("layout.left=\(BarLayout.default.left.map(\.rawValue).joined(separator: ","))")
         print("layout.right=\(BarLayout.default.right.map(\.rawValue).joined(separator: ","))")
         for id in BarItemID.placeableItems {
