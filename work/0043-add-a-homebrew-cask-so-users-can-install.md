@@ -2,7 +2,7 @@
 id: "0043"
 title: Add a Homebrew cask so users can install Divot with brew
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: [macos, docs]
 depends_on: ["0041"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T12:47:11Z"
-updated_at: "2026-10-11T12:47:11Z"
+updated_at: "2026-10-12T11:38:53Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Depends on the unsigned DMG release (#0041). Unsigned casks are accepted by Home
 ## Activity
 
 - 2026-10-11T12:47:11Z · created · njachowski@gmail.com
+- 2026-10-12T11:38:53Z · status inbox→ready
