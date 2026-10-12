@@ -2,7 +2,7 @@
 id: "0061"
 title: Prompt for Accessibility permission at launch when missing
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -32,4 +32,4 @@ No private APIs, no polling. Keep the existing stderr message.
 - 2026-10-12T11:38:56Z · created · njachowski@gmail.com
 - 2026-10-12T11:39:02Z · status inbox→ready
 - 2026-10-12T11:39:03Z · status ready→active, branch
-- 2026-10-12T11:45:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T11:45:52Z · status active→review
