@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T13:40:16Z"
+updated_at: "2026-10-12T13:45:19Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -64,3 +64,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T13:30:44Z · status review→active
 - 2026-10-12T13:40:16Z · message_queued at 2026-10-12T13:40:16.047Z
 - 2026-10-12T13:40:16Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
+- 2026-10-12T13:45:19Z · message_delivered: 1 message(s)
