@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T12:06:00Z"
+review_passes: 1
 id: "0063"
 title: "CLI: live config reload and divot status --json"
 type: feature
@@ -10,7 +12,6 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-live-config-reload-and-divot-status-
 created_at: "2026-10-12T11:39:01Z"
-updated_at: "2026-10-12T12:06:00Z"
 ---
 ## Problem
 CLI changes should take effect without restarting the app, and agents need diagnostics.
@@ -37,3 +38,4 @@ Builds on the config CLI from #0062.
 - 2026-10-12T12:04:57Z · status active→review
 - 2026-10-12T12:04:57Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T12:06:00Z · note: review pass 1: good to go
+
