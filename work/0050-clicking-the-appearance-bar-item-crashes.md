@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/clicking-the-appearance-bar-item-crashes
 created_at: "2026-10-12T05:09:55Z"
-updated_at: "2026-10-12T05:19:41Z"
+updated_at: "2026-10-12T05:21:27Z"
 ---
 ## Problem
 
@@ -41,21 +41,21 @@ Scope is Divot's own bar theme only (rescoped in #0037). Do not use AppleScript,
 Built the pre-fix source into a packaged bundle and launched it with the
 Appearance item placed (`right: ["battery","appearance"]`) on this Mac:
 
-  scripts/package-app.sh --configuration debug --output /tmp/divot-prefix-dist --no-archive
-  XDG_CONFIG_HOME=/tmp/dvcfg /tmp/divot-prefix-dist/Divot.app/Contents/MacOS/divot
-  # -> Trace/BPT trap: 5, exit 133
+scripts/package-app.sh --configuration debug --output /tmp/divot-prefix-dist --no-archive
+XDG_CONFIG_HOME=/tmp/dvcfg /tmp/divot-prefix-dist/Divot.app/Contents/MacOS/divot
+# -> Trace/BPT trap: 5, exit 133
 
 macOS crash report `~/Library/Logs/DiagnosticReports/divot-2026-10-12-121822.ips`
 (`bug_type 309`, `exception EXC_BREAKPOINT / SIGTRAP`, `faultingThread 0`,
 queue `com.apple.main-thread`), crashing stack:
 
-  0  libdispatch.dylib        __DISPATCH_WAIT_FOR_QUEUE__ +612
-  1  libdispatch.dylib        _dispatch_sync_f_slow +140
-  2  libswiftDispatch.dylib   OS_dispatch_queue.sync<A>(execute:) +64
-  3  divot                    SystemAppearanceReading.snapshot() +108
-  4  divot                    protocol witness for AppearanceReading.snapshot()
-  5  divot                    closure #1 in closure #1 in AppearanceProvider.start(emit:)
-  ...
+0  libdispatch.dylib        __DISPATCH_WAIT_FOR_QUEUE__ +612
+1  libdispatch.dylib        _dispatch_sync_f_slow +140
+2  libswiftDispatch.dylib   OS_dispatch_queue.sync<A>(execute:) +64
+3  divot                    SystemAppearanceReading.snapshot() +108
+4  divot                    protocol witness for AppearanceReading.snapshot()
+5  divot                    closure #1 in closure #1 in AppearanceProvider.start(emit:)
+...
 
 Root cause: `SystemAppearanceReading.snapshot()` was `nonisolated` and reached
 AppKit through `DispatchQueue.main.sync`. The provider's initial push and the
@@ -95,3 +95,4 @@ app still needs a human to confirm on hardware.
 - 2026-10-12T05:09:55Z · status inbox→ready
 - 2026-10-12T05:09:56Z · status ready→active, branch
 - 2026-10-12T05:19:41Z · body: section Evidence
+- 2026-10-12T05:21:27Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
