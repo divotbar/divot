@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T09:22:42Z"
+review_passes: 4
 id: "0057"
 title: "Battery, volume and Wi-Fi icons match the native menu bar icon size"
 type: feature
@@ -9,9 +11,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-volume-and-wi-fi-icons-match-the
 created_at: "2026-10-12T08:36:24Z"
-updated_at: "2026-10-12T09:22:42Z"
 review_rounds: 2
-review_passes: 3
 ---
 ## Problem
 
@@ -73,3 +73,4 @@ Before the change the same three symbols resolved at the SF Symbol default of 13
 - 2026-10-12T09:21:32Z · status active→review
 - 2026-10-12T09:21:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T09:22:42Z · note: review pass 4: good to go
+
