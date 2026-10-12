@@ -35,6 +35,17 @@ function section(source: string, header: string): string {
   return body.join('\n')
 }
 
+/** The rows of a `[[table]]` array, each cut off before the next table header.
+ * Array-of-tables headers must start a line, so a comment that merely mentions
+ * one cannot be mistaken for a row. */
+function tableRows(source: string, header: string): string[] {
+  const escaped = header.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return source
+    .split(new RegExp(`^[ \\t]*${escaped}[ \\t]*$`, 'm'))
+    .slice(1)
+    .map((row) => row.split(/\n[ \t]*\[/)[0]!)
+}
+
 /** A `key = value` scalar (quoted or boolean) from a TOML fragment. */
 function value(source: string, key: string): string | undefined {
   const match = new RegExp(`^\\s*${key}\\s*=\\s*(.+?)\\s*$`, 'm').exec(source)
@@ -98,53 +109,88 @@ interface DistributionRow {
 
 /** Parse the `[[distribution]]` rows, rejecting prohibited shapes. */
 function parseDistributions(source: string): DistributionRow[] {
-  return source
-    .split('[[distribution]]')
-    .slice(1)
-    .map((row) => {
-      const name = value(row, 'name')
-      if (!name) throw new Error('distribution.name is required')
-      const kind = value(row, 'kind')
-      if (kind && !DISTRIBUTION_KINDS.includes(kind)) {
-        throw new Error(`${name}: unknown distribution kind "${kind}"`)
+  return tableRows(source, '[[distribution]]').map((row) => {
+    const name = value(row, 'name')
+    if (!name) throw new Error('distribution.name is required')
+    const kind = value(row, 'kind')
+    if (kind && !DISTRIBUTION_KINDS.includes(kind)) {
+      throw new Error(`${name}: unknown distribution kind "${kind}"`)
+    }
+    const url = value(row, 'url')
+    if (url && !/^https?:\/\//i.test(url)) {
+      throw new Error(`${name}: url must start with http(s)://`)
+    }
+    const repository = value(row, 'repository')
+    if (kind === 'github-release' && (!repository || !OWNER_REPO.test(repository))) {
+      throw new Error(`${name}: github-release repository must be owner/repo`)
+    }
+    const versionUrl = value(row, 'versionUrl')
+    if (versionUrl && !/^https?:\/\//i.test(versionUrl)) {
+      throw new Error(`${name}: versionUrl must start with http(s)://`)
+    }
+    const versionRegex = value(row, 'versionRegex')
+    if (kind === 'homebrew' && !versionRegex) {
+      throw new Error(`${name}: homebrew versionRegex is required`)
+    }
+    if (versionRegex) {
+      try {
+        new RegExp(versionRegex)
+      } catch {
+        throw new Error(`${name}: versionRegex is not a valid regex`)
       }
-      const url = value(row, 'url')
-      if (url && !/^https?:\/\//i.test(url)) {
-        throw new Error(`${name}: url must start with http(s)://`)
-      }
-      const repository = value(row, 'repository')
-      if (kind === 'github-release' && (!repository || !OWNER_REPO.test(repository))) {
-        throw new Error(`${name}: github-release repository must be owner/repo`)
-      }
-      const versionUrl = value(row, 'versionUrl')
-      if (versionUrl && !/^https?:\/\//i.test(versionUrl)) {
-        throw new Error(`${name}: versionUrl must start with http(s)://`)
-      }
-      const versionRegex = value(row, 'versionRegex')
-      if (kind === 'homebrew' && !versionRegex) {
-        throw new Error(`${name}: homebrew versionRegex is required`)
-      }
-      if (versionRegex) {
-        try {
-          new RegExp(versionRegex)
-        } catch {
-          throw new Error(`${name}: versionRegex is not a valid regex`)
-        }
-      }
-      return {
-        name,
-        kind,
-        url,
-        repository,
-        package: value(row, 'package'),
-        versionUrl,
-        versionRegex,
-      }
-    })
+    }
+    return {
+      name,
+      kind,
+      url,
+      repository,
+      package: value(row, 'package'),
+      versionUrl,
+      versionRegex,
+    }
+  })
+}
+
+interface DeploymentRow {
+  name: string
+  service?: string
+  branch: string
+  provider?: string
+  url?: string
+  dashboardUrl?: string
+  subdir?: string
+}
+
+/** Parse the `[[deployments]]` rows, mirroring RepoOS's required fields. */
+function parseDeployments(source: string): DeploymentRow[] {
+  return tableRows(source, '[[deployments]]').map((row) => {
+    const name = value(row, 'name')
+    if (!name) throw new Error('deployments.name is required')
+    const branch = value(row, 'branch')
+    if (!branch) throw new Error(`${name}: branch is required`)
+    const url = value(row, 'url')
+    if (url && !/^https?:\/\//i.test(url)) {
+      throw new Error(`${name}: url must start with http(s)://`)
+    }
+    const dashboardUrl = value(row, 'dashboard_url')
+    if (dashboardUrl && !/^https?:\/\//i.test(dashboardUrl)) {
+      throw new Error(`${name}: dashboard_url must start with http(s)://`)
+    }
+    return {
+      name,
+      service: value(row, 'service'),
+      branch,
+      provider: value(row, 'provider'),
+      url,
+      dashboardUrl,
+      subdir: value(row, 'subdir'),
+    }
+  })
 }
 
 const release = parseReleaseConfig(repoos)
 const distributions = parseDistributions(repoos)
+const deployments = parseDeployments(repoos)
 
 describe('release configuration', () => {
   test('opts into git-tag releases from main read from package.json', () => {
@@ -178,8 +224,20 @@ describe('release configuration', () => {
     expect(homebrew?.versionRegex).toBe('version\\s+"([^"]+)"')
   })
 
-  test('declares no deployment rows before Cloudflare values exist', () => {
-    expect(/^\[\[deployments\]\]/m.test(repoos)).toBe(false)
+  test('declares the dev and prod Cloudflare Workers deployments', () => {
+    expect(deployments).toHaveLength(2)
+
+    const prod = deployments.find((row) => row.name === 'Site (prod)')
+    expect(prod?.branch).toBe('prod')
+    expect(prod?.provider).toBe('cloudflare-workers')
+    expect(prod?.url).toBe('https://divotbar.app')
+    expect(prod?.subdir).toBe('site')
+
+    const dev = deployments.find((row) => row.name === 'Site (dev)')
+    expect(dev?.branch).toBe('main')
+    expect(dev?.provider).toBe('cloudflare-workers')
+    expect(dev?.url).toBe('https://main-divot-site.njachowski.workers.dev')
+    expect(dev?.subdir).toBe('site')
   })
 })
 
@@ -234,6 +292,19 @@ describe('release configuration rejection', () => {
       '[[distribution]]\nname = "Homebrew"\nkind = "homebrew"\npackage = "divotbar/tap/divot"\nurl = "https://example.com"\nversionUrl = "https://example.com/divot.rb"\n'
     expect(() => parseDistributions(homebrew)).toThrow()
     expect(() => parseDistributions(`${homebrew}versionRegex = "("\n`)).toThrow()
+  })
+
+  test('rejects a deployment row without a name or branch', () => {
+    const valid = '[[deployments]]\nname = "Site (dev)"\nbranch = "main"\n'
+    expect(() => parseDeployments(valid.replace('name = "Site (dev)"\n', ''))).toThrow()
+    expect(() => parseDeployments(valid.replace('branch = "main"\n', ''))).toThrow()
+    expect(() => parseDeployments(valid)).not.toThrow()
+  })
+
+  test('rejects a deployment row with a non-http url or dashboard_url', () => {
+    const valid = '[[deployments]]\nname = "Site (dev)"\nbranch = "main"\n'
+    expect(() => parseDeployments(`${valid}url = "ftp://example.com"\n`)).toThrow()
+    expect(() => parseDeployments(`${valid}dashboard_url = "not-a-url"\n`)).toThrow()
   })
 })
 
