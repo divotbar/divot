@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/prompt-for-accessibility-permission-at-l
 created_at: "2026-10-12T11:38:56Z"
-updated_at: "2026-10-12T11:39:03Z"
+updated_at: "2026-10-12T11:45:52Z"
 ---
 ## Problem
 Divot only checks AXIsProcessTrusted() and prints a stderr line (DivotAppDelegate.swift, SystemMenuBarProbe.swift:134), so users are never prompted and notched-display menu-bar detection stays indeterminate.
@@ -32,3 +32,4 @@ No private APIs, no polling. Keep the existing stderr message.
 - 2026-10-12T11:38:56Z · created · njachowski@gmail.com
 - 2026-10-12T11:39:02Z · status inbox→ready
 - 2026-10-12T11:39:03Z · status ready→active, branch
+- 2026-10-12T11:45:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
