@@ -68,3 +68,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T09:06:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T09:06:14Z · held
 - 2026-10-12T09:06:15Z · status active→review
+- 2026-10-12T09:06:15Z · note: handoff requested (cli)
