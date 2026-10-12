@@ -140,14 +140,29 @@ public enum ConfigurationParser {
     }
 
     private static func layout(_ value: Any?, path: String) throws -> LayoutConfiguration {
-        let object = try shape(value, required: ["height", "padding"], optional: ["notchGap"], path: path)
+        let object = try shape(value, required: ["height", "padding"],
+                               optional: ["notchGap", "rightItemSpacing", "leftItemSpacing"],
+                               path: path)
         let height = try range(object["height"], LayoutConfiguration.heightRange, path: "\(path).height")
         let padding = try range(object["padding"], LayoutConfiguration.paddingRange, path: "\(path).padding")
+        // Item spacing is omitted by documents written before #0054, so an
+        // absent key keeps the 17 pt right / 8.5 pt left defaults rather than
+        // rejecting the file.
+        var rightItemSpacing = LayoutConfiguration.defaultRightItemSpacing
+        if let raw = object["rightItemSpacing"] {
+            rightItemSpacing = try range(raw, LayoutConfiguration.itemSpacingRange, path: "\(path).rightItemSpacing")
+        }
+        var leftItemSpacing = LayoutConfiguration.defaultLeftItemSpacing
+        if let raw = object["leftItemSpacing"] {
+            leftItemSpacing = try range(raw, LayoutConfiguration.itemSpacingRange, path: "\(path).leftItemSpacing")
+        }
         // Legacy notchGap is accepted but ignored; validate it matches the historical range
         if let notchGap = object["notchGap"] {
             _ = try range(notchGap, ClosedRange(uncheckedBounds: (0, 32)), path: "\(path).notchGap")
         }
-        return LayoutConfiguration(height: height, padding: padding)
+        return LayoutConfiguration(height: height, padding: padding,
+                                   rightItemSpacing: rightItemSpacing,
+                                   leftItemSpacing: leftItemSpacing)
     }
 
     private static func widgetOptions(_ value: Any?, placed: Set<BarItemID>) throws -> WidgetOptions {

@@ -211,6 +211,22 @@ describe('validate', () => {
     expect(() => validate(wrongType)).toThrow('appIconSize: expected 8–24')
   })
 
+  test('accepts per-side item spacing', () => {
+    const config = base()
+    config.layout = { ...config.layout, rightItemSpacing: 17, leftItemSpacing: 8.5 }
+    expect(() => validate(config)).not.toThrow()
+  })
+
+  test('rejects out-of-range or non-numeric item spacing', () => {
+    const tooBig = base()
+    tooBig.layout = { ...tooBig.layout, rightItemSpacing: 99 }
+    expect(() => validate(tooBig)).toThrow('layout.rightItemSpacing: expected 0–32')
+
+    const wrongType = base()
+    wrongType.layout = { ...wrongType.layout, leftItemSpacing: 'half' }
+    expect(() => validate(wrongType)).toThrow('layout.leftItemSpacing: expected 0–32')
+  })
+
   test('rejects an unknown option in a known widget', () => {
     const config = base()
     config.widgets = { clock: { timezone: 'UTC' } }
