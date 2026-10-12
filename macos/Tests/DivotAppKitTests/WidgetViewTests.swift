@@ -98,6 +98,66 @@ private func imageViews(in view: NSView) -> [NSImageView] {
 }
 
 @MainActor
+@Test func nativeStatusSymbolsUseTheBarIconSizeAndScaleWithTextSize() {
+    func resolvedImage(_ view: BarItemView) -> NSImage? {
+        imageViews(in: view).first { !$0.isHidden && $0.image != nil }?.image
+    }
+
+    let presentations: [(BarItemID, WidgetPresentation)] = [
+        (.battery, WidgetPresentation(symbolName: "battery.100", text: "80%", accessibilityLabel: "Battery: 80%")),
+        (.network, WidgetPresentation(symbolName: "wifi", text: "", accessibilityLabel: "Wi-Fi")),
+        (.volume, WidgetPresentation(symbolName: "speaker.wave.2.fill", text: "40%", accessibilityLabel: "Volume: 40%"))
+    ]
+    let smallest = BarMetrics.scaled(textSize: 10)   // icon 12 pt
+    let largest = BarMetrics.scaled(textSize: 20)     // icon 22 pt
+    #expect(smallest.statusSymbolPointSize == 12)
+    #expect(largest.statusSymbolPointSize == 22)
+
+    for (item, presentation) in presentations {
+        let smallView = BarItemView(metrics: smallest, item: item)
+        smallView.update(presentation, action: .none)
+        let largeView = BarItemView(metrics: largest, item: item)
+        largeView.update(presentation, action: .none)
+
+        let smallIcon = try! #require(resolvedImage(smallView))
+        let largeIcon = try! #require(resolvedImage(largeView))
+        #expect(largeIcon.size.width > smallIcon.size.width,
+                "\(item.rawValue) symbol width does not grow with the text size")
+        #expect(largeIcon.size.height > smallIcon.size.height,
+                "\(item.rawValue) symbol height does not grow with the text size")
+
+        // The icon box is the symbol's own box, so a wide battery or a tall
+        // Wi-Fi glyph is not squeezed into the square status-icon box.
+        smallView.frame = NSRect(origin: .zero, size: smallView.intrinsicContentSize)
+        smallView.layoutSubtreeIfNeeded()
+        let icon = try! #require(imageViews(in: smallView).first)
+        #expect(icon.frame.size == smallIcon.size)
+    }
+}
+
+@MainActor
+@Test func nativeStatusSymbolIsConfiguredNotLeftAtTheRawSymbolSize() {
+    let raw = try! #require(NSImage(systemSymbolName: "wifi", accessibilityDescription: nil))
+    let view = BarItemView(metrics: .default, item: .network)
+    view.update(WidgetPresentation(symbolName: "wifi", text: "", accessibilityLabel: "Wi-Fi"), action: .none)
+    let configured = try! #require(imageViews(in: view).first?.image)
+    #expect(configured.size.height > raw.size.height)
+    #expect(configured.size.width > raw.size.width)
+}
+
+@MainActor
+@Test func otherSymbolsKeepTheSquareStatusIconBox() {
+    let metrics = BarMetrics.scaled(textSize: 10)
+    let view = BarItemView(metrics: metrics, item: .appearance)
+    view.update(WidgetPresentation(symbolName: "moon.fill", text: "", accessibilityLabel: "Dark"), action: .none)
+    view.frame = NSRect(origin: .zero, size: view.intrinsicContentSize)
+    view.layoutSubtreeIfNeeded()
+    let icon = try! #require(imageViews(in: view).first)
+    #expect(icon.frame.width == metrics.iconSize)
+    #expect(icon.frame.height == metrics.iconSize)
+}
+
+@MainActor
 @Test func itemViewMeasuresTheWholeLabel() {
     let view = BarItemView()
     view.update(WidgetPresentation(symbolName: "speaker.slash.fill", text: "Muted", accessibilityLabel: "Volume muted"),
@@ -136,6 +196,35 @@ private func imageViews(in view: NSView) -> [NSImageView] {
     for field in fields {
         expectNoTruncation(field, field.stringValue)
         // The group is anchored inside the row inset and never runs past the panel.
+        #expect(field.frame.maxX <= content.bounds.width - metrics.rowInset + 0.5)
+    }
+}
+
+/// The battery, network and volume symbols draw wider than the old square box
+/// (#0057), so the right cluster must still fit the notched display's auxiliary
+/// region at the largest text size with every label intact.
+@MainActor
+@Test func defaultRightGroupStillFitsAtTheLargestTextSize() {
+    let metrics = BarMetrics.scaled(textSize: 20)
+    let content = BarContentView(side: .right, items: BarLayout.default.right, metrics: metrics)
+    content.applyInitialState()
+    content.apply([
+        .update(WidgetState(id: .battery, revision: 1,
+                            content: .battery(BatterySnapshot(presence: .internalBattery, percentage: 100, isCharging: true)))),
+        .update(WidgetState(id: .clock, revision: 1,
+                            content: .clock(ClockSnapshot(date: Date(timeIntervalSince1970: 1_800_000_000))))),
+        .update(WidgetState(id: .network, revision: 1,
+                            content: .network(NetworkSnapshot(isConnected: true, kind: .wifi)))),
+        .update(WidgetState(id: .volume, revision: 1,
+                            content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0, isMuted: true))))
+    ])
+    content.frame = NSRect(x: 0, y: 0, width: 752, height: metrics.height)
+    content.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: content)
+    #expect(fields.count >= 4)
+    for field in fields {
+        expectNoTruncation(field, field.stringValue)
         #expect(field.frame.maxX <= content.bounds.width - metrics.rowInset + 0.5)
     }
 }

@@ -114,6 +114,23 @@ import Testing
     #expect(BarMetrics.scaled(textSize: 14, appIconSize: .nan).appIconSize == 16)
 }
 
+// MARK: - Native status symbol size (#0057)
+@Test func statusSymbolSizeMatchesTheNativeDefaultAndFollowsTextSize() {
+    // The battery, network and volume symbols draw at the bar's icon size; the
+    // default is 16 pt, the native menu-bar symbol size.
+    #expect(BarMetrics.default.statusSymbolPointSize == 16)
+    #expect(BarMetrics.default.statusSymbolPointSize == BarMetrics.default.iconSize)
+    // It scales with the text size at both ends of the range (10-20 pt).
+    let smallest = BarMetrics.scaled(textSize: 10)
+    let largest = BarMetrics.scaled(textSize: 20)
+    #expect(smallest.statusSymbolPointSize == 12)
+    #expect(largest.statusSymbolPointSize == 22)
+    #expect(largest.statusSymbolPointSize > smallest.statusSymbolPointSize)
+    // It follows the bar's icon size, not the separate left app-icon setting.
+    #expect(BarMetrics.scaled(textSize: 14, appIconSize: 8).statusSymbolPointSize == 16)
+    #expect(BarMetrics.scaled(textSize: 20, appIconSize: 8).statusSymbolPointSize == 22)
+}
+
 @Test func scaledCarriesTheConfiguredHeightPaddingAndFont() {
     let metrics = BarMetrics.scaled(textSize: 16, height: 30, rowInset: 10, fontFamily: "Helvetica")
     #expect(metrics.height == 30)
