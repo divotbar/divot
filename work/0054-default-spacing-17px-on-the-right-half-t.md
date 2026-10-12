@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/default-spacing-17px-on-the-right-half-t
 created_at: "2026-10-12T08:30:32Z"
-updated_at: "2026-10-12T08:50:48Z"
+updated_at: "2026-10-12T08:51:13Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -68,3 +68,4 @@ Pending human verification: the on-screen packaged-app pixel measurements and th
 - 2026-10-12T08:49:47Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:50:48Z · note: review pass 2: needs some work
 - 2026-10-12T08:50:48Z · status review→active
+- 2026-10-12T08:51:13Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
