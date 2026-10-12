@@ -88,3 +88,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:13:29Z · review_model_override
 - 2026-10-12T16:13:32Z · status review→active
 - 2026-10-12T16:29:04Z · message_queued at 2026-10-12T16:29:04.692Z
+- 2026-10-12T16:29:04Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
