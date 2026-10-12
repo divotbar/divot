@@ -97,20 +97,19 @@ public struct LayoutConfiguration: Equatable, Sendable {
     public static let paddingRange: ClosedRange<Double> = 0...24
     /// The range the item-spacing sliders offer for both sides.
     public static let itemSpacingRange: ClosedRange<Double> = 0...32
-    /// The right-group gap 17 pt is the maintainer's chosen default (#0054).
-    public static let defaultRightItemSpacing: Double = 17
-    /// The left group defaults to half the right gap, so it stays tighter
-    /// beside the Divot mark (#0054).
-    public static let defaultLeftItemSpacing: Double = defaultRightItemSpacing / 2
+    /// The pre-#0054 uniform item gap. #0054 misread the request as 17 pt on the
+    /// right; #0060 restores this default and moves the 17 pt to the fixed
+    /// right-edge inset in `BarMetrics.rightEdgeInset`.
+    public static let defaultRightItemSpacing: Double = 8
+    /// The left group uses the same uniform default as the right.
+    public static let defaultLeftItemSpacing: Double = 8
 
     public var height: Double
     public var padding: Double
     /// Gap between adjacent items in the right group.
     public var rightItemSpacing: Double
-    /// Gap between adjacent items in the left group. The Divot-icon-to-workspace
-    /// gap follows it; the gap before the front-app item is the fixed
-    /// `BarMetrics.frontAppSpacing` instead, so the front app never moves with
-    /// this setting.
+    /// Gap between adjacent items in the left group, including both the
+    /// Divot-icon-to-workspace gap and the gap before the front-app item.
     public var leftItemSpacing: Double
 
     public init(height: Double = Double(BarMetrics.default.height),

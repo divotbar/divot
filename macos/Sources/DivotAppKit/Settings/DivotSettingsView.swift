@@ -412,7 +412,7 @@ public struct DivotSettingsView: View {
                                       set: { model.setLeftItemSpacing($0) }),
                        in: LayoutConfiguration.itemSpacingRange, step: 0.5)
             }
-            Text("The left spacing defaults to half the right spacing. The front app keeps a fixed 12 pt gap beside the Divot mark, whatever the side spacing is.")
+            Text("Both sides default to the pre-#0054 8 pt gap. A fixed 17 pt inset is always left between the rightmost item and the screen edge so the camera-in-use indicator stays clear.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

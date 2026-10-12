@@ -436,9 +436,12 @@ final class BarContentView: NSView, BarContentLifecycle {
         super.layout()
 
         // Keep the group inside the panel's padding so it never runs edge-to-edge
-        // and the left/right groups share one rhythm.
-        let inset = metrics.rowInset
-        let usableWidth = max(0, bounds.width - inset * 2)
+        // and the left/right groups share one rhythm. The right group leaves the
+        // fixed `rightEdgeInset` at the screen edge instead, so the camera-in-use
+        // indicator never overlaps the rightmost item (#0060).
+        let leadingInset = metrics.rowInset
+        let trailingInset = side == .right ? BarMetrics.rightEdgeInset : metrics.rowInset
+        let usableWidth = max(0, bounds.width - leadingInset - trailingInset)
 
         // The optional app mark leads the left group, so it is part of the fixed
         // width and the gap count before the workspace row takes the remainder.
@@ -449,39 +452,28 @@ final class BarContentView: NSView, BarContentLifecycle {
         }
         let workspaceCount = items.filter { workspaceViews[$0] != nil }.count
 
-        // Item spacing (#0054): the right group is evenly spaced at
-        // `rightItemSpacing`; the left group uses `leftItemSpacing` (half the
-        // right by default). On the left, the gap immediately before the
-        // front-app item is a fixed `frontAppSpacing`, so the front app keeps
-        // 12 pt beside the Divot mark no matter what the side sliders are set
-        // to. The same rule gives the Divot-mark-to-first-item gap the left
-        // value when that item is the workspaces (or any other item), which is
-        // the maintainer's default.
+        // Item spacing (#0060): every gap in a group uses the side's spacing
+        // (8 pt by default), restoring the pre-#0054 uniform rhythm. #0054's
+        // per-side split and fixed front-app gap are gone, so the front app no
+        // longer sits 12 pt away.
         let sideSpacing = side == .left ? metrics.leftItemSpacing : metrics.rightItemSpacing
-        func gap(before next: BarItemID?) -> CGFloat {
-            side == .left && next == .frontApp ? BarMetrics.frontAppSpacing : sideSpacing
-        }
         // Every slot the row lays out, in draw order, with the app mark (if any)
         // represented by `nil` because it precedes the configured items.
         var slots: [BarItemID?] = appIconButton == nil ? [] : [nil]
         slots.append(contentsOf: items.map { Optional($0) })
-        var spacingTotal: CGFloat = 0
-        if slots.count > 1 {
-            for index in 1..<slots.count { spacingTotal += gap(before: slots[index]) }
-        }
+        let spacingTotal = slots.count > 1 ? sideSpacing * CGFloat(slots.count - 1) : 0
         // The workspace row is elastic: it takes the width the fixed items leave.
         let elasticWidth = workspaceCount > 0 ? max(0, usableWidth - fixedTotal - spacingTotal) : 0
         let perWorkspace = workspaceCount > 0 ? elasticWidth / CGFloat(workspaceCount) : 0
 
         var x = side == .left
-            ? inset
-            : max(inset, bounds.width - inset - (fixedTotal + elasticWidth + spacingTotal))
+            ? leadingInset
+            : max(leadingInset, bounds.width - trailingInset - (fixedTotal + elasticWidth + spacingTotal))
         if let appIconButton {
             let width = appIconButton.intrinsicContentSize.width
             let height = min(bounds.height, appIconButton.intrinsicContentSize.height)
             appIconButton.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
-            x += width
-            if let first = items.first { x += gap(before: first) }
+            x += width + sideSpacing
         }
         for (index, id) in items.enumerated() {
             if let workspace = workspaceViews[id] {
@@ -494,7 +486,7 @@ final class BarContentView: NSView, BarContentLifecycle {
                 view.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
                 x += width
             }
-            if index + 1 < items.count { x += gap(before: items[index + 1]) }
+            if index + 1 < items.count { x += sideSpacing }
         }
     }
 

@@ -146,8 +146,8 @@ public enum ConfigurationParser {
         let height = try range(object["height"], LayoutConfiguration.heightRange, path: "\(path).height")
         let padding = try range(object["padding"], LayoutConfiguration.paddingRange, path: "\(path).padding")
         // Item spacing is omitted by documents written before #0054, so an
-        // absent key keeps the 17 pt right / 8.5 pt left defaults rather than
-        // rejecting the file.
+        // absent key keeps the restored uniform 8 pt default rather than
+        // rejecting the file (#0060).
         var rightItemSpacing = LayoutConfiguration.defaultRightItemSpacing
         if let raw = object["rightItemSpacing"] {
             rightItemSpacing = try range(raw, LayoutConfiguration.itemSpacingRange, path: "\(path).rightItemSpacing")
