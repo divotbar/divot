@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-12T08:47:53Z"
-review_passes: 3
+last_close_out_gate_ms: 56920
+last_close_out_gate_at: "2026-10-12T09:24:25.382Z"
 id: "0056"
 title: Battery charging state updates immediately when plugging and unplugging
 type: bug
@@ -14,6 +14,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/battery-charging-state-updates-immediate
 created_at: "2026-10-12T08:36:23Z"
+updated_at: "2026-10-12T09:24:25Z"
+review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -127,4 +129,5 @@ not treat this section as that evidence.
 - 2026-10-12T08:46:44Z · note: shots: skipped — the diff (9 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T08:47:53Z · note: review pass 3: needs some work
 - 2026-10-12T08:47:53Z · needs_input
+- 2026-10-12T09:24:25Z · close-out gate completed in 57s
 
