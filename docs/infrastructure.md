@@ -136,6 +136,37 @@ planned task.
    `Divot.app`. That first-release check is a human step: no release exists
    yet, so the cask carries clearly marked placeholders until then.
 
+### RepoOS Releases page
+
+`repoos.toml` opts Divot into RepoOS's Releases surface (#0067): a `[release]`
+block with `provider = "git-tag"` tracks annotated `v<version>` tags cut from
+`main`, and two `[[distribution]]` rows render the page's "Published to"
+summary — **GitHub Releases** (the `Divot.dmg` attached to the release) and
+**Homebrew** (`divotbar/tap/divot`, read from the tap cask's `version` line).
+RepoOS links to `.github/workflows/release.yml` as context but never runs it;
+the workflow is triggered by the tag push, exactly as described above.
+
+RepoOS reads the committed release version from `package.json` (`version`),
+because its release provider requires a JSON manifest. The root `VERSION` file
+is the separate local-preview version that `scripts/package-app.sh` packages
+(see the [local preview](local-preview.md)); the two carry the same number until
+the preview becomes a real release. `scripts/release-config.test.ts`, run by
+`bun run check`, requires a semver `package.json` version and, while both files
+hold a `-preview.N` version, that they agree; after a real release `package.json`
+may move ahead of `VERSION`. Cut releases through RepoOS rather than pushing
+a tag by hand: RepoOS writes the version into `package.json` and pushes the
+matching `v<version>` tag, so the manifest and the tag agree — a hand-pushed tag
+that disagrees would confuse the release view. The release and distribution keys
+are set in `repoos.toml` — there is no RepoOS Settings-window control for them,
+so the Settings page is not a place to edit them. **No `[[deployments]]` rows**
+are declared: the Deployments surface needs Cloudflare account/project values the
+maintainer has not supplied yet (a separate task). No tag or release exists yet,
+so the Releases page shows its empty state. This is a maintainer-facing RepoOS
+surface, so no `site/` page changes: the public install guide already covers the
+download and Homebrew commands, and it must not claim availability before a
+release exists. Whether the nav entry renders is verified by RepoOS when the
+server loads `repoos.toml`; `bun run check` only validates the config shape.
+
 ### Public install guide
 
 The user-facing install instructions live in `site/guide/install.md`: the
