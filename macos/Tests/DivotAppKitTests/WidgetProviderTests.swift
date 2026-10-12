@@ -32,7 +32,7 @@ private func waitUntil(_ condition: @Sendable () -> Bool, timeout: TimeInterval 
 private final class MockBatteryReading: BatteryReading, @unchecked Sendable {
     private let lock = NSLock()
     private var value: BatterySnapshot?
-    private var changeHandler: (@Sendable () -> Void)?
+    private var changeHandler: (@Sendable (BatterySnapshot?) -> Void)?
     private var cancels = 0
 
     var snapshotValue: BatterySnapshot? {
@@ -44,7 +44,7 @@ private final class MockBatteryReading: BatteryReading, @unchecked Sendable {
 
     func snapshot() -> BatterySnapshot? { snapshotValue }
 
-    func observeChanges(_ handler: @escaping @Sendable () -> Void) -> any ProviderSubscription {
+    func observeChanges(_ handler: @escaping @Sendable (BatterySnapshot?) -> Void) -> any ProviderSubscription {
         lock.lock(); changeHandler = handler; lock.unlock()
         return CallbackSubscription { [weak self] in
             guard let self else { return }
@@ -53,8 +53,11 @@ private final class MockBatteryReading: BatteryReading, @unchecked Sendable {
     }
 
     func fire() {
-        lock.lock(); let handler = changeHandler; lock.unlock()
-        handler?()
+        lock.lock()
+        let handler = changeHandler
+        let value = self.value
+        lock.unlock()
+        handler?(value)
     }
 }
 

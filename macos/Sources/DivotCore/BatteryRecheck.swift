@@ -51,3 +51,17 @@ public struct BatteryRecheckWindow: Equatable, Sendable {
         attemptsRemaining = 0
     }
 }
+
+public extension BatteryRecheckWindow {
+    /// Whether a power state is still transient after a power-source
+    /// notification.
+    ///
+    /// A plugged-in machine that is neither charging nor fully charged is the
+    /// window where IOKit may not yet have flipped `Is Charging`; that is the
+    /// only state worth continuing the bounded re-check for. Unplugged, already
+    /// charging, or fully charged are settled, so the window can close and save
+    /// the remaining reads (a desktop or an idle laptop never arms one).
+    static func isTransient(_ snapshot: BatterySnapshot) -> Bool {
+        snapshot.isPluggedIn && !snapshot.isCharging && !snapshot.isFullyCharged
+    }
+}

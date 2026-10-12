@@ -182,7 +182,9 @@ public struct FrontAppProvider: WidgetProvider {
 public protocol BatteryReading: Sendable {
     /// The current state, or `nil` when it cannot be read this moment.
     func snapshot() -> BatterySnapshot?
-    func observeChanges(_ handler: @escaping @Sendable () -> Void) -> any ProviderSubscription
+    /// Subscribe to power-state changes. The handler receives the fresh
+    /// snapshot read at notification time (and on any bounded re-check).
+    func observeChanges(_ handler: @escaping @Sendable (BatterySnapshot?) -> Void) -> any ProviderSubscription
 }
 
 /// Emits the power state and every change. A desktop Mac reports a settled
@@ -213,10 +215,10 @@ public struct BatteryProvider: WidgetProvider {
         let reading = self.reading
         let keepAwake = self.keepAwake
         let last = LastBatteryEmission()
-        let push: @Sendable () -> Void = {
+        let push: @Sendable (BatterySnapshot?) -> Void = { snapshot in
             let active = keepAwake?.isActive ?? false
             let content: WidgetContent
-            if let snapshot = reading.snapshot() {
+            if let snapshot {
                 content = .battery(snapshot.withKeepingAwake(active))
             } else {
                 content = .unavailable(.init(kind: .failed, message: "Battery state is unavailable"))
@@ -227,10 +229,10 @@ public struct BatteryProvider: WidgetProvider {
             if last.record(content) { emit(content) }
         }
         let bag = SubscriptionBag()
-        push()
-        bag.add(reading.observeChanges { push() })
+        push(reading.snapshot())
+        bag.add(reading.observeChanges { push($0) })
         if let keepAwake {
-            bag.add(keepAwake.observe { _ in push() })
+            bag.add(keepAwake.observe { _ in push(reading.snapshot()) })
         }
         return bag
     }

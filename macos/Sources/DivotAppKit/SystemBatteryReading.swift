@@ -28,8 +28,10 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
         IOKitBatteryReading.read()
     }
 
-    public func observeChanges(_ handler: @escaping @Sendable () -> Void) -> any ProviderSubscription {
-        let observer = PowerSourceRunLoopObserver(handler: handler)
+    public func observeChanges(_ handler: @escaping @Sendable (BatterySnapshot?) -> Void) -> any ProviderSubscription {
+        let observer = PowerSourceRunLoopObserver(
+            read: { IOKitBatteryReading.read() },
+            onChange: handler)
         observer.start()
         return CallbackSubscription { observer.stop() }
     }
@@ -94,7 +96,8 @@ public final class IOKitBatteryReading: BatteryReading, @unchecked Sendable {
 /// the timer fires on the window's fixed interval while attempts remain, so a
 /// charging flag that flips a moment after the notification is still observed.
 final class PowerSourceRunLoopObserver: @unchecked Sendable {
-    private let handler: @Sendable () -> Void
+    private let read: @Sendable () -> BatterySnapshot?
+    private let onChange: @Sendable (BatterySnapshot?) -> Void
     private let lock = NSLock()
     private var thread: Thread?
     private var runLoop: CFRunLoop?
@@ -104,9 +107,11 @@ final class PowerSourceRunLoopObserver: @unchecked Sendable {
     private let ready = DispatchSemaphore(value: 0)
 
     init(window: BatteryRecheckWindow = BatteryRecheckWindow(),
-         handler: @escaping @Sendable () -> Void) {
+         read: @escaping @Sendable () -> BatterySnapshot?,
+         onChange: @escaping @Sendable (BatterySnapshot?) -> Void) {
         self.window = window
-        self.handler = handler
+        self.read = read
+        self.onChange = onChange
     }
 
     func start() {
@@ -171,14 +176,29 @@ final class PowerSourceRunLoopObserver: @unchecked Sendable {
     }
 
     /// A power-source notification landed (or the observer started). Read once
-    /// now and keep a bounded re-check timer running while attempts remain.
+    /// now and keep a bounded re-check timer alive only while the state is
+    /// still transient.
     private func notificationArrived() {
         lock.lock()
         window.notificationArrived()
+        lock.unlock()
+        deliver()
+        lock.lock()
         let needsTimer = window.isActive
         lock.unlock()
-        handler()
         if needsTimer { scheduleTimerIfNeeded() }
+    }
+
+    /// Read the power source once, hand the snapshot to the subscriber, and
+    /// close the re-check window early once the state is settled. Called from
+    /// the run loop thread only.
+    private func deliver() {
+        let snapshot = read()
+        onChange(snapshot)
+        guard let snapshot, !BatteryRecheckWindow.isTransient(snapshot) else { return }
+        lock.lock()
+        window.close()
+        lock.unlock()
     }
 
     private func scheduleTimerIfNeeded() {
@@ -208,11 +228,13 @@ final class PowerSourceRunLoopObserver: @unchecked Sendable {
     private func timerFired() {
         lock.lock()
         let due = window.consume()
+        lock.unlock()
+        if due { deliver() }
+        lock.lock()
         let stillActive = window.isActive
         let timer = self.timer
         if !stillActive { self.timer = nil }
         lock.unlock()
-        if due { handler() }
         if !stillActive { timer?.invalidate() }
     }
 

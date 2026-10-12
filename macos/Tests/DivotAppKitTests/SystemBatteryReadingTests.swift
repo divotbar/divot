@@ -36,9 +36,9 @@ private final class LaggingChargingSource: @unchecked Sendable {
 @Test func powerSourceObserverRechecksUntilTheChargingFlagFlips() async throws {
     let source = LaggingChargingSource()
     let observer = PowerSourceRunLoopObserver(
-        window: BatteryRecheckWindow(interval: 0.1, maxAttempts: 10)) {
-            _ = source.read()
-        }
+        window: BatteryRecheckWindow(interval: 0.1, maxAttempts: 10),
+        read: { source.read() },
+        onChange: { _ in })
     observer.start()
     defer { observer.stop() }
 
@@ -50,6 +50,44 @@ private final class LaggingChargingSource: @unchecked Sendable {
     let observed = source.observed
     #expect(observed.first?.isCharging == false)
     #expect(observed.contains { $0.isCharging })
+}
+
+/// A settled read (already charging) closes the window at once, so an idle or
+/// settled machine does not keep issuing IOKit reads on the fixed interval.
+private final class AlwaysChargingSource: @unchecked Sendable {
+    private let lock = NSLock()
+    private var readCount = 0
+
+    func read() -> BatterySnapshot {
+        lock.lock()
+        defer { lock.unlock() }
+        readCount += 1
+        return BatterySnapshot(presence: .internalBattery,
+                               percentage: 90,
+                               isCharging: true,
+                               isPluggedIn: true)
+    }
+
+    var reads: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return readCount
+    }
+}
+
+@Test func powerSourceObserverStopsRecheckingOnceTheStateIsSettled() async throws {
+    let source = AlwaysChargingSource()
+    let observer = PowerSourceRunLoopObserver(
+        window: BatteryRecheckWindow(interval: 0.1, maxAttempts: 10),
+        read: { source.read() },
+        onChange: { _ in })
+    observer.start()
+    defer { observer.stop() }
+
+    // Wait past a couple of interval ticks: a settled read must close the
+    // window, so only the initial read should have happened.
+    try await Task.sleep(nanoseconds: 300_000_000)
+    #expect(source.reads == 1)
 }
 
 /// The `Is Charging` / `Is Charged` flags are read through
