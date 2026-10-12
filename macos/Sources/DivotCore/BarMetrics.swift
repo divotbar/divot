@@ -16,11 +16,11 @@ public struct BarMetrics: Equatable, Sendable {
     /// This is the one place the default height is set; `layout.height` in the
     /// configuration document still overrides it.
     public var height: CGFloat
-    /// Gap between adjacent items in the right group.
+    /// Gap between adjacent items in the right group. Defaults to the uniform
+    /// 8 pt item rhythm from before #0054.
     public var rightItemSpacing: CGFloat
-    /// Gap between adjacent items in the left group. Defaults to half of
-    /// `rightItemSpacing`, so the left rhythm stays tighter than the right
-    /// (#0054).
+    /// Gap between adjacent items in the left group. Defaults to the same 8 pt
+    /// as the right group, restoring the pre-#0054 uniform rhythm (#0060).
     public var leftItemSpacing: CGFloat
     /// Leading/trailing inset of each group inside its panel, so content never
     /// runs edge-to-edge and the left/right groups keep consistent spacing.
@@ -50,8 +50,8 @@ public struct BarMetrics: Equatable, Sendable {
     public var fontFamily: String?
 
     public init(height: CGFloat = 32,
-                rightItemSpacing: CGFloat = 17,
-                leftItemSpacing: CGFloat = 8.5,
+                rightItemSpacing: CGFloat = 8,
+                leftItemSpacing: CGFloat = 8,
                 rowInset: CGFloat = 6,
                 iconSize: CGFloat = 16,
                 appIconSize: CGFloat = 16,
@@ -96,10 +96,11 @@ public struct BarMetrics: Equatable, Sendable {
                       height: height + Self.chipPadding * 2)
     }
 
-    /// The gap on the leading side of the front-app item. It is fixed so the
-    /// front app keeps its own rhythm beside the Divot mark and never follows
-    /// the side-spacing sliders (#0054).
-    public static let frontAppSpacing: CGFloat = 12
+    /// Fixed inset between the rightmost item and the right edge of the screen,
+    /// so the macOS camera-in-use indicator never overlaps the right group.
+    /// #0054 misread the request as a 17 pt item gap; #0060 restores the 8 pt
+    /// item rhythm and keeps 17 pt as this edge inset instead.
+    public static let rightEdgeInset: CGFloat = 17
 
     /// Derive the whole render rhythm from a configured text size.
     ///
@@ -144,11 +145,6 @@ public struct BarMetrics: Equatable, Sendable {
     /// Total width a group of items needs, including the gaps between them.
     /// The caller passes the side's spacing so the left and right rhythms are
     /// both measured with the value the renderer draws (#0054).
-    ///
-    /// This assumes one uniform gap. A left group that contains `front-app` has
-    /// one gap at the fixed `frontAppSpacing` instead, so the caller should add
-    /// `frontAppSpacing - spacing` when that item is present for an exact bound;
-    /// the rendered layout (`BarContentView.layout`) accounts for it directly.
     public func groupWidth(_ itemWidths: [CGFloat], spacing: CGFloat) -> CGFloat {
         guard itemWidths.count > 1 else { return itemWidths.first.map { max(0, $0) } ?? 0 }
         let content = itemWidths.reduce(0) { $0 + max(0, $1.isFinite ? $1 : 0) }
@@ -156,8 +152,7 @@ public struct BarMetrics: Equatable, Sendable {
     }
 
     /// True when the group fits inside `available` without shrinking any item,
-    /// which is the condition for "no label must truncate". Uses the same
-    /// uniform-spacing estimate as `groupWidth`.
+    /// which is the condition for "no label must truncate".
     public func fits(_ itemWidths: [CGFloat], available: CGFloat, spacing: CGFloat) -> Bool {
         groupWidth(itemWidths, spacing: spacing) <= available + 0.5
     }

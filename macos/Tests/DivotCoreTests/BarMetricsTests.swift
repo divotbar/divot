@@ -55,27 +55,31 @@ import Testing
     #expect(!m.fits(widths, available: needed - 1, spacing: m.rightItemSpacing))
 }
 
-// MARK: - Item spacing and the front-app gap (#0054)
+// MARK: - Item spacing and the screen-edge inset (#0060)
 
-@Test func defaultItemSpacingIsSeventeenOnTheRightAndHalfOnTheLeft() {
-    // The maintainer's chosen rhythm: 17 pt between right-side items, and a
-    // left gap that defaults to half of it so the Divot mark and workspaces do
-    // not look too far apart.
-    #expect(BarMetrics.default.rightItemSpacing == 17)
-    #expect(BarMetrics.default.leftItemSpacing == BarMetrics.default.rightItemSpacing / 2)
-    #expect(BarMetrics.default.leftItemSpacing == 8.5)
-    // The front app keeps its own fixed gap, independent of either side.
-    #expect(BarMetrics.frontAppSpacing == 12)
+@Test func defaultItemSpacingIsThePreFiftyFourUniformEightPoints() {
+    // #0054 misread the request and put 17 pt between right-side items. #0060
+    // restores the uniform 8 pt gap that the bar used before it, on both sides
+    // and for every item including the front app.
+    #expect(BarMetrics.default.rightItemSpacing == 8)
+    #expect(BarMetrics.default.leftItemSpacing == 8)
+    #expect(BarMetrics.default.leftItemSpacing == BarMetrics.default.rightItemSpacing)
+}
+
+@Test func rightEdgeInsetIsTheFixedSeventeenPoints() {
+    // The 17 pt now lives at the screen edge, clear of the camera-in-use
+    // indicator, instead of between items.
+    #expect(BarMetrics.rightEdgeInset == 17)
 }
 
 @Test func scaledCarriesTheConfiguredSideSpacing() {
     let metrics = BarMetrics.scaled(textSize: 14, rightItemSpacing: 20, leftItemSpacing: 10)
     #expect(metrics.rightItemSpacing == 20)
     #expect(metrics.leftItemSpacing == 10)
-    // The default left is half the default right when the caller passes nothing.
+    // The default sides are both the uniform 8 pt when the caller passes nothing.
     let defaults = BarMetrics.scaled(textSize: 14)
-    #expect(defaults.rightItemSpacing == 17)
-    #expect(defaults.leftItemSpacing == 8.5)
+    #expect(defaults.rightItemSpacing == 8)
+    #expect(defaults.leftItemSpacing == 8)
 }
 
 // MARK: - Chip size (#0059)

@@ -60,10 +60,10 @@ All sizes are logical points, not physical pixels.
 | --- | --- | --- |
 | `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
-| `rightItemSpacing` | 0–32 | Gap between right-side items (default 17) |
-| `leftItemSpacing` | 0–32 | Gap between left-side items (default 8.5, half the right); the Divot-icon-to-workspace gap follows it |
+| `rightItemSpacing` | 0–32 | Gap between right-side items (default 8) |
+| `leftItemSpacing` | 0–32 | Gap between left-side items (default 8); the Divot-icon-to-workspace gap and the front-app gap both follow it |
 
-Item spacing is independent per side. The gap immediately before the front-app item is a fixed 12 points and is not affected by either side setting, so the front app keeps its rhythm beside the Divot mark. Settings exposes both side spacings as sliders.
+Item spacing is independent per side and defaults to the pre-#0054 uniform 8 points. Settings exposes both side spacings as sliders. A fixed 17-point inset is always left between the rightmost item and the screen edge so the camera-in-use indicator never overlaps the bar.
 
 On notched displays the bar hugs the notch with zero padding and the color extends 6 points into the notch area to cover the gap and corners. Legacy configuration files may contain a `notchGap` field; it is ignored during load and omitted when the file is next saved.
 

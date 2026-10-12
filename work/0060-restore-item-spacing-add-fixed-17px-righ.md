@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-12T10:57:13Z"
-review_passes: 1
 id: "0060"
 title: Restore item spacing; add fixed 17px right inset at screen edge
 type: bug
@@ -10,10 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/restore-item-spacing-add-fixed-17px-righ
-cli_override: opencode
-model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-12T09:37:42Z"
-handoff_signal_retry_count: 2
+updated_at: "2026-10-12T10:56:10Z"
 ---
 ## Problem
 #0054 misread the spacing request. It set a large gap (17px) between the right-side items. Maintainer screenshot 2026-10-12 shows the items spread far apart.
@@ -37,8 +33,4 @@ See #0054 diff (git log --grep 0054) and revert only the between-item spacing; k
 - 2026-10-12T09:37:42Z · created · njachowski@gmail.com
 - 2026-10-12T09:37:44Z · status inbox→ready
 - 2026-10-12T09:37:45Z · status ready→active, branch
-- 2026-10-12T10:52:54Z · cli_override, model_override
 - 2026-10-12T10:56:10Z · status active→review
-- 2026-10-12T10:56:10Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-12T10:57:12Z · note: review pass 1: good to go
-

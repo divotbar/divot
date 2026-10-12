@@ -206,8 +206,8 @@ public final class DivotSettingsModel {
         update { $0.layout.rightItemSpacing = Self.clampedItemSpacing(spacing) }
     }
 
-    /// Set the left-group item spacing (0–32 pt). It defaults to half the right
-    /// gap but can be set independently; the front-app gap stays fixed.
+    /// Set the left-group item spacing (0–32 pt). It defaults to the uniform
+    /// 8 pt and can be set independently of the right group (#0060).
     public func setLeftItemSpacing(_ spacing: Double) {
         update { $0.layout.leftItemSpacing = Self.clampedItemSpacing(spacing) }
     }

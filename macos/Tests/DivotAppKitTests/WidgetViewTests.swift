@@ -511,7 +511,7 @@ private func imageViews(in view: NSView) -> [NSImageView] {
     #expect(fields.isEmpty || fields[0].stringValue.isEmpty)
 }
 
-// MARK: - Item spacing and the front-app gap (#0054)
+// MARK: - Item spacing and the right-edge inset (#0060)
 
 /// The fixed subviews of a laid-out `BarContentView`, so a test can measure the
 /// gaps between them exactly as the bar draws them.
@@ -529,43 +529,57 @@ private func laidOutContent(side: BarSide,
 }
 
 @MainActor
-@Test func rightGroupItemsAreSeventeenPointsApartByDefault() {
+@Test func rightGroupItemsAreEightPointsApartByDefault() {
     let layout = laidOutContent(side: .right, items: [.battery, .network, .volume], metrics: .default)
     #expect(layout.items.count == 3)
     for index in 0..<(layout.items.count - 1) {
         let gap = layout.items[index + 1].frame.minX - layout.items[index].frame.maxX
-        #expect(abs(gap - 17) < 0.5, "right gap \(index) was \(gap), expected 17")
+        #expect(abs(gap - 8) < 0.5, "right gap \(index) was \(gap), expected 8")
     }
 }
 
 @MainActor
-@Test func leftGroupUsesHalfTheRightSpacingAfterTheDivotIconByDefault() {
+@Test func rightGroupLeavesTheFixedSeventeenPointScreenEdgeInset() {
+    // The content view spans the right panel, whose trailing edge is the screen
+    // edge in the default layout, so the 17 pt inset lands between the rightmost
+    // item and the screen edge (#0060).
+    let width: CGFloat = 600
+    let content = BarContentView(side: .right, items: [.battery, .network, .volume], showsAppIcon: false)
+    content.applyInitialState()
+    content.frame = NSRect(x: 0, y: 0, width: width, height: BarMetrics.default.height)
+    content.layoutSubtreeIfNeeded()
+    let items = content.subviews.compactMap { $0 as? BarItemView }
+    let rightmost = items.map(\.frame.maxX).max() ?? 0
+    #expect(abs((width - rightmost) - BarMetrics.rightEdgeInset) < 0.5)
+}
+
+@MainActor
+@Test func leftGroupUsesTheUniformItemSpacingAfterTheDivotIconByDefault() {
     let metrics = BarMetrics.default
     let layout = laidOutContent(side: .left, items: [.time, .network], metrics: metrics)
     let icon = try! #require(layout.icon)
     #expect(layout.items.count == 2)
-    // The Divot-mark-to-first-item gap is the half default, and so is the gap
-    // between the two left items.
-    #expect(abs(layout.items[0].frame.minX - icon.frame.maxX - 8.5) < 0.5)
-    #expect(abs(layout.items[1].frame.minX - layout.items[0].frame.maxX - 8.5) < 0.5)
+    // The Divot-mark-to-first-item gap and the gap between the two left items
+    // are both the uniform 8 pt default.
+    #expect(abs(layout.items[0].frame.minX - icon.frame.maxX - 8) < 0.5)
+    #expect(abs(layout.items[1].frame.minX - layout.items[0].frame.maxX - 8) < 0.5)
 }
 
 @MainActor
-@Test func defaultLeftOrderKeepsTwelveBeforeTheFrontApp() {
+@Test func defaultLeftOrderUsesUniformSpacingBeforeTheFrontApp() {
     // The maintainer's order is workspaces then front-app; this exercises the
     // same shape with status items so the front app is directly after an item.
     let metrics = BarMetrics.default
     let layout = laidOutContent(side: .left, items: [.time, .frontApp], metrics: metrics)
     let icon = try! #require(layout.icon)
     #expect(layout.items.count == 2)
-    // Divot icon -> first item is the half left spacing; the item -> front app
-    // gap is the fixed 12 pt.
-    #expect(abs(layout.items[0].frame.minX - icon.frame.maxX - 8.5) < 0.5)
-    #expect(abs(layout.items[1].frame.minX - layout.items[0].frame.maxX - 12) < 0.5)
+    // Both gaps are the uniform 8 pt; the pre-#0054 12 pt front-app gap is gone.
+    #expect(abs(layout.items[0].frame.minX - icon.frame.maxX - 8) < 0.5)
+    #expect(abs(layout.items[1].frame.minX - layout.items[0].frame.maxX - 8) < 0.5)
 }
 
 @MainActor
-@Test func frontAppToDivotIconGapStaysTwelveWhenSideSpacingChanges() {
+@Test func frontAppGapFollowsTheLeftSpacingWhenItChanges() {
     func gaps(left: CGFloat, right: CGFloat) -> (iconToFrontApp: CGFloat, frontAppToNext: CGFloat) {
         let metrics = BarMetrics.scaled(textSize: 14, rightItemSpacing: right, leftItemSpacing: left)
         let layout = laidOutContent(side: .left, items: [.frontApp, .time], metrics: metrics)
@@ -574,14 +588,14 @@ private func laidOutContent(side: BarSide,
                 layout.items[1].frame.minX - layout.items[0].frame.maxX)
     }
 
-    let tight = gaps(left: 8.5, right: 17)
-    #expect(abs(tight.iconToFrontApp - 12) < 0.5)
-    #expect(abs(tight.frontAppToNext - 8.5) < 0.5)
+    // Every left gap, including the one before the front app, uses the left
+    // spacing uniformly (#0060).
+    let tight = gaps(left: 8, right: 8)
+    #expect(abs(tight.iconToFrontApp - 8) < 0.5)
+    #expect(abs(tight.frontAppToNext - 8) < 0.5)
 
-    // Moving both side sliders must not move the front-app gap, but it does
-    // move the gap after the front app.
     let wide = gaps(left: 24, right: 30)
-    #expect(abs(wide.iconToFrontApp - 12) < 0.5)
+    #expect(abs(wide.iconToFrontApp - 24) < 0.5)
     #expect(abs(wide.frontAppToNext - 24) < 0.5)
 }
 
@@ -591,7 +605,7 @@ private final class WidgetSpacingIconProvider: WorkspaceIconProviding {
 }
 
 @MainActor
-@Test func defaultWorkspaceOrderShowsHalfAfterTheIconAndTwelveBeforeTheFrontApp() {
+@Test func defaultWorkspaceOrderUsesTheUniformGapAfterTheIconAndBeforeTheFrontApp() {
     let metrics = BarMetrics.default
     // The real `DivotConfiguration.defaultLeft` order with a live workspace row,
     // not a status-item surrogate, so the elastic workspace width is exercised.
@@ -609,8 +623,7 @@ private final class WidgetSpacingIconProvider: WorkspaceIconProviding {
     let workspaceRow = try! #require(content.subviews.compactMap { $0 as? WorkspaceBarView }.first)
     let frontApp = try! #require(content.subviews.compactMap { $0 as? BarItemView }.first)
 
-    // Divot mark -> workspace row is the half left spacing; the workspace row ->
-    // front app is the fixed 12 pt.
-    #expect(abs(workspaceRow.frame.minX - icon.frame.maxX - 8.5) < 0.5)
-    #expect(abs(frontApp.frame.minX - workspaceRow.frame.maxX - 12) < 0.5)
+    // Both gaps are the uniform 8 pt default (#0060).
+    #expect(abs(workspaceRow.frame.minX - icon.frame.maxX - 8) < 0.5)
+    #expect(abs(frontApp.frame.minX - workspaceRow.frame.maxX - 8) < 0.5)
 }
