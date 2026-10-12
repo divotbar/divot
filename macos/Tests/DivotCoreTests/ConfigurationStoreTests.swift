@@ -71,6 +71,35 @@ private func write(_ json: String, to url: URL) throws {
     #expect(object?["version"] as? Int == 2)
 }
 
+@Test func savePersistsItemSpacingAndOmitsItWhenDefault() throws {
+    let directory = try makeTempDirectory()
+    let url = directory.appendingPathComponent("config.json")
+    let store = ConfigurationStore(configURL: url)
+
+    // The #0054 defaults write no spacing keys, so a first-launch document is
+    // unchanged by the new setting.
+    try store.save(.default)
+    var object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    var layout = object?["layout"] as? [String: Any]
+    #expect(layout?["rightItemSpacing"] == nil)
+    #expect(layout?["leftItemSpacing"] == nil)
+
+    // Non-default values are written and reload to the same configuration.
+    var configuration = DivotConfiguration.default
+    configuration.layout.rightItemSpacing = 20
+    configuration.layout.leftItemSpacing = 9.5
+    try store.save(configuration)
+
+    let reloaded = ConfigurationStore(configURL: url)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.layout.rightItemSpacing == 20)
+    #expect(reloaded.current.layout.leftItemSpacing == 9.5)
+    object = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+    layout = object?["layout"] as? [String: Any]
+    #expect(layout?["rightItemSpacing"] as? Double == 20)
+    #expect(layout?["leftItemSpacing"] as? Double == 9.5)
+}
+
 @Test func savePersistsKeepAwakeAndOmitsItWhenDefault() throws {
     let directory = try makeTempDirectory()
     let url = directory.appendingPathComponent("config.json")

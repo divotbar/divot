@@ -40,18 +40,42 @@ import Testing
 
 @Test func groupWidthIncludesTheGapsBetweenItems() {
     let m = BarMetrics()
-    #expect(m.groupWidth([]) == 0)
-    #expect(m.groupWidth([40]) == 40)
-    #expect(m.groupWidth([40, 30, 20]) == 90 + m.itemSpacing * 2)
+    #expect(m.groupWidth([], spacing: m.rightItemSpacing) == 0)
+    #expect(m.groupWidth([40], spacing: m.rightItemSpacing) == 40)
+    #expect(m.groupWidth([40, 30, 20], spacing: m.rightItemSpacing) == 90 + m.rightItemSpacing * 2)
+    #expect(m.groupWidth([40, 30, 20], spacing: m.leftItemSpacing) == 90 + m.leftItemSpacing * 2)
 }
 
 @Test func fitsIsTheNoTruncationTest() {
     let m = BarMetrics()
     let widths: [CGFloat] = [40, 120, 40]
-    let needed = m.groupWidth(widths)
-    #expect(m.fits(widths, available: needed))
-    #expect(m.fits(widths, available: needed + 10))
-    #expect(!m.fits(widths, available: needed - 1))
+    let needed = m.groupWidth(widths, spacing: m.rightItemSpacing)
+    #expect(m.fits(widths, available: needed, spacing: m.rightItemSpacing))
+    #expect(m.fits(widths, available: needed + 10, spacing: m.rightItemSpacing))
+    #expect(!m.fits(widths, available: needed - 1, spacing: m.rightItemSpacing))
+}
+
+// MARK: - Item spacing and the front-app gap (#0054)
+
+@Test func defaultItemSpacingIsSeventeenOnTheRightAndHalfOnTheLeft() {
+    // The maintainer's chosen rhythm: 17 pt between right-side items, and a
+    // left gap that defaults to half of it so the Divot mark and workspaces do
+    // not look too far apart.
+    #expect(BarMetrics.default.rightItemSpacing == 17)
+    #expect(BarMetrics.default.leftItemSpacing == BarMetrics.default.rightItemSpacing / 2)
+    #expect(BarMetrics.default.leftItemSpacing == 8.5)
+    // The front app keeps its own fixed gap, independent of either side.
+    #expect(BarMetrics.frontAppSpacing == 12)
+}
+
+@Test func scaledCarriesTheConfiguredSideSpacing() {
+    let metrics = BarMetrics.scaled(textSize: 14, rightItemSpacing: 20, leftItemSpacing: 10)
+    #expect(metrics.rightItemSpacing == 20)
+    #expect(metrics.leftItemSpacing == 10)
+    // The default left is half the default right when the caller passes nothing.
+    let defaults = BarMetrics.scaled(textSize: 14)
+    #expect(defaults.rightItemSpacing == 17)
+    #expect(defaults.leftItemSpacing == 8.5)
 }
 
 // MARK: - Text size and proportional icons (#0022)
@@ -141,7 +165,8 @@ import Testing
         m.itemWidth(hasIcon: true, textWidth: 0),     // network (icon only)
         m.itemWidth(hasIcon: true, textWidth: 45)     // volume "Muted"
     ]
-    #expect(m.fits(rightWidths, available: geometry.right.width - m.rowInset * 2))
+    #expect(m.fits(rightWidths, available: geometry.right.width - m.rowInset * 2,
+                   spacing: m.rightItemSpacing))
 
     // The left group's fixed content (the frontmost app) fits beside the notch.
     let leftFixed = m.itemWidth(hasIcon: false, textWidth: 120)

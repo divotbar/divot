@@ -390,7 +390,37 @@ public struct DivotSettingsView: View {
                     in: LayoutConfiguration.paddingRange, step: 1) {
                 Text("Padding: \(Int(model.configuration.layout.padding)) pt")
             }
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Right item spacing")
+                    Spacer()
+                    Text("\(spacingDescription(model.configuration.layout.rightItemSpacing)) pt")
+                        .foregroundStyle(.secondary)
+                }
+                Slider(value: Binding(get: { model.configuration.layout.rightItemSpacing },
+                                      set: { model.setRightItemSpacing($0) }),
+                       in: LayoutConfiguration.itemSpacingRange, step: 0.5)
+            }
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Left item spacing")
+                    Spacer()
+                    Text("\(spacingDescription(model.configuration.layout.leftItemSpacing)) pt")
+                        .foregroundStyle(.secondary)
+                }
+                Slider(value: Binding(get: { model.configuration.layout.leftItemSpacing },
+                                      set: { model.setLeftItemSpacing($0) }),
+                       in: LayoutConfiguration.itemSpacingRange, step: 0.5)
+            }
+            Text("The left spacing defaults to half the right spacing. The front app keeps a fixed 12 pt gap beside the Divot mark, whatever the side spacing is.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
+    }
+
+    /// Show a whole point without a trailing `.0` and a half point as `8.5`.
+    private func spacingDescription(_ value: Double) -> String {
+        String(format: "%g", value)
     }
 
     private var textSection: some View {

@@ -208,6 +208,34 @@ private func makeModel(loginItem: LoginItemControlling = StubLoginItem(),
 }
 
 @MainActor
+@Test func itemSpacingDefaultsAndEachSidePersistsIndependently() throws {
+    let (model, controller) = try makeModel()
+
+    // The defaults are 17 pt on the right and half that on the left (#0054).
+    #expect(model.configuration.layout.rightItemSpacing == 17)
+    #expect(model.configuration.layout.leftItemSpacing == 8.5)
+    #expect(model.configuration.barMetrics.rightItemSpacing == 17)
+    #expect(model.configuration.barMetrics.leftItemSpacing == 8.5)
+
+    model.setRightItemSpacing(20)
+    model.setLeftItemSpacing(11)
+    #expect(model.configuration.layout.rightItemSpacing == 20)
+    #expect(model.configuration.layout.leftItemSpacing == 11)
+
+    // Both survive a relaunch from the same store.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.layout.rightItemSpacing == 20)
+    #expect(reloaded.current.layout.leftItemSpacing == 11)
+
+    // Out-of-range edits clamp to the slider range rather than being written.
+    model.setRightItemSpacing(100)
+    #expect(model.configuration.layout.rightItemSpacing == LayoutConfiguration.itemSpacingRange.upperBound)
+    model.setLeftItemSpacing(-4)
+    #expect(model.configuration.layout.leftItemSpacing == LayoutConfiguration.itemSpacingRange.lowerBound)
+}
+
+@MainActor
 @Test func menuBarCursorRevealDefaultsOnAndTheFallbackOffThenPersist() throws {
     let (model, controller) = try makeModel()
 

@@ -19,7 +19,7 @@ The native providers below are implemented and unit-tested in the Swift package,
 
 Both sides are ordered item groups and every supported item can move between them. The native app fills this default bar from built-in providers — no setup questionnaire and no shell polling. Workspace app icons and empty-state visibility are optional settings on `workspaces`.
 
-Clicking the battery item toggles a Caffeine-style keep-awake assertion and shows a cup indicator while it is held. Keep-awake uses the public IOKit power-assertion API only; quitting the app releases any assertion it holds. Whether the state is remembered across launches is an opt-in setting (default off). This is implemented and unit-tested in the Swift package, not physically validated.
+Clicking the battery item toggles a Caffeine-style keep-awake assertion and shows a cup indicator while it is held. The cup tracks Divot's own assertion only: another app preventing sleep — for example a call holding the microphone and speaker sleep assertions — does not show it while Divot's toggle is off. Keep-awake uses the public IOKit power-assertion API only; quitting the app releases any assertion it holds. Whether the state is remembered across launches is an opt-in setting (default off). This is implemented and unit-tested in the Swift package, not physically validated.
 
 ## Failure and unavailable states
 

@@ -58,9 +58,11 @@ function appearance(value: unknown) {
 }
 
 function layout(value: unknown) {
-  shape(value, ['height', 'padding'], ['notchGap'], 'layout')
+  shape(value, ['height', 'padding'], ['notchGap', 'rightItemSpacing', 'leftItemSpacing'], 'layout')
   range(value.height, 24, 40, 'layout.height')
   range(value.padding, 0, 24, 'layout.padding')
+  if ('rightItemSpacing' in value) range(value.rightItemSpacing, 0, 32, 'layout.rightItemSpacing')
+  if ('leftItemSpacing' in value) range(value.leftItemSpacing, 0, 32, 'layout.leftItemSpacing')
   if ('notchGap' in value) range(value.notchGap, 0, 32, 'layout.notchGap')
 }
 

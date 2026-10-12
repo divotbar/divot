@@ -300,11 +300,16 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
         // The app icons on the left use the configured app icon size, which
         // defaults to the right-side status icon size (#0052).
         let iconSize = max(8, metrics.appIconSize.rounded())
+        // Keep every app icon on the number's vertical centre line at every
+        // configured icon size, instead of a fixed baseline nudge (#0055).
+        let iconOffset = Self.appIconBaselineOffset(iconSize: iconSize,
+                                                    rowHeight: metrics.height,
+                                                    font: font)
         for identity in WorkspaceLayout.displayApps(for: workspace, options: options) {
             guard let icon = icons.icon(for: identity.bundleID, pointSize: iconSize) else { continue }
             let attachment = NSTextAttachment()
             attachment.image = icon
-            attachment.bounds = CGRect(x: 0, y: -1.5, width: iconSize, height: iconSize)
+            attachment.bounds = CGRect(x: 0, y: iconOffset, width: iconSize, height: iconSize)
             title.append(NSAttributedString(string: " ", attributes: nameAttributes))
             title.append(NSAttributedString(attachment: attachment))
         }
@@ -314,6 +319,25 @@ public final class WorkspaceBarView: NSView, BarContentLifecycle {
                                             attributes: markerAttributes))
         }
         return title
+    }
+
+    /// The baseline-relative offset for an app-icon attachment of `iconSize`
+    /// points so the icon is centred on the same vertical line as the workspace
+    /// number (#0055).
+    ///
+    /// The number is vertically centred in the `rowHeight`-tall row, so its
+    /// baseline sits `rowHeight / 2 - (ascender + descender) / 2` above the
+    /// row's bottom. Centring the icon on that same line puts the icon's bottom
+    /// `rowHeight / 2 - iconSize / 2` above the bottom; the difference is the
+    /// offset from the baseline. Deriving it from the row height and the icon
+    /// size keeps the two centred as the icon grows, rather than relying on a
+    /// fixed nudge tuned for one size.
+    static func appIconBaselineOffset(iconSize: CGFloat,
+                                      rowHeight: CGFloat,
+                                      font: NSFont) -> CGFloat {
+        let baselineFromBottom = rowHeight / 2 - (font.ascender + font.descender) / 2
+        let iconBottomFromBottom = rowHeight / 2 - iconSize / 2
+        return iconBottomFromBottom - baselineFromBottom
     }
 
     /// Whether the configured marker for this occupancy is drawn. An occupied

@@ -60,6 +60,10 @@ All sizes are logical points, not physical pixels.
 | --- | --- | --- |
 | `height` | 24–40 | Panel height (default 32, matched to the camera-housing band); clamp to available safe top area |
 | `padding` | 0–24 | Padding inside each panel |
+| `rightItemSpacing` | 0–32 | Gap between right-side items (default 17) |
+| `leftItemSpacing` | 0–32 | Gap between left-side items (default 8.5, half the right); the Divot-icon-to-workspace gap follows it |
+
+Item spacing is independent per side. The gap immediately before the front-app item is a fixed 12 points and is not affected by either side setting, so the front app keeps its rhythm beside the Divot mark. Settings exposes both side spacings as sliders.
 
 On notched displays the bar hugs the notch with zero padding and the color extends 6 points into the notch area to cover the gap and corners. Legacy configuration files may contain a `notchGap` field; it is ignored during load and omitted when the file is next saved.
 
@@ -139,7 +143,7 @@ The shadow is a soft gradient drawn just below the bar, so it runs along the bot
 
 ## Keep awake
 
-Clicking the battery item toggles a Caffeine-style keep-awake assertion (public IOKit power assertions), and the battery shows a cup indicator while it is held. The optional root `keepAwake` object controls whether that state survives a relaunch. It is a root object rather than a `widgets.battery` option so it stays valid when the battery item is not placed.
+Clicking the battery item toggles a Caffeine-style keep-awake assertion (public IOKit power assertions), and the battery shows a cup indicator while it is held. The cup reflects Divot's own assertion only, not system-wide sleep prevention: another app that prevents sleep while Divot's toggle is off does not show it. The optional root `keepAwake` object controls whether that state survives a relaunch. It is a root object rather than a `widgets.battery` option so it stays valid when the battery item is not placed.
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
