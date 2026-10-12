@@ -2,7 +2,7 @@
 id: "0065"
 title: Require every task to update the site and docs it affects (AGENTS.md rule)
 type: chore
-status: active
+status: review
 priority: p1
 area: docs
 assigned_to: ""
@@ -31,4 +31,4 @@ Edit AGENTS.md on the task branch only; never commit to main. Keep the rule shor
 - 2026-10-12T11:40:14Z · created · njachowski@gmail.com
 - 2026-10-12T11:40:15Z · status inbox→ready
 - 2026-10-12T11:40:18Z · status ready→active, branch
-- 2026-10-12T11:44:05Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T11:44:05Z · status active→review
