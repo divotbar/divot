@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-11T12:47:05Z"
+updated_at: "2026-10-12T13:23:45Z"
 ---
 ## Problem
 
@@ -22,12 +22,11 @@ The site doesn't tell users how to get the app. Once the release exists, it shou
 - The landing page links to the install page.
 
 ## Acceptance criteria
-
-- Add site/guide/install.md with the download link, checksum note, first launch steps and the Accessibility setup.
+- Add site/guide/install.md: the download link, checksum note, first launch steps for the unsigned build, the Accessibility (and Location for the Wi-Fi name) setup, the Homebrew command (brew install --cask divotbar/tap/divot) and the AI-setup pointer (site/guide/ai-setup.md).
+- No release exists yet (no tag, no GitHub Release). Until one does, the page must say plainly that the first release is not published yet and show no download button or invented version/checksum. Use one clearly named flag or constant so flipping it to 'released' is a one-line follow-up, and use only the stable https://github.com/divotbar/divot/releases/latest URL when released.
 - Link it from the landing page and the sidebar.
-- The download link points at the GitHub Release "latest" asset.
-- The page builds with `bun run build`.
-- `repoos check` passes.
+- Public copy distinguishes implemented from planned behaviour; no notarization claims.
+- The page builds with bun run check / bun run build; repoos check passes.
 
 ## Notes for AI
 
@@ -36,3 +35,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 ## Activity
 
 - 2026-10-11T12:47:05Z · created · njachowski@gmail.com
+- 2026-10-12T13:23:45Z · body: section Acceptance criteria
