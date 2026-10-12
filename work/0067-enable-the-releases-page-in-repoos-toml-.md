@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T17:21:55Z"
+review_passes: 5
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
@@ -13,9 +15,7 @@ model_override: sonnet
 review_cli_override: claude code
 review_model_override: sonnet
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T17:21:55Z"
 last_check_failure: "repoos check at 2026-10-12T17:16:58.283Z: repoos check failed: ◆ Check plan"
-review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -95,3 +95,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T17:21:39Z · status active→review
 - 2026-10-12T17:21:39Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-12T17:21:55Z · note: review pass 7: good to go
+
