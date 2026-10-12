@@ -5,12 +5,12 @@ type: feature
 status: inbox
 priority: p2
 area: macos
-depends_on: ["0056"]
+depends_on: ["0057"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T08:36:25Z"
-updated_at: "2026-10-12T08:36:25Z"
+updated_at: "2026-10-12T08:36:28Z"
 ---
 ## Problem
 
@@ -35,3 +35,4 @@ Depends on the icon-size task, which changes the same battery symbol drawing.
 ## Activity
 
 - 2026-10-12T08:36:25Z · created · njachowski@gmail.com
+- 2026-10-12T08:36:28Z · depends_on
