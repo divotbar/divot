@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T15:29:58Z"
+updated_at: "2026-10-12T15:30:18Z"
 ---
 ## Problem
 Divot's repoos.toml has no [release] block and no [[distribution]] rows, so RepoOS shows no Releases page for this project.
