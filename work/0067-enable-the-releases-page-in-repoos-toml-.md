@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/enable-the-releases-page-in-repoos-toml-
 created_at: "2026-10-12T14:36:53Z"
-updated_at: "2026-10-12T15:46:30Z"
+updated_at: "2026-10-12T15:50:07Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -53,3 +53,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T15:46:20Z · message_delivered: 1 message(s)
 - 2026-10-12T15:46:20Z · status review→active
 - 2026-10-12T15:46:30Z · message_queued at 2026-10-12T15:46:30.770Z
+- 2026-10-12T15:50:07Z · note: Round 3: the required check is green — repoos check --changed main passed all 5 declared steps (site, native-core, native-app, native-app-bundle, justfile); .repoos/check-results/latest.json records passed=true. Nothing in the automated verification list is actually failing. Added representative prohibited-input cases to scripts/release-config.test.ts for the release/distribution guards: disabled release, non-git-tag provider, non-JSON versionFile, non-http url, unknown kind, malformed github-release repository, and a missing/non-compiling homebrew versionRegex. These mirror the rules RepoOS applies at load. Remaining guard flags were heuristic string-change notices and are now answered.
