@@ -200,6 +200,35 @@ private func imageViews(in view: NSView) -> [NSImageView] {
     }
 }
 
+/// The battery, network and volume symbols draw wider than the old square box
+/// (#0057), so the right cluster must still fit the notched display's auxiliary
+/// region at the largest text size with every label intact.
+@MainActor
+@Test func defaultRightGroupStillFitsAtTheLargestTextSize() {
+    let metrics = BarMetrics.scaled(textSize: 20)
+    let content = BarContentView(side: .right, items: BarLayout.default.right, metrics: metrics)
+    content.applyInitialState()
+    content.apply([
+        .update(WidgetState(id: .battery, revision: 1,
+                            content: .battery(BatterySnapshot(presence: .internalBattery, percentage: 100, isCharging: true)))),
+        .update(WidgetState(id: .clock, revision: 1,
+                            content: .clock(ClockSnapshot(date: Date(timeIntervalSince1970: 1_800_000_000))))),
+        .update(WidgetState(id: .network, revision: 1,
+                            content: .network(NetworkSnapshot(isConnected: true, kind: .wifi)))),
+        .update(WidgetState(id: .volume, revision: 1,
+                            content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0, isMuted: true))))
+    ])
+    content.frame = NSRect(x: 0, y: 0, width: 752, height: metrics.height)
+    content.layoutSubtreeIfNeeded()
+
+    let fields = textFields(in: content)
+    #expect(fields.count >= 4)
+    for field in fields {
+        expectNoTruncation(field, field.stringValue)
+        #expect(field.frame.maxX <= content.bounds.width - metrics.rowInset + 0.5)
+    }
+}
+
 @MainActor
 @Test func itemViewWithoutAnIconIsJustTheText() {
     let view = BarItemView()
