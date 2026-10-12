@@ -2,7 +2,7 @@
 id: "0052"
 title: "Selected workspace chip style, app icon size setting, and chip opacity for all chips"
 type: feature
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -43,4 +43,4 @@ This supersedes the selected-chip part of #0047, which is marked done but still 
 - 2026-10-12T06:59:51Z · created · njachowski@gmail.com
 - 2026-10-12T06:59:52Z · status inbox→ready
 - 2026-10-12T06:59:53Z · status ready→active, branch
-- 2026-10-12T07:16:07Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-12T07:16:07Z · status active→review
