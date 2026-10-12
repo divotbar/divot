@@ -2,14 +2,14 @@
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
-status: active
+status: review
 priority: p1
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T13:23:46Z"
+updated_at: "2026-10-12T13:29:40Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T13:23:45Z · body: section Acceptance criteria
 - 2026-10-12T13:23:46Z · status inbox→ready
 - 2026-10-12T13:23:46Z · status ready→active, branch
+- 2026-10-12T13:29:40Z · status active→review
