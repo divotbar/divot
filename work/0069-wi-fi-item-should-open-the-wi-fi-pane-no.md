@@ -45,3 +45,4 @@ Only the network item's URL changes. Keep the sound/battery panes as they are.
 - 2026-10-12T18:51:49Z · cli_override, model_override
 - 2026-10-12T18:53:03Z · body: section Verification
 - 2026-10-12T18:54:33Z · status active→review
+- 2026-10-12T18:54:33Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
