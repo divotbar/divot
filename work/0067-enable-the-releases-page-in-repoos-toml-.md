@@ -80,3 +80,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T16:08:50Z · status review→active
 - 2026-10-12T16:08:59Z · review_cli_override, review_model_override
 - 2026-10-12T16:10:31Z · status active→review
+- 2026-10-12T16:10:31Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
