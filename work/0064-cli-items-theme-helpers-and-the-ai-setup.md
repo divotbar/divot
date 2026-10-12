@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-12T12:25:07Z"
-review_passes: 2
+last_close_out_gate_ms: 61750
+last_close_out_gate_at: "2026-10-12T12:26:22.191Z"
 id: "0064"
 title: "CLI: items/theme helpers and the AI-setup docs snippet"
 type: feature
@@ -12,6 +12,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/cli-items-theme-helpers-and-the-ai-setup
 created_at: "2026-10-12T11:39:01Z"
+updated_at: "2026-10-12T12:26:22Z"
+review_passes: 2
 review_rounds: 1
 ---
 ## Problem
@@ -54,4 +56,5 @@ Builds on #0062; do not claim features that are not implemented.
 - 2026-10-12T12:24:02Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (0fd230b) during finalization (#0734)
 - 2026-10-12T12:24:02Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (0fd230b) during finalization (#0734)
 - 2026-10-12T12:25:06Z · note: review pass 2: good to go
+- 2026-10-12T12:26:22Z · close-out gate completed in 62s
 
