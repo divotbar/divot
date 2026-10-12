@@ -78,3 +78,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T14:27:21Z · status review→active
 - 2026-10-12T14:27:21Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T14:27:29Z · status active→review
+- 2026-10-12T14:27:29Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
