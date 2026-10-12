@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-12T14:28:29Z"
+review_passes: 2
 id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
@@ -9,11 +11,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
-updated_at: "2026-10-12T14:28:29Z"
 handoff_signal_retry_count: 2
 last_check_failure: "repoos check at 2026-10-12T13:47:26.018Z: repoos check failed: native-core — 􁁛 Test workspaceChipStyleAddsTheSamePaddingAsTheRightSideChip() passed after 2.279 seconds."
 review_rounds: 1
-review_passes: 1
 ---
 ## Problem
 
@@ -80,3 +80,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T14:27:29Z · status active→review
 - 2026-10-12T14:27:29Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
 - 2026-10-12T14:28:29Z · note: review pass 3: good to go
+
