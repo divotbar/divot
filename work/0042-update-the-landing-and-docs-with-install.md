@@ -3,6 +3,9 @@ id: "0042"
 title: Update the landing and docs with install instructions for the DMG
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-failed
+needs_input_detail: "the cursor agent exited without output: Error: [unavailable] read ETIMEDOUT"
 priority: p1
 area: [macos, docs]
 assigned_to: ""
@@ -73,3 +76,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T14:20:13Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
 - 2026-10-12T14:20:13Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (bbb5c03) during finalization (#0734)
 - 2026-10-12T14:20:28Z · note: review pass 2: failed — no usable report
+- 2026-10-12T14:20:28Z · needs_input
