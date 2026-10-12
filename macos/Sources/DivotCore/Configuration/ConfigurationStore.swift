@@ -263,8 +263,18 @@ private extension AppearanceConfiguration {
 }
 
 private extension LayoutConfiguration {
+    /// Height and padding are always written; item spacing is written only when
+    /// it differs from the #0054 defaults, so a first-launch document keeps the
+    /// same shape it had before the setting existed.
     var jsonObject: [String: Any] {
-        ["height": height, "padding": padding]
+        var object: [String: Any] = ["height": height, "padding": padding]
+        if rightItemSpacing != LayoutConfiguration.defaultRightItemSpacing {
+            object["rightItemSpacing"] = rightItemSpacing
+        }
+        if leftItemSpacing != LayoutConfiguration.defaultLeftItemSpacing {
+            object["leftItemSpacing"] = leftItemSpacing
+        }
+        return object
     }
 }
 

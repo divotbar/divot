@@ -200,6 +200,23 @@ public final class DivotSettingsModel {
         }
     }
 
+    /// Set the right-group item spacing (0–32 pt). The bar rebuilds live from
+    /// the published snapshot and the setting survives a relaunch.
+    public func setRightItemSpacing(_ spacing: Double) {
+        update { $0.layout.rightItemSpacing = Self.clampedItemSpacing(spacing) }
+    }
+
+    /// Set the left-group item spacing (0–32 pt). It defaults to half the right
+    /// gap but can be set independently; the front-app gap stays fixed.
+    public func setLeftItemSpacing(_ spacing: Double) {
+        update { $0.layout.leftItemSpacing = Self.clampedItemSpacing(spacing) }
+    }
+
+    private static func clampedItemSpacing(_ spacing: Double) -> Double {
+        max(LayoutConfiguration.itemSpacingRange.lowerBound,
+            min(spacing, LayoutConfiguration.itemSpacingRange.upperBound))
+    }
+
     // MARK: Network
 
     /// Turn the Wi-Fi network name on or off. Turning it on from off is the one
