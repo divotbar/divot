@@ -2,7 +2,7 @@
 id: "0067"
 title: Enable the Releases page in repoos.toml (release block and distribution rows)
 type: chore
-status: active
+status: review
 priority: p1
 area: infra
 assigned_to: ""
@@ -47,4 +47,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T15:33:25Z · note: review pass 2: needs some work
 - 2026-10-12T15:33:25Z · status review→active
 - 2026-10-12T15:38:16Z · message_queued at 2026-10-12T15:38:16.983Z
-- 2026-10-12T15:45:01Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-12T15:45:01Z · status active→review
