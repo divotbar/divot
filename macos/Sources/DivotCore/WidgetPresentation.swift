@@ -238,11 +238,12 @@ public enum WidgetPresenter {
 
     private static func batteryPresentation(_ snapshot: BatterySnapshot,
                                             options: BatteryFormatOptions) -> WidgetPresentation {
-        // A single cup glyph: `cup.and.saucer.fill` also draws a saucer, which
-        // reads as a second green dot beside the camera privacy indicator. The
-        // mug is the same "cup is held" signal with one mark only (#0051).
+        // The keep-awake cup is Divot's only mark on the item. It must never be
+        // sourced from system-wide sleep state: another app's assertion (for
+        // example a call holding the microphone and speaker) never sets this
+        // flag, so the cup is drawn only while Divot's own toggle is on (#0051).
         let indicator = snapshot.isKeepingAwake
-            ? WidgetIndicator(symbolName: "mug.fill",
+            ? WidgetIndicator(symbolName: "cup.and.saucer.fill",
                               role: .keepAwakeActive,
                               accessibilityLabel: "Keep awake on")
             : nil

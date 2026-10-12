@@ -45,7 +45,7 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
         options: options)
     #expect(on.text == "42%")
     #expect(on.symbolName == "battery.50")
-    #expect(on.indicator?.symbolName == "mug.fill")
+    #expect(on.indicator?.symbolName == "cup.and.saucer.fill")
     #expect(on.indicator?.role == .keepAwakeActive)
     #expect(on.accessibilityLabel.contains("keep awake on"))
 
