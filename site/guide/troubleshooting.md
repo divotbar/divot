@@ -2,7 +2,7 @@
 
 ## I can't find an installer
 
-There isn't one yet. Divot is pre-alpha, and there is no signed public download. You can [build and run a local preview from source](./build) (ad-hoc signed, not notarized) or check the [roadmap](./roadmap).
+There isn't a published one yet. Divot is pre-alpha, and there is no signed public download. The [install guide](./install) says so plainly and lists the current options — [build and run a local preview from source](./build) (ad-hoc signed, not notarized) — plus the steps the first unsigned release will use. The [roadmap](./roadmap) tracks the release gates.
 
 ## The configuration doesn't change my menu bar
 

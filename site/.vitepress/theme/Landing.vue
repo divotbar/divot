@@ -15,7 +15,7 @@ const { isDark } = useData()
       <button class="theme-toggle" :aria-pressed="isDark" :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'" @click="isDark = !isDark"><span aria-hidden="true">{{ isDark ? '☼' : '◐' }}</span> {{ isDark ? 'Light' : 'Dark' }}</button>
       <button class="mobile-toggle" :aria-expanded="mobileOpen" aria-controls="landing-links" @click="mobileOpen = !mobileOpen">{{ mobileOpen ? 'Close' : 'Menu' }}</button>
       <nav id="landing-links" :class="{ open: mobileOpen }" aria-label="Main navigation">
-        <a href="/guide/getting-started">The guide</a><a href="/guide/customization">Make it yours</a><a class="nav-cta" href="/contributing/">Build with us <span aria-hidden="true">↗</span></a>
+        <a href="/guide/install">Install</a><a href="/guide/getting-started">The guide</a><a href="/guide/customization">Make it yours</a><a class="nav-cta" href="/contributing/">Build with us <span aria-hidden="true">↗</span></a>
       </nav>
     </header>
     <main id="main">
@@ -46,9 +46,9 @@ const { isDark } = useData()
       </section>
       <section class="field-guide section-grid">
         <p class="eyebrow">THE FIELD GUIDE</p>
-        <div><h2>Settle in.<br>Find your own way.</h2><div class="guide-links"><a href="/guide/getting-started"><span><small>01</small> Start here</span><span aria-hidden="true">↗</span></a><a href="/guide/workspaces"><span><small>02</small> Workspaces & displays</span><span aria-hidden="true">↗</span></a><a href="/guide/themes"><span><small>03</small> Colors, materials & moods</span><span aria-hidden="true">↗</span></a><a href="/guide/ai-setup"><span><small>04</small> Set up with your AI</span><span aria-hidden="true">↗</span></a><a href="/reference/configuration"><span><small>05</small> The configuration reference</span><span aria-hidden="true">↗</span></a></div></div>
+        <div><h2>Settle in.<br>Find your own way.</h2><div class="guide-links"><a href="/guide/install"><span><small>01</small> Install Divot</span><span aria-hidden="true">↗</span></a><a href="/guide/getting-started"><span><small>02</small> Start here</span><span aria-hidden="true">↗</span></a><a href="/guide/workspaces"><span><small>03</small> Workspaces & displays</span><span aria-hidden="true">↗</span></a><a href="/guide/themes"><span><small>04</small> Colors, materials & moods</span><span aria-hidden="true">↗</span></a><a href="/guide/ai-setup"><span><small>05</small> Set up with your AI</span><span aria-hidden="true">↗</span></a><a href="/reference/configuration"><span><small>06</small> The configuration reference</span><span aria-hidden="true">↗</span></a></div></div>
       </section>
-      <section class="closing"><p class="eyebrow">GOOD THINGS START SMALL</p><h2>Come make<br><em>a little space.</em></h2><p>Divot is just getting started. The docs, website, and layout<br class="desktop-break"> foundation are here. The native app is next.</p><a class="solid-link" href="/contributing/">Build with us <span aria-hidden="true">↗</span></a><span class="release-note">Pre-alpha · No downloadable app yet</span></section>
+      <section class="closing"><p class="eyebrow">GOOD THINGS START SMALL</p><h2>Come make<br><em>a little space.</em></h2><p>Divot is just getting started. The docs, website, and layout<br class="desktop-break"> foundation are here. The native app is next.</p><a class="solid-link" href="/contributing/">Build with us <span aria-hidden="true">↗</span></a><span class="release-note">Pre-alpha · No downloadable app yet · <a href="/guide/install">Install options ↗</a></span></section>
     </main>
     <footer class="landing-footer"><a class="wordmark" href="/">divot</a><span>Made for the edge. Built in the open.</span><div><a href="/guide/roadmap">Roadmap</a><a href="/contributing/">MIT license</a><a href="/credits">Photo credits</a></div><small>© 2026 Divot contributors</small></footer>
   </div>
