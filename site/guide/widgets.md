@@ -37,7 +37,7 @@ The date, time, battery, volume, and frontmost-app items need no special permiss
 
 ## Click behavior
 
-Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; and the date, time, network, and volume items open the matching System Settings pane. The exact pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
+Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; and the date, time, network, and volume items open the matching System Settings pane. The network item opens System Settings › Wi-Fi directly (falling back to the generic Network pane if that link cannot be opened). The other pane links still need validation on the target OS, and a later milestone may replace the volume/network links with a native control popover.
 
 ## Future script widgets
 
