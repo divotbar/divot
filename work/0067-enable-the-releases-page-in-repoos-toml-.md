@@ -41,3 +41,4 @@ Reference ~/code/nick/repoos/repoos.toml lines ~398-450 and docs/releases.md. No
 - 2026-10-12T15:26:55Z · status review→active
 - 2026-10-12T15:26:55Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-12T15:29:58Z · status active→review
+- 2026-10-12T15:29:58Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
