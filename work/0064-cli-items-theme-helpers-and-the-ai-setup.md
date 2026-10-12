@@ -51,3 +51,4 @@ Builds on #0062; do not claim features that are not implemented.
 - 2026-10-12T12:22:21Z · note: review pass 1: needs some work
 - 2026-10-12T12:22:21Z · status review→active
 - 2026-10-12T12:24:02Z · status active→review
+- 2026-10-12T12:24:02Z · note: shots: skipped — 1 handoff shot already captured for this exact plan (0fd230b) during finalization (#0734)
