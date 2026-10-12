@@ -11,7 +11,6 @@ branch: feat/update-the-landing-and-docs-with-install
 created_at: "2026-10-11T12:47:05Z"
 updated_at: "2026-10-12T14:16:33Z"
 handoff_signal_retry_count: 2
-check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-12T13:47:26.018Z: repoos check failed: native-core — 􁁛 Test workspaceChipStyleAddsTheSamePaddingAsTheRightSideChip() passed after 2.279 seconds."
 review_rounds: 1
 review_passes: 1
@@ -70,3 +69,4 @@ Depends on the unsigned DMG release task. Do not promise signed or notarized bui
 - 2026-10-12T13:45:19Z · message_delivered: 1 message(s)
 - 2026-10-12T14:16:33Z · watchdog: auto-surfaced stuck task · status active→review · agent exited without emitting the handoff signal · next step: the handoff signal may not have been detected — ask the agent to put `::repoos-handoff-ready::` at the start of a line (preferably alone) after checks pass
 - 2026-10-12T14:16:33Z · note: handoff requested (cli)
+
