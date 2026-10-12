@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0060"
 title: Restore item spacing; add fixed 17px right inset at screen edge
 type: bug
@@ -33,3 +34,4 @@ See #0054 diff (git log --grep 0054) and revert only the between-item spacing; k
 - 2026-10-12T09:37:42Z · created · njachowski@gmail.com
 - 2026-10-12T09:37:44Z · status inbox→ready
 - 2026-10-12T09:37:45Z · status ready→active, branch
+
