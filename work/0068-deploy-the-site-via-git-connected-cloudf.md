@@ -9,8 +9,10 @@ depends_on: ["0067"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude
+model_override: sonnet
 created_at: "2026-10-12T14:43:34Z"
-updated_at: "2026-10-12T14:43:34Z"
+updated_at: "2026-10-12T17:20:27Z"
 ---
 ## Problem
 The site deploys through .github/workflows/site.yml (GitHub Actions to Cloudflare Pages, main only, skipped without secrets). The maintainer wants the same setup as the RepoOS repo: git-connected Cloudflare Workers, main = dev, prod = production at divotbar.app, plus the Deployments page in RepoOS.
@@ -32,3 +34,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 ## Activity
 
 - 2026-10-12T14:43:34Z · created · njachowski@gmail.com
+- 2026-10-12T17:20:27Z · cli_override, model_override
