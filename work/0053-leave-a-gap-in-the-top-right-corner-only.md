@@ -2,7 +2,7 @@
 id: "0053"
 title: Leave a gap in the top-right corner only while the camera or mic is in use
 type: feature
-status: review
+status: active
 hold: true
 priority: p1
 area: macos
