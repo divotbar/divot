@@ -297,6 +297,11 @@ public struct VolumeProvider: WidgetProvider {
 // MARK: - Appearance
 
 /// Reads the system appearance and reports changes.
+///
+/// `NSApplication` and the effective-appearance read are main-actor APIs, so
+/// the reading lives on the main actor (matching `FrontAppReading`). Reading it
+/// through `DispatchQueue.main.sync` from the main thread traps (#0050).
+@MainActor
 public protocol AppearanceReading: Sendable {
     /// The current appearance mode, or `nil` when it cannot be read this moment.
     func snapshot() -> AppearanceSnapshot?
