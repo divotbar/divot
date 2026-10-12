@@ -2,14 +2,14 @@
 id: "0060"
 title: Restore item spacing; add fixed 17px right inset at screen edge
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/restore-item-spacing-add-fixed-17px-righ
 created_at: "2026-10-12T09:37:42Z"
-updated_at: "2026-10-12T09:37:45Z"
+updated_at: "2026-10-12T10:56:10Z"
 ---
 ## Problem
 #0054 misread the spacing request. It set a large gap (17px) between the right-side items. Maintainer screenshot 2026-10-12 shows the items spread far apart.
@@ -33,3 +33,4 @@ See #0054 diff (git log --grep 0054) and revert only the between-item spacing; k
 - 2026-10-12T09:37:42Z · created · njachowski@gmail.com
 - 2026-10-12T09:37:44Z · status inbox→ready
 - 2026-10-12T09:37:45Z · status ready→active, branch
+- 2026-10-12T10:56:10Z · status active→review
