@@ -30,6 +30,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Reads and toggles the app appearance; reused across all clicks so only
     /// one subscription is held.
     private var appearanceReading: SystemAppearanceReading?
+    /// Owns the read-only Wi-Fi popover anchored to the network item. One
+    /// instance is shared by every display's bar so only one popover is open.
+    private var wifiPopover: WifiPopoverController?
     /// The one quit path. Both the status item menu and the app's main menu
     /// target it, and the Settings window reaches it through the same instance,
     /// so every quit control ends the process the same way. The keep-awake
@@ -68,6 +71,16 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         let icons = WorkspaceIconInventory()
         self.workspaceIcons = icons
 
+        // The read-only Wi-Fi popover is created once and shared across
+        // displays; its scan runs only when the network item is clicked, never
+        // on a timer. Its last row opens the Wi-Fi pane from #0069, and its
+        // permission state opens the Location Services pane.
+        let wifiPopover = WifiPopoverController(
+            scanner: CoreWLANNetworkScanner(),
+            openWifiSettings: { [weak self] in self?.perform(.openSettings(.network)) },
+            openLocationSettings: { [weak self] in self?.perform(.openSettings(.locationServices)) })
+        self.wifiPopover = wifiPopover
+
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
         let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
@@ -80,6 +93,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             workspaceFeed: workspaceFeed,
                                             workspaceIcons: icons,
                                             displayScreensID: screensID,
+                                            wifiPopover: wifiPopover,
                                             onWidgetAction: { action in
                 self?.perform(action)
             })

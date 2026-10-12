@@ -395,6 +395,11 @@ final class BarContentView: NSView, BarContentLifecycle {
     var onActivate: ((WidgetAction) -> Void)?
 
     private let metrics: BarMetrics
+    /// The shared Wi-Fi popover. When present, the network item opens it instead
+    /// of jumping straight to System Settings; the popover's last row opens the
+    /// pane. `nil` in tests and in any surface without a scanner, where the item
+    /// keeps its original settings-pane action.
+    private let wifiPopover: WifiPopoverController?
 
     init(side: BarSide,
          items: [BarItemID],
@@ -409,12 +414,14 @@ final class BarContentView: NSView, BarContentLifecycle {
          metrics: BarMetrics = .default,
          presentationOptions: WidgetPresentationOptions = .default,
          theme: BarTheme = .systemDefault,
+         wifiPopover: WifiPopoverController? = nil,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
         self.metrics = metrics
         self.presentationOptions = presentationOptions
         self.theme = theme
+        self.wifiPopover = wifiPopover
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -443,7 +450,16 @@ final class BarContentView: NSView, BarContentLifecycle {
                 continue
             }
             let view = BarItemView(metrics: metrics, item: id, enablesChipStyle: enablesChipStyle, chipOpacity: chipOpacity)
-            view.onActivate = { [weak self] action in self?.onActivate?(action) }
+            view.onActivate = { [weak self, weak view] action in
+                guard let self else { return }
+                // The network item opens the read-only Wi-Fi popover when one is
+                // configured; the popover's last row reaches the settings pane.
+                if case .openSettings(.network) = action, let view, let wifiPopover = self.wifiPopover {
+                    wifiPopover.present(relativeTo: view)
+                    return
+                }
+                self.onActivate?(action)
+            }
             view.apply(theme: theme)
             itemViews[id] = view
             addSubview(view)
