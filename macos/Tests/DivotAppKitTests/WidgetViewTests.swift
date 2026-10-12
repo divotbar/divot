@@ -416,3 +416,33 @@ private func laidOutContent(side: BarSide,
     #expect(abs(wide.iconToFrontApp - 12) < 0.5)
     #expect(abs(wide.frontAppToNext - 24) < 0.5)
 }
+
+@MainActor
+private final class WidgetSpacingIconProvider: WorkspaceIconProviding {
+    func icon(for bundleID: String, pointSize: CGFloat) -> NSImage? { nil }
+}
+
+@MainActor
+@Test func defaultWorkspaceOrderShowsHalfAfterTheIconAndTwelveBeforeTheFrontApp() {
+    let metrics = BarMetrics.default
+    // The real `DivotConfiguration.defaultLeft` order with a live workspace row,
+    // not a status-item surrogate, so the elastic workspace width is exercised.
+    let content = BarContentView(side: .left,
+                                 items: [.workspaces, .frontApp],
+                                 showsAppIcon: true,
+                                 workspaceFeed: WorkspaceFeed(),
+                                 workspaceIcons: WidgetSpacingIconProvider(),
+                                 metrics: metrics)
+    content.applyInitialState()
+    content.frame = NSRect(x: 0, y: 0, width: 600, height: metrics.height)
+    content.layoutSubtreeIfNeeded()
+
+    let icon = try! #require(content.subviews.compactMap { $0 as? DivotAppIconButton }.first)
+    let workspaceRow = try! #require(content.subviews.compactMap { $0 as? WorkspaceBarView }.first)
+    let frontApp = try! #require(content.subviews.compactMap { $0 as? BarItemView }.first)
+
+    // Divot mark -> workspace row is the half left spacing; the workspace row ->
+    // front app is the fixed 12 pt.
+    #expect(abs(workspaceRow.frame.minX - icon.frame.maxX - 8.5) < 0.5)
+    #expect(abs(frontApp.frame.minX - workspaceRow.frame.maxX - 12) < 0.5)
+}

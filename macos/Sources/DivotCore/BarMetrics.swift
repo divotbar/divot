@@ -127,6 +127,11 @@ public struct BarMetrics: Equatable, Sendable {
     /// Total width a group of items needs, including the gaps between them.
     /// The caller passes the side's spacing so the left and right rhythms are
     /// both measured with the value the renderer draws (#0054).
+    ///
+    /// This assumes one uniform gap. A left group that contains `front-app` has
+    /// one gap at the fixed `frontAppSpacing` instead, so the caller should add
+    /// `frontAppSpacing - spacing` when that item is present for an exact bound;
+    /// the rendered layout (`BarContentView.layout`) accounts for it directly.
     public func groupWidth(_ itemWidths: [CGFloat], spacing: CGFloat) -> CGFloat {
         guard itemWidths.count > 1 else { return itemWidths.first.map { max(0, $0) } ?? 0 }
         let content = itemWidths.reduce(0) { $0 + max(0, $1.isFinite ? $1 : 0) }
@@ -134,7 +139,8 @@ public struct BarMetrics: Equatable, Sendable {
     }
 
     /// True when the group fits inside `available` without shrinking any item,
-    /// which is the condition for "no label must truncate".
+    /// which is the condition for "no label must truncate". Uses the same
+    /// uniform-spacing estimate as `groupWidth`.
     public func fits(_ itemWidths: [CGFloat], available: CGFloat, spacing: CGFloat) -> Bool {
         groupWidth(itemWidths, spacing: spacing) <= available + 0.5
     }
