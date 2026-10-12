@@ -2,14 +2,14 @@
 id: "0050"
 title: Clicking the Appearance bar item crashes Divot (SIGTRAP)
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/clicking-the-appearance-bar-item-crashes
 created_at: "2026-10-12T05:09:55Z"
-updated_at: "2026-10-12T05:09:56Z"
+updated_at: "2026-10-12T05:21:27Z"
 ---
 ## Problem
 
@@ -40,3 +40,4 @@ Scope is Divot's own bar theme only (rescoped in #0037). Do not use AppleScript,
 - 2026-10-12T05:09:55Z · created · njachowski@gmail.com
 - 2026-10-12T05:09:55Z · status inbox→ready
 - 2026-10-12T05:09:56Z · status ready→active, branch
+- 2026-10-12T05:21:27Z · status active→review
