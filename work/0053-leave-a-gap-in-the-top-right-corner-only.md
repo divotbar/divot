@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/leave-a-gap-in-the-top-right-corner-only
 created_at: "2026-10-12T08:20:42Z"
-updated_at: "2026-10-12T08:30:28Z"
+updated_at: "2026-10-12T08:31:35Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -38,9 +38,9 @@ AVFoundation's `isInUseByAnotherApplication` returned false for both the camera 
 Keep the detection in its own type behind a protocol so the tests use a fake source. Do not change the keep-awake cup, which is handled in #0051.
 
 ## Live verification
-Automated coverage: `CaptureInUseTests` drives the on and off transitions with a fake `CaptureAssertionReading` (a `cameracaptured` assertion turns the gap on, removing it turns the gap off), and `BarGeometryTests`/`DisplayLayoutTests` assert the right edge is trimmed only at the top edge.
+Automated coverage: `CaptureInUseTests` drives the on and off transitions with a fake `CaptureAssertionReading` (a `cameracaptured` assertion or a `coreaudiod` microphone-device assertion turns the gap on; removing it turns the gap off; an output-only `coreaudiod` assertion does not). `BarGeometryTests`/`DisplayLayoutTests` assert the right edge is trimmed only at the top edge, and a `DisplayCoordinator` test drives the same transition through the panel placement.
 
-Pending human verification: the packaged-app check during a real call has **not** been performed in this run and no observation is recorded. A person must run the packaged app, start a video call, confirm the top-right corner is clear while macOS draws the privacy dot, end the call, and confirm the bar returns to full width. Record the observed build, date, and result here. The audio side of the detector is conservative (`cameracaptured` or any `coreaudiod` sleep-prevention assertion), so the human should note whether audio playback alone triggers the gap.
+Pending human verification: the packaged-app check during a real call has **not** been performed in this run and no observation is recorded. A person must run the packaged app, start a video call, confirm the top-right corner is clear while macOS draws the privacy dot, end the call, and confirm the bar returns to full width. Record the observed build, date, call app, whether audio-only playback leaves the corner full, and whether the 24 pt reserve looked right. If a real microphone is missed, widen the `coreaudiod` match in `CaptureInUseDetector`.
 
 ## Activity
 
@@ -52,3 +52,4 @@ Pending human verification: the packaged-app check during a real call has **not*
 - 2026-10-12T08:29:49Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-12T08:30:28Z · note: review pass 1: needs some work
 - 2026-10-12T08:30:28Z · status review→active
+- 2026-10-12T08:31:35Z · body: section Live verification
