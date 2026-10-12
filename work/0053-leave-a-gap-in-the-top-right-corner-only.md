@@ -2,14 +2,14 @@
 id: "0053"
 title: Leave a gap in the top-right corner only while the camera or mic is in use
 type: feature
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T08:20:42Z"
-updated_at: "2026-10-12T08:20:42Z"
+updated_at: "2026-10-12T08:20:43Z"
 ---
 ## Problem
 
@@ -38,3 +38,4 @@ Keep the detection in its own type behind a protocol so the tests use a fake sou
 ## Activity
 
 - 2026-10-12T08:20:42Z · created · njachowski@gmail.com
+- 2026-10-12T08:20:43Z · status inbox→ready
