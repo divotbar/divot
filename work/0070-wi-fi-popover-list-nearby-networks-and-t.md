@@ -2,7 +2,7 @@
 id: "0070"
 title: "Wi-Fi popover: list nearby networks and the current one (read-only spike)"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0069"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-12T18:53:13Z"
-updated_at: "2026-10-12T18:53:13Z"
+updated_at: "2026-10-12T18:57:18Z"
 ---
 ## Problem
 Clicking the Wi-Fi item only opens a System Settings pane. The maintainer wants a popup/dropdown of the available Wi-Fi networks.
@@ -35,3 +35,4 @@ Depends on #0069 for the Settings pane URL. Joining networks and password entry 
 ## Activity
 
 - 2026-10-12T18:53:13Z · created · njachowski@gmail.com
+- 2026-10-12T18:57:18Z · status inbox→ready
