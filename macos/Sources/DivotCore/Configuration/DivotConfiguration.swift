@@ -95,14 +95,32 @@ public struct AppearanceConfiguration: Equatable, Sendable {
 public struct LayoutConfiguration: Equatable, Sendable {
     public static let heightRange: ClosedRange<Double> = 24...40
     public static let paddingRange: ClosedRange<Double> = 0...24
+    /// The range the item-spacing sliders offer for both sides.
+    public static let itemSpacingRange: ClosedRange<Double> = 0...32
+    /// The right-group gap 17 pt is the maintainer's chosen default (#0054).
+    public static let defaultRightItemSpacing: Double = 17
+    /// The left group defaults to half the right gap, so it stays tighter
+    /// beside the Divot mark (#0054).
+    public static let defaultLeftItemSpacing: Double = defaultRightItemSpacing / 2
 
     public var height: Double
     public var padding: Double
+    /// Gap between adjacent items in the right group.
+    public var rightItemSpacing: Double
+    /// Gap between adjacent items in the left group. The Divot-icon-to-workspace
+    /// gap follows it; the gap before the front-app item is the fixed
+    /// `BarMetrics.frontAppSpacing` instead, so the front app never moves with
+    /// this setting.
+    public var leftItemSpacing: Double
 
     public init(height: Double = Double(BarMetrics.default.height),
-                padding: Double = Double(BarMetrics.default.rowInset)) {
+                padding: Double = Double(BarMetrics.default.rowInset),
+                rightItemSpacing: Double = LayoutConfiguration.defaultRightItemSpacing,
+                leftItemSpacing: Double = LayoutConfiguration.defaultLeftItemSpacing) {
         self.height = height
         self.padding = padding
+        self.rightItemSpacing = rightItemSpacing
+        self.leftItemSpacing = leftItemSpacing
     }
 
     public static let `default` = LayoutConfiguration()
@@ -635,7 +653,9 @@ public struct DivotConfiguration: Equatable, Sendable {
                           height: CGFloat(layout.height),
                           rowInset: CGFloat(layout.padding),
                           fontFamily: text.fontFamily,
-                          appIconSize: CGFloat(appIconSize))
+                          appIconSize: CGFloat(appIconSize),
+                          rightItemSpacing: CGFloat(layout.rightItemSpacing),
+                          leftItemSpacing: CGFloat(layout.leftItemSpacing))
     }
 
     // MARK: Editing

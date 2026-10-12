@@ -16,8 +16,12 @@ public struct BarMetrics: Equatable, Sendable {
     /// This is the one place the default height is set; `layout.height` in the
     /// configuration document still overrides it.
     public var height: CGFloat
-    /// Gap between adjacent items in one group.
-    public var itemSpacing: CGFloat
+    /// Gap between adjacent items in the right group.
+    public var rightItemSpacing: CGFloat
+    /// Gap between adjacent items in the left group. Defaults to half of
+    /// `rightItemSpacing`, so the left rhythm stays tighter than the right
+    /// (#0054).
+    public var leftItemSpacing: CGFloat
     /// Leading/trailing inset of each group inside its panel, so content never
     /// runs edge-to-edge and the left/right groups keep consistent spacing.
     public var rowInset: CGFloat
@@ -41,7 +45,8 @@ public struct BarMetrics: Equatable, Sendable {
     public var fontFamily: String?
 
     public init(height: CGFloat = 32,
-                itemSpacing: CGFloat = 8,
+                rightItemSpacing: CGFloat = 17,
+                leftItemSpacing: CGFloat = 8.5,
                 rowInset: CGFloat = 6,
                 iconSize: CGFloat = 16,
                 appIconSize: CGFloat = 16,
@@ -51,7 +56,8 @@ public struct BarMetrics: Equatable, Sendable {
                 chipSpacing: CGFloat = 6,
                 fontFamily: String? = nil) {
         self.height = height
-        self.itemSpacing = itemSpacing
+        self.rightItemSpacing = rightItemSpacing
+        self.leftItemSpacing = leftItemSpacing
         self.rowInset = rowInset
         self.iconSize = iconSize
         self.appIconSize = appIconSize
@@ -73,6 +79,11 @@ public struct BarMetrics: Equatable, Sendable {
     /// two match (#0052).
     public static let chipPadding: CGFloat = 4
 
+    /// The gap on the leading side of the front-app item. It is fixed so the
+    /// front app keeps its own rhythm beside the Divot mark and never follows
+    /// the side-spacing sliders (#0054).
+    public static let frontAppSpacing: CGFloat = 12
+
     /// Derive the whole render rhythm from a configured text size.
     ///
     /// Icon and chip sizes are expressed relative to the text so the row stays
@@ -83,7 +94,9 @@ public struct BarMetrics: Equatable, Sendable {
                               height: CGFloat = BarMetrics.default.height,
                               rowInset: CGFloat = BarMetrics.default.rowInset,
                               fontFamily: String? = nil,
-                              appIconSize: CGFloat? = nil) -> BarMetrics {
+                              appIconSize: CGFloat? = nil,
+                              rightItemSpacing: CGFloat = BarMetrics.default.rightItemSpacing,
+                              leftItemSpacing: CGFloat = BarMetrics.default.leftItemSpacing) -> BarMetrics {
         let size = (textSize.isFinite ? textSize : defaultTextSize).rounded()
         let clamped = max(1, size)
         // The app icon defaults to the status icon size so the left app icons
@@ -91,6 +104,8 @@ public struct BarMetrics: Equatable, Sendable {
         // (#0052). A non-finite override falls back to that default.
         let requestedAppIcon = appIconSize.map { $0.isFinite ? $0 : clamped + 2 } ?? (clamped + 2)
         return BarMetrics(height: height,
+                          rightItemSpacing: rightItemSpacing,
+                          leftItemSpacing: leftItemSpacing,
                           rowInset: rowInset,
                           iconSize: clamped + 2,
                           appIconSize: max(1, requestedAppIcon.rounded()),
@@ -110,15 +125,17 @@ public struct BarMetrics: Equatable, Sendable {
     }
 
     /// Total width a group of items needs, including the gaps between them.
-    public func groupWidth(_ itemWidths: [CGFloat]) -> CGFloat {
+    /// The caller passes the side's spacing so the left and right rhythms are
+    /// both measured with the value the renderer draws (#0054).
+    public func groupWidth(_ itemWidths: [CGFloat], spacing: CGFloat) -> CGFloat {
         guard itemWidths.count > 1 else { return itemWidths.first.map { max(0, $0) } ?? 0 }
         let content = itemWidths.reduce(0) { $0 + max(0, $1.isFinite ? $1 : 0) }
-        return content + itemSpacing * CGFloat(itemWidths.count - 1)
+        return content + spacing * CGFloat(itemWidths.count - 1)
     }
 
     /// True when the group fits inside `available` without shrinking any item,
     /// which is the condition for "no label must truncate".
-    public func fits(_ itemWidths: [CGFloat], available: CGFloat) -> Bool {
-        groupWidth(itemWidths) <= available + 0.5
+    public func fits(_ itemWidths: [CGFloat], available: CGFloat, spacing: CGFloat) -> Bool {
+        groupWidth(itemWidths, spacing: spacing) <= available + 0.5
     }
 }

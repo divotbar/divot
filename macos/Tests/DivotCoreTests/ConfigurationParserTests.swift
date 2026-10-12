@@ -233,6 +233,37 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     #expect(failure?.message == "expected 24–40")
 }
 
+@Test func itemSpacingDefaultsToSeventeenAndHalfAndParsesExplicitly() throws {
+    // A document written before #0054 omits both keys; the parser keeps the
+    // maintainer's defaults instead of rejecting it.
+    let omitted = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["clock"],"right":[]}"##)
+    let defaults = try ConfigurationParser.parse(jsonObject: omitted).configuration
+    #expect(defaults.layout.rightItemSpacing == 17)
+    #expect(defaults.layout.leftItemSpacing == 8.5)
+    #expect(defaults.barMetrics.rightItemSpacing == 17)
+    #expect(defaults.barMetrics.leftItemSpacing == 8.5)
+
+    // Explicit values are honored and reach the render metrics.
+    let explicit = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"rightItemSpacing":20,"leftItemSpacing":9},"left":["clock"],"right":[]}"##)
+    let configured = try ConfigurationParser.parse(jsonObject: explicit).configuration
+    #expect(configured.layout.rightItemSpacing == 20)
+    #expect(configured.layout.leftItemSpacing == 9)
+    #expect(configured.barMetrics.rightItemSpacing == 20)
+    #expect(configured.barMetrics.leftItemSpacing == 9)
+
+    // Round-trip through the canonical JSON.
+    let encoded = try JSONSerialization.data(withJSONObject: configured.jsonObject,
+                                             options: [.sortedKeys])
+    #expect(try ConfigurationParser.parse(encoded).configuration == configured)
+}
+
+@Test func outOfRangeItemSpacingIsRejected() throws {
+    let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12,"rightItemSpacing":99},"left":["clock"],"right":[]}"##)
+    let failure = error { try ConfigurationParser.parse(jsonObject: value) }
+    #expect(failure?.path == "layout.rightItemSpacing")
+    #expect(failure?.message == "expected 0–32")
+}
+
 @Test func duplicateItemAcrossGroupsIsRejected() throws {
     let value = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["time"],"right":["time"]}"##)
     let failure = error { try ConfigurationParser.parse(jsonObject: value) }

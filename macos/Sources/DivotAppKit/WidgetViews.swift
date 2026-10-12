@@ -382,14 +382,31 @@ final class BarContentView: NSView, BarContentLifecycle {
         // width and the gap count before the workspace row takes the remainder.
         let appIconWidth = appIconButton?.intrinsicContentSize.width ?? 0
         var fixedTotal: CGFloat = appIconWidth
-        var fixedCount = appIconButton == nil ? 0 : 1
         for id in items where itemViews[id] != nil {
             fixedTotal += itemViews[id]?.intrinsicContentSize.width ?? 0
-            fixedCount += 1
         }
         let workspaceCount = items.filter { workspaceViews[$0] != nil }.count
-        let totalCount = fixedCount + workspaceCount
-        let spacingTotal = totalCount > 1 ? metrics.itemSpacing * CGFloat(totalCount - 1) : 0
+
+        // Item spacing (#0054): the right group is evenly spaced at
+        // `rightItemSpacing`; the left group uses `leftItemSpacing` (half the
+        // right by default). On the left, the gap immediately before the
+        // front-app item is a fixed `frontAppSpacing`, so the front app keeps
+        // 12 pt beside the Divot mark no matter what the side sliders are set
+        // to. The same rule gives the Divot-mark-to-first-item gap the left
+        // value when that item is the workspaces (or any other item), which is
+        // the maintainer's default.
+        let sideSpacing = side == .left ? metrics.leftItemSpacing : metrics.rightItemSpacing
+        func gap(before next: BarItemID?) -> CGFloat {
+            side == .left && next == .frontApp ? BarMetrics.frontAppSpacing : sideSpacing
+        }
+        // Every slot the row lays out, in draw order, with the app mark (if any)
+        // represented by `nil` because it precedes the configured items.
+        var slots: [BarItemID?] = appIconButton == nil ? [] : [nil]
+        slots.append(contentsOf: items.map { Optional($0) })
+        var spacingTotal: CGFloat = 0
+        if slots.count > 1 {
+            for index in 1..<slots.count { spacingTotal += gap(before: slots[index]) }
+        }
         // The workspace row is elastic: it takes the width the fixed items leave.
         let elasticWidth = workspaceCount > 0 ? max(0, usableWidth - fixedTotal - spacingTotal) : 0
         let perWorkspace = workspaceCount > 0 ? elasticWidth / CGFloat(workspaceCount) : 0
@@ -401,19 +418,21 @@ final class BarContentView: NSView, BarContentLifecycle {
             let width = appIconButton.intrinsicContentSize.width
             let height = min(bounds.height, appIconButton.intrinsicContentSize.height)
             appIconButton.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
-            x += width + metrics.itemSpacing
+            x += width
+            if let first = items.first { x += gap(before: first) }
         }
-        for id in items {
+        for (index, id) in items.enumerated() {
             if let workspace = workspaceViews[id] {
                 workspace.frame = CGRect(x: x, y: 0, width: perWorkspace, height: bounds.height)
-                x += perWorkspace + metrics.itemSpacing
-                continue
+                x += perWorkspace
+            } else {
+                guard let view = itemViews[id] else { continue }
+                let width = view.intrinsicContentSize.width
+                let height = min(bounds.height, view.intrinsicContentSize.height)
+                view.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
+                x += width
             }
-            guard let view = itemViews[id] else { continue }
-            let width = view.intrinsicContentSize.width
-            let height = min(bounds.height, view.intrinsicContentSize.height)
-            view.frame = CGRect(x: x, y: (bounds.height - height) / 2, width: width, height: height)
-            x += width + metrics.itemSpacing
+            if index + 1 < items.count { x += gap(before: items[index + 1]) }
         }
     }
 
