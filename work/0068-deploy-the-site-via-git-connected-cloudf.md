@@ -2,7 +2,7 @@
 id: "0068"
 title: "Deploy the site via git-connected Cloudflare Workers (main dev, prod production) and enable the Deployments page"
 type: chore
-status: ready
+status: active
 priority: p1
 area: [infra, web]
 depends_on: ["0067"]
@@ -41,3 +41,4 @@ Reference ~/code/nick/repoos/landing/README.md 'Deploy (Cloudflare)' and docs/de
 - 2026-10-12T18:21:32Z · status ready→active
 - 2026-10-12T18:47:41Z · watchdog: auto-surfaced stuck task · status active→ready · agent never started — no session exists for this task · next step: resume the session manually from the task's worktree and check for uncommitted work
 - 2026-10-12T18:47:55Z · cli_override, model_override
+- 2026-10-12T18:47:55Z · status ready→active
