@@ -1,0 +1,35 @@
+---
+id: "0092"
+title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
+type: bug
+status: inbox
+priority: p2
+area: macos
+assigned_to: ""
+created_by: njachowski@gmail.com
+branch: ""
+created_at: "2026-10-13T16:56:56Z"
+updated_at: "2026-10-13T16:56:56Z"
+---
+## Problem
+#0089 fixed the layer key but main's divot-notification-banner-probe --watch (DivotNotificationBannerProbe/main.swift, watchForNotificationWindows) still only reports windows whose owner name contains the exact, case-sensitive text 'NotificationCenter'. The maintainer ran it twice (2026-10-13 23:28 and 23:53) with real system overlays on screen (the Control Center panel was opened during the second run) and it printed only 'No NotificationCenter windows observed'. It also prints 'Divot panel layer for comparison: 23', computed from NSWindow.Level.mainMenu.rawValue - 1, not measured from Divot's real panel. The maintainer's Mac currently has Do Not Disturb on, so test notifications never appear; the Control Center panel is the reliable reference overlay.
+
+## Desired UX
+- --watch [seconds] polls CGWindowListCopyWindowInfo twice a second and prints EVERY window that newly appears or whose bounds/layer change between polls, whatever its owner: timestamp, owner name, owner PID, window name, layer, CG bounds and AppKit-flipped bounds (clearly labelled), alpha and whether it is on screen.
+- It flags NotificationCenter banners (owner contains NotificationCenter or Notification Center, case-insensitive, or the process whose bundle id is com.apple.notificationcenterui) and ControlCenter windows (com.apple.controlcenter) explicitly so they are easy to find in the output.
+- Divot's real layer is MEASURED: find the Divot bar panel windows in the same list (owner Divot, bounds at the top edge) and print their actual layer and bounds next to every new window, plus a one-line comparison ('Control Center panel layer 101 is above Divot panel layer 24', and so on).
+- A final summary lists the highest-layer windows seen and says plainly when nothing new appeared.
+
+## Acceptance criteria
+- Pure functions for owner matching and for diffing two window lists, unit tested with sample dictionaries (new window, bounds change, layer change, banner owner variants, ControlCenter owner, windows without a name).
+- The watch loop uses the shared parsing (kCGWindowLayer, bounds dictionary parsing) and prints the Divot panel's measured layer, or says that no Divot window was found.
+- Update docs/evidence/0075-notification-banner-overlap.md and docs/troubleshooting.md with the exact command and the Control Center reference method, and note that Focus/Do Not Disturb suppresses banners.
+- No private APIs. swift build, swift test --package-path macos and repoos check --changed main pass.
+- Do not claim banner measurements: the maintainer runs the probe (task #0080).
+
+## Notes for AI
+Related: #0075, #0080, #0089. Do not kill processes by name.
+
+## Activity
+
+- 2026-10-13T16:56:56Z · created · njachowski@gmail.com
