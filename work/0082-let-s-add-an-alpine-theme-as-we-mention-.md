@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-13T09:41:07.861Z: repoos check failed: ◆ Check plan"
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
@@ -71,3 +73,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T09:20:12Z · status active→review
 - 2026-10-13T09:22:30Z · note: review pass 1: needs some work
 - 2026-10-13T09:22:30Z · status review→active
+
