@@ -2,9 +2,9 @@
 
 ## Overview
 
-`PopoverSnapshotTests` renders Divot's bar and popovers offscreen to PNG files for visual review and pixel-level assertions. The tests run headlessly without requiring a display; on systems without a frame buffer (e.g., CI), they print a clear message and pass without rendering.
+`PopoverSnapshotTests` renders Divot's popovers offscreen to PNG files for visual review and pixel-level assertions. The tests skip gracefully when offscreen rendering is unavailable (no display), printing a clear message for each skipped test.
 
-**Important:** Rendered snapshots are local evidence only — they are stored in the gitignored `macos/.build/snapshots/` directory and are not tracked in git. Snapshots are not reproduced across machines or macOS versions; they serve as a checkpoint for the developer who runs them locally.
+**Important:** Rendered snapshots are local evidence only — they are stored in the gitignored `macos/.build/snapshots/` directory and are not tracked in git. Snapshots are not reproduced across machines or macOS versions; they serve as a checkpoint for the developer who runs them locally. Real headless rendering to PNG is not guaranteed on all systems and is not enforced in CI.
 
 ## What gets rendered
 
@@ -20,9 +20,6 @@ Each popover is rendered at:
 - Default text size (12pt) and one larger size (16pt)
 
 This produces 60 popover snapshots (3 popovers × 5 families × 2 variants × 2 sizes).
-
-### Bar rendering
-The workspace bar (`WorkspaceBarView`) requires complex state setup involving `WorkspaceFeed` and `WorkspaceAdapting`. Bar snapshot rendering is deferred to future work; the assertion framework is ready for it when the integration is completed.
 
 ## Running the tests
 
@@ -44,7 +41,7 @@ When snapshots render successfully, each test suite verifies ALL of the followin
 
 3. **Text contrast** (`assertTextContrast`): Locates non-background (text) pixels in header and content regions, then verifies that at least one text pixel meets the WCAG AA threshold (4.5:1 contrast ratio) against the sampled background color. Uses `ContrastAudit.ratio()` and the palette colors.
 
-4. **Left alignment** (`assertLeftAlignment`): Scans multiple rows in the middle content region and verifies that the first non-background pixel column (content start) lies within ±5 pixels of the expected 12pt leading inset from the popover edge.
+4. **Left alignment** (`assertLeftAlignment`): Scans multiple rows in the middle content region and verifies that the first non-background pixel column (content start) lies within a tolerance of the expected 12pt leading inset. The tolerance scales proportionally with bitmap width (4.4% of width) to account for both 1x and 2x displays, ensuring the assertion passes correctly regardless of pixel density.
 
 5. **No clipping** (`assertNoClipping`): Samples pixels at the four edges (left, right, top, bottom) and verifies that no content-like pixels appear in the outermost 4px margin (indicates content is clipped or extends beyond the frame).
 
