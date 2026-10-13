@@ -40,12 +40,19 @@ public final class CalendarPopoverController {
         self.content = controller
         render()
 
+        // Focus the first day button for keyboard navigation
+        if !controller.dayButtons.isEmpty && !controller.dayButtons[0].isEmpty {
+            controller.view.window?.makeFirstResponder(controller.dayButtons[0][0])
+        }
+
         let observer = NotificationCenter.default.addObserver(
             forName: NSNotification.Name.NSCalendarDayChanged,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.render()
+            MainActor.assumeIsolated {
+                self?.render()
+            }
         }
         dayChangeObserver = observer
     }
@@ -106,6 +113,7 @@ final class CalendarPopoverContentController: BarPopoverContentController {
     private let weekdayStack = NSStackView()
     private var dayGridView: NSView?
     private var currentLayout: CalendarMonthLayout?
+    var dayButtons: [[NSButton]] = []
 
     override func loadView() {
         super.loadView()
@@ -200,8 +208,10 @@ final class CalendarPopoverContentController: BarPopoverContentController {
 
         var x: CGFloat = 0
         var y: CGFloat = 0
+        dayButtons = []
 
         for (weekIdx, week) in layout.weeks.enumerated() {
+            var weekButtons: [NSButton] = []
             for (dayIdx, calDay) in week.enumerated() {
                 let button = NSButton(title: "\(calDay.day)", target: self, action: nil)
                 button.isBordered = false
@@ -217,10 +227,14 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                 let accessibilityLabel = isToday ? "\(dayLabel), today" : dayLabel
                 button.setAccessibilityLabel(accessibilityLabel)
 
+                button.font = .systemFont(ofSize: 11)
+                button.setButtonType(.momentaryPushIn)
+
                 if isToday {
                     button.contentTintColor = theme.accent
-                    button.bezelColor = theme.accent
                     button.font = .systemFont(ofSize: 11, weight: .semibold)
+                } else {
+                    button.contentTintColor = theme.popoverPalette.label
                 }
 
                 if !calDay.isCurrentMonth {
@@ -228,6 +242,7 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                 }
 
                 gridView.addSubview(button)
+                weekButtons.append(button)
 
                 x = CGFloat(dayIdx) * (cellWidth + spacing)
                 y = CGFloat(weekIdx) * (cellHeight + spacing)
@@ -239,6 +254,7 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                     button.heightAnchor.constraint(equalToConstant: cellHeight)
                 ])
             }
+            dayButtons.append(weekButtons)
         }
 
         let gridWidth = CGFloat(7) * cellWidth + CGFloat(6) * spacing
@@ -276,5 +292,58 @@ final class CalendarPopoverContentController: BarPopoverContentController {
 
     @objc private func openDateTimeSettings() {
         onOpenDateTimeSettings?()
+    }
+
+    override func keyDown(with event: NSEvent) {
+        guard !dayButtons.isEmpty else {
+            super.keyDown(with: event)
+            return
+        }
+
+        if let firstResponder = view.window?.firstResponder as? NSButton,
+           let (row, col) = findButtonPosition(firstResponder) {
+            let dayCount = dayButtons.count
+            let colCount = dayButtons[0].count
+
+            switch event.keyCode {
+            case 123: // Left arrow
+                let newCol = col > 0 ? col - 1 : colCount - 1
+                let newRow = col > 0 ? row : (row > 0 ? row - 1 : dayCount - 1)
+                if newRow >= 0 && newRow < dayCount && newCol >= 0 && newCol < colCount {
+                    view.window?.makeFirstResponder(dayButtons[newRow][newCol])
+                }
+            case 124: // Right arrow
+                let newCol = col < colCount - 1 ? col + 1 : 0
+                let newRow = col < colCount - 1 ? row : (row < dayCount - 1 ? row + 1 : 0)
+                if newRow >= 0 && newRow < dayCount && newCol >= 0 && newCol < colCount {
+                    view.window?.makeFirstResponder(dayButtons[newRow][newCol])
+                }
+            case 125: // Down arrow
+                let newRow = row < dayCount - 1 ? row + 1 : 0
+                if newRow >= 0 && newRow < dayCount && col >= 0 && col < colCount {
+                    view.window?.makeFirstResponder(dayButtons[newRow][col])
+                }
+            case 126: // Up arrow
+                let newRow = row > 0 ? row - 1 : dayCount - 1
+                if newRow >= 0 && newRow < dayCount && col >= 0 && col < colCount {
+                    view.window?.makeFirstResponder(dayButtons[newRow][col])
+                }
+            default:
+                super.keyDown(with: event)
+            }
+        } else {
+            super.keyDown(with: event)
+        }
+    }
+
+    private func findButtonPosition(_ button: NSButton) -> (row: Int, col: Int)? {
+        for (rowIdx, row) in dayButtons.enumerated() {
+            for (colIdx, btn) in row.enumerated() {
+                if btn === button {
+                    return (rowIdx, colIdx)
+                }
+            }
+        }
+        return nil
     }
 }
