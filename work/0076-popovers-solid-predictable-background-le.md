@@ -2,7 +2,7 @@
 id: "0076"
 title: "Popovers: solid predictable background, left-aligned layout, vertical theme list"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
@@ -58,3 +58,5 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T06:06:03Z · note: review pass 3: needs some work
 - 2026-10-13T06:06:03Z · needs_input
 - 2026-10-13T06:11:11Z · needs_input
+- 2026-10-13T06:11:11Z · status review→active
+- 2026-10-13T06:11:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
