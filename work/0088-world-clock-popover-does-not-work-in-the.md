@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T19:21:44Z"
+updated_at: "2026-10-13T19:24:50Z"
 close_out_repair_count: 1
 review_passes: 8
 review_rounds: 2
@@ -75,7 +75,7 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 "label": "Empty state (0 zones): header + hint, Add row and settings link",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "zero-timezones"
+"DIVOT_SNAPSHOT_ONLY": "zero-timezones"
 },
 "glob": "*worldclock*zero-timezones*"
 },
@@ -83,7 +83,7 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 "label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "default-defaults"
+"DIVOT_SNAPSHOT_ONLY": "default-defaults"
 },
 "glob": "*worldclock*default-defaults*"
 },
@@ -91,7 +91,7 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 "label": "One zone: a single added zone row (Tokyo)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "one-zone"
+"DIVOT_SNAPSHOT_ONLY": "one-zone"
 },
 "glob": "*worldclock*one-zone*"
 },
@@ -99,7 +99,7 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 "label": "Four zones with Yesterday/Tomorrow day labels across the date line",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "day-label"
+"DIVOT_SNAPSHOT_ONLY": "day-label"
 },
 "glob": "*worldclock*day-label*"
 },
@@ -107,7 +107,7 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 "label": "Add flow: 'los' typed, results list visible (San Francisco)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "add-flow"
+"DIVOT_SNAPSHOT_ONLY": "add-flow"
 },
 "glob": "*worldclock*add-flow*"
 }
@@ -243,3 +243,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-13T19:17:06Z · note: close-out repair: merge-conflict
 - 2026-10-13T19:19:38Z · body: section Shots
 - 2026-10-13T19:21:44Z · body: section Shot descriptions
+- 2026-10-13T19:24:50Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
