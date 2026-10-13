@@ -126,7 +126,10 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         // their current times and offsets from local time.
         let worldClockPopover = WorldClockPopoverController(
             openDateTimeSettings: { [weak self] in self?.perform(.openSettings(.dateTime)) },
-            getConfiguration: { [weak controller] in controller?.configuration ?? .default })
+            getConfiguration: { [weak controller] in controller?.configuration ?? .default },
+            updateTimezones: { [weak controller] timezones in
+                controller?.update { $0.widgets.time.timezones = timezones }
+            })
         self.worldClockPopover = worldClockPopover
 
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),

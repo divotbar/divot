@@ -29,6 +29,9 @@ public final class WorldClockPopoverController {
         let controller = WorldClockPopoverContentController()
         controller.theme = theme
         controller.onOpenDateTimeSettings = { [weak self] in self?.openDateTimeSettings() }
+        controller.onUpdateTimezones = { [weak self] timezones in
+            self?.updateTimezones(timezones)
+        }
 
         host.present(controller, relativeTo: view)
         self.content = controller
@@ -43,7 +46,9 @@ public final class WorldClockPopoverController {
 
     private func startRefreshTimer() {
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.refreshContent()
+            DispatchQueue.main.async {
+                self?.refreshContent()
+            }
         }
     }
 
@@ -95,10 +100,13 @@ public final class WorldClockPopoverController {
 @MainActor
 final class WorldClockPopoverContentController: BarPopoverContentController {
     var onOpenDateTimeSettings: @MainActor () -> Void = {}
+    var onUpdateTimezones: (([String]) -> Void)? = nil
+
+    private var currentTimezones: [String] = []
+    private var searchField: NSSearchField?
 
     override func loadView() {
         super.loadView()
-        stack.addArrangedSubview(separator())
 
         let settingsButton = NSButton()
         settingsButton.setButtonType(.momentaryPushIn)
@@ -108,11 +116,14 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         settingsButton.bezelStyle = .recessed
         settingsButton.target = self
         settingsButton.action = #selector(openDateTimeSettings)
+
+        stack.addArrangedSubview(separator())
         stack.addArrangedSubview(settingsButton)
     }
 
     func render(timezones: [String], timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) {
         clearRows()
+        self.currentTimezones = timezones
 
         let now = Date()
         let entries = WorldClock.entries(for: timezones)
@@ -133,7 +144,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             stack.addArrangedSubview(separator())
         }
 
-        for entry in entries {
+        for (index, entry) in entries.enumerated() {
             let container = NSView()
             container.translatesAutoresizingMaskIntoConstraints = false
 
@@ -153,23 +164,103 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             info.identifier = Self.secondaryIdentifier
             info.translatesAutoresizingMaskIntoConstraints = false
 
-            let stack = NSStackView(views: [label, info])
-            stack.orientation = .vertical
-            stack.spacing = 2
-            stack.alignment = .leading
-            stack.translatesAutoresizingMaskIntoConstraints = false
+            let removeButton = NSButton()
+            removeButton.setButtonType(.momentaryPushIn)
+            removeButton.image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: "Remove \(entry.displayName)")
+            removeButton.bezelStyle = .circular
+            removeButton.font = .systemFont(ofSize: 11)
+            removeButton.translatesAutoresizingMaskIntoConstraints = false
+            removeButton.tag = index
+            removeButton.target = self
+            removeButton.action = #selector(removeTimezone(_:))
 
-            self.stack.addArrangedSubview(stack)
+            let textStack = NSStackView(views: [label, info])
+            textStack.orientation = .vertical
+            textStack.spacing = 2
+            textStack.alignment = .leading
+            textStack.translatesAutoresizingMaskIntoConstraints = false
+
+            let rowStack = NSStackView(views: [textStack, removeButton])
+            rowStack.orientation = .horizontal
+            rowStack.spacing = 8
+            rowStack.alignment = .centerY
+            rowStack.translatesAutoresizingMaskIntoConstraints = false
+            rowStack.distribution = .fill
+
+            self.stack.addArrangedSubview(rowStack)
         }
 
-        if entries.isEmpty {
-            let noTimezones = NSTextField(labelWithString: "No additional timezones added")
-            noTimezones.font = .systemFont(ofSize: 11)
-            noTimezones.textColor = theme.popoverPalette.secondary
-            noTimezones.identifier = Self.secondaryIdentifier
-            stack.addArrangedSubview(noTimezones)
+        if !entries.isEmpty {
             stack.addArrangedSubview(separator())
         }
+
+        let addContainer = NSView()
+        addContainer.translatesAutoresizingMaskIntoConstraints = false
+
+        let addLabel = NSTextField(labelWithString: "Add timezone…")
+        addLabel.font = .systemFont(ofSize: 12)
+        addLabel.textColor = theme.popoverPalette.label
+        addLabel.identifier = Self.headerIdentifier
+        addLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let search = NSSearchField()
+        search.placeholderString = "Search (e.g., Tokyo, Asia/Tokyo)"
+        search.font = .systemFont(ofSize: 11)
+        search.translatesAutoresizingMaskIntoConstraints = false
+        search.target = self
+        search.action = #selector(searchTimezones(_:))
+        search.searchMenuTemplate = makeTimezoneMenu()
+        self.searchField = search
+
+        let addStack = NSStackView(views: [addLabel])
+        addStack.orientation = .vertical
+        addStack.spacing = 4
+        addStack.alignment = .leading
+        addStack.translatesAutoresizingMaskIntoConstraints = false
+
+        addStack.addArrangedSubview(search)
+        self.stack.addArrangedSubview(addStack)
+    }
+
+    @objc private func removeTimezone(_ sender: NSButton) {
+        let index = sender.tag
+        guard index >= 0 && index < currentTimezones.count else { return }
+        var updated = currentTimezones
+        updated.remove(at: index)
+        currentTimezones = updated
+        onUpdateTimezones?(updated)
+    }
+
+    @objc private func searchTimezones(_ sender: NSSearchField) {
+        let query = sender.stringValue.lowercased()
+        guard !query.isEmpty else { return }
+
+        let allIds = TimeZone.knownTimeZoneIdentifiers
+        let matches = allIds.filter { id in
+            let parts = id.lowercased().components(separatedBy: "/")
+            return parts.contains { $0.contains(query) } || id.lowercased().contains(query)
+        }
+
+        if !matches.isEmpty {
+            let selected = matches[0]
+            if !currentTimezones.contains(selected) {
+                var updated = currentTimezones
+                updated.append(selected)
+                currentTimezones = updated
+                onUpdateTimezones?(updated)
+                sender.stringValue = ""
+            }
+        }
+    }
+
+    private func makeTimezoneMenu() -> NSMenu {
+        let menu = NSMenu()
+        let allIds = TimeZone.knownTimeZoneIdentifiers.prefix(20)
+        for id in allIds {
+            let item = NSMenuItem(title: id, action: nil, keyEquivalent: "")
+            menu.addItem(item)
+        }
+        return menu
     }
 
     private func formatLocalTime(_ date: Date, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {

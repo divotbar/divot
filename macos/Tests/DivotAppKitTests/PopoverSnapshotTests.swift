@@ -377,6 +377,31 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    private func makeWorldClockController(timezoneCount: Int, fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = WorldClockPopoverContentController()
+        _ = controller.view
+
+        let timezones: [String]
+        switch timezoneCount {
+        case 0:
+            timezones = []
+        case 1:
+            timezones = ["America/Los_Angeles"]
+        case 2:
+            timezones = ["America/Los_Angeles", "Asia/Tokyo"]
+        case 4:
+            timezones = ["America/Los_Angeles", "Asia/Tokyo", "Europe/London", "Asia/Kolkata"]
+        default:
+            timezones = []
+        }
+
+        controller.render(timezones: timezones,
+                         timeFormat: .ampm,
+                         showSeconds: false,
+                         customPattern: nil)
+        return controller
+    }
+
     /// Apply a larger font size to all text fields in a view.
     private func applyFontSize(_ size: CGFloat, to view: NSView) {
         let scale = size / 12.0
@@ -539,6 +564,54 @@ struct PopoverSnapshotTests {
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "appearance-popover-\(familyName)-\(variantName)-large"
                 try testPopover(name: name, maker: makeAppearancePopoverController, appearance: appearance, isDark: isDark, fontSize: 16)
+            }
+        }
+    }
+
+    @Test("World clock popover — zero timezones, all themes × light/dark")
+    func worldClockPopoverZeroTimezones() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "world-clock-popover-\(familyName)-\(variantName)-zero-timezones"
+                try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 0, fontSize: $0) },
+                               appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("World clock popover — two timezones, all themes × light/dark")
+    func worldClockPopoverTwoTimezones() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "world-clock-popover-\(familyName)-\(variantName)-two-timezones"
+                try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 2, fontSize: $0) },
+                               appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("World clock popover — four timezones, all themes × light/dark")
+    func worldClockPopoverFourTimezones() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "world-clock-popover-\(familyName)-\(variantName)-four-timezones"
+                try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 4, fontSize: $0) },
+                               appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }

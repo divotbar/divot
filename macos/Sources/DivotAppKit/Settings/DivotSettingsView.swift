@@ -293,6 +293,41 @@ public struct DivotSettingsView: View {
                             .foregroundStyle(.red)
                     }
                 }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("World Clock Timezones")
+                        .font(.headline)
+
+                    if model.configuration.widgets.time.timezones.isEmpty {
+                        Text("No timezones added. Click the time chip to add timezones.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ForEach(model.configuration.widgets.time.timezones, id: \.self) { tz in
+                            HStack {
+                                Text(tz.components(separatedBy: "/").last ?? tz)
+                                    .font(.caption)
+                                Spacer()
+                                Button(action: {
+                                    var updated = model.configuration.widgets.time.timezones
+                                    if let index = updated.firstIndex(of: tz) {
+                                        updated.remove(at: index)
+                                        model.updateWorldClockTimezones(updated)
+                                    }
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    Text("Manage timezones from the world clock popover in the menu bar.")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(.vertical, 4)
             }
         }
     }
