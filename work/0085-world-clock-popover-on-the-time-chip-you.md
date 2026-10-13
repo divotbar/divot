@@ -1,22 +1,20 @@
 ---
-last_close_out_gate_ms: 79097
-last_close_out_gate_at: "2026-10-13T16:15:02.256Z"
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p2
 area: macos
+merged_commit: 2f6cbbeffb59eca2ea3757fd941b1b05423fca5d
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T16:15:02Z"
+updated_at: "2026-10-13T16:15:05Z"
+last_close_out_gate_ms: 79097
+last_close_out_gate_at: "2026-10-13T16:15:02.256Z"
 review_passes: 6
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
@@ -135,4 +133,4 @@ What the offscreen shots do **not** prove: they render the content view over the
 - 2026-10-13T15:57:56Z · note: review pass 6: needs some work
 - 2026-10-13T15:57:56Z · needs_input
 - 2026-10-13T16:15:02Z · close-out gate completed in 79s
-
+- 2026-10-13T16:15:05Z · status review→done, release:success
