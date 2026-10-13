@@ -11,6 +11,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:04Z"
 updated_at: "2026-10-13T02:01:13Z"
 ---
@@ -40,3 +42,4 @@ Look at how the volume provider reads volume today and how #0070 built its popov
 - 2026-10-13T02:01:09Z · body: section Acceptance criteria
 - 2026-10-13T02:01:10Z · body: section Notes for AI
 - 2026-10-13T02:01:13Z · status inbox→ready
+- 2026-10-13T02:01:13Z · cli_override, model_override
