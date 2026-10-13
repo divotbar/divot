@@ -2,14 +2,14 @@
 id: "0074"
 title: "Charging indicator must be a real green, independent of theme"
 type: bug
-status: inbox
+status: ready
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T03:53:48Z"
+updated_at: "2026-10-13T03:53:51Z"
 ---
 ## Problem
 #0058 drew the charging bolt in 'the theme's accent set'. On themes whose accent is not green (maintainer screenshot 2026-10-13, Dracula: the bolt is purple/blue) charging is not obvious. The maintainer wants it unmistakable.
@@ -31,3 +31,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 ## Activity
 
 - 2026-10-13T03:53:48Z · created · njachowski@gmail.com
+- 2026-10-13T03:53:51Z · status inbox→ready
