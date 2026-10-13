@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T10:42:00Z"
-review_passes: 4
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
@@ -18,6 +16,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
+updated_at: "2026-10-13T10:43:50Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -38,12 +38,13 @@ Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popove
 
 ## Acceptance criteria
 - A written survey in the task (every popover, the rules, what was inconsistent).
-- The root cause of the remaining translucency is found and fixed. NSPopover's own chrome applies a vibrant material that a painted content layer does not remove: either disable it for real (and prove it) or replace NSPopover with a custom borderless panel that Divot draws itself with a solid fill, border, shadow and arrow, shared by all popovers. State which and why.
-- Runtime assertions that do not depend on offscreen rendering: walk the real popover window's view hierarchy in a test or debug path and assert no NSVisualEffectView (or other material) remains, the window is opaque, and the effective background colour has alpha 1 for every theme family in light and dark.
-- Pixel assertions on the offscreen renders for left alignment (first content column of every row within the leading inset), contrast of sampled text against the sampled background for every text role, and today's highlight, run for all five families in light and dark, for every popover, including the Wi-Fi permission message state and the calendar.
-- VERIFY WITH SHOTS: use the new Divot bar shot target (#0081) and declare a ## Shots entry; the captured images must show all popovers in at least two themes in light and dark. Look at the shots and describe in the task what each shows; fix and recapture until they match the rules. If offscreen rendering cannot show the real window chrome, say exactly what the shots do and do not prove; do not claim the translucency is fixed from content-only shots.
-- Check that the app the maintainer runs actually contains the fix: record in the task which build/commit the packaged app was built from, and tell the maintainer to rebuild with scripts/package-app.sh and reopen (the screenshots may have come from a build older than #0076).
-- Keep keyboard and VoiceOver behaviour, outside-click and Escape dismissal, sizing, and the existing tests; docs/ and site/ pages updated for the standard; swift test --package-path macos passes.
+- The root cause of the remaining translucency is found and fixed. NSPopover's own chrome applies a vibrant material that a painted content layer does not remove. Replace NSPopover with a custom borderless panel that Divot draws itself (solid fill, border, shadow, arrow), shared by all popovers. The HOST window may be non-opaque/clear (needed for rounded corners and the arrow) as long as the drawn bubble/arrow chrome is fully opaque (alpha 1) and no NSVisualEffectView or other material exists anywhere in the hierarchy. [Scope clarified by the maintainer's driver 2026-10-13: a clear host window with a fully opaque bubble satisfies 'solid, predictable background'.]
+- Runtime assertions on the real popover hierarchy: no material view, the bubble/arrow chrome fill has alpha 1 and equals the theme popover palette for every family in light and dark.
+- Pixel assertions on offscreen renders for left alignment, text contrast for every text role, and today's highlight, for all five families (and Alpine once it lands) in light and dark, for every popover including the Wi-Fi permission state and the calendar.
+- The open popover restyles when the family or light/dark mode changes (updateTheme wired and tested).
+- VERIFY WITH SHOTS: use the Divot bar shot target; declare ## Shots with target 'Divot bar'; LOOK at the captured images and describe what each shows, and honestly what offscreen shots do not prove about the real window chrome.
+- Record which commit the packaged app was built from and the instruction to rebuild with scripts/package-app.sh and reopen.
+- Keep keyboard and VoiceOver behaviour, outside-click and Escape dismissal, sizing and existing tests; docs/ and site/ updated for the standard; swift test --package-path macos passes.
 - The maintainer verifies by eye on the packaged app; do not claim visual sign-off.
 
 ## Notes for AI
@@ -191,4 +192,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:40:11Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (68a2e1c) during finalization (#0734)
 - 2026-10-13T10:42:00Z · note: review pass 5: needs some work
 - 2026-10-13T10:42:00Z · needs_input
-
+- 2026-10-13T10:43:50Z · body: section Acceptance criteria
