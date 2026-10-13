@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:02:09Z"
+updated_at: "2026-10-13T09:10:46Z"
 ---
 ## Problem
 Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popovers) show the popovers are still wrong in the running app after #0072-#0077, even though those tasks passed review:
@@ -51,6 +51,32 @@ Maintainer screenshots from the packaged app, 2026-10-13 15:51. 1) Appearance po
 
 ![Calendar popover](/api/tasks/0083/attachments/screenshot-3.png)
 
+## Survey and result (agent)
+### Survey: every popover Divot shows
+Wi-Fi (networks list, scanning, empty, permission-denied, unavailable, failed), Volume, Appearance, Calendar. All four controllers share BarPopoverHost / BarPopoverContentController. No other popup or menu is built by Divot's app code (the bar items open only these).
+
+### Inconsistencies found
+- Chrome: NSPopover draws its own frame view with a vibrant material; a layer fill on the content (#0076) cannot remove it. This is the root cause of the remaining translucency/gradient.
+- Alignment: stack used alignment .width, which leaves a low-hugging row (link buttons, Appearance theme rows wrapped in one-button horizontal stacks) centred at its intrinsic width; borderless NSButton titles also centre. That produced the staggered theme list and right-aligned Wi-Fi/calendar footer links.
+- Contrast: native popover text used translucent system colours (secondaryLabelColor); family `secondary` was a 30% mix that fell to 3.1-4.4:1 on Ayu/Gruvbox/Tokyo Night light; dimmed calendar days used alpha 0.4; today's cell used bezelColor, which a borderless button never draws, so no filled highlight.
+- Wi-Fi rows and calendar day buttons baked colours in when built, so a theme change on an open popover left stale colours.
+
+### Decision: replace NSPopover with a custom borderless panel
+Disabling the material on NSPopover would mean poking at private frame views; instead BarPopoverHost now shows a BarPopoverPanel whose only chrome is PopoverChromeView (solid fill, 1px separator border, arrow, panel shadow), shared by all popovers. The window is non-opaque only to cut out the corners/arrow; every pixel inside the bubble is opaque. Dismissal (outside click, Escape, second click on the anchor), keyboard focus and sizing are kept.
+
+### The standard (shared code, not per popover)
+- BarTheme.popoverPalette: opaque background, label, secondary, link, separator, selected, selectedForeground. Native uses fixed light/dark values; families use audited tokens. ThemePalette.secondary now clears 4.5:1.
+- PopoverRowStack pins every row to the leading edge; PopoverLinkButton draws footer links flush left; one selected style (filled rounded rect in `selected` with `selectedForeground`) for the chosen theme row and today; weekday headers use semibold secondary; dimmed days use secondary (no alpha).
+
+### Verification (what ran)
+- swift test --package-path macos passes, including new tests: realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme (presents the real panel for 5 families x light/dark, walks its view hierarchy: no NSVisualEffectView, alpha-1 chrome and content fill, theme rows at the leading inset); popoverPaletteRolesClearContrastForEveryFamilyAndVariant; nativePopoverPaletteIsConcreteAndOpaque.
+- Pixel assertions re-enabled (they were disabled) in PopoverSnapshotTests.assertPixelRules for all popovers, incl. Wi-Fi permission message and Calendar, 5 families x light/dark: opaque fill == palette, first ink pixel of each row within the leading inset, text bands >= 4:1, selected fill visible.
+- Renders I looked at locally: Calendar Gruvbox light (left-aligned header, weekday row aligned over the grid, today a filled blue... see note), Appearance Dracula dark (clean left-aligned vertical list, chosen row filled, link readable), Wi-Fi permission Native light (left-aligned dark-grey message and blue links). Note: the Gruvbox calendar render I viewed was produced before the test applied the theme before building, so its filled today was the default blue; after the fix the fill uses the theme's selected colour.
+- Shots: the Divot bar target now writes every popover in Native and Gruvbox, light and dark. The shots render the content over the solid fill; they do NOT show the real window chrome. Translucency is proven by the runtime window test, not by images.
+
+### Packaged app
+HEAD at time of work was the commit shown by `git log -1` on this branch. The maintainer's screenshots may be from a build older than #0076: rebuild with scripts/package-app.sh and reopen. I did not build or run the packaged app; visual sign-off on the packaged app is the maintainer's.
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -62,3 +88,4 @@ Maintainer screenshots from the packaged app, 2026-10-13 15:51. 1) Appearance po
 - 2026-10-13T09:02:07Z · status active→ready
 - 2026-10-13T09:02:08Z · model_override
 - 2026-10-13T09:02:09Z · status ready→active
+- 2026-10-13T09:10:46Z · body: section Survey and result (agent)
