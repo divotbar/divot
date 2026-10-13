@@ -198,7 +198,7 @@ private func makeCommand() throws -> (command: ConfigurationCommand, url: URL) {
         let (command, _) = try makeCommand()
         let result = command.run(["set", "appearance.family", "blues"])
         #expect(result.exitCode == 1)
-        #expect(result.output.contains("native | gruvbox | ayu | dracula | tokyo-night"))
+        #expect(result.output.contains("native | alpine | gruvbox | ayu | dracula | tokyo-night"))
     }
 
     @Test func readOnlyAndUnknownKeysAreRefused() throws {

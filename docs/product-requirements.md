@@ -14,7 +14,7 @@ Primary: Apple-silicon Mac users with AeroSpace, multiple workspaces, and a stro
 - Native interactions: focus preservation, keyboard access, VoiceOver, system appearance.
 - Local first: no account, telemetry, cloud backend, or network request for core functionality.
 - Honest customization: one versioned configuration with useful errors; settings edit the same model.
-- Expressive but restrained: a comfortable native default plus four curated theme families, each with honest light and dark variants.
+- Expressive but restrained: a comfortable native default, Divot's own Alpine family, and four curated theme families, each with honest light and dark variants.
 - Performance is measured over the app, helpers, and compositor impact, not just one PID.
 
 ## Layout and display behavior
@@ -42,7 +42,7 @@ Both sides are ordered `left`/`right` groups, and any supported item can move be
 
 ## Release acceptance
 
-Two monitors with different scales; a built-in notched screen; an external notch-free screen; unplug/replug; sleep/wake; app activation; fullscreen transitions; persistent menu-bar top/below transitions; reduced motion/transparency; light/dark and all four theme families; and VoiceOver must pass on physical hardware. Performance must pass the documented protocol. Sign and notarize the app; installation must not instruct users to strip quarantine. Website is static, responsive, keyboard usable, and labels unfinished features accurately.
+Two monitors with different scales; a built-in notched screen; an external notch-free screen; unplug/replug; sleep/wake; app activation; fullscreen transitions; persistent menu-bar top/below transitions; reduced motion/transparency; light/dark and every theme family; and VoiceOver must pass on physical hardware. Performance must pass the documented protocol. Sign and notarize the app; installation must not instruct users to strip quarantine. Website is static, responsive, keyboard usable, and labels unfinished features accurately.
 
 ## Outside MVP
 
@@ -54,4 +54,4 @@ Static Vue/VitePress website, public guides, versioned JSON examples, and a Swif
 
 ## Appearance and themes
 
-System, Light, and Dark remain first-class appearance modes, and the chosen theme family is a separate, persisted setting. Follow system appearance live by default, allow explicit overrides, and validate every workspace state, widget, settings surface, menu/popover, and error in both variants. Ship the comfortable native default plus four curated hacker families—Gruvbox, Ayu, Dracula, and Tokyo Night—as first-class release content, not deferred polish. Where an upstream family has no official light variant, label Divot's light adaptation honestly. Semantic color tokens carry foreground/background/accent/selected/occupied/error roles, and color alone never carries state. Changing family or mode invalidates cached appearance-dependent assets only; respect increased contrast and reduced transparency. Website and docs share a persisted theme preference; the landing retains the Tahoe palette in both modes.
+System, Light, and Dark remain first-class appearance modes, and the chosen theme family is a separate, persisted setting. Follow system appearance live by default, allow explicit overrides, and validate every workspace state, widget, settings surface, menu/popover, and error in both variants. Ship the comfortable native default, Divot's own Alpine family, and four curated hacker families—Gruvbox, Ayu, Dracula, and Tokyo Night—as first-class release content, not deferred polish. Where an upstream family has no official light variant, label Divot's light adaptation honestly. Semantic color tokens carry foreground/background/accent/selected/occupied/error roles, and color alone never carries state. Changing family or mode invalidates cached appearance-dependent assets only; respect increased contrast and reduced transparency. Website and docs share a persisted theme preference; the landing retains the Tahoe palette in both modes.

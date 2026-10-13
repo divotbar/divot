@@ -46,7 +46,7 @@ import Testing
 
 // MARK: - Catalog and attribution
 
-private let families: [AppearanceConfiguration.Family] = [.gruvbox, .ayu, .dracula, .tokyoNight]
+private let families: [AppearanceConfiguration.Family] = [.alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
 
 @Test func everyFamilyShipsBothVariantsWithUpstreamAttribution() {
     for family in families {
@@ -68,7 +68,8 @@ private let families: [AppearanceConfiguration.Family] = [.gruvbox, .ayu, .dracu
 
 @Test func everyUpstreamLightVariantIsLabeledOfficial() {
     // Gruvbox, Ayu, Alucard, and Tokyo Night Light are all shipped by upstream,
-    // so none of Divot's light variants is an invented palette.
+    // and Alpine's two variants are Divot's own, so none of the families relies
+    // on an invented palette.
     for family in families {
         let light = try! #require(ThemeCatalog.palette(family: family, variant: .light))
         #expect(light.attribution.isOfficialVariant, "\(family.rawValue) light marked unofficial")
@@ -140,6 +141,21 @@ private let floors: [(name: String, floor: Double)] = [
     #expect(ThemeResolver.resolve(gruvbox, dark: false).tokens?.background.hexString == "#FBF1C7")
     // The family survives the variant change.
     #expect(ThemeResolver.resolve(gruvbox, dark: false).family == .gruvbox)
+}
+
+/// Alpine is Divot's own family: both variants are authored by the project and
+/// resolve to the project's lake-blue/pine/warm-paper direction.
+@Test func alpineIsDivotsOwnFamilyWithBothAuthoredVariants() {
+    let dark = try! #require(ThemeCatalog.palette(family: .alpine, variant: .dark))
+    let light = try! #require(ThemeCatalog.palette(family: .alpine, variant: .light))
+    #expect(dark.attribution.source == "Divot")
+    #expect(light.attribution.source == "Divot")
+    #expect(dark.attribution.isOfficialVariant)
+    #expect(light.attribution.isOfficialVariant)
+    #expect(ThemeResolver.resolve(AppearanceConfiguration(family: .alpine), dark: true)
+        .tokens?.background.hexString == "#16272B")
+    #expect(ThemeResolver.resolve(AppearanceConfiguration(family: .alpine), dark: false)
+        .tokens?.background.hexString == "#F4F1E8")
 }
 
 @Test func defaultAccentAdoptsTheFamilySignature() {

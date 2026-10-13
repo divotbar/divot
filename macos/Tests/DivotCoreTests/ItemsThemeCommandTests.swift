@@ -225,6 +225,20 @@ private let invalidConfig = ##"{"version":2,"appearance":{"family":"native","mod
         #expect(reloaded.current.appearance.accent == AppearanceConfiguration.defaultAccent)
     }
 
+    @Test func setAcceptsAlpineLikeTheOtherFamilies() throws {
+        let (store, url) = try makeStore()
+        let command = ThemeCommand(store: store)
+
+        let result = command.run(["set", "alpine", "--mode", "light"])
+        #expect(result.exitCode == 0)
+        #expect(result.output.contains("family: alpine"))
+
+        let reloaded = ConfigurationStore(configURL: url)
+        #expect(reloaded.load() == .loaded)
+        #expect(reloaded.current.appearance.family == .alpine)
+        #expect(reloaded.current.appearance.mode == .light)
+    }
+
     @Test func setKeepsTheModeWhenOmitted() throws {
         let (store, _) = try makeStore()
         let command = ThemeCommand(store: store)
@@ -241,7 +255,7 @@ private let invalidConfig = ##"{"version":2,"appearance":{"family":"native","mod
 
         let family = command.run(["set", "blues"])
         #expect(family.exitCode == 1)
-        #expect(family.output.contains("native | gruvbox | ayu | dracula | tokyo-night"))
+        #expect(family.output.contains("native | alpine | gruvbox | ayu | dracula | tokyo-night"))
 
         let mode = command.run(["set", "gruvbox", "--mode", "dusk"])
         #expect(mode.exitCode == 1)

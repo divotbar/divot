@@ -15,11 +15,11 @@
 
 ### Coverage matrix
 Each popover is rendered at:
-- All five theme families: native, Gruvbox, Ayu, Dracula, Tokyo Night
-- Both light and dark variants (10 configurations each)
+- All six theme families: native, Alpine, Gruvbox, Ayu, Dracula, Tokyo Night
+- Both light and dark variants (12 configurations each)
 - Default text size (12pt) and one larger size (16pt)
 
-This produces 60 popover snapshots (3 popovers × 5 families × 2 variants × 2 sizes).
+This produces 72 popover snapshots (3 popovers × 6 families × 2 variants × 2 sizes).
 
 ## Running the tests
 
@@ -91,7 +91,7 @@ A popover that renders with the correct theme colors, correct alignment, and no 
 
 ## What is rendered
 
-A `BarContentView(side: .right)` holding `battery, clock, network, volume` in that order, 420 pt wide and `BarMetrics.height` tall, hosted in a light or dark `NSAppearance`. Twenty configurations: five theme families × light/dark × the default (14 pt) and one larger (16 pt) text size. Each configuration makes four renders, so 80 PNGs:
+A `BarContentView(side: .right)` holding `battery, clock, network, volume` in that order, 420 pt wide and `BarMetrics.height` tall, hosted in a light or dark `NSAppearance`. Twenty-four configurations: six theme families × light/dark × the default (14 pt) and one larger (16 pt) text size. Each configuration makes four renders, so 96 PNGs:
 
 | PNG suffix | Chips | Battery | Used for |
 | --- | --- | --- | --- |

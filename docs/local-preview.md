@@ -120,8 +120,9 @@ use pattern kills (`pkill`/`killall`).
   mode; clicking it opens an appearance popover that sets Divot's own mode
   (System/Light/Dark) and theme family and opens Divot's own settings window
   (never the macOS system appearance).
-- **Themes:** the native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night
-  families, each with light and dark variants, selectable from Settings or the
+- **Themes:** the native default, the Alpine family, and the Gruvbox, Ayu,
+  Dracula, and Tokyo Night families, each with light and dark variants,
+  selectable from Settings or the
   configuration file (`appearance.family`, `appearance.mode`). Custom
   `appearance.palette` overrides and custom left/right item groups are available
   through the same versioned configuration; see
@@ -263,7 +264,7 @@ observe; leave unobserved items blank rather than marking them done.
       it; a keyboard volume key moves the slider while the popover is open; an
       output with no settable volume shows the slider disabled with the note
       (task 0071, a human step).
-- [ ] Light/dark and all four theme families are readable on real glass.
+- [ ] Light/dark and every theme family are readable on real glass.
 - [ ] Release performance on the stable reference machine
       (`divot --bench`, [performance protocol](performance.md)).
 - [ ] AeroSpace workspace clicks focus the right workspace.

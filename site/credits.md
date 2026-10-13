@@ -12,7 +12,7 @@ Divot's code and documentation are MIT licensed. Typography uses local system fo
 
 ## Theme palettes
 
-Divot's Gruvbox, Ayu, Dracula, and Tokyo Night families are derived from openly licensed upstream palettes, with the source and license recorded per variant in the app:
+Divot's own **Alpine** family is authored by the project in its lake-blue, pine, and warm-paper direction and carries no upstream attribution; both of its variants are project colors. Divot's Gruvbox, Ayu, Dracula, and Tokyo Night families are derived from openly licensed upstream palettes, with the source and license recorded per variant in the app:
 
 - **Gruvbox** by morhetz — [morhetz/gruvbox](https://github.com/morhetz/gruvbox) (MIT). Dark and light variants are upstream.
 - **Ayu** by the ayu theme — [ayu-theme/ayu-colors](https://github.com/ayu-theme/ayu-colors) (MIT). Ayu Light is upstream; Divot darkens its accent, occupied, and error roles for menu-bar contrast.
