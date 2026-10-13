@@ -2,7 +2,7 @@
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -13,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:29:26Z"
+updated_at: "2026-10-13T10:33:16Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -176,3 +176,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:28:22Z · note: review pass 3: needs some work
 - 2026-10-13T10:28:22Z · status review→active
 - 2026-10-13T10:29:26Z · message_queued at 2026-10-13T10:29:26.522Z
+- 2026-10-13T10:33:16Z · status active→review
