@@ -14,7 +14,7 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T19:10:57Z"
+updated_at: "2026-10-13T19:19:50Z"
 dev_error_count: 1
 ---
 ## Problem
@@ -39,6 +39,44 @@ Clicking the battery item toggles keep-awake (#0018, #0051), but the only feedba
 ## Notes for AI
 Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look at how the battery click toggles keep-awake (WidgetActions toggleKeepAwake) and the #0087 cup colours. Work in stages, commit after each, and do not hand off until swift build, swift test --package-path macos and bun run check pass.
 
+## Shots
+```json
+[
+{
+  "label": "Caffeine on toast (Native light)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+  },
+  "glob": "*caffeine-toast-native-light-on*.png"
+},
+{
+  "label": "Caffeine off toast (Native light)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+  },
+  "glob": "*caffeine-toast-native-light-off*.png"
+},
+{
+  "label": "Caffeine on toast (Gruvbox dark)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+  },
+  "glob": "*caffeine-toast-gruvbox-dark-on*.png"
+},
+{
+  "label": "Caffeine off toast (Gruvbox dark)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+  },
+  "glob": "*caffeine-toast-gruvbox-dark-off*.png"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T17:13:26Z · created · njachowski@gmail.com
@@ -48,3 +86,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:06:09Z · agent exited with an error (claude) · the agent process exited with an error — open the task to see the full output
 - 2026-10-13T19:10:42Z · cli_override, model_override
 - 2026-10-13T19:10:46Z · model_override
+- 2026-10-13T19:19:50Z · body: section Shots
