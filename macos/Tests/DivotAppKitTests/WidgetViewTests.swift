@@ -45,9 +45,9 @@ private func imageViews(in view: NSView) -> [NSImageView] {
                                                                  isCharging: charging))))
     }
 
-    // While charging the outline is the plain full battery and the bolt is a
-    // separate element over it, so the outline keeps the bar's normal colour
-    // (#0058).
+    // While charging the whole battery symbol (outline and bolt) tints to the
+    // fixed green regardless of theme accent, so it is unmistakable on Dracula,
+    // Tokyo Night, and other non-green themes (#0074).
     let charging = BarItemView()
     charging.update(presentation(charging: true), action: .none)
     #expect(charging.displayedSymbolName == "battery.100")
@@ -73,15 +73,15 @@ private func imageViews(in view: NSView) -> [NSImageView] {
     #expect(charging.isBadgeVisible)
 }
 
-/// Only the charging bolt takes the theme's accent green: the battery outline
-/// and the label keep the foreground colour, and with no charge there is no
-/// green at all (#0058).
+/// While charging, the whole battery symbol and the bolt draw in the one fixed
+/// charging green; with no charge the icon keeps the foreground colour, the
+/// label never turns green, and there is no bolt (#0074).
 @MainActor
-@Test func onlyTheChargingBoltUsesTheThemeAccentGreen() {
-    // The built-in theme accent is the fixed green the bolt draws with.
+@Test func chargingTintsTheWholeBatterySymbolAGreenAndNotChargingLeavesItAlone() {
     let theme = BarTheme.systemDefault
-    let green = try! #require(NSColor(hexString: "#D6F58A"))
-    #expect(theme.accent.isEqual(green))
+    let green = NSColor(ChargingIndicatorPalette.green)
+    #expect(!green.isEqual(theme.accent),
+            "the charging green must not be the theme accent")
 
     func presentation(charging: Bool) -> WidgetPresentation {
         WidgetPresenter.present(
@@ -95,21 +95,28 @@ private func imageViews(in view: NSView) -> [NSImageView] {
     let charging = BarItemView()
     charging.apply(theme: theme)
     charging.update(presentation(charging: true), action: .none)
-    let badgeTint = try! #require(charging.badgeTintColor)
-    #expect(badgeTint.isEqual(theme.accent))
-    // The outline and the label are the foreground, never the bolt green.
-    #expect(charging.iconTintColor.isEqual(theme.foreground))
+    #expect(charging.badgeTintColor?.isEqual(green) == true)
+    // The outline takes the same green as the bolt, so the mark is the whole
+    // symbol, not a small badge (#0074).
+    #expect(charging.iconTintColor.isEqual(green))
+    // The label keeps the foreground colour.
     #expect(charging.itemTextColor.isEqual(theme.foreground))
-    #expect(!charging.iconTintColor.isEqual(theme.accent))
-    #expect(!charging.itemTextColor.isEqual(theme.accent))
 
-    // Not charging: no bolt, so nothing carries the accent green.
+    // Not charging: no bolt, and the icon returns to the foreground colour.
     let plain = BarItemView()
     plain.apply(theme: theme)
     plain.update(presentation(charging: false), action: .none)
     #expect(plain.badgeTintColor == nil)
-    #expect(!plain.iconTintColor.isEqual(theme.accent))
-    #expect(!plain.itemTextColor.isEqual(theme.accent))
+    #expect(plain.iconTintColor.isEqual(theme.foreground))
+    #expect(!plain.iconTintColor.isEqual(green))
+
+    // A live switch on the same view re-resolves the tint both ways.
+    charging.update(presentation(charging: false), action: .none)
+    #expect(charging.displayedBadgeSymbolName == nil)
+    #expect(charging.iconTintColor.isEqual(theme.foreground))
+    charging.update(presentation(charging: true), action: .none)
+    #expect(charging.displayedBadgeSymbolName == "bolt.fill")
+    #expect(charging.iconTintColor.isEqual(green))
 }
 
 /// The keep-awake cup is the battery item's only state mark. A second mark (a
