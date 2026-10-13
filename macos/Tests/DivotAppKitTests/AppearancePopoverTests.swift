@@ -145,11 +145,11 @@ struct AppearancePopoverContentTests {
         #expect(opened)
     }
 
-    @Test func themeGridWrapsToAtMostThreeColumns() {
-        #expect(AppearancePopoverContentController.themeGridColumns(for: 5) == 3)
-        #expect(AppearancePopoverContentController.themeGridColumns(for: 4) == 3)
-        #expect(AppearancePopoverContentController.themeGridColumns(for: 3) == 3)
-        #expect(AppearancePopoverContentController.themeGridColumns(for: 2) == 2)
+    @Test func themeGridLayoutIsVerticalOnePerRow() {
+        #expect(AppearancePopoverContentController.themeGridColumns(for: 5) == 1)
+        #expect(AppearancePopoverContentController.themeGridColumns(for: 4) == 1)
+        #expect(AppearancePopoverContentController.themeGridColumns(for: 3) == 1)
+        #expect(AppearancePopoverContentController.themeGridColumns(for: 2) == 1)
         #expect(AppearancePopoverContentController.themeGridColumns(for: 1) == 1)
         #expect(AppearancePopoverContentController.themeGridColumns(for: 0) == 1)
     }
