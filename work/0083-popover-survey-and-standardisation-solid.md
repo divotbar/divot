@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T10:35:02Z"
+review_passes: 3
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
@@ -16,9 +18,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:35:02Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popovers) show the popovers are still wrong in the running app after #0072-#0077, even though those tasks passed review:
@@ -183,3 +183,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:33:21Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (d79dc29) during finalization (#0734)
 - 2026-10-13T10:35:02Z · note: review pass 4: needs some work
 - 2026-10-13T10:35:02Z · needs_input
+
