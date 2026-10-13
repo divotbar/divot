@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: review
+status: active
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -126,3 +126,5 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:58:13Z · note: review pass 6: needs some work
 - 2026-10-13T17:58:13Z · needs_input
 - 2026-10-13T18:01:44Z · needs_input
+- 2026-10-13T18:01:44Z · status review→active
+- 2026-10-13T18:01:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
