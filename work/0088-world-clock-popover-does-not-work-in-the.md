@@ -1,5 +1,4 @@
 ---
-close_out_repair_count: 1
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
@@ -12,7 +11,8 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T19:17:06Z"
+updated_at: "2026-10-13T19:19:38Z"
+close_out_repair_count: 1
 review_passes: 8
 review_rounds: 2
 dev_error_count: 1
@@ -72,44 +72,44 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ```json
 [
 {
-"label": "Empty state (0 zones): header + hint, Add row and settings link",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "zero-timezones"
-},
-"glob": "*world-clock*zero-timezones*"
-},
-{
-"label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "default-defaults"
-},
-"glob": "*world-clock*default-defaults*"
+  "label": "Empty state (0 zones): header + hint, Add row and settings link",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "zero-timezones"
+  },
+  "glob": "*worldclock*zero-timezones*"
 },
 {
-"label": "One zone: a single added zone row (Tokyo)",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "one-zone"
-},
-"glob": "*world-clock*one-zone*"
-},
-{
-"label": "Four zones with Yesterday/Tomorrow day labels across the date line",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "day-label"
-},
-"glob": "*world-clock*day-label*"
+  "label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "default-defaults"
+  },
+  "glob": "*worldclock*default-defaults*"
 },
 {
-"label": "Add flow: 'los' typed, results list visible (San Francisco)",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "add-flow"
+  "label": "One zone: a single added zone row (Tokyo)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "one-zone"
+  },
+  "glob": "*worldclock*one-zone*"
 },
-"glob": "*world-clock*add-flow*"
+{
+  "label": "Four zones with Yesterday/Tomorrow day labels across the date line",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "day-label"
+  },
+  "glob": "*worldclock*day-label*"
+},
+{
+  "label": "Add flow: 'los' typed, results list visible (San Francisco)",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "add-flow"
+  },
+  "glob": "*worldclock*add-flow*"
 }
 ]
 ```
@@ -241,4 +241,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-13T19:15:49Z · needs_input
 - 2026-10-13T19:17:06Z · status review→active, needs_input
 - 2026-10-13T19:17:06Z · note: close-out repair: merge-conflict
-
+- 2026-10-13T19:19:38Z · body: section Shots
