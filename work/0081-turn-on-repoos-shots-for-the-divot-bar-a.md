@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-13T08:51:07Z"
-review_passes: 6
+last_close_out_gate_ms: 55536
+last_close_out_gate_at: "2026-10-13T08:59:44.303Z"
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
@@ -16,6 +16,8 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
+updated_at: "2026-10-13T08:59:44Z"
+review_passes: 6
 close_out_repair_count: 1
 review_rounds: 2
 ---
@@ -95,4 +97,5 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:49:38Z · note: shots: skipped — 18 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:51:07Z · note: review pass 6: needs some work
 - 2026-10-13T08:51:07Z · needs_input
+- 2026-10-13T08:59:44Z · close-out gate completed in 56s
 
