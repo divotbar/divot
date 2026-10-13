@@ -2,12 +2,12 @@
 id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
-status: ready
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T09:05:20Z"
@@ -37,3 +37,4 @@ Look at the badge/tint code in WidgetViews.swift, ChargingIndicatorPalette, Widg
 - 2026-10-13T09:05:20Z · created · njachowski@gmail.com
 - 2026-10-13T09:05:24Z · status inbox→ready
 - 2026-10-13T09:05:25Z · cli_override, model_override
+- 2026-10-13T09:05:25Z · status ready→active, branch
