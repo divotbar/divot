@@ -2,7 +2,7 @@
 id: "0072"
 title: "Appearance popover: light/dark mode and theme family picker on the moon item"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0071"]
@@ -41,4 +41,4 @@ Look at how the Appearance item toggles today and how the Settings window reads 
 - 2026-10-13T02:20:07Z · status inbox→ready
 - 2026-10-13T02:20:07Z · cli_override, model_override
 - 2026-10-13T02:20:08Z · status ready→active, branch
-- 2026-10-13T02:33:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T02:33:35Z · status active→review
