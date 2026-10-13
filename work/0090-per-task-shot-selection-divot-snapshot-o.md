@@ -2,12 +2,12 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: ready
+status: active
 priority: p2
 area: [macos, docs]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
@@ -39,3 +39,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T16:31:06Z · created · njachowski@gmail.com
 - 2026-10-13T16:49:23Z · status inbox→ready
 - 2026-10-13T16:49:24Z · cli_override, model_override
+- 2026-10-13T16:49:24Z · status ready→active, branch
