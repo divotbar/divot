@@ -54,3 +54,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:05:20Z · message_delivered: 1 message(s)
 - 2026-10-13T17:05:20Z · status review→active
 - 2026-10-13T17:15:25Z · status active→review
+- 2026-10-13T17:15:25Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (41f9a14a) during finalization (#0734)
