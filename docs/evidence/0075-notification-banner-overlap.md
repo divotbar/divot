@@ -1,7 +1,7 @@
 # Evidence · 0075 notification banner overlap with Divot bar
 
-Status: **investigation complete; no safe public fix found; limitation documented.**
-Task 0075 · observed 2026-10-13.
+Status: **investigation incomplete; banner window levels and overlap mechanism unmeasured; limitation documented but fix feasibility unresolved.**
+Task 0075 · investigation phase 2026-10-13.
 
 This records findings from investigating why macOS notification banners
 position themselves below the Divot bar (banner title row partly covered).
@@ -191,20 +191,22 @@ fix is apparent without architectural changes.
 - Divot is positioned at screen top (y=0) as intended.
 - Menu bar height is 33 points on this notched display.
 - No public API exists to coordinate banner positioning.
+- No banner windows were visible during the investigation.
 
-**Unverified (reported, not measured):**
+**Unverified (reported by maintainer, not measured):**
 - Notification banners overlap Divot visually when auto-hide is ON.
 - Overlap mechanism (window-level z-order vs. spatial y-coordinate or both).
 - Whether overlap is resolved when the menu bar is revealed.
 - Actual Divot bar footprint (height + shadow extension).
 
-**Cannot conclude** whether a safe public fix is possible until:
+**Feasibility of a public fix: Cannot assess** until:
 1. Maintainer runs the probe with a live banner and shares `kCGWindowLevel` + `kCGWindowBounds`.
-2. Packaged app is tested with a real notification while `divot --report` is running.
+2. Packaged app is tested with a real notification while auto-hide is ON and OFF.
 3. Multi-display, notch-free, fullscreen, and Spaces scenarios are tested.
 
-**Workaround:** Disabling auto-hide is confirmed to resolve overlap by separating
-the 33-point menu-bar region from Divot's top-edge placement.
+**Expected workaround (not verified with a live banner):** Disabling auto-hide is expected
+to resolve overlap by separating the 33-point menu-bar region from Divot's top-edge
+placement, assuming notification positioning respects the visible menu bar.
 
 ## Options for the user
 

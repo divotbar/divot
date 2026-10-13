@@ -19,7 +19,8 @@ Exact z-order (which draws on top) and notification window levels are unmeasured
 **Workarounds:**
 
 1. **Disable menu bar auto-hide:** In System Settings → Dock & Menu Bar, turn off auto-hide.
-   Banners are positioned below the visible menu bar, avoiding overlap.
+   Banners are expected to reposition below the visible menu bar, avoiding overlap.
+   (Not verified with a live notification; awaiting maintainer test.)
 
 2. **Use cursor-reveal (Settings → Move below the menu bar when it appears):**
    When you move your pointer to the top, Divot temporarily slides below a revealed menu bar.

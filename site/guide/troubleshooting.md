@@ -56,7 +56,7 @@ Whether banners draw on top or behind Divot (z-order) and the exact positioning 
 
 ### What to do
 
-- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. The menu bar stays visible, and banners reposition below it, avoiding overlap.
+- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. Banners are expected to reposition below the visible menu bar, avoiding overlap. (Not verified with a live notification; awaiting testing.)
 - **Use Divot's cursor-reveal setting:** Turn on **Settings → Move below the menu bar when it appears**. When you move your pointer to the top of the screen, the native menu bar slides into view and Divot slides below it temporarily. Banners do not follow this animation, so overlap can still occur if a notification arrives while the bar is at the top.
 - **Accept the limitation:** This is how some third-party top-edge bars behave on macOS. Notification content is still readable, just with partial overlap at the very top.
 
