@@ -2,7 +2,7 @@
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
-status: active
+status: review
 priority: p1
 area: [macos, infra]
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:38:02Z"
+updated_at: "2026-10-13T08:38:27Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -80,3 +80,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:37:32Z · status review→active
 - 2026-10-13T08:37:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T08:38:02Z · body: section Review pass 4
+- 2026-10-13T08:38:27Z · status active→review
