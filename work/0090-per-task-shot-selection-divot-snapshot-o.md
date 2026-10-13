@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: review
+status: active
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -71,3 +71,5 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:45:01Z · note: review pass 4: needs some work
 - 2026-10-13T17:45:01Z · needs_input
 - 2026-10-13T17:49:25Z · needs_input
+- 2026-10-13T17:49:25Z · status review→active
+- 2026-10-13T17:49:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
