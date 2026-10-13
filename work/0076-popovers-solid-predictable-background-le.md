@@ -2,7 +2,7 @@
 id: "0076"
 title: "Popovers: solid predictable background, left-aligned layout, vertical theme list"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/popovers-solid-predictable-background-le
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
-updated_at: "2026-10-13T06:11:11Z"
+updated_at: "2026-10-13T06:13:00Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -61,3 +61,4 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T06:11:11Z · status review→active
 - 2026-10-13T06:11:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T06:11:11Z · message_delivered: 1 message(s)
+- 2026-10-13T06:13:00Z · status active→review
