@@ -128,7 +128,9 @@ enum SnapshotTestHelpers {
     static func wantsPNG(named name: String) -> Bool {
         guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
         guard name.contains("-native-"), name.contains("-default") else { return false }
-        return !name.hasPrefix("bar-") || name.hasSuffix("-chips-off")
+        if !name.hasPrefix("bar-") { return true }
+        // For bar renders, include chips-off and chips-on (translucent); exclude chips-solid
+        return name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on")
     }
 
     /// Write a bitmap as PNG into `directory` (created if needed). Skipped when
