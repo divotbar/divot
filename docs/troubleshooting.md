@@ -43,6 +43,26 @@ The probe also measures and displays Divot's real panel layer in real time, maki
 
 **Note:** Notifications are suppressed when Do Not Disturb or Focus modes are active. If no notifications appear while measuring, check that Do Not Disturb is OFF in Control Center.
 
+## Permissions work in the packaged app, not the dev binary
+
+Running Divot two different ways changes what permissions it can hold:
+
+- **`swift run --package-path macos divot`** (the Dev page's **Divot bar**
+  target, or a raw build binary) is a bare executable with no `Info.plist` and no
+  bundle identity. macOS cannot grant it Location, so the Wi-Fi name and the
+  nearby-network list stay empty, and any Accessibility grant attaches to the
+  host terminal or app rather than to Divot.
+- **`dist/Divot.app`** (the Dev page's **Divot bar (packaged)** target, or
+  `scripts/run-packaged.sh` / `just app-run-packaged`) is the real bundle. It is
+  the one that gets the Location prompt and holds Accessibility as Divot itself.
+
+Accessibility and Location grants persist per app, but the preview is ad-hoc
+signed, so a rebuild changes its code signature and an earlier grant may no
+longer match. If a rebuilt app loses the grant, remove the stale Divot row under
+**System Settings → Privacy & Security** and add the current `dist/Divot.app`
+again. Only one bar may run at a time; each Dev target stops the other first.
+See the [local preview](local-preview.md) for the targets.
+
 ## Other constraints
 
 (To be filled in as physical validation identifies additional limitations.)

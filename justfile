@@ -56,6 +56,16 @@ app-run:
     scripts/package-app.sh
     open dist/Divot.app
 
+# Rebuild dist/Divot.app and run it as the real bundle (holds Location and Accessibility).
+[group('app')]
+app-run-packaged:
+    scripts/run-packaged.sh
+
+# Run the bare dev binary (no bundle identity; use app-run-packaged for permissions).
+[group('app')]
+app-dev:
+    scripts/run-dev.sh
+
 # Run the declared RepoOS gate.
 [group('quality')]
 check:
