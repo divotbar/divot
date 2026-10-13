@@ -2,7 +2,7 @@
 id: "0078"
 title: Offscreen popover and bar rendering to PNG with pixel assertions (gitignored output)
 type: chore
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0076"]
@@ -38,4 +38,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T06:25:24Z · status inbox→ready
 - 2026-10-13T06:25:25Z · cli_override, model_override
 - 2026-10-13T06:25:25Z · status ready→active, branch
-- 2026-10-13T06:35:26Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-13T06:35:26Z · status active→review
