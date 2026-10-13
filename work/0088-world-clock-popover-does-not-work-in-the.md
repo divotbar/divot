@@ -149,3 +149,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:58:43Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:00:31Z · cli_override, model_override
 - 2026-10-13T18:00:32Z · status active→review
+- 2026-10-13T18:00:32Z · note: handoff requested (cli)
