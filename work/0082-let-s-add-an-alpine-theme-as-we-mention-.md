@@ -2,7 +2,7 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: active
+status: review
 priority: p2
 area: web
 assigned_to: ai
@@ -94,4 +94,4 @@ Landing / Alpine examples (website target, route /):
 - 'Bar example — Dracula': the same bar recoloured with Dracula dark tokens (bar #282A36, text #F8F8F2, focused chip #6272A4, accent #BD93F9) with the Dracula preset button selected.
 
 The three preset buttons now read Alpine / Gruvbox / Dracula, matching the theme families the app ships. The PNGs are stored under the task shots folder; the reviewer can inspect them there. (The native Divot bar target is captured separately below.)
-- 2026-10-13T10:41:54Z · note: shots: skipped — 17 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T10:41:54Z · status active→review
