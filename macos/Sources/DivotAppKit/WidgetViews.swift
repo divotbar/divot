@@ -198,7 +198,7 @@ final class BarItemView: NSView {
     }
 
     /// The indicator tint: the contrast-audited fixed color for every family, so the
-    /// cup is clearly visible on every bar and chip background.
+    /// cup is clearly visible on every bar background with 3:1 guaranteed contrast.
     private func indicatorColor(for role: WidgetIndicator.Role) -> NSColor {
         Self.color(for: role, appearance: effectiveAppearance)
     }
