@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:37:45Z"
+updated_at: "2026-10-13T10:38:36Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -50,7 +50,15 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 "target": "Divot bar"
 },
 {
+"label": "Native light theme, chips on: battery body black over blue chip, bolt green",
+"target": "Divot bar"
+},
+{
 "label": "Native dark theme, chips off: battery body white, bolt green",
+"target": "Divot bar"
+},
+{
+"label": "Native dark theme, chips on: battery body white over dark chip, bolt green",
 "target": "Divot bar"
 }
 ]
@@ -107,3 +115,4 @@ The palette approach successfully isolates the bolt from the body: the fixed gre
 - 2026-10-13T10:37:44Z · needs_input
 - 2026-10-13T10:37:45Z · status review→active
 - 2026-10-13T10:37:45Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:38:36Z · body: section Shots
