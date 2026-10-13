@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:25:38Z"
+updated_at: "2026-10-13T16:25:59Z"
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -52,8 +52,19 @@ Added by the maintainer 2026-10-13: the list must not start empty, so a first-ti
 - The config schema default, the config CLI schema (divot config schema), the Settings window list, docs/configuration.md, site/reference/configuration.md and the widgets guide must state the three defaults and the absent-vs-empty rule; the unit tests cover: absent -> three defaults, present and empty -> empty, user removes one default -> remaining two persist, local zone equals a default -> no duplicate row.
 - Shots: the 'four zones' and 'empty state' shots from the acceptance criteria stay; add a shot of the default first-run state (three defaults, Singapore showing as the user's own zone when the local zone is Singapore, if you can render with an injected local zone).
 
+## Empty list must stay fully functional
+Added by the maintainer 2026-10-13: when the user has removed ALL timezones the popover must remain fully working, not a dead end.
+
+- With zero zones the popover still shows the header (current time and UTC offset, local zone name), a short hint line ('No other timezones. Add one below.'), the 'Add timezone' row with a working search field and results list, and 'Open Date & Time Settings...'. Nothing is hidden or disabled because the list is empty.
+- Adding a zone from the empty state works exactly as from a populated list: typing shows results, choosing one adds the row immediately and persists it, and the hint disappears.
+- Removing the last remaining zone leaves the list explicitly empty (persisted as an empty array, NOT reset to the defaults) and the popover rebuilds into this empty state immediately without closing or crashing.
+- Reopening the popover after removing everything still shows the empty state with a working Add row; the three defaults only come back if the config key is absent (for example the user deletes it from the file or runs divot config unset widgets.time.timezones).
+- The Settings window list behaves the same: removing everything leaves a working Add control.
+- Tests (through the real controller path, as above): remove every default one by one -> empty state rows are correct; add a zone from empty -> persisted and shown; reopen after emptying -> still empty; unset the key -> defaults return. Add an empty-state shot and an 'after adding from empty' shot.
+
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
 - 2026-10-13T16:20:35Z · body: section Screenshots
 - 2026-10-13T16:25:38Z · body: section Default timezones
+- 2026-10-13T16:25:59Z · body: section Empty list must stay fully functional
