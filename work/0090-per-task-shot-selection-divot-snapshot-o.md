@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:22:03Z"
+updated_at: "2026-10-13T17:28:02Z"
 review_passes: 3
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -62,3 +62,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:19:37Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:22:03Z · status active→review
 - 2026-10-13T17:22:03Z · note: handoff requested (cli)
+- 2026-10-13T17:28:02Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
