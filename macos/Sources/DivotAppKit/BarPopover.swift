@@ -73,11 +73,14 @@ class BarPopoverContentController: NSViewController {
         // the bar exactly; the native theme keeps the popover's system material,
         // which already matches once the popover adopts the bar's light/dark
         // appearance.
+        view.wantsLayer = true
         if theme.usesSystemColors {
             view.layer?.backgroundColor = nil
+            view.layer?.borderWidth = 0
         } else {
-            view.wantsLayer = true
             view.layer?.backgroundColor = theme.popoverPalette.background.cgColor
+            view.layer?.borderColor = theme.popoverPalette.separator.cgColor
+            view.layer?.borderWidth = 1
             view.layer?.cornerRadius = Self.contentCornerRadius
             view.layer?.masksToBounds = true
         }

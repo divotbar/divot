@@ -276,7 +276,7 @@ final class ThemeSwatchButton: NSButton {
         self.action = action
         self.isBordered = false
         self.setButtonType(.momentaryPushIn)
-        self.alignment = .center
+        self.alignment = .left
         self.font = .systemFont(ofSize: 12)
         self.imagePosition = .imageLeading
         self.imageHugsTitle = true
