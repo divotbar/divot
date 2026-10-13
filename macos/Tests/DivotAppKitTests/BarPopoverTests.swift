@@ -104,3 +104,30 @@ private func pressEvent() -> NSEvent {
     // (which here is a no-op) and passes through.
     #expect(monitor.pressAction(pressEvent()) == .dismissAndPass)
 }
+
+/// The popover content background is fully opaque (alpha == 1) for all families
+/// and modes, so the popover renders predictably regardless of background.
+@MainActor
+@Test func popoverContentBackgroundIsFullyOpaqueForAllThemes() {
+    let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+    let modes: [AppearanceConfiguration.Mode] = [.light, .dark]
+
+    for family in families {
+        for mode in modes {
+            let appearance = AppearanceConfiguration(family: family, mode: mode)
+            let theme = BarTheme.resolve(appearance, dark: mode == .dark)
+            let content = BarPopoverContentController()
+            content.theme = theme
+            _ = content.view
+            content.applyTheme()
+
+            guard let backgroundColor = content.view.layer?.backgroundColor else {
+                #expect(Bool(false), "Content view should have a layer background color")
+                continue
+            }
+            let nsColor = NSColor(cgColor: backgroundColor)
+            let alpha = nsColor?.alphaComponent ?? 0
+            #expect(alpha == 1.0, "Background for \(family.displayName) in \(mode.displayName) mode should be fully opaque (alpha: \(alpha))")
+        }
+    }
+}
