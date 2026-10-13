@@ -2,12 +2,12 @@
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
-status: ready
+status: active
 priority: p1
 area: [macos, infra]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
@@ -36,3 +36,4 @@ Repo rule: do not commit images; repoos.toml edits happen on this task's branch 
 - 2026-10-13T08:21:30Z · created · njachowski@gmail.com
 - 2026-10-13T08:21:33Z · status inbox→ready
 - 2026-10-13T08:21:34Z · cli_override, model_override
+- 2026-10-13T08:21:34Z · status ready→active, branch
