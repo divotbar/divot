@@ -2,7 +2,7 @@
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
 type: chore
-status: active
+status: review
 priority: p3
 area: macos
 depends_on: ["0078"]
@@ -35,4 +35,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:22:36Z · status inbox→ready
 - 2026-10-13T07:22:37Z · cli_override, model_override
 - 2026-10-13T07:22:38Z · status ready→active, branch
-- 2026-10-13T07:42:50Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-13T07:42:50Z · status active→review
