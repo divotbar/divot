@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T18:47:52Z"
+review_passes: 11
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
@@ -14,8 +16,6 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T18:47:52Z"
-review_passes: 10
 review_rounds: 2
 dev_error_count: 1
 ---
@@ -195,3 +195,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:45:18Z · note: shots: skipped — 8 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T18:47:52Z · note: review pass 11: needs some work
 - 2026-10-13T18:47:52Z · needs_input
+
