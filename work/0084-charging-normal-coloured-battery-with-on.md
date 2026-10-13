@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T09:18:10Z"
+updated_at: "2026-10-13T09:20:49Z"
 ---
 ## Problem
 #0074 made the charging indicator unmistakable by tinting the WHOLE battery symbol green while charging (its Approach chose the whole-icon fallback; #0058 and #0074 both started from 'only the bolt green'). Maintainer screenshot 2026-10-13 16:04: the whole battery is green. The maintainer does not want that: the battery should stay the normal icon colour (the bar's regular label colour, black on light themes) and ONLY the charging bolt should be green, so it is clear what it is.
@@ -47,3 +47,4 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 - 2026-10-13T09:13:16Z · body: section Screenshots
 - 2026-10-13T09:18:05Z · status active→review
 - 2026-10-13T09:18:10Z · note: shots: skipped — 8 handoff shots already captured for this exact plan (ebcfea7) during finalization (#0734)
+- 2026-10-13T09:20:49Z · note: review pass 1: needs some work
