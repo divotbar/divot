@@ -136,7 +136,7 @@ final class BarItemView: NSView {
         switch action {
         case .none: setAccessibilityHelp(nil)
         case .toggleKeepAwake: setAccessibilityHelp("Toggles keep-awake")
-        case .toggleAppearance: setAccessibilityHelp("Toggles appearance")
+        case .toggleAppearance: setAccessibilityHelp("Opens appearance options")
         default: setAccessibilityHelp("Activates \(presentation.accessibilityLabel)")
         }
 
@@ -405,6 +405,11 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// opens the Sound pane. `nil` in tests, where the item keeps its original
     /// settings-pane action.
     private let volumePopover: VolumePopoverController?
+    /// The shared appearance popover. When present, the appearance (moon) item
+    /// opens it instead of toggling light/dark directly; the popover sets the
+    /// mode and the theme family and its last row opens Divot settings. `nil` in
+    /// tests, where the item keeps its original one-click toggle.
+    private let appearancePopover: AppearancePopoverController?
 
     init(side: BarSide,
          items: [BarItemID],
@@ -421,6 +426,7 @@ final class BarContentView: NSView, BarContentLifecycle {
          theme: BarTheme = .systemDefault,
          wifiPopover: WifiPopoverController? = nil,
          volumePopover: VolumePopoverController? = nil,
+         appearancePopover: AppearancePopoverController? = nil,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
@@ -429,6 +435,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         self.theme = theme
         self.wifiPopover = wifiPopover
         self.volumePopover = volumePopover
+        self.appearancePopover = appearancePopover
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -469,6 +476,13 @@ final class BarContentView: NSView, BarContentLifecycle {
                 // configured; the popover's last row reaches the Sound pane.
                 if case .openSettings(.sound) = action, let view, let volumePopover = self.volumePopover {
                     volumePopover.present(relativeTo: view)
+                    return
+                }
+                // The appearance (moon) item opens the appearance popover when
+                // one is configured; it sets the mode and family and its last
+                // row opens Divot's own settings window.
+                if case .toggleAppearance = action, let view, let appearancePopover = self.appearancePopover {
+                    appearancePopover.present(relativeTo: view)
                     return
                 }
                 self.onActivate?(action)

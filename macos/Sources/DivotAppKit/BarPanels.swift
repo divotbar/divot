@@ -8,6 +8,10 @@ public protocol BarDisplaySurface: AnyObject {
     /// Apply a batch of widget changes to whichever items this surface renders.
     /// Items not on this display are ignored.
     func apply(widgetChanges: [WidgetChange])
+    /// Repaint for an appearance-only change (family or mode) without rebuilding
+    /// the panels. Rebuilding would close the panels an open popover is anchored
+    /// to, so an appearance change updates the theme in place instead.
+    func apply(appearance: AppearanceConfiguration)
     func close()
 }
 
@@ -54,8 +58,9 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     private let rightContent: BarContentView
     private var targets: [ObjectIdentifier: CGRect] = [:]
     /// The configuration the panels were built from, so a restyle can recompute
-    /// the theme without a rebuild.
-    private let configuration: DivotConfiguration
+    /// the theme without a rebuild. `appearance` is the only field updated after
+    /// construction (via `apply(appearance:)`).
+    private var configuration: DivotConfiguration
     /// Extra panel height below the bar reserved for the optional bottom-shadow
     /// strip; zero when the shadow is off. The panel is enlarged by this much so
     /// the gradient can draw *outside* the flat bar instead of over it (#0025).
@@ -74,6 +79,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 displayScreensID: Int? = nil,
                 wifiPopover: WifiPopoverController? = nil,
                 volumePopover: VolumePopoverController? = nil,
+                appearancePopover: AppearancePopoverController? = nil,
                 onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
         self.configuration = configuration
@@ -96,6 +102,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           theme: theme,
                                           wifiPopover: wifiPopover,
                                           volumePopover: volumePopover,
+                                          appearancePopover: appearancePopover,
                                           onActivate: onWidgetAction)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
@@ -106,6 +113,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                            theme: theme,
                                            wifiPopover: wifiPopover,
                                            volumePopover: volumePopover,
+                                           appearancePopover: appearancePopover,
                                            onActivate: onWidgetAction)
         self.left = Self.makePanel(on: screen, content: leftContent, shadowHeight: shadowStrip)
         self.right = Self.makePanel(on: screen, content: rightContent, shadowHeight: shadowStrip)
@@ -163,6 +171,13 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     public func apply(widgetChanges: [WidgetChange]) {
         leftContent.apply(widgetChanges)
         rightContent.apply(widgetChanges)
+    }
+
+    /// Repaint for an appearance-only change in place, so an open popover
+    /// anchored to one of these panels is not torn down mid-selection.
+    public func apply(appearance: AppearanceConfiguration) {
+        configuration.appearance = appearance
+        restyle()
     }
 
     public func close() {
