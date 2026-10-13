@@ -12,8 +12,6 @@ cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
 updated_at: "2026-10-13T17:43:39Z"
-last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
-last_handoff_failure_sha: 41f9a14aa56bad842932b2f35cee128cf13c85eb
 review_passes: 3
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -70,3 +68,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:43:39Z · status active→review
 - 2026-10-13T17:43:39Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:43:39Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+
