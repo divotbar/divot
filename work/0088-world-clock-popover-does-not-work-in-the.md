@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:47:59Z"
+updated_at: "2026-10-13T16:48:09Z"
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -74,3 +74,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T16:29:08Z · cli_override, model_override
 - 2026-10-13T16:29:08Z · status ready→active, branch
 - 2026-10-13T16:47:59Z · status active→review
+- 2026-10-13T16:48:09Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
