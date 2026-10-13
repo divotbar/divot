@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T07:07:34Z"
+review_passes: 5
 id: "0078"
 title: Offscreen popover and bar rendering to PNG with pixel assertions (gitignored output)
 type: chore
@@ -15,8 +17,6 @@ branch: feat/offscreen-popover-and-bar-rendering-to-p
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T06:23:20Z"
-updated_at: "2026-10-13T07:07:34Z"
-review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -70,3 +70,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T07:06:17Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-13T07:07:33Z · note: review pass 5: needs some work
 - 2026-10-13T07:07:34Z · needs_input
+
