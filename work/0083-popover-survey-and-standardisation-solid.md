@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:00:54Z"
+updated_at: "2026-10-13T09:01:18Z"
 ---
 ## Problem
 Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popovers) show the popovers are still wrong in the running app after #0072-#0077, even though those tasks passed review:
@@ -40,6 +40,16 @@ Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popove
 ## Notes for AI
 Related, already done but evidently incomplete: #0070 Wi-Fi, #0071 Volume, #0072 Appearance, #0073 and #0076 restyle, #0077 Calendar, #0078/#0079 snapshots, #0081 shots. Start from BarPopover.swift (BarPopoverHost), AppearancePopover.swift, VolumePopover.swift, WifiPopover.swift, CalendarPopover.swift and BarTheme.swift. Do not commit images.
 
+## Screenshots
+Maintainer screenshots from the packaged app, 2026-10-13 15:51. 1) Appearance popover: staggered, partly right-aligned theme rows, gradient/translucent fill. 2) Wi-Fi popover: grey-on-grey permission message, right-aligned links, translucent fill. 3) Calendar popover: faint weekday headers, no filled highlight for today, right-aligned footer.
+
+![Appearance popover](/api/tasks/0083/attachments/screenshot-1.png)
+
+![Wi-Fi popover](/api/tasks/0083/attachments/screenshot-2.png)
+
+![Calendar popover](/api/tasks/0083/attachments/screenshot-3.png)
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
+- 2026-10-13T09:01:18Z · body: section Screenshots
