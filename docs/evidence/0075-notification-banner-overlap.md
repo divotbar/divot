@@ -6,35 +6,41 @@ Task 0075 · investigation phase 2026-10-13.
 This records findings from investigating why macOS notification banners
 position themselves below the Divot bar (banner title row partly covered).
 
-## Measurement attempts
+## Measurement setup
 
-**Probe 2026-10-13:** Built and ran `divot-notification-banner-probe` (queries
-`CGWindowListCopyWindowInfo` for all windows, filters for NotificationCenter owner and
-window levels). The probe:
+**Probe 2026-10-13 (initial):** Built and ran `divot-notification-banner-probe` (queries
+`CGWindowListCopyWindowInfo` for all windows). The probe:
 - Parses window levels via NSNumber/intValue to avoid silent zero values
 - Parses bounds from X/Y/Width/Height dictionary entries as NSNumber doubles
 - Converts CoreGraphics coordinates (top-left origin) to AppKit coordinates (bottom-left origin) using primary screen height
 - Labels all output as AppKit coordinates for clarity
 
-**Result: no notification windows found in this environment.**
+Result: no notification windows found in that sandboxed environment.
 
-**Trigger attempts 2026-10-13:** Attempted to create a live test notification:
-- `osascript -e 'display notification "Divot probe" with title "Divot probe"'` — process
-  ran, but no notification appeared in the window list.
-- `NSUserNotification` (deprecated API) via Swift — notification was delivered via
-  `NSUserNotificationCenter.default.deliver()`, but no window appeared in the list.
+**Probe 2026-10 (watch mode, v2):** Updated probe provides a `--watch` mode for live measurement:
 
-Both attempts were performed in a sandboxed environment where GUI notifications may be
-blocked or unsupported. The notification delivery calls completed without error, but the
-windows were never queryable.
+```bash
+swift build --package-path macos && macos/.build/debug/divot-notification-banner-probe --watch [seconds]
+```
 
-**Outcome:** Could not measure actual banner window levels or bounds due to environment
-limitations (notifications not displayed or not enumerated by `CGWindowListCopyWindowInfo`).
+This polls `CGWindowListCopyWindowInfo` twice per second (0.5-second intervals) and prints:
+- **Every newly appearing window:** timestamp, owner name, owner PID, window name, layer, CG bounds, AppKit-flipped bounds, alpha, on-screen status
+- **Every window whose bounds or layer changed** between polls
+- **Window classification:** `[NotificationCenter banner]` or `[ControlCenter]` (detected by owner name or bundle ID, case-insensitive) or `[Divot panel]`
+- **Divot panel's measured layer:** extracted from the window list and printed in real time
+- **Comparison line:** for each changed window, notes whether its layer is above, below, or equal to Divot's measured panel layer
+- **Summary:** lists the 5 highest-layer windows observed on-screen, or notes if nothing new appeared
 
-**Next step:** A human on macOS with notifications enabled must run the probe while a real
-notification is visible (e.g., Calendar notification triggered by an event). The probe will
-output the banner's `kCGWindowLayer` (via parseWindowLayerFromDict) and bounds in AppKit
-coordinates (via flipBoundsToAppKit). Paste those values into this document.
+**Prerequisites for measurement:**
+1. Do Not Disturb must be OFF (notifications are suppressed when DND is enabled)
+2. Notification Center or Calendar must deliver a notification during the watch period
+3. Alternative: Open System Settings → Control Center panel to test with a ControlCenter window (a stable, reliable overlay for layer comparison)
+
+**Example to trigger a banner:** 
+```bash
+osascript -e 'display notification "Test message" with title "Divot test"'
+```
+Or trigger a Calendar event notification, or use another app that sends notifications.
 
 ## What was observed
 
@@ -213,12 +219,26 @@ fix is apparent without architectural changes.
    cannot be extrapolated to real macOS behavior. Maintainer must test on hardware
    where notifications are actually displayed.
 
-## Not observed — a human must supply
+## Measurement run — a human must supply
 
-- Live measurement of notification banner window level while a banner is visible.
-- Visual confirmation of the overlap in the packaged app with the maintainer's hardware.
-- Overlap behavior on notch-free displays and multi-display setups.
-- Notification appearance during fullscreen and Spaces transitions.
+Use the `--watch` mode to capture live data while a notification is visible:
+
+1. Build the probe: `swift build --package-path macos`
+2. Make sure Do Not Disturb is OFF
+3. In a second terminal, trigger a notification (e.g., `osascript -e 'display notification "Test"...'`)
+4. Immediately run: `macos/.build/debug/divot-notification-banner-probe --watch 30`
+5. Copy the output from the summary — particularly:
+   - NotificationCenter banner's window layer and bounds (AppKit coordinates)
+   - Divot panel's measured layer and bounds
+   - Comparison line showing layer relationship
+   
+   Attach this output to task #0080 or a new task with evidence.
+   
+   **Alternative reference overlay:** Open System Settings → Control Center (e.g., toggle Wi-Fi) instead of waiting for a notification. The ControlCenter panel provides a stable, re-triggerable window for layer comparison without relying on notifications. Run `--watch` while the panel is open; the output will classify it as `[ControlCenter]` and show its real layer and position.
+   
+6. Also test and document:
+   - Overlap behavior on notch-free displays and multi-display setups
+   - Notification appearance during fullscreen and Spaces transitions
 
 ## Conclusion
 
