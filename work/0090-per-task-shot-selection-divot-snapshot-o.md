@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:57:25Z"
+updated_at: "2026-10-13T17:58:13Z"
 review_passes: 5
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -123,3 +123,4 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:55:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:56:57Z · status active→review
 - 2026-10-13T17:56:57Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:58:13Z · note: review pass 6: needs some work
