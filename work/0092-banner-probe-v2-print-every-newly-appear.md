@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 106622
-last_close_out_gate_at: "2026-10-13T19:03:15.906Z"
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 32225c58da42985bfcc1d9f477dce66139b403db
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
-updated_at: "2026-10-13T19:03:15Z"
+updated_at: "2026-10-13T19:03:22Z"
+last_close_out_gate_ms: 106622
+last_close_out_gate_at: "2026-10-13T19:03:15.906Z"
 review_passes: 5
 last_check_failure: "repoos check at 2026-10-13T18:41:26.243Z: repoos check failed: native-core — 􁁛 Suite \"Windowless presentation\" passed after 10.578 seconds."
 review_rounds: 2
@@ -77,4 +78,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:57:40Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (0b78e5d0) during finalization (#0734)
 - 2026-10-13T18:59:20Z · note: review pass 5: good to go
 - 2026-10-13T19:03:15Z · close-out gate completed in 107s
-
+- 2026-10-13T19:03:22Z · status review→done, release:success
