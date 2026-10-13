@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T18:05:38Z"
+updated_at: "2026-10-13T18:06:24Z"
 review_passes: 6
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -141,3 +141,4 @@ Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot:
 - 2026-10-13T18:04:19Z · body: section Verification
 - 2026-10-13T18:05:12Z · status active→review
 - 2026-10-13T18:05:12Z · note: shots: skipped — 188 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:06:24Z · note: review pass 7: needs some work
