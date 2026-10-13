@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/dev-page-add-a-divot-bar-packaged-target
 created_at: "2026-10-13T17:21:21Z"
-updated_at: "2026-10-13T20:06:12Z"
+updated_at: "2026-10-13T20:08:00Z"
 ---
 ## Problem
 The Dev page's 'Divot bar' target runs swift run --package-path macos divot, a bare dev binary with no Info.plist and no bundle identity. It cannot ask for or hold Location permission (so the Wi-Fi name and network list show nothing), its Accessibility grant attaches to the host terminal or app, and permissions are never persistent. The packaged dist/Divot.app (scripts/package-app.sh) is the version that behaves like the real product, but today the maintainer has to build and relaunch it by hand.
@@ -44,3 +44,4 @@ The Dev page itself cannot drive this branch: RepoOS runs dev targets in the pro
 - 2026-10-13T19:21:01Z · message_queued at 2026-10-13T19:21:01.319Z
 - 2026-10-13T19:21:01Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-13T20:06:12Z · body: section Verification
+- 2026-10-13T20:08:00Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
