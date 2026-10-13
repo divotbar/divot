@@ -3,9 +3,6 @@ id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p0
 area: macos
 assigned_to: ""
@@ -16,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:43:50Z"
+updated_at: "2026-10-13T10:43:59Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -193,3 +190,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:42:00Z · note: review pass 5: needs some work
 - 2026-10-13T10:42:00Z · needs_input
 - 2026-10-13T10:43:50Z · body: section Acceptance criteria
+- 2026-10-13T10:43:59Z · needs_input
