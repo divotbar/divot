@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
@@ -49,3 +51,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T13:29:22Z · status inbox→ready
 - 2026-10-13T13:29:23Z · cli_override, model_override
 - 2026-10-13T13:29:23Z · status ready→active, branch
+
