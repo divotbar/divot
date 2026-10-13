@@ -13,7 +13,7 @@ branch: feat/volume-popover-output-volume-slider-with
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:04Z"
-updated_at: "2026-10-13T02:15:04Z"
+updated_at: "2026-10-13T02:15:49Z"
 ---
 ## Problem
 Clicking the volume item only opens a System Settings pane. The maintainer wants a popup/dropdown with a slider to change the volume, like the new Wi-Fi popover (#0070).
@@ -59,3 +59,4 @@ Whether the slider actually moves the real output on the packaged app, and wheth
 - 2026-10-13T02:14:44Z · needs_input
 - 2026-10-13T02:15:03Z · status active→review
 - 2026-10-13T02:15:04Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T02:15:49Z · note: review pass 1: good to go
