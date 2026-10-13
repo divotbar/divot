@@ -9,9 +9,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
-model_override: sonnet
+model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:12:19Z"
+updated_at: "2026-10-13T09:12:20Z"
 ---
 ## Problem
 Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popovers) show the popovers are still wrong in the running app after #0072-#0077, even though those tasks passed review:
@@ -89,3 +89,4 @@ HEAD at time of work was the commit shown by `git log -1` on this branch. The ma
 - 2026-10-13T09:02:08Z · model_override
 - 2026-10-13T09:02:09Z · status ready→active
 - 2026-10-13T09:10:46Z · body: section Survey and result (agent)
+- 2026-10-13T09:12:20Z · model_override
