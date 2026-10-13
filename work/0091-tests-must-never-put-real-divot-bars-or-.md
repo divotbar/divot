@@ -2,14 +2,14 @@
 id: "0091"
 title: Tests must never put real Divot bars or popovers on the maintainer's screen
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/tests-must-never-put-real-divot-bars-or-
 created_at: "2026-10-13T16:33:40Z"
-updated_at: "2026-10-13T17:08:58Z"
+updated_at: "2026-10-13T17:12:11Z"
 ---
 ## Problem
 Maintainer report 2026-10-13: 'a lot of test instances of Divot running, bars all over my screen'. Process check at 23:35: only ONE real Divot app (dist/Divot.app, the maintainer's own, running for 6 hours); the rest are short-lived swiftpm-testing-helper processes started by the engineer agents' swift test runs (three engineers were running builds and tests at once). Those tests create REAL AppKit windows: BarPopoverTests.swift calls host.present(content, relativeTo: anchor) (lines ~85 and ~219), which goes through BarPopoverHost.present -> panel.makeKeyAndOrderFront(nil) (BarPopover.swift ~472); DisplayCoordinatorWidgetTests drive DisplayCoordinator / BarPanels, which order real panels to the front (BarPanels.swift orderFrontRegardless ~130). So every swift test run flashes bars and popovers over the maintainer's desktop, steals focus, and with several runs in parallel the screen fills with them.
@@ -49,3 +49,4 @@ Verification: `scripts/swift-test-lock.sh` (full suite, 787 tests) passes. `Wind
 - 2026-10-13T16:58:38Z · message_queued at 2026-10-13T16:58:38.135Z
 - 2026-10-13T16:58:38Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-13T17:08:58Z · body: section Window audit
+- 2026-10-13T17:12:11Z · status active→review
