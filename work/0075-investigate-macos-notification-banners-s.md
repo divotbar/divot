@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T07:48:49Z"
+updated_at: "2026-10-13T07:49:51Z"
 close_out_repair_count: 1
 review_passes: 8
 review_rounds: 2
@@ -184,3 +184,4 @@ Until these measurements are provided, feasibility of a safe public fix cannot b
 - 2026-10-13T07:47:29Z · message_queued at 2026-10-13T07:47:29.904Z
 - 2026-10-13T07:48:48Z · status active→review
 - 2026-10-13T07:48:49Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T07:49:51Z · note: review pass 9: needs some work
