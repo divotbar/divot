@@ -16,6 +16,10 @@ The Wi-Fi name needs Location permission, which macOS requires for reading the c
 
 Clicking the network item opens a read-only popover of nearby networks. That list also needs Location permission, because macOS gates network names on it. Without permission the popover shows a short message and a button to **System Settings → Privacy & Security → Location Services** instead of an empty list; grant access there and click the item again. Divot scans only when the popover opens, so a network that appears later shows up on the next open. The popover never joins a network and never asks for a password; use **Open Wi-Fi Settings…** at its last row for anything beyond looking.
 
+## The volume slider doesn't move the volume
+
+Clicking the volume item opens a popover with a slider for the default output, a **Mute** toggle, and **Open Sound Settings…** at its last row. Moving the slider changes the default output's volume and the bar item's icon and percentage follow; while the popover is open it also follows volume changes made elsewhere, such as the keyboard volume keys. If the slider is disabled with a short note, that output exposes no settable volume control — some HDMI and DisplayPort devices do not — so use the display's or device's own controls. For input devices, per-app volume, or a different output device, use the Sound pane. This is implemented from public Core Audio only and is not physically validated yet.
+
 ## Website build fails on a link
 
 VitePress treats dead internal links as errors. Check the target Markdown filename and path. Run `bun run check` after correcting the source; do not disable dead-link checks.

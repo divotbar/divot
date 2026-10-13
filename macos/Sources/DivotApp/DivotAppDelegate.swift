@@ -33,6 +33,10 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the read-only Wi-Fi popover anchored to the network item. One
     /// instance is shared by every display's bar so only one popover is open.
     private var wifiPopover: WifiPopoverController?
+    /// Owns the output-volume popover anchored to the volume item. One instance
+    /// is shared by every display's bar so only one popover is open, and it
+    /// holds the Core Audio listeners only while it is shown.
+    private var volumePopover: VolumePopoverController?
     /// The one quit path. Both the status item menu and the app's main menu
     /// target it, and the Settings window reaches it through the same instance,
     /// so every quit control ends the process the same way. The keep-awake
@@ -81,6 +85,14 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             openLocationSettings: { [weak self] in self?.perform(.openSettings(.locationServices)) })
         self.wifiPopover = wifiPopover
 
+        // The output-volume popover is created once, shares the same look as the
+        // Wi-Fi popover, and reads/writes the default output through public Core
+        // Audio. It subscribes to property listeners only while it is open.
+        let volumePopover = VolumePopoverController(
+            control: CoreAudioVolumeReading(),
+            openSoundSettings: { [weak self] in self?.perform(.openSettings(.sound)) })
+        self.volumePopover = volumePopover
+
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
         let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
@@ -94,6 +106,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             workspaceIcons: icons,
                                             displayScreensID: screensID,
                                             wifiPopover: wifiPopover,
+                                            volumePopover: volumePopover,
                                             onWidgetAction: { action in
                 self?.perform(action)
             })

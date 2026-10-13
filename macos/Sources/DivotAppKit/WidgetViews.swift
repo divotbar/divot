@@ -400,6 +400,11 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// pane. `nil` in tests and in any surface without a scanner, where the item
     /// keeps its original settings-pane action.
     private let wifiPopover: WifiPopoverController?
+    /// The shared output-volume popover. When present, the volume item opens it
+    /// instead of jumping straight to System Settings; the popover's last row
+    /// opens the Sound pane. `nil` in tests, where the item keeps its original
+    /// settings-pane action.
+    private let volumePopover: VolumePopoverController?
 
     init(side: BarSide,
          items: [BarItemID],
@@ -415,6 +420,7 @@ final class BarContentView: NSView, BarContentLifecycle {
          presentationOptions: WidgetPresentationOptions = .default,
          theme: BarTheme = .systemDefault,
          wifiPopover: WifiPopoverController? = nil,
+         volumePopover: VolumePopoverController? = nil,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
@@ -422,6 +428,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         self.presentationOptions = presentationOptions
         self.theme = theme
         self.wifiPopover = wifiPopover
+        self.volumePopover = volumePopover
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -456,6 +463,12 @@ final class BarContentView: NSView, BarContentLifecycle {
                 // configured; the popover's last row reaches the settings pane.
                 if case .openSettings(.network) = action, let view, let wifiPopover = self.wifiPopover {
                     wifiPopover.present(relativeTo: view)
+                    return
+                }
+                // The volume item opens the output-volume popover when one is
+                // configured; the popover's last row reaches the Sound pane.
+                if case .openSettings(.sound) = action, let view, let volumePopover = self.volumePopover {
+                    volumePopover.present(relativeTo: view)
                     return
                 }
                 self.onActivate?(action)

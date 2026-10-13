@@ -35,6 +35,11 @@ protocol AudioPropertyListening: Sendable {
     /// Whether `object` exposes `address`. Used to pick the property elements a
     /// device actually has (main control versus per-channel controls).
     func hasProperty(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool
+    /// Whether `object` exposes `address` *and* it is writable. A device can
+    /// report a volume property that is read-only (some HDMI/DisplayPort
+    /// outputs), and the popover must disable its slider rather than write a
+    /// value the hardware ignores.
+    func isPropertySettable(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool
 }
 
 /// Live Core Audio implementation.
@@ -70,6 +75,13 @@ struct CoreAudioPropertyListening: AudioPropertyListening {
         var mutable = address
         return AudioObjectHasProperty(object, &mutable)
     }
+
+    func isPropertySettable(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool {
+        var mutable = address
+        var settable: DarwinBoolean = false
+        let status = AudioObjectIsPropertySettable(object, &mutable, &settable)
+        return status == noErr && settable.boolValue
+    }
 }
 
 /// Live output volume and mute state from Core Audio.
@@ -78,7 +90,7 @@ struct CoreAudioPropertyListening: AudioPropertyListening {
 /// listeners on a utility queue: volume/mute on the current default output
 /// device and default-device switches on the system object. No polling, no main
 /// thread, and no permission.
-public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
+public final class CoreAudioVolumeReading: VolumeReading, OutputVolumeControlling, @unchecked Sendable {
     private let backend: any AudioPropertyListening
 
     public init() {
@@ -97,6 +109,30 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
         let watcher = CoreAudioVolumeWatcher(backend: backend, handler: handler)
         watcher.start()
         return CallbackSubscription { watcher.stop() }
+    }
+
+    // MARK: Property writes
+
+    public func setLevel(_ level: Double) {
+        guard let device = backend.defaultOutputDevice() else { return }
+        let value = Float32(OutputVolume.clamped(level))
+        for element in Self.volumeElements(backend: backend, device: device) {
+            var address = outputAddress(selector: kAudioDevicePropertyVolumeScalar, element: element)
+            var scalar = value
+            let size = UInt32(MemoryLayout<Float32>.size)
+            AudioObjectSetPropertyData(device, &address, 0, nil, size, &scalar)
+        }
+    }
+
+    public func setMuted(_ muted: Bool) {
+        guard let device = backend.defaultOutputDevice() else { return }
+        let value = UInt32(muted ? 1 : 0)
+        for element in Self.muteElements(backend: backend, device: device) {
+            var address = outputAddress(selector: kAudioDevicePropertyMute, element: element)
+            var flag = value
+            let size = UInt32(MemoryLayout<UInt32>.size)
+            AudioObjectSetPropertyData(device, &address, 0, nil, size, &flag)
+        }
     }
 
     // MARK: Property reads
@@ -182,6 +218,18 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
         return name.takeRetainedValue() as String
     }
 
+    /// Whether the device exposes a writable volume control. Uses the same
+    /// element selection as the reads and the watcher, so a device that only
+    /// exposes per-channel controls is settable when those channels are.
+    static func hasSettableVolume(backend: any AudioPropertyListening,
+                                  device: AudioDeviceID) -> Bool {
+        volumeElements(backend: backend, device: device).contains { element in
+            backend.isPropertySettable(on: device,
+                                       address: outputAddress(selector: kAudioDevicePropertyVolumeScalar,
+                                                              element: element))
+        }
+    }
+
     static func read(backend: any AudioPropertyListening = CoreAudioPropertyListening()) -> VolumeSnapshot? {
         guard let device = backend.defaultOutputDevice() else { return .noOutput }
         let muted = isMuted(backend: backend, device: device) ?? false
@@ -191,7 +239,8 @@ public final class CoreAudioVolumeReading: VolumeReading, @unchecked Sendable {
                               // A device with no software volume control is
                               // treated as full scale, honoring mute.
                               level: Double(level ?? (muted ? 0 : 1)),
-                              isMuted: muted)
+                              isMuted: muted,
+                              isSettable: hasSettableVolume(backend: backend, device: device))
     }
 }
 

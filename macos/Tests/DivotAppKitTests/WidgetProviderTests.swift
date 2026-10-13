@@ -637,6 +637,9 @@ private final class MockAudioBackend: AudioPropertyListening, @unchecked Sendabl
         kAudioDevicePropertyVolumeScalar: [kAudioObjectPropertyElementMain],
         kAudioDevicePropertyMute: [kAudioObjectPropertyElementMain],
     ]
+    /// Elements the mock device will refuse to write. Empty means every exposed
+    /// control is writable, matching a normal output.
+    private var readOnlyElements: Set<AudioObjectPropertyElement> = []
 
     var addCount: Int { lock.lock(); defer { lock.unlock() }; return adds }
     var removeCount: Int { lock.lock(); defer { lock.unlock() }; return removes }
@@ -652,6 +655,12 @@ private final class MockAudioBackend: AudioPropertyListening, @unchecked Sendabl
         lock.lock(); supportedElements[selector] = elements; lock.unlock()
     }
 
+    /// Models an output whose volume control is exposed but read-only (some
+    /// HDMI/DisplayPort devices), so no element is writable.
+    func setReadOnly() {
+        lock.lock(); readOnlyElements.insert(kAudioObjectPropertyElementMain); lock.unlock()
+    }
+
     var device: AudioDeviceID? {
         get { lock.lock(); defer { lock.unlock() }; return deviceValue }
         set { lock.lock(); deviceValue = newValue; lock.unlock() }
@@ -662,6 +671,12 @@ private final class MockAudioBackend: AudioPropertyListening, @unchecked Sendabl
     func hasProperty(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool {
         lock.lock(); defer { lock.unlock() }
         return supportedElements[address.mSelector]?.contains(address.mElement) ?? false
+    }
+
+    func isPropertySettable(on object: AudioObjectID, address: AudioObjectPropertyAddress) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        guard supportedElements[address.mSelector]?.contains(address.mElement) == true else { return false }
+        return !readOnlyElements.contains(address.mElement)
     }
 
     func addListener(on object: AudioObjectID,
@@ -780,6 +795,23 @@ private final class Counter: @unchecked Sendable {
     let backend = MockAudioBackend()
     backend.device = nil
     #expect(CoreAudioVolumeReading(backend: backend).snapshot() == .noOutput)
+}
+
+@Test func volumeReadingMarksANormalOutputSettable() {
+    let backend = MockAudioBackend()
+    let snapshot = CoreAudioVolumeReading(backend: backend).snapshot()
+    #expect(snapshot?.hasOutputDevice == true)
+    #expect(snapshot?.isSettable == true)
+}
+
+@Test func volumeReadingMarksAReadOnlyOutputUnsettable() {
+    let backend = MockAudioBackend()
+    // The device exposes a volume property but refuses to write it, which is the
+    // HDMI/DisplayPort case the popover must not offer a slider for.
+    backend.setReadOnly()
+    let snapshot = CoreAudioVolumeReading(backend: backend).snapshot()
+    #expect(snapshot?.hasOutputDevice == true)
+    #expect(snapshot?.isSettable == false)
 }
 
 @Test func networkReadingRequestsLocationOnlyWhenWifiNameIsRead() {
