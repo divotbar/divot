@@ -12,7 +12,7 @@ branch: feat/offscreen-popover-and-bar-rendering-to-p
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T06:23:20Z"
-updated_at: "2026-10-13T06:53:22Z"
+updated_at: "2026-10-13T06:53:23Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -58,3 +58,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T06:49:31Z · status review→active
 - 2026-10-13T06:49:31Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T06:53:22Z · status active→review
+- 2026-10-13T06:53:23Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
