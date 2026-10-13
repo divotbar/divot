@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:59:56Z"
+updated_at: "2026-10-13T19:06:13Z"
 review_passes: 7
 review_rounds: 2
 dev_error_count: 1
@@ -71,24 +71,29 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ```json
 [
 {
-"label": "Empty state (0 zones): header + 'No other timezones. Add one below.', Add row and settings link",
-"target": "Divot bar",
-"glob": "*world-clock*zero-timezones*"
+  "label": "Empty state (0 zones): header + 'No other timezones. Add one below.', Add row and settings link",
+  "target": "Divot bar",
+  "glob": "*world-clock*zero-timezones*"
 },
 {
-"label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
-"target": "Divot bar",
-"glob": "*world-clock*defaults*"
+  "label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
+  "target": "Divot bar",
+  "glob": "*world-clock*defaults*"
 },
 {
-"label": "Four zones with Yesterday/Tomorrow day labels across the date line",
-"target": "Divot bar",
-"glob": "*world-clock*day-label*"
+  "label": "One zone: a single stored entry (Tokyo)",
+  "target": "Divot bar",
+  "glob": "*world-clock*one-zone*"
 },
 {
-"label": "Add flow: 'los' typed, results list visible (San Francisco)",
-"target": "Divot bar",
-"glob": "*world-clock*add-flow*"
+  "label": "Four zones with Yesterday/Tomorrow day labels across the date line",
+  "target": "Divot bar",
+  "glob": "*world-clock*day-label*"
+},
+{
+  "label": "Add flow: 'los' typed, results list visible (San Francisco)",
+  "target": "Divot bar",
+  "glob": "*world-clock*add-flow*"
 }
 ]
 ```
@@ -209,3 +214,4 @@ Reproduced first in the REAL controller path: a test drives `BarPopoverHost`/`Ba
 - 2026-10-13T18:52:10Z · body: section Shots
 - 2026-10-13T18:54:22Z · body: section Shot descriptions
 - 2026-10-13T18:59:56Z · body: section Root causes
+- 2026-10-13T19:06:13Z · body: section Shots
