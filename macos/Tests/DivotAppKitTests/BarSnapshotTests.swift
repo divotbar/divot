@@ -69,18 +69,7 @@ struct BarSnapshotTests {
     // MARK: Rendering
 
     private func snapshotDirectory() -> URL {
-        if let env = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_DIR"] {
-            let url = URL(fileURLWithPath: env)
-            if !url.path.contains("snapshots") && !url.path.contains(".build") {
-                preconditionFailure("DIVOT_SNAPSHOT_DIR must be under an ignored path (should contain 'snapshots' or '.build')")
-            }
-            return url
-        }
-        let macosDir = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()  // DivotAppKitTests
-            .deletingLastPathComponent()  // Tests
-            .deletingLastPathComponent()  // macos
-        return macosDir.appendingPathComponent(".build").appendingPathComponent("snapshots")
+        SnapshotTestHelpers.snapshotDirectory(testFile: #filePath)
     }
 
     private func render(_ config: Config, chips: Chips, charging: Bool, label: String) throws -> Rendered {
@@ -321,7 +310,7 @@ struct BarSnapshotTests {
     @Test("Snapshot directory is under an ignored path")
     func snapshotDirectoryIsIgnored() {
         let path = snapshotDirectory().path
-        #expect(path.contains(".build"), "Snapshot directory '\(path)' must be under .build/ (gitignored)")
-        #expect(path.contains("snapshots"), "Snapshot directory must be under snapshots/")
+        #expect(SnapshotTestHelpers.isIgnoredLocation(snapshotDirectory()),
+                "Snapshot directory '\(path)' must be under .build/ or snapshots/, or be REPOOS_SHOT_DIR (gitignored)")
     }
 }

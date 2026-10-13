@@ -65,7 +65,13 @@ The tests sample pixels at fixed coordinates that assume the default font and sy
 
 ## Integration with RepoOS
 
-When RepoOS adds support for capturing native screenshots (#0761), the snapshots from this test can be included in task reports by point the feature to the output directory.
+`repoos.toml` declares a `[[shot.targets]]` row named **Divot bar** (areas `macos`, paths `macos/Sources/**` and `macos/Tests/**`, `requires = ["swift"]`). It runs the snapshot suites with `DIVOT_SNAPSHOT_DIR="$REPOOS_SHOT_DIR"` and `DIVOT_SNAPSHOT_SET=shots`, and RepoOS collects `**/*.png` from that directory as the task's shots. So a task that changes native sources gets shots at handoff, a task can name the target in its `## Shots` section, and the maintainer can run `repoos shot --target "Divot bar"` by hand.
+
+- **Directory guard.** `DIVOT_SNAPSHOT_DIR` must contain `snapshots` or `.build`, or equal `REPOOS_SHOT_DIR` under a gitignored `.attachments/` directory (`SnapshotTestHelpers.isIgnoredLocation`). Anything else aborts the test run, so rendered images cannot land in a tracked path.
+- **Reduced set.** `DIVOT_SNAPSHOT_SET=shots` writes 8 PNGs: the bar with chips off, and the Wi-Fi, Volume and Appearance popovers, each in the native theme, light and dark, at the default text size. Assertions still run for the whole matrix. Without the variable, or via `scripts/snapshots.sh`, the full matrix is written.
+- **Not covered.** There is no Calendar popover snapshot test yet, so it has no shot.
+- **Popover pixel assertions are disabled.** Until #0081 the popover render guard misreported every popover as headless, so its pixel assertions never ran. With rendering fixed they fail against the bare content view (alpha, palette and contrast expectations), so `testPopover` writes the PNG and does not call `assertAllPixelProperties`. Reconciling them is follow-up work. The bar suite's assertions are unaffected.
+- **Headless.** With no usable graphics context the tests skip and no PNGs are produced; RepoOS then records no shots.
 
 ## Assertion strategy
 
