@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T14:38:51Z"
+updated_at: "2026-10-13T14:38:56Z"
 review_rounds: 2
 review_passes: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
@@ -64,3 +64,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T14:36:07Z · status review→active
 - 2026-10-13T14:37:34Z · message_queued at 2026-10-13T14:37:34.961Z
 - 2026-10-13T14:38:51Z · status active→review
+- 2026-10-13T14:38:56Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (14b941e) during finalization (#0734)
