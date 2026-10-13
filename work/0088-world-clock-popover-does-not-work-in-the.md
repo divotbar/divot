@@ -11,9 +11,10 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:07:50Z"
+updated_at: "2026-10-13T18:21:33Z"
 review_passes: 7
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -157,3 +158,5 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T18:07:50Z · needs_input
 - 2026-10-13T18:07:50Z · status review→active
 - 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:16:17Z · agent exited with an error (opencode) · error: Transport
+- 2026-10-13T18:21:33Z · needs_input
