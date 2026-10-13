@@ -21,7 +21,7 @@ Alucard is Dracula's official light variant, and Tokyo Night Light is the upstre
 
 ## Contrast
 
-Each variant is tested against a per-role contrast floor: body text clears WCAG AA (4.5:1) on the background and surface, the selected label clears AA on its state, error and occupancy and the accent clear the 3:1 non-text floor, and both the fixed charging green and the keep-awake green pair clear 3:1 against every family's bar background in both light and dark (chip background contrast is not guaranteed, following the charging green pattern from #0084). Disabled text stays visible. The fixtures live in the `DivotCore` theme tests. Physical readability on a real display still needs human QA.
+Each variant is tested against a per-role contrast floor: body text clears WCAG AA (4.5:1) on the background and surface, the selected label clears AA on its state, error and occupancy and the accent clear the 3:1 non-text floor, and both the fixed charging green and the keep-awake green pair (light: #0B6B3A dark green; dark: #7BD88F bright green) clear 3:1 against every family's bar background in both light and dark. Chip background contrast is not guaranteed on either indicator, following the charging green pattern from #0084. Disabled text stays visible. The fixtures live in the `DivotCore` theme tests. Physical readability on a real display still needs human QA.
 
 ## Appearance
 
