@@ -3,9 +3,6 @@ id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 assigned_to: ""
@@ -14,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T18:42:05Z"
+updated_at: "2026-10-13T18:44:22Z"
 review_passes: 10
 review_rounds: 2
 dev_error_count: 1
@@ -49,7 +46,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Native light theme, no chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-native-light-default-chips-off*.png"
 },
@@ -57,7 +54,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Native light theme, with chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-native-light-default-chips-on*.png"
 },
@@ -65,7 +62,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Native dark theme, no chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-native-dark-default-chips-off*.png"
 },
@@ -73,7 +70,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Native dark theme, with chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-native-dark-default-chips-on*.png"
 },
@@ -81,7 +78,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Gruvbox light theme, no chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-gruvbox-light-default-chips-off*.png"
 },
@@ -89,7 +86,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Gruvbox light theme, with chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-gruvbox-light-default-chips-on*.png"
 },
@@ -97,7 +94,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Gruvbox dark theme, no chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-gruvbox-dark-default-chips-off*.png"
 },
@@ -105,7 +102,7 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 "label": "Keep-awake cup on Gruvbox dark theme, with chips",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+"DIVOT_SNAPSHOT_ONLY": "keep-awake"
 },
 "glob": "*keep-awake-gruvbox-dark-default-chips-on*.png"
 }
@@ -188,3 +185,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:38:59Z · needs_input
 - 2026-10-13T18:39:32Z · body: section Shots
 - 2026-10-13T18:42:05Z · note: Refreshed the keep-awake shots on the fixed cup (commit c58a5b8a + docs 388fe2b, after merging main). What the 8 keep-awake images show: Native light/dark in both variants use the plain fixed green cup (the green clears 3:1 against every bar and the translucent chip); Gruvbox light with opaque chips is the worst case — the chip is a solid dark teal (#076678) that the dark green nearly matches (1.0:1), so the cup now draws the fixed green fill with a thin white outline over it, which pops clearly next to the 80% battery label; Gruvbox light chips-off shows the plain dark green cup on the pale (#FBF1C7) bar. Gruvbox dark with chips draws a translucent chip the green clears. The contrast audit in KeepAwakeContrastTests prints the per-family/mode table (opaque and 80%-transparent chips): every bar and every mark (green where it clears, the black/white outline fallback otherwise) is >= 3:1. Human eyeball sign-off on the packaged app is still the maintainer's.
+- 2026-10-13T18:44:22Z · needs_input
