@@ -532,6 +532,12 @@ final class BarContentView: NSView, BarContentLifecycle {
                             action: WidgetActions.defaultAction(for: id))
             }
         }
+        // The time item's own tick (the `TimeProvider` boundary emission) also
+        // refreshes the world clock popover while it is open, so the panel runs
+        // no timer of its own. Only the side that owns the time item reacts.
+        if itemViews[.time] != nil, changes.contains(where: { $0.id == .time }) {
+            worldClockPopover?.refreshIfShown()
+        }
         needsLayout = true
     }
 

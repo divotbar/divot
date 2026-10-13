@@ -10,7 +10,6 @@ public final class WorldClockPopoverController {
 
     private let host = BarPopoverHost()
     private var content: WorldClockPopoverContentController?
-    private var refreshTimer: Timer?
 
     public init(openDateTimeSettings: @escaping @MainActor () -> Void,
                getConfiguration: @escaping @MainActor () -> DivotConfiguration,
@@ -25,7 +24,6 @@ public final class WorldClockPopoverController {
     public func present(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
         dismiss()
 
-        let config = getConfiguration()
         let controller = WorldClockPopoverContentController()
         controller.theme = theme
         controller.onOpenDateTimeSettings = { [weak self] in self?.openDateTimeSettings() }
@@ -35,36 +33,28 @@ public final class WorldClockPopoverController {
 
         host.present(controller, relativeTo: view)
         self.content = controller
-
-        controller.render(timezones: config.widgets.time.timezones,
-                         timeFormat: config.widgets.time.timeFormat,
-                         showSeconds: config.widgets.time.seconds,
-                         customPattern: config.widgets.time.customPattern)
-
-        startRefreshTimer()
+        render()
     }
 
-    private func startRefreshTimer() {
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.refreshContent()
-            }
-        }
+    /// Re-render from the current configuration. The bar calls this from the
+    /// time item's own tick (the `TimeProvider` minute/second boundary emission)
+    /// while the popover is open, so the panel runs no timer of its own.
+    public func refreshIfShown() {
+        guard host.isShown, content != nil else { return }
+        render()
     }
 
-    private func refreshContent() {
-        guard let content = content else { return }
+    private func render() {
+        guard let content else { return }
         let config = getConfiguration()
         content.render(timezones: config.widgets.time.timezones,
-                      timeFormat: config.widgets.time.timeFormat,
-                      showSeconds: config.widgets.time.seconds,
-                      customPattern: config.widgets.time.customPattern)
+                       timeFormat: config.widgets.time.timeFormat,
+                       showSeconds: config.widgets.time.seconds,
+                       customPattern: config.widgets.time.customPattern)
     }
 
     /// Hide the popover and clear the controller reference.
     public func dismiss() {
-        refreshTimer?.invalidate()
-        refreshTimer = nil
         host.dismiss()
         content = nil
     }
@@ -90,8 +80,6 @@ public final class WorldClockPopoverController {
     }
 
     private func handleClosed() {
-        refreshTimer?.invalidate()
-        refreshTimer = nil
         content = nil
     }
 }
@@ -151,7 +139,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             stack.addArrangedSubview(separator())
         }
 
-        for (index, entry) in entries.enumerated() {
+        for entry in entries {
             let container = NSView()
             container.translatesAutoresizingMaskIntoConstraints = false
 
@@ -177,7 +165,10 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             removeButton.bezelStyle = .circular
             removeButton.font = .systemFont(ofSize: 11)
             removeButton.translatesAutoresizingMaskIntoConstraints = false
-            removeButton.tag = index
+            // The visible row is built from `WorldClock.entries`, which drops
+            // invalid identifiers and collapses duplicates, so the button must
+            // carry the timezone identifier itself rather than its row index.
+            removeButton.identifier = NSUserInterfaceItemIdentifier(entry.timezone)
             removeButton.target = self
             removeButton.action = #selector(removeTimezone(_:))
             removeButton.setAccessibilityLabel("Remove \(entry.displayName)")
@@ -252,10 +243,9 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     }
 
     @objc private func removeTimezone(_ sender: NSButton) {
-        let index = sender.tag
-        guard index >= 0 && index < currentTimezones.count else { return }
+        guard let timezone = sender.identifier?.rawValue else { return }
         var updated = currentTimezones
-        updated.remove(at: index)
+        updated.removeAll { $0 == timezone }
         currentTimezones = updated
         onUpdateTimezones?(updated)
     }

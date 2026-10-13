@@ -390,7 +390,7 @@ struct PopoverSnapshotTests {
         case 2:
             timezones = ["America/Los_Angeles", "Asia/Tokyo"]
         case 4:
-            timezones = ["America/Los_Angeles", "Asia/Tokyo", "Europe/London", "Asia/Kolkata"]
+            timezones = ["America/Los_Angeles", "Asia/Tokyo", "Europe/London", "Asia/Calcutta"]
         default:
             timezones = []
         }
