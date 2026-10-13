@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T08:19:36Z"
+review_passes: 10
 id: "0075"
 title: "Investigate: macOS notification banners sit under the Divot bar"
 type: bug
@@ -15,8 +17,6 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T08:19:36Z"
-review_passes: 9
 close_out_repair_count: 1
 review_rounds: 2
 ---
@@ -198,3 +198,4 @@ Until these measurements are provided, feasibility of a safe public fix cannot b
 - 2026-10-13T08:18:27Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T08:19:36Z · note: review pass 10: needs some work
 - 2026-10-13T08:19:36Z · needs_input
+
