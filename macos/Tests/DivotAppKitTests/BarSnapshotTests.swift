@@ -315,6 +315,80 @@ struct BarSnapshotTests {
         #expect(batteryInked, "Not-charging render drew no battery, so the absence check proves nothing")
     }
 
+    @Test("Keep-awake cup visibility on every family", arguments: configs)
+    func keepAwakeCup(config: Config) throws {
+        // Render with keep-awake on, not charging, to show the cup without the bolt.
+        let appearance = AppearanceConfiguration(family: config.family,
+                                                 mode: config.dark ? .dark : .light,
+                                                 material: .opaque)
+        let theme = BarTheme.resolve(appearance, dark: config.dark,
+                                     increasedContrast: false, reduceTransparency: false)
+        let metrics = BarMetrics.scaled(textSize: config.textSize)
+
+        let offChips = try renderWithKeepAwake(config, chips: .off, theme: theme, metrics: metrics, label: "chips-off")
+        assertSlotLayout(offChips)
+        assertInkMatchesSlots(offChips)
+        assertChipFill(offChips, chips: .off)
+        assertClockContrast(offChips, behind: offChips.background)
+
+        let onChips = try renderWithKeepAwake(config, chips: .translucent, theme: theme, metrics: metrics, label: "chips-on")
+        assertSlotLayout(onChips)
+        assertChipFill(onChips, chips: .translucent)
+        let alpha = 1 - Double(Self.translucentChipOpacity) / 100
+        assertClockContrast(onChips,
+                            behind: onChips.selected.blended(over: onChips.background, alpha: alpha))
+    }
+
+    private func renderWithKeepAwake(_ config: Config, chips: Chips, theme: BarTheme, metrics: BarMetrics, label: String) throws -> Rendered {
+        let opacity: Int
+        switch chips {
+        case .off, .solid: opacity = 0
+        case .translucent: opacity = Self.translucentChipOpacity
+        }
+
+        let view = BarContentView(side: .right, items: Self.items,
+                                  enablesChipStyle: chips != .off,
+                                  chipOpacity: opacity,
+                                  metrics: metrics)
+        let nsAppearance = try #require(NSAppearance(named: config.dark ? .darkAqua : .aqua))
+        view.appearance = nsAppearance
+        view.apply(theme: theme)
+        view.applyInitialState()
+        view.apply([
+            .update(WidgetState(id: .battery, revision: 1,
+                                content: .battery(BatterySnapshot(presence: .internalBattery,
+                                                                  percentage: 80,
+                                                                  isCharging: false,
+                                                                  isPluggedIn: false,
+                                                                  isKeepingAwake: true)))),
+            .update(WidgetState(id: .clock, revision: 1,
+                                content: .clock(ClockSnapshot(date: Date(timeIntervalSince1970: 1_800_000_000))))),
+            .update(WidgetState(id: .network, revision: 1,
+                                content: .network(NetworkSnapshot(isConnected: true, kind: .wifi)))),
+            .update(WidgetState(id: .volume, revision: 1,
+                                content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: false))))
+        ])
+        let size = CGSize(width: Self.barWidth, height: metrics.height)
+        view.frame = NSRect(origin: .zero, size: size)
+        view.layoutSubtreeIfNeeded()
+
+        let rep = try #require(SnapshotTestHelpers.render(view, size: size),
+                               "Offscreen rendering produced no pixels for keep-awake-\(label)")
+        let name = "keep-awake-\(config.name)-\(label)"
+        try SnapshotTestHelpers.writePNG(name: name, rep: rep, directory: snapshotDirectory())
+        let pixels = try #require(PixelBuffer(rep))
+
+        let itemViews = view.subviews.compactMap { $0 as? BarItemView }
+        try #require(itemViews.count == Self.items.count)
+        return Rendered(pixels: pixels,
+                        metrics: metrics,
+                        frames: itemViews.map(\.frame),
+                        scale: Double(pixels.width) / Double(size.width),
+                        background: SnapshotTestHelpers.rgb(theme.layerBackground, in: nsAppearance),
+                        selected: SnapshotTestHelpers.rgb(theme.selected, in: nsAppearance),
+                        foreground: SnapshotTestHelpers.rgb(theme.foreground, in: nsAppearance))
+    }
+
     @Test("Snapshot directory is under an ignored path")
     func snapshotDirectoryIsIgnored() {
         let path = snapshotDirectory().path

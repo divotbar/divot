@@ -55,14 +55,16 @@ public enum ContrastAudit {
 
 /// The keep-awake "on" indicator colors, one per appearance variant.
 ///
-/// These are the new text/icon colors the contrast audit covers. They are a
-/// semantic role rather than a hard-coded `NSColor` so the theme milestone
-/// (0011) can map the same role onto each shipped family; until then the native
-/// default is the only shipped theme, and the audit checks both of its variants
-/// against the native bar surface.
+/// The cup must read as a distinct keep-awake mark on every family (Native, Gruvbox,
+/// Ayu, Dracula, Tokyo Night, Alpine) in light and dark, so this value is never taken
+/// from the theme accent or occupied role. The dark variant uses a darker green that
+/// provides 3:1 contrast against light theme backgrounds; the light variant uses a
+/// lighter green that provides 3:1 contrast against dark theme backgrounds.
 public enum KeepAwakeIndicatorPalette {
-    public static let activeLightHex = "#0B6B3A"
-    public static let activeDarkHex = "#7BD88F"
+    /// The keep-awake green for light mode: dark enough for light backgrounds.
+    public static let activeLightHex = "#1B5E31"
+    /// The keep-awake green for dark mode: light enough for dark backgrounds.
+    public static let activeDarkHex = "#52C449"
 
     /// The active indicator hex for the given appearance variant.
     public static func activeHex(dark: Bool) -> String {

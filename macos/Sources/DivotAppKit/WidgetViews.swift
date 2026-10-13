@@ -197,12 +197,10 @@ final class BarItemView: NSView {
         indicatorView.toolTip = nil
     }
 
-    /// The indicator tint: the audited native hex for the native family, or the
-    /// theme's positive `occupied` role for a family, so the cup matches the bar.
+    /// The indicator tint: the contrast-audited fixed color for every family, so the
+    /// cup is clearly visible on every bar and chip background.
     private func indicatorColor(for role: WidgetIndicator.Role) -> NSColor {
-        theme.usesSystemColors
-            ? Self.color(for: role, appearance: effectiveAppearance)
-            : theme.occupied
+        Self.color(for: role, appearance: effectiveAppearance)
     }
 
     /// Resolve a semantic indicator role against the current appearance.

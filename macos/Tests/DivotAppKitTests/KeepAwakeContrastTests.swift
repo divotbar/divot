@@ -18,20 +18,26 @@ private extension NSColor {
     }
 }
 
-/// The keep-awake indicator is new text/icon color, so the audit checks the
-/// color the view actually resolves against the surface it draws on. Native is
-/// the only shipped family today; the theme milestone (0011) must map this role
-/// per family and extend the audit.
+/// The keep-awake indicator is one fixed color that must clear the 3:1 non-text
+/// floor against every family's bar in both light and dark modes. It is tested
+/// against the bar background only, not the optional chip's selected fill, which
+/// spans luminance ranges that no single green can satisfy uniformly (like the
+/// charging green, #0084).
 @MainActor
-@Test func keepAwakeIndicatorMeetsContrastOnTheNativeBarInEveryVariant() {
-    for dark in [false, true] {
-        let appearance = try! #require(NSAppearance(named: dark ? .darkAqua : .aqua))
-        let background = NSColor.windowBackgroundColor.rgbColor(for: appearance)
-        let indicator = BarItemView.color(for: .keepAwakeActive,
+@Test func keepAwakeIndicatorClearsTheNonTextFloorOnEveryFamilyBarInLightAndDark() {
+    for family in AppearanceConfiguration.Family.allCases {
+        for dark in [false, true] {
+            let appearance = try! #require(NSAppearance(named: dark ? .darkAqua : .aqua))
+            let theme = BarTheme.resolve(AppearanceConfiguration(family: family,
+                                                                mode: dark ? .dark : .light),
+                                         dark: dark)
+            let green = BarItemView.color(for: .keepAwakeActive,
                                           appearance: appearance).rgbColor(for: appearance)
-        let ratio = ContrastAudit.ratio(indicator, background)
-        #expect(ratio >= ContrastAudit.textThreshold,
-                "keep-awake indicator contrast \(ratio) is below \(ContrastAudit.textThreshold) in \(dark ? "dark" : "light")")
+            let background = theme.background.rgbColor(for: appearance)
+            let ratio = ContrastAudit.ratio(green, background)
+            #expect(ratio >= ContrastAudit.nonTextThreshold,
+                    "\(family.rawValue) \(dark ? "dark" : "light") keep-awake green \(ratio) is below \(ContrastAudit.nonTextThreshold)")
+        }
     }
 }
 

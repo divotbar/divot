@@ -125,12 +125,18 @@ enum SnapshotTestHelpers {
     /// unless `DIVOT_SNAPSHOT_SET=shots`, which keeps a small representative set
     /// for RepoOS evidence: native light and dark at the default text size, the
     /// bar with chips off and chips on (translucent), Gruvbox popovers (non-bar)
-    /// light and dark, and each popover. Assertions run for every name either way.
+    /// light and dark, the keep-awake battery for Native and Gruvbox with chips on
+    /// and off, and each popover. Assertions run for every name either way.
     static func wantsPNG(named name: String) -> Bool {
         guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
-        // Native or (Gruvbox non-bar only), light and dark, at the default size.
-        guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
+        // Native or (Gruvbox non-bar/non-keep-awake only), light and dark, at the default size.
+        guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-") && !name.hasPrefix("keep-awake-")),
               name.contains("-default") else { return false }
+        // Keep-awake renders: Native and Gruvbox only, light and dark, chips on and off
+        if name.hasPrefix("keep-awake-") {
+            return (name.contains("-native-") || name.contains("-gruvbox-")) &&
+                   (name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on"))
+        }
         if !name.hasPrefix("bar-") { return true }
         // For bar renders, include chips-off and chips-on (translucent); exclude chips-solid
         return name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on")
