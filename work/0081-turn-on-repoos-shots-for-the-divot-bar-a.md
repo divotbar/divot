@@ -2,7 +2,7 @@
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
-status: active
+status: review
 priority: p1
 area: [macos, infra]
 assigned_to: ""
@@ -37,4 +37,4 @@ Repo rule: do not commit images; repoos.toml edits happen on this task's branch 
 - 2026-10-13T08:21:33Z · status inbox→ready
 - 2026-10-13T08:21:34Z · cli_override, model_override
 - 2026-10-13T08:21:34Z · status ready→active, branch
-- 2026-10-13T08:25:07Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T08:25:07Z · status active→review
