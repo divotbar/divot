@@ -69,3 +69,31 @@ public enum KeepAwakeIndicatorPalette {
         dark ? activeDarkHex : activeLightHex
     }
 }
+
+// MARK: - Charging indicator palette
+
+/// The charging indicator's fixed green, independent of the theme accent (#0074).
+///
+/// Charging must read as an unmistakable green on every family, so this value is
+/// never taken from the theme accent: a Dracula or Tokyo Night bar has a purple
+/// or blue accent, which made the charging mark look like an arbitrary colour
+/// (maintainer screenshot, 2026-10-13). It is one named constant for every
+/// family and both appearances — a mid green that clears the 3:1 non-text floor
+/// against the four dark bar backgrounds *and* the four light ones. Apple's
+/// bright system green fails a light bar and a light-green dark variant fails a
+/// dark one, so no brighter system green can be the single value. The bar tints
+/// the whole battery symbol with it while charging, so the state is carried by a
+/// large mark rather than a small bolt over the outline and the optional chip.
+public enum ChargingIndicatorPalette {
+    /// The one fixed charging green.
+    public static let greenHex = "#248E3C"
+
+    /// The green as a pure theme color, so the contrast audit and the bar share
+    /// one value.
+    public static let green: ThemeColor = {
+        guard let color = ThemeColor(hex: greenHex) else {
+            preconditionFailure("Invalid charging green literal: \(greenHex)")
+        }
+        return color
+    }()
+}

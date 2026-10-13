@@ -45,8 +45,9 @@ checks it cannot make.
 `swift test --package-path macos` covers:
 
 - **Harness coverage**: every `PerformanceScenario` is exercised, every
-  measurement is finite and non-negative, and the contrast audit returns 48
-  checks (four families × two variants × six roles) that all clear their floors.
+  measurement is finite and non-negative, and the contrast audit returns 56
+  checks (four families × two variants × seven roles, the seventh being the
+  fixed charging green added in #0074) that all clear their floors.
 - **No invented evidence**: the auto-detected environment leaves every
   human-supplied field `nil`, and the human-check list names helper, compositor,
   and VoiceOver work.

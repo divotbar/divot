@@ -352,6 +352,10 @@ public enum PerformanceHarness {
             ("selectedForeground/selected", tokens.selectedForeground, tokens.selected, textFloor),
             ("occupied/background", tokens.occupied, tokens.background, nonTextFloor),
             ("error/background", tokens.error, tokens.background, nonTextFloor),
+            // The charging green is a fixed constant, not a theme accent, so the
+            // audit checks the same value against every family's bar background
+            // (#0074).
+            ("charging/background", ChargingIndicatorPalette.green, tokens.background, nonTextFloor),
             ("accent/background", tokens.accent, tokens.background, accentFloor)
         ]
         return pairs.map { role, foreground, background, floor in

@@ -55,12 +55,14 @@ final class BarItemView: NSView {
     /// Whether the badge (the charging bolt) is currently drawn.
     var isBadgeVisible: Bool { !badgeView.isHidden }
     /// The tint the badge draws with, or `nil` when no badge is shown. Lets a
-    /// test prove only the bolt uses the theme accent green (#0058).
+    /// test prove the charging mark uses the fixed charging green, not the theme
+    /// accent (#0074).
     var badgeTintColor: NSColor? { badgeView.isHidden ? nil : badgeView.contentTintColor }
-    /// The tint the leading icon draws with, so a test can prove the battery
-    /// outline does not take the badge green (#0058).
+    /// The tint the leading icon draws with, so a test can prove the whole
+    /// battery symbol takes the fixed charging green while charging (#0074).
     var iconTintColor: NSColor { iconView.contentTintColor ?? .labelColor }
-    /// The text colour, so the green is proven to be only the bolt (#0058).
+    /// The text colour, so the label is proven to keep the foreground colour and
+    /// not turn charging green (#0074).
     var itemTextColor: NSColor { textField.textColor ?? .labelColor }
     /// The semantic role of the badge currently drawn, or `nil` with no badge.
     private var badgeRole: WidgetBadge.Role?
@@ -161,8 +163,13 @@ final class BarItemView: NSView {
 
     private func applyColors() {
         let isError = presentation?.isError ?? false
+        let charging = presentation?.badge?.role == .charging
         let color = isError ? theme.error : theme.foreground
-        iconView.contentTintColor = color
+        // While charging the whole battery symbol draws in the fixed charging
+        // green, not just the bolt: the larger mark is what makes charging
+        // unmistakable on every family (#0074). The label stays the foreground
+        // colour, and with no charge the icon keeps the normal colour.
+        iconView.contentTintColor = charging ? badgeColor(for: .charging) : color
         textField.textColor = color
     }
 
@@ -190,8 +197,9 @@ final class BarItemView: NSView {
     }
 
     /// Draw (or hide) the symbol that sits over the leading icon. The charging
-    /// bolt draws in the theme's accent green, so only the bolt is green while
-    /// the battery outline keeps the foreground colour (#0058).
+    /// bolt and the battery symbol both draw in the one fixed charging green, so
+    /// the whole icon is the green mark and it never follows the theme accent
+    /// (#0074).
     private func applyBadge(_ badge: WidgetBadge?) {
         guard let badge,
               let image = NSImage(systemSymbolName: badge.symbolName, accessibilityDescription: nil) else {
@@ -208,11 +216,11 @@ final class BarItemView: NSView {
         displayedBadgeSymbolName = badge.symbolName
     }
 
-    /// The badge tint: the theme's accent set, so the charging bolt is the fixed
-    /// green from the theme rather than a colour hard-coded in this view (#0058).
+    /// The badge tint: the one fixed charging green (#0074), never the theme
+    /// accent. The same value the contrast audit checks is the one the bar draws.
     private func badgeColor(for role: WidgetBadge.Role) -> NSColor {
         switch role {
-        case .charging: return theme.accent
+        case .charging: return NSColor(ChargingIndicatorPalette.green)
         }
     }
 
