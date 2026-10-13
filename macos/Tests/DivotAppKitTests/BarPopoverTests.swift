@@ -64,6 +64,50 @@ private func pressEvent() -> NSEvent {
     #expect(!PopoverDismissPolicy.itemClickCloses(alreadyOwnsAnchor: false))
 }
 
+/// When a popover is open and the bar's theme changes, the popover's chrome
+/// and content update without closing.
+@MainActor
+@Test func openPopoverUpdatesOnThemeChange() {
+    let families: [AppearanceConfiguration.Family] = [.native, .gruvbox]
+    for initialFamily in families {
+        for changeToFamily in families where changeToFamily != initialFamily {
+            let initialTheme = BarTheme.resolve(AppearanceConfiguration(family: initialFamily, mode: .light), dark: false)
+            let changedTheme = BarTheme.resolve(AppearanceConfiguration(family: changeToFamily, mode: .dark), dark: true)
+
+            let host = BarPopoverHost(monitors: StubPopoverMonitor())
+            let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
+                                        styleMask: .borderless, backing: .buffered, defer: false)
+            let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
+            anchorWindow.contentView?.addSubview(anchor)
+
+            let content = VolumePopoverContentController()
+            content.theme = initialTheme
+            host.present(content, relativeTo: anchor)
+
+            // Verify initial state
+            guard let chrome = host.panel?.contentView as? PopoverChromeView else {
+                #expect(Bool(false), "chrome should exist")
+                continue
+            }
+            let initialBackground = chrome.palette.background
+            #expect(initialBackground == initialTheme.popoverPalette.background)
+
+            // Change theme while popover is open
+            host.restyle(theme: changedTheme)
+
+            // Verify the chrome and content updated
+            #expect(chrome.palette.background == changedTheme.popoverPalette.background,
+                   "Chrome palette should update to \(changeToFamily) from \(initialFamily)")
+            #expect(content.theme.popoverPalette.background == changedTheme.popoverPalette.background,
+                   "Content theme should update")
+            #expect(host.panel?.appearance == changedTheme.popoverAppearance,
+                   "Panel appearance should match new theme's variant")
+
+            host.dismiss()
+        }
+    }
+}
+
 /// The host installs the dismiss monitors when it presents and removes them the
 /// moment the popover closes — never a poll.
 @MainActor
@@ -133,9 +177,10 @@ private func pressEvent() -> NSEvent {
 }
 
 /// Runtime check on the real popover window (no offscreen rendering): the host
-/// shows Divot's own panel, whose whole view hierarchy contains no
-/// NSVisualEffectView, whose chrome fill and content fill are alpha 1, and
-/// whose Appearance theme rows all start at the same leading inset.
+/// shows a borderless panel (isOpaque=false, clear background) to cut out the
+/// rounded corners and arrow, but the PopoverChromeView bubble inside is fully
+/// opaque (alpha 1 fill) with no NSVisualEffectView, and all text colours clear
+/// WCAG AA (4.5:1) contrast. Appearance theme rows all start at the same inset.
 @MainActor
 @Test func realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme() {
     func walk(_ view: NSView, _ visit: (NSView) -> Void) {
