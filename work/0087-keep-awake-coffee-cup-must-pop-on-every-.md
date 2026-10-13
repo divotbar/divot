@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T16:15:55Z"
+updated_at: "2026-10-13T16:15:59Z"
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -25,7 +25,11 @@ The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard 
 - docs/ and site/ pages that describe the keep-awake indicator updated; the maintainer verifies by eye on the packaged app, do not claim visual sign-off.
 
 ## Screenshots
-Maintainer screenshots 2026-10-13 (attached): the cup on a dark chip and on a light chip.
+Maintainer screenshots 2026-10-13: the keep-awake cup next to the battery. 1) dark bar/chip: olive cup low contrast against the chip. 2) light chip: muted cup close to the chip colour.
+
+![Cup on dark chip](/api/tasks/0087/attachments/screenshot-1.png)
+
+![Cup on light chip](/api/tasks/0087/attachments/screenshot-2.png)
 
 ## Notes for AI
 Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPresentation.swift, symbol cup.and.saucer) and the #0074/#0084 charging colour approach. Do not add a heavy blur shadow; the maintainer's bar is flat.
@@ -33,3 +37,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 ## Activity
 
 - 2026-10-13T16:15:55Z · created · njachowski@gmail.com
+- 2026-10-13T16:15:59Z · body: section Screenshots
