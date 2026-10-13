@@ -13,8 +13,10 @@ created_by: njachowski@gmail.com
 branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
+review_cli_override: github copilot
+review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:41:06Z"
+updated_at: "2026-10-13T10:24:28Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -171,3 +173,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T09:22:44Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (fa84252) during finalization (#0734)
 - 2026-10-13T09:41:06Z · note: review pass 2: failed — no usable report
 - 2026-10-13T09:41:06Z · needs_input
+- 2026-10-13T10:24:28Z · review_cli_override, review_model_override
