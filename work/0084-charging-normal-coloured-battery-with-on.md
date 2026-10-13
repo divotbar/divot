@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
@@ -137,3 +138,4 @@ The palette configuration on battery.100.bolt successfully isolates bolt colouri
 - 2026-10-13T10:46:52Z · needs_input
 - 2026-10-13T10:53:49Z · status review→active, needs_input
 - 2026-10-13T10:53:49Z · note: close-out repair: merge-conflict
+
