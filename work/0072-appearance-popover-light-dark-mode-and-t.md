@@ -2,7 +2,7 @@
 id: "0072"
 title: "Appearance popover: light/dark mode and theme family picker on the moon item"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0071"]
@@ -12,7 +12,7 @@ branch: feat/appearance-popover-light-dark-mode-and-t
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:47Z"
-updated_at: "2026-10-13T02:36:19Z"
+updated_at: "2026-10-13T02:36:20Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -47,4 +47,4 @@ Look at how the Appearance item toggles today and how the Settings window reads 
 - 2026-10-13T02:33:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T02:34:24Z · note: review pass 1: needs some work
 - 2026-10-13T02:34:24Z · status review→active
-- 2026-10-13T02:36:19Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T02:36:20Z · status active→review
