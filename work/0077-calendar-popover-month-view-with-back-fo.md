@@ -72,3 +72,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 - 2026-10-13T06:55:35Z · status review→active
 - 2026-10-13T06:55:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T07:01:40Z · status active→review
+- 2026-10-13T07:01:40Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
