@@ -2,7 +2,7 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: active
+status: review
 priority: p2
 area: web
 assigned_to: ai
@@ -11,7 +11,7 @@ branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
-updated_at: "2026-10-13T10:37:44Z"
+updated_at: "2026-10-13T10:41:54Z"
 review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T09:41:07.861Z: repoos check failed: ◆ Check plan"
@@ -86,3 +86,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T10:37:44Z · needs_input
 - 2026-10-13T10:37:44Z · status review→active
 - 2026-10-13T10:37:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:41:54Z · status active→review
