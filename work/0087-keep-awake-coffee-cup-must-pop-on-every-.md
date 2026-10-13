@@ -40,28 +40,28 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 ```json
 [
 {
-  "label": "Keep-awake cup on Native light theme, chips off",
-  "target": "Divot bar",
-  "route": "/?family=native&mode=light&chipStyle=off",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native light theme, chips off",
+"target": "Divot bar",
+"route": "/?family=native&mode=light&chipStyle=off",
+"highlight": "[data-battery-item]"
 },
 {
-  "label": "Keep-awake cup on Native dark theme, chips off",
-  "target": "Divot bar",
-  "route": "/?family=native&mode=dark&chipStyle=off",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native dark theme, chips off",
+"target": "Divot bar",
+"route": "/?family=native&mode=dark&chipStyle=off",
+"highlight": "[data-battery-item]"
 },
 {
-  "label": "Keep-awake cup on Gruvbox light theme, chips on",
-  "target": "Divot bar",
-  "route": "/?family=gruvbox&mode=light&chipStyle=on",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Gruvbox light theme, chips on",
+"target": "Divot bar",
+"route": "/?family=gruvbox&mode=light&chipStyle=on",
+"highlight": "[data-battery-item]"
 },
 {
-  "label": "Keep-awake cup on Gruvbox dark theme, chips on",
-  "target": "Divot bar",
-  "route": "/?family=gruvbox&mode=dark&chipStyle=on",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Gruvbox dark theme, chips on",
+"target": "Divot bar",
+"route": "/?family=gruvbox&mode=dark&chipStyle=on",
+"highlight": "[data-battery-item]"
 }
 ]
 ```
