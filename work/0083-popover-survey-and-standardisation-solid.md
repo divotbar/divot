@@ -13,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:33:16Z"
+updated_at: "2026-10-13T10:33:21Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -177,3 +177,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:28:22Z · status review→active
 - 2026-10-13T10:29:26Z · message_queued at 2026-10-13T10:29:26.522Z
 - 2026-10-13T10:33:16Z · status active→review
+- 2026-10-13T10:33:21Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (d79dc29) during finalization (#0734)
