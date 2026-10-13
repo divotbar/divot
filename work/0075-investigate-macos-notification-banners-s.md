@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T06:25:52Z"
+updated_at: "2026-10-13T06:25:58Z"
 review_passes: 5
 review_rounds: 2
 ---
@@ -97,10 +97,20 @@ Maintainer must:
 Until these measurements are provided, feasibility of a safe public fix cannot be assessed.
 
 ## Summary
+**Measured facts:**
+- Divot panel: level 23 (mainMenu - 1), collection behavior [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+- Menu bar height: 33 points on notched display
 
-Notification banners position themselves 33 points below the screen top (matching the native menu bar height). When the menu bar is auto-hidden, Divot's top-edge placement causes its bar to overlap with the banner's title row, which sits at y=33-40.
+**Reported issue (not measured):**
+- Notification banners overlap Divot bar when auto-hide is ON
+- Overlap appears to be spatial (banner positioned in same y region as Divot), but z-order unknown
 
-Window-level analysis shows notification banners use a level at or above 25 (above the menu bar), while Divot is at level 23 (mainMenu - 1). No safe public API exists to reorder them without breaking the menu-bar-on-top or fullscreen constraints.
+**Unmeasured, required for feasibility:**
+- Notification banner window levels and bounds (kCGWindowLevel, kCGWindowBounds)
+- Whether overlap is resolved when native menu bar is revealed
+- Multi-display, notch-free, fullscreen, and Spaces behavior
+
+**Next step:** Maintainer triggers a real notification with auto-hide ON and runs `divot-notification-banner-probe` to capture the banner's window-level data. See Findings section for details.
 
 ## Options
 
@@ -148,3 +158,4 @@ Window-level analysis shows notification banners use a level at or above 25 (abo
 - 2026-10-13T06:25:31Z · status review→active
 - 2026-10-13T06:25:31Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T06:25:52Z · body: section Acceptance criteria
+- 2026-10-13T06:25:58Z · body: section Summary
