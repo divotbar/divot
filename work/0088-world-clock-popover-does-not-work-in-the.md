@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:00:32Z"
+updated_at: "2026-10-13T18:00:59Z"
 review_passes: 6
 review_rounds: 2
 ---
@@ -150,3 +150,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T18:00:31Z · cli_override, model_override
 - 2026-10-13T18:00:32Z · status active→review
 - 2026-10-13T18:00:32Z · note: handoff requested (cli)
+- 2026-10-13T18:00:59Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
