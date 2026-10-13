@@ -476,21 +476,22 @@ final class BarContentView: NSView, BarContentLifecycle {
                 guard let self else { return }
                 // The network item opens the read-only Wi-Fi popover when one is
                 // configured; the popover's last row reaches the settings pane.
+                // A second click on the item toggles it closed.
                 if case .openSettings(.network) = action, let view, let wifiPopover = self.wifiPopover {
-                    wifiPopover.present(relativeTo: view)
+                    wifiPopover.toggle(relativeTo: view, theme: self.theme)
                     return
                 }
                 // The volume item opens the output-volume popover when one is
                 // configured; the popover's last row reaches the Sound pane.
                 if case .openSettings(.sound) = action, let view, let volumePopover = self.volumePopover {
-                    volumePopover.present(relativeTo: view)
+                    volumePopover.toggle(relativeTo: view, theme: self.theme)
                     return
                 }
                 // The appearance (moon) item opens the appearance popover when
                 // one is configured; it sets the mode and family and its last
                 // row opens Divot's own settings window.
                 if case .toggleAppearance = action, let view, let appearancePopover = self.appearancePopover {
-                    appearancePopover.present(relativeTo: view)
+                    appearancePopover.toggle(relativeTo: view, theme: self.theme)
                     return
                 }
                 self.onActivate?(action)

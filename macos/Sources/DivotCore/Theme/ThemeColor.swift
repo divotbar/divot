@@ -67,4 +67,22 @@ public struct ThemeColor: Equatable, Hashable, Sendable {
                           blue: blue + (other.blue - blue) * t,
                           alpha: alpha + (other.alpha - alpha) * t)
     }
+
+    /// This color blended toward `other` far enough to clear `minimum` contrast
+    /// against `background`. Used for a popover's link text so a family accent
+    /// clears the AA text floor against the popover background instead of only
+    /// the looser non-text floor. Returns this color unchanged when it already
+    /// clears the floor.
+    public func adjustedForText(against background: ThemeColor,
+                                minimum: Double,
+                                toward other: ThemeColor) -> ThemeColor {
+        guard contrastRatio(against: background) < minimum else { return self }
+        var amount = 0.06
+        while amount < 1 {
+            let candidate = mixed(with: other, amount: amount)
+            if candidate.contrastRatio(against: background) >= minimum { return candidate }
+            amount += 0.06
+        }
+        return other
+    }
 }

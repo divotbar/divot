@@ -39,6 +39,10 @@ public struct ThemeTokens: Equatable, Sendable {
     public let secondary: ThemeColor
     public let disabled: ThemeColor
     public let selectedForeground: ThemeColor
+    /// The popover link/accent text: the family accent nudged toward the
+    /// foreground until it clears AA (4.5) against the background, so a popover
+    /// footer link is readable rather than merely a non-text indicator.
+    public let link: ThemeColor
 
     public init(foreground: ThemeColor,
                 background: ThemeColor,
@@ -60,6 +64,9 @@ public struct ThemeTokens: Equatable, Sendable {
         self.disabled = foreground.mixed(with: background, amount: 0.50)
         self.selectedForeground = ThemeTokens.bestLabel(on: selected,
                                                         candidates: [foreground, background, .white, .black])
+        self.link = accent.adjustedForText(against: background,
+                                           minimum: 4.5,
+                                           toward: foreground)
     }
 
     /// The candidate label with the highest contrast against a state background.
@@ -121,6 +128,25 @@ public struct ThemePalette: Equatable, Sendable {
     }
 }
 
+// MARK: - Swatch
+
+/// A small sample of a family variant's own palette, drawn by the appearance
+/// popover to preview a theme.
+///
+/// It carries resolved `ThemeColor`s taken straight from the catalog, so the
+/// preview always follows the real palette — nothing is hand-copied — and a new
+/// family appears automatically. The `native` family has no hex palette and
+/// resolves to a `nil` swatch: its option draws with macOS semantic colors.
+public struct ThemeSwatch: Equatable, Sendable {
+    public let background: ThemeColor
+    public let accent: ThemeColor
+
+    public init(background: ThemeColor, accent: ThemeColor) {
+        self.background = background
+        self.accent = accent
+    }
+}
+
 // MARK: - Catalog
 
 /// The four curated hacker families, each with an upstream-sourced light and
@@ -140,6 +166,16 @@ public enum ThemeCatalog {
         case (.tokyoNight, .light): return tokyoNightLight
         case (.native, _): return nil
         }
+    }
+
+    /// The palette sample for a family variant, or `nil` for native (which has
+    /// no hex palette). The appearance popover draws this so its theme previews
+    /// are the family's own colors, never a hand-copied copy.
+    public static func swatch(family: AppearanceConfiguration.Family,
+                              variant: ThemeVariant) -> ThemeSwatch? {
+        guard let tokens = palette(family: family, variant: variant)?.tokens else { return nil }
+        return ThemeSwatch(background: tokens.background,
+                           accent: tokens.accent)
     }
 
     // MARK: Gruvbox — morhetz/gruvbox, MIT
