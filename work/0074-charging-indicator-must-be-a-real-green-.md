@@ -11,7 +11,7 @@ branch: feat/charging-indicator-must-be-a-real-green-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T04:14:01Z"
+updated_at: "2026-10-13T04:18:41Z"
 ---
 ## Problem
 #0058 drew the charging bolt in 'the theme's accent set'. On themes whose accent is not green (maintainer screenshot 2026-10-13, Dracula: the bolt is purple/blue) charging is not obvious. The maintainer wants it unmistakable.
@@ -30,6 +30,13 @@ updated_at: "2026-10-13T04:14:01Z"
 ## Notes for AI
 Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarTheme. Keep the #0057 icon sizing.
 
+## Approach
+- **Colour:** `DivotCore.ChargingIndicatorPalette.greenHex` (#248E3C) is one fixed green constant, never the theme accent (#0058 had used the accent, so Dracula and Tokyo Night showed a purple/blue bolt). A single value is deliberate: Apple's bright system green fails a light bar and a light-green dark variant fails a dark one, but #248E3C clears the 3:1 non-text floor against all four families' light and dark bar backgrounds. Measured in `PerformanceHarness.contrastChecks` (charging/background) and `DivotAppKitTests/ChargingIndicatorContrastTests.swift`.
+
+- **Whole-icon tint (the chosen approach):** while charging the view tints the whole battery symbol and the bolt green, not just the bolt. A small bolt over the battery outline is not reliably legible and is lost against the optional chip fill, so the larger whole-symbol mark is what makes charging unmistakable, as the maintainer asked. The percentage label keeps the foreground colour; not charging draws no green and no bolt.
+
+- **Chip caveat:** a chip's fill is the family `selected` state colour, which spans the luminance range, so no single green can hold a numeric ratio against every chip fill. The whole-symbol tint keeps a large green mark on the chip even where that ratio is low; the numeric audit covers the bar background, matching the existing per-role convention.
+
 ## Activity
 
 - 2026-10-13T03:53:48Z · created · njachowski@gmail.com
@@ -39,3 +46,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:12:19Z · message_queued at 2026-10-13T04:12:19.167Z
 - 2026-10-13T04:12:19Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-13T04:14:01Z · message_delivered: 1 message(s)
+- 2026-10-13T04:18:41Z · body: section Approach
