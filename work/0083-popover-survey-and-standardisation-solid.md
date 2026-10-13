@@ -2,16 +2,16 @@
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
-status: ready
+status: active
 priority: p0
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:01:56Z"
+updated_at: "2026-10-13T09:01:57Z"
 ---
 ## Problem
 Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popovers) show the popovers are still wrong in the running app after #0072-#0077, even though those tasks passed review:
@@ -58,3 +58,4 @@ Maintainer screenshots from the packaged app, 2026-10-13 15:51. 1) Appearance po
 - 2026-10-13T09:01:53Z · cli_override, model_override
 - 2026-10-13T09:01:55Z · model_override
 - 2026-10-13T09:01:56Z · status inbox→ready
+- 2026-10-13T09:01:57Z · status ready→active, branch
