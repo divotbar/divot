@@ -2,16 +2,16 @@
 id: "0073"
 title: "Restyle the Appearance popover: compact, horizontal and easy to scan"
 type: bug
-status: ready
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/restyle-the-appearance-popover-compact-h
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:59:14Z"
-updated_at: "2026-10-13T02:59:18Z"
+updated_at: "2026-10-13T02:59:19Z"
 ---
 ## Problem
 The Appearance popover from #0072 looks unfinished (maintainer screenshot 2026-10-13). It is wide for its content: the section titles and the radio rows are right-aligned, leaving a large empty block on the left. Mode and Theme are two long vertical lists of plain system radio buttons, the focus ring on 'Dark' looks stray, and nothing shows what a theme looks like.
@@ -39,3 +39,4 @@ Look at the Appearance popover view from #0072 and the Wi-Fi/volume popovers (#0
 - 2026-10-13T02:59:14Z · created · njachowski@gmail.com
 - 2026-10-13T02:59:17Z · status inbox→ready
 - 2026-10-13T02:59:18Z · cli_override, model_override
+- 2026-10-13T02:59:19Z · status ready→active, branch
