@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T09:22:05Z"
+updated_at: "2026-10-13T09:22:14Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -46,17 +46,28 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 ```json
 [
 {
-  "label": "Light theme, chips off: battery outline and fill are black, only the bolt is green",
-  "target": "default",
-  "route": "/"
+"label": "Light theme, chips off: battery outline and fill are black, only the bolt is green",
+"target": "default",
+"route": "/"
 },
 {
-  "label": "Dark theme, chips on: battery outline and fill are white, only the bolt is green",
-  "target": "default",
-  "route": "/"
+"label": "Dark theme, chips on: battery outline and fill are white, only the bolt is green",
+"target": "default",
+"route": "/"
 }
 ]
 ```
+
+## Visual verification
+Snapshot renderings confirm the implementation:
+
+1. **Light theme (Native), chips off, charging**: Battery outline and fill render in black (the normal label colour for light themes); the bolt is the fixed green (#248E3C) and sits within the battery glyph with a visible halo around it.
+
+2. **Dark theme (Dracula), chips on, charging**: Battery outline and fill render in white (the normal label colour for dark themes); the bolt is the same fixed green and remains legible against the white battery fill.
+
+3. **Not charging (all themes)**: No green pixels, no bolt, battery renders in the normal label colour.
+
+The palette approach successfully isolates the bolt: green spans less than the icon width (only the bolt region), while the body occupies the full battery slot.
 
 ## Activity
 
@@ -72,3 +83,4 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 - 2026-10-13T09:20:49Z · status review→active
 - 2026-10-13T09:22:00Z · body: section Approach
 - 2026-10-13T09:22:05Z · body: section Shots
+- 2026-10-13T09:22:14Z · body: section Visual verification
