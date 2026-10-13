@@ -2,7 +2,7 @@
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
-status: review
+status: active
 priority: p0
 area: macos
 assigned_to: ""
@@ -181,3 +181,5 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:35:02Z · note: review pass 4: needs some work
 - 2026-10-13T10:35:02Z · needs_input
 - 2026-10-13T10:37:43Z · needs_input
+- 2026-10-13T10:37:43Z · status review→active
+- 2026-10-13T10:37:43Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
