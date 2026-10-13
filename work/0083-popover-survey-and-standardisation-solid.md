@@ -3,6 +3,9 @@ id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p0
 area: macos
 assigned_to: ""
@@ -187,3 +190,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:40:03Z · status active→review
 - 2026-10-13T10:40:11Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (68a2e1c) during finalization (#0734)
 - 2026-10-13T10:42:00Z · note: review pass 5: needs some work
+- 2026-10-13T10:42:00Z · needs_input
