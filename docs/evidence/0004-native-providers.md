@@ -27,6 +27,8 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | System readings | `macos/Sources/DivotAppKit/System*Reading.swift` | IOKit power sources, `NWPathMonitor`, Core Audio property listeners, `NSWorkspace` front app. |
 | Bar views | `macos/Sources/DivotAppKit/WidgetViews.swift`, `BarPanels.swift` | Per-item views, per-side content, panels; only changed items re-render. |
 | Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
+| Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout and the anchored `NSPopover` lifecycle reused by the Wi-Fi and volume popovers. |
+| Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
 | App wiring | `macos/Sources/DivotApp/DivotAppDelegate.swift`, `DivotAppWidgetReport.swift` | First-launch defaults, main-actor sink, action handling, `divot --widgets`. |
 
 ## Providers and lifecycle
@@ -58,8 +60,11 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
   mute, and default-device changes. Reads and listeners use the same elements:
   the main element when the device exposes it, otherwise the per-channel
   controls (front channels for volume, channel 1 for mute), so volume and mute
-  changes stay live on devices that only expose channels. No output device is an
-  explicit state.
+  changes stay live on devices that only expose channels. A volume control that
+  exists but is **not writable** (some HDMI/DisplayPort outputs, checked with
+  `AudioObjectIsPropertySettable`) is reported as `isSettable == false`, so the
+  volume popover disables its slider instead of writing a value the hardware
+  ignores. No output device is an explicit state.
 - **Front app** reads `NSWorkspace.frontmostApplication` on the main actor and
   observes activation notifications.
 
@@ -84,7 +89,7 @@ spaces.
 
 Divot deliberately does not mirror the system's menu extras. Each item has one
 explicit default action (`WidgetActions`): front-app activates the running app;
-volume and clock open the matching System Settings pane; the battery item toggles
+the clock opens the matching System Settings pane; the battery item toggles
 keep-awake (task 0018), which is a provider action rather than a settings link;
 the workspaces item owns no action here (that is the workspace-adapter
 milestone). The network item opens the read-only Wi-Fi popover below (task 0070);
@@ -92,10 +97,11 @@ its last row opens System Settings › Wi-Fi via the macOS 13+ extension id
 `x-apple.systempreferences:com.apple.wifi-settings-extension` (confirmed against
 the local `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex` bundle on macOS
 26), with the legacy generic Network pane (`com.apple.preference.network`) as the
-fallback when the extension link cannot be opened. The volume and clock panes use
-candidate `x-apple.systempreferences:com.apple.preference.*` identifiers and
-**still need validation on the target OS**; a later milestone may replace the
-volume link with a native control popover.
+fallback when the extension link cannot be opened. The volume item opens the
+output-volume popover below (task 0071); its last row opens the Sound pane with
+the candidate `x-apple.systempreferences:com.apple.preference.sound` identifier.
+The clock pane uses the same candidate `x-apple.systempreferences:com.apple.preference.*`
+pattern and **still needs validation on the target OS**.
 
 ## Wi-Fi popover (task 0070)
 
@@ -144,6 +150,42 @@ Findings recorded for the follow-up decision (no behavior was invented):
 - **Duplicate SSIDs are real.** The same probe returned the SSID `ARISTA` twice
   (RSSI −60 and −70), which is the multi-BSSID case the dedupe rule collapses.
 
+## Volume popover (task 0071)
+
+Clicking the volume item opens the same anchored popover shell as the Wi-Fi
+popover (`BarPopover.swift` owns the shared layout and `NSPopover` lifecycle;
+`VolumePopover.swift` supplies the rows). It contains a horizontal output-volume
+slider with the current percentage, a **Mute** toggle, and a final
+**Open Sound Settings…** row that opens the Sound pane, exactly the pattern of
+the Wi-Fi popover's last row.
+
+Opening reads the default output once and subscribes to the same Core Audio
+property listeners the provider already uses — never a timer — so a keyboard
+volume key or another app moves the slider while it is open; closing the popover
+removes those listeners. A slider drag and the mute toggle write through the
+`OutputVolumeControlling` seam (implemented live by `CoreAudioVolumeReading`
+using `AudioObjectSetPropertyData` on the output-scope scalar-volume and mute
+properties), and the write makes the bar item's own provider re-emit, so the bar
+icon and percentage follow the slider. All reads and writes are public Core Audio
+property calls on the default output device; no private API is used.
+
+Code paths for an output that cannot be changed (recorded, not invented):
+
+- A device whose volume property is exposed but **not writable**
+  (`AudioObjectIsPropertySettable` false, e.g. some HDMI/DisplayPort outputs) is
+  reported with `isSettable == false`. The popover disables the slider **and** the
+  mute toggle, shows `—` instead of a percentage, and shows the short note
+  "This output has no settable volume. Use the display's or device's own
+  controls." It never writes a value the hardware ignores. The bar item keeps its
+  existing presentation (the pre-existing "no software volume control is full
+  scale" rule), which this task did not change.
+- With no output device at all (`VolumeSnapshot.noOutput`) the popover disables
+  both controls and shows "No audio output device."
+
+The popover is anchored to the item and is `.transient`. Whether the slider
+actually moves the real output volume, and whether the item's percentage follows
+on screen, are **not verified here**: that is the maintainer's packaged-app check.
+
 ## Tests
 
 `swift test --package-path macos` covers the pure and mocked behavior. What is
@@ -185,6 +227,16 @@ asserted, by category:
   response maps to its honest state. The scan model is driven by a fake scanner
   through the seam, so the permission-denied and scanned paths are asserted
   without standing up CoreWLAN, and the Location Services deep link is pinned.
+- **Output volume** (task 0071, `OutputVolumeTests`): the 0...1 clamp (including
+  non-finite input and the whole-percent rounding), and the popover model driven
+  by a fake `OutputVolumeControlling` — a write is clamped before it reaches the
+  seam, the mute toggle writes and reports its state, an unsettable output and a
+  missing output write nothing and return `nil`, an external change reloads the
+  state, and closing the popover cancels the observation. `VolumePopoverTests`
+  pins the content rows: the slider percentage and enabled state, the disabled
+  note for an unsettable output, and the slider's accessibility label and value.
+  `WidgetProviderTests` adds that a normal output reports `isSettable == true`
+  and a read-only one reports `isSettable == false`.
 
 ## Honest status by claim
 
@@ -192,7 +244,8 @@ asserted, by category:
 generations and stale rejection, independent per-item failure, coalescing,
 off-main start with a main-actor sink, the minute clock and its text, the item
 presentation, the default layout, the click-action mapping, the Wi-Fi list
-shaping and scan-model states, and the subscription helpers.
+shaping and scan-model states, the output-volume clamp and popover model, and the
+subscription helpers.
 
 **Implemented but only asserted by construction, not observed:**
 
@@ -203,18 +256,24 @@ shaping and scan-model states, and the subscription helpers.
 - The live `CoreWLANNetworkScanner` and the `WifiPopoverController`/AppKit
   popover itself: the seam and pure logic are tested, but no scan result or
   popover was rendered and observed in an app.
+- The live `CoreAudioVolumeReading.setLevel`/`setMuted` writes and the
+  `VolumePopoverController` itself: the seam, the clamp, and the rows are tested
+  with fakes, but no volume write or on-screen slider was exercised in an app.
 
 **Not verified at all — a human must supply (do not treat as working):**
 
 - Any on-screen rendering, truncation, or readability of the widgets on a real
   display at real scales.
 - Whether a click on a nonactivating panel actually reaches an item and opens
-  the intended System Settings pane or the Wi-Fi popover; the network item's
-  Wi-Fi id is confirmed, but the remaining pane identifiers above are candidates
-  and no click has been observed end to end.
+  the intended System Settings pane or the Wi-Fi/volume popover; the network
+  item's Wi-Fi id is confirmed, but the remaining pane identifiers above are
+  candidates and no click has been observed end to end.
 - Whether a packaged app with Location **granted** lists real nearby networks in
   the popover (the human step in task 0070), and how the popover behaves with
   Location denied on that packaged app.
+- Whether the volume slider actually moves the real default output's volume on
+  the packaged app, and whether the bar item's icon and percentage follow it on
+  screen (the human step in task 0071).
 - Real battery/network/volume/front-app values under sleep/wake, hot-plug,
   external displays, and audio-device changes.
 - Whether any provider's callback fires on main on real hardware for a long run.

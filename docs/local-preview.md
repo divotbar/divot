@@ -248,12 +248,19 @@ observe; leave unobserved items blank rather than marking them done.
       ([accessibility physical checks](accessibility-physical-checks.md)).
 - [ ] Click behavior: battery toggles keep-awake; the appearance item toggles
       Divot's own light/dark rendering; the network item opens the read-only
-      Wi-Fi popover and its last row opens the Wi-Fi pane; the other status items
-      open the intended System Settings pane or activate the frontmost app.
+      Wi-Fi popover and its last row opens the Wi-Fi pane; the volume item opens
+      the output-volume popover and its last row opens the Sound pane; the other
+      status items open the intended System Settings pane or activate the
+      frontmost app.
 - [ ] With Location granted for the packaged app, clicking the network item lists
       the real nearby networks with the current one marked, and with Location
       denied the popover shows the permission message and its Location Services
       button instead of an empty list (task 0070, a human step).
+- [ ] In the volume popover on the packaged app, dragging the slider moves the
+      real default output's volume and the bar item's icon and percentage follow
+      it; a keyboard volume key moves the slider while the popover is open; an
+      output with no settable volume shows the slider disabled with the note
+      (task 0071, a human step).
 - [ ] Light/dark and all four theme families are readable on real glass.
 - [ ] Release performance on the stable reference machine
       (`divot --bench`, [performance protocol](performance.md)).

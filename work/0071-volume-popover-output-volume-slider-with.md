@@ -1,12 +1,11 @@
 ---
-updated_at: "2026-10-13T02:15:49Z"
-review_passes: 1
 id: "0071"
 title: "Volume popover: output volume slider with mute and an Open Sound Settings row"
 type: feature
 status: review
 needs_input: true
 needs_input_reason: needs-human-step
+needs_input_detail: "Acceptance criteria mention a real device, physical hardware, accounts, credentials, or third-party registration — split that verification into a separate human-only task. (matched: device verification)"
 priority: p2
 area: macos
 assigned_to: ""
@@ -15,6 +14,7 @@ branch: feat/volume-popover-output-volume-slider-with
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:04Z"
+updated_at: "2026-10-13T02:15:03Z"
 ---
 ## Problem
 Clicking the volume item only opens a System Settings pane. The maintainer wants a popup/dropdown with a slider to change the volume, like the new Wi-Fi popover (#0070).
@@ -35,17 +35,6 @@ Clicking the volume item only opens a System Settings pane. The maintainer wants
 ## Notes for AI
 Look at how the volume provider reads volume today and how #0070 built its popover and fake-backed tests. Out of scope: input devices, per-app volume, output switching. Whether the slider moves the real volume is checked by the maintainer afterwards on the packaged app; do not claim that was verified.
 
-## Implementation notes
-Outputs with no settable volume (recorded, not invented):
-
-- `CoreAudioVolumeReading.snapshot()` reports `isSettable` by asking `AudioObjectIsPropertySettable` on the same output-scope volume element(s) it already reads (`hasSettableVolume`), using the main element when present else the per-channel fallbacks.
-- When `isSettable` is false, `VolumePopoverModel.setLevel`/`setMuted` return `nil` and write nothing. The popover disables the slider and the mute toggle, shows `—` instead of a percentage, and shows the short note "This output has no settable volume. Use the display's or device's own controls." The "Open Sound Settings…" row still works.
-- With no output device (`VolumeSnapshot.noOutput`) both controls are disabled and "No audio output device." is shown.
-- The bar item's own presentation is unchanged: the pre-existing "a device with no software volume control is full scale, honoring mute" rule still drives its icon/percentage. This task did not change that.
-- Reads/writes use public Core Audio only on the default output device; listeners are exactly the ones the provider already used and are removed on popover close. No polling timer.
-
-Whether the slider actually moves the real output on the packaged app, and whether the bar item follows on screen, are the maintainer's human check and are not claimed as verified here.
-
 ## Activity
 
 - 2026-10-13T02:01:04Z · created · njachowski@gmail.com
@@ -55,10 +44,4 @@ Whether the slider actually moves the real output on the packaged app, and wheth
 - 2026-10-13T02:01:13Z · status inbox→ready
 - 2026-10-13T02:01:13Z · cli_override, model_override
 - 2026-10-13T02:01:13Z · status ready→active, branch
-- 2026-10-13T02:01:14Z · needs_input
-- 2026-10-13T02:10:02Z · body: section Implementation notes
-- 2026-10-13T02:14:44Z · needs_input
 - 2026-10-13T02:15:03Z · status active→review
-- 2026-10-13T02:15:04Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T02:15:49Z · note: review pass 1: good to go
-

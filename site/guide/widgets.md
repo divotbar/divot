@@ -16,7 +16,7 @@ The native providers below are implemented and unit-tested in the Swift package,
 | `date` | off by default | Local date | Emits immediately, then at each day boundary |
 | `time` | right | Local time | Emits immediately, then at each minute boundary by default; seconds optional |
 | `network` | right | Wi-Fi/network status; click opens the read-only Wi-Fi popover | Network path notifications |
-| `volume` | right | Output volume | Audio notifications |
+| `volume` | right | Output volume; click opens the volume popover with a slider and mute | Audio notifications |
 | `appearance` | off by default | Current light/dark mode (sun or moon); click toggles Divot's own bar theme | System appearance notifications |
 
 Both sides are ordered item groups and every supported item can move between them. The native app fills this default bar from built-in providers — no setup questionnaire and no shell polling. Workspace app icons and empty-state visibility are optional settings on `workspaces`.
@@ -39,11 +39,13 @@ Listing nearby networks in the Wi-Fi popover also needs Location permission, bec
 
 ## Click behavior
 
-Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; the date, time, and volume items open the matching System Settings pane; and the network item opens a read-only Wi-Fi popover.
+Divot does not mirror the system's menu extras. Each item has one explicit action: the frontmost-app item activates that app; the battery item toggles keep-awake; the appearance item toggles Divot's own light/dark rendering, showing the current mode, and never changes the macOS system appearance; the date and time items open the matching System Settings pane; the network item opens a read-only Wi-Fi popover; and the volume item opens an output-volume popover with a slider and mute.
 
 The Wi-Fi popover lists the nearby networks with their signal and a lock for secured ones, marks the connected network, and ends with **Open Wi-Fi Settings…**, which opens System Settings › Wi-Fi directly (falling back to the generic Network pane if that link cannot be opened). It is read-only: it never joins a network and never asks for a password. Divot scans once each time the popover opens — never on a timer — and the scan runs off the main thread with a timeout, so the popover always settles into a list, an empty state, or an error. This is implemented and unit-tested in the Swift package; the popover on screen is not physically validated yet.
 
-The volume and date/time pane links still need validation on the target OS; a later milestone may replace the volume link with a native control popover.
+The volume popover has a horizontal slider for the default output with its current percentage, a **Mute** toggle, and a final **Open Sound Settings…** row that opens the Sound pane. Moving the slider changes the output's volume, and the bar item's icon and percentage follow it. It uses public Core Audio only; there is no timer, and while the popover is open it follows changes made elsewhere (a keyboard volume key, another app) through property listeners that are removed when the popover closes. For an output with no settable volume — some HDMI/DisplayPort devices — the slider and mute are disabled and a short note explains why instead of offering a control that cannot do anything. This is implemented and unit-tested in the Swift package; whether the slider actually moves a real output's volume is checked on the packaged app, not claimed here.
+
+The date/time and Sound pane links still need validation on the target OS.
 
 ## Future script widgets
 
