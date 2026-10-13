@@ -35,7 +35,7 @@ private func imageViews(in view: NSView) -> [NSImageView] {
 }
 
 @MainActor
-@Test func batteryItemShowsBoltWhileChargingAndPlainSymbolOtherwise() {
+@Test func batteryItemShowsBoltSymbolWhileChargingAndPlainSymbolOtherwise() {
     func presentation(charging: Bool) -> WidgetPresentation {
         WidgetPresenter.present(
             id: .battery,
@@ -45,78 +45,16 @@ private func imageViews(in view: NSView) -> [NSImageView] {
                                                                  isCharging: charging))))
     }
 
-    // While charging the whole battery symbol (outline and bolt) tints to the
-    // fixed green regardless of theme accent, so it is unmistakable on Dracula,
-    // Tokyo Night, and other non-green themes (#0074).
-    let charging = BarItemView()
-    charging.update(presentation(charging: true), action: .none)
-    #expect(charging.displayedSymbolName == "battery.100")
-    #expect(charging.displayedBadgeSymbolName == "bolt.fill")
-    #expect(charging.isBadgeVisible)
-    #expect(imageViews(in: charging).contains { !$0.isHidden && $0.image != nil })
+    let item = BarItemView()
+    item.update(presentation(charging: true), action: .none)
+    #expect(item.displayedSymbolName == "battery.100.bolt")
+    #expect(imageViews(in: item).contains { !$0.isHidden && $0.image != nil })
 
-    // Not charging: the same plain battery symbol and no bolt at all.
-    let plain = BarItemView()
-    plain.update(presentation(charging: false), action: .none)
-    #expect(plain.displayedSymbolName == "battery.75")
-    #expect(plain.displayedBadgeSymbolName == nil)
-    #expect(!plain.isBadgeVisible)
-    #expect(imageViews(in: plain).contains { !$0.isHidden && $0.image != nil })
-
-    // A live switch on the same view re-resolves the icon, so the bolt appears
-    // and disappears with the power source.
-    charging.update(presentation(charging: false), action: .none)
-    #expect(charging.displayedBadgeSymbolName == nil)
-    #expect(!charging.isBadgeVisible)
-    charging.update(presentation(charging: true), action: .none)
-    #expect(charging.displayedBadgeSymbolName == "bolt.fill")
-    #expect(charging.isBadgeVisible)
-}
-
-/// While charging, the whole battery symbol and the bolt draw in the one fixed
-/// charging green; with no charge the icon keeps the foreground colour, the
-/// label never turns green, and there is no bolt (#0074).
-@MainActor
-@Test func chargingTintsTheWholeBatterySymbolAGreenAndNotChargingLeavesItAlone() {
-    let theme = BarTheme.systemDefault
-    let green = NSColor(ChargingIndicatorPalette.green)
-    #expect(!green.isEqual(theme.accent),
-            "the charging green must not be the theme accent")
-
-    func presentation(charging: Bool) -> WidgetPresentation {
-        WidgetPresenter.present(
-            id: .battery,
-            state: WidgetState(id: .battery, revision: 1,
-                               content: .battery(BatterySnapshot(presence: .internalBattery,
-                                                                 percentage: 80,
-                                                                 isCharging: charging))))
-    }
-
-    let charging = BarItemView()
-    charging.apply(theme: theme)
-    charging.update(presentation(charging: true), action: .none)
-    #expect(charging.badgeTintColor?.isEqual(green) == true)
-    // The outline takes the same green as the bolt, so the mark is the whole
-    // symbol, not a small badge (#0074).
-    #expect(charging.iconTintColor.isEqual(green))
-    // The label keeps the foreground colour.
-    #expect(charging.itemTextColor.isEqual(theme.foreground))
-
-    // Not charging: no bolt, and the icon returns to the foreground colour.
-    let plain = BarItemView()
-    plain.apply(theme: theme)
-    plain.update(presentation(charging: false), action: .none)
-    #expect(plain.badgeTintColor == nil)
-    #expect(plain.iconTintColor.isEqual(theme.foreground))
-    #expect(!plain.iconTintColor.isEqual(green))
-
-    // A live switch on the same view re-resolves the tint both ways.
-    charging.update(presentation(charging: false), action: .none)
-    #expect(charging.displayedBadgeSymbolName == nil)
-    #expect(charging.iconTintColor.isEqual(theme.foreground))
-    charging.update(presentation(charging: true), action: .none)
-    #expect(charging.displayedBadgeSymbolName == "bolt.fill")
-    #expect(charging.iconTintColor.isEqual(green))
+    // Not charging: the plain symbol, and a live switch re-resolves it.
+    item.update(presentation(charging: false), action: .none)
+    #expect(item.displayedSymbolName == "battery.75")
+    item.update(presentation(charging: true), action: .none)
+    #expect(item.displayedSymbolName == "battery.100.bolt")
 }
 
 /// The keep-awake cup is the battery item's only state mark. A second mark (a

@@ -20,12 +20,12 @@ private extension NSColor {
 
 /// The charging green is one fixed constant, not a theme accent, so it must
 /// clear the 3:1 non-text floor against each family's bar in both appearances.
-/// The whole-icon tint is the chosen approach (see the task): a small bolt over
-/// the battery outline is not reliably legible, so the whole symbol carries the
-/// green (#0074). Contrast is audited against the bar background only, not the
-/// optional chip's selected fill, which spans luminance ranges that no single
-/// green can satisfy uniformly (site/guide/widgets.md documents the whole-symbol
-/// tint as the mitigation for visibility on chips).
+/// Only the bolt is green (#0084). The symbol knocks a halo out of the body
+/// around the bolt, so the green is read against the bar/chip behind that halo,
+/// not against the body colour; the body-vs-bar contrast is the label colour's
+/// own audited contrast. Contrast is audited against the bar background only,
+/// not the optional chip's selected fill, which spans luminance ranges that no
+/// single green can satisfy uniformly.
 @MainActor
 @Test func chargingGreenClearsTheNonTextFloorOnEveryFamilyBarInLightAndDark() {
     for family in AppearanceConfiguration.Family.allCases {
@@ -41,49 +41,4 @@ private extension NSColor {
                     "\(family.rawValue) \(dark ? "dark" : "light") charging green \(ratio) is below \(ContrastAudit.nonTextThreshold)")
         }
     }
-}
-
-/// The drawn green is the fixed palette value for every family — never the
-/// family accent, even when that accent is not green (the Dracula purple that
-/// started this bug) — and the whole battery symbol carries it while charging.
-@MainActor
-@Test func chargingTintsTheWholeSymbolWithTheFixedGreenOnEveryFamily() {
-    let expected = NSColor(ChargingIndicatorPalette.green)
-    for family in AppearanceConfiguration.Family.allCases {
-        for dark in [false, true] {
-            // A deliberately non-green accent must never leak into the mark.
-            let theme = BarTheme.resolve(AppearanceConfiguration(family: family,
-                                                                mode: dark ? .dark : .light,
-                                                                accent: "#BD93F9"),
-                                         dark: dark)
-            #expect(!theme.accent.isEqual(expected),
-                    "\(family.rawValue): the test accent must differ from the charging green")
-
-            let charging = BarItemView()
-            charging.apply(theme: theme)
-            charging.update(batteryPresentation(charging: true), action: .none)
-            #expect(charging.iconTintColor.isEqual(expected),
-                    "\(family.rawValue) \(dark ? "dark" : "light") charging icon tint is not the fixed green")
-            #expect(charging.badgeTintColor?.isEqual(expected) == true,
-                    "\(family.rawValue) \(dark ? "dark" : "light") charging bolt tint is not the fixed green")
-
-            let plain = BarItemView()
-            plain.apply(theme: theme)
-            plain.update(batteryPresentation(charging: false), action: .none)
-            #expect(plain.badgeTintColor == nil,
-                    "\(family.rawValue) \(dark ? "dark" : "light") not charging must draw no bolt")
-            #expect(!plain.iconTintColor.isEqual(expected),
-                    "\(family.rawValue) \(dark ? "dark" : "light") not charging must not be green")
-        }
-    }
-}
-
-@MainActor
-private func batteryPresentation(charging: Bool) -> WidgetPresentation {
-    WidgetPresenter.present(
-        id: .battery,
-        state: WidgetState(id: .battery, revision: 1,
-                           content: .battery(BatterySnapshot(presence: .internalBattery,
-                                                             percentage: 80,
-                                                             isCharging: charging))))
 }

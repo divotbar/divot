@@ -58,6 +58,8 @@ struct BarSnapshotTests {
         let scale: Double
         let background: RGB
         let selected: RGB
+        /// The item label colour, which the charging battery body must equal.
+        let foreground: RGB
 
         var centerRow: Int { pixels.height / 2 }
         func column(_ points: CGFloat) -> Int { Int((Double(points) * scale).rounded()) }
@@ -123,7 +125,8 @@ struct BarSnapshotTests {
                         frames: itemViews.map(\.frame),
                         scale: Double(pixels.width) / Double(size.width),
                         background: SnapshotTestHelpers.rgb(theme.layerBackground, in: nsAppearance),
-                        selected: SnapshotTestHelpers.rgb(theme.selected, in: nsAppearance))
+                        selected: SnapshotTestHelpers.rgb(theme.selected, in: nsAppearance),
+                        foreground: SnapshotTestHelpers.rgb(theme.foreground, in: nsAppearance))
     }
 
     // MARK: Assertions
@@ -274,17 +277,22 @@ struct BarSnapshotTests {
         assertChipFill(off, chips: .off)
         assertClockContrast(off, behind: off.background)
 
-        // Charging green fills the battery slot, the first item, and nothing else.
+        // Only the bolt is green (#0084): green pixels exist, sit well inside the
+        // battery slot, and span far less than the battery body, while the body
+        // itself is drawn in the normal label colour.
         let green = chargingGreenColumns(off)
         #expect(green.count >= 10, "Charging battery drew only \(green.count) pixels of the fixed green")
-        // The whole battery symbol is tinted, not just the bolt, so the green
-        // spans at least the icon box.
-        let greenSpan = (green.max() ?? 0) - (green.min() ?? 0)
-        #expect(greenSpan >= off.column(off.metrics.iconSize),
-                "Charging green spans \(greenSpan)px, narrower than the \(off.column(off.metrics.iconSize))px icon: only the bolt is tinted")
         let battery = off.frames[0]
+        let greenSpan = (green.max() ?? 0) - (green.min() ?? 0)
+        #expect(greenSpan < off.column(off.metrics.iconSize),
+                "Charging green spans \(greenSpan)px, as wide as or wider than the icon (\(off.column(off.metrics.iconSize))px): the whole battery is tinted, not just the bolt")
         #expect(green.allSatisfy { $0 >= off.column(battery.minX) - 1 && $0 <= off.column(battery.maxX) + 1 },
                 "Charging green appears outside the battery slot")
+        var bodyPixels = 0
+        for x in off.column(battery.minX)..<off.column(battery.maxX) {
+            for y in 0..<off.pixels.height where off.pixels.color(x, y).delta(off.foreground) < 0.05 { bodyPixels += 1 }
+        }
+        #expect(bodyPixels >= 40, "Charging battery body drew only \(bodyPixels) pixels of the normal label colour")
 
         let translucent = try render(config, chips: .translucent, charging: true, label: "chips-on")
         assertSlotLayout(translucent)

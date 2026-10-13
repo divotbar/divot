@@ -122,30 +122,6 @@ public struct WidgetIndicator: Equatable, Sendable {
     }
 }
 
-/// A small symbol drawn over an item's leading symbol.
-///
-/// The charging bolt is the first user: it is a separate element on top of the
-/// battery outline, and the whole battery symbol plus the bolt draw in the fixed
-/// charging green (#0074) — one constant in `ChargingIndicatorPalette`, never
-/// the theme accent. It is deliberately distinct from `WidgetIndicator`, which
-/// sits after the text rather than over the icon.
-public struct WidgetBadge: Equatable, Sendable {
-    /// The semantic color role the view resolves for the current appearance.
-    public enum Role: String, Equatable, Sendable {
-        /// Charging: the whole battery symbol and the bolt draw in the fixed
-        /// charging green, independent of the theme family (#0074).
-        case charging
-    }
-
-    public let symbolName: String
-    public let role: Role
-
-    public init(symbolName: String, role: Role) {
-        self.symbolName = symbolName
-        self.role = role
-    }
-}
-
 /// How one item should look: an optional SF Symbol, compact text, and the
 /// accessible description. Kept pure so it is testable without a window server
 /// and so every widget shares one presentation path.
@@ -163,23 +139,19 @@ public struct WidgetPresentation: Equatable, Sendable {
     public let isError: Bool
     /// An optional state indicator drawn after the text (e.g. the keep-awake cup).
     public let indicator: WidgetIndicator?
-    /// An optional symbol drawn over the leading icon (e.g. the charging bolt).
-    public let badge: WidgetBadge?
 
     public init(symbolName: String?,
                 iconBundleIdentifier: String? = nil,
                 text: String,
                 accessibilityLabel: String,
                 isError: Bool = false,
-                indicator: WidgetIndicator? = nil,
-                badge: WidgetBadge? = nil) {
+                indicator: WidgetIndicator? = nil) {
         self.symbolName = symbolName
         self.iconBundleIdentifier = iconBundleIdentifier
         self.text = text
         self.accessibilityLabel = accessibilityLabel
         self.isError = isError
         self.indicator = indicator
-        self.badge = badge
     }
 }
 
@@ -284,16 +256,11 @@ public enum WidgetPresenter {
                                       accessibilityLabel: description,
                                       indicator: indicator)
         case .internalBattery:
-            // The charging outline stays the full battery it drew before; the
-            // bolt is split out so the whole symbol can be tinted charging green
-            // on its own (#0058, #0074).
-            let symbol = snapshot.isCharging ? "battery.100" : batterySymbol(percentage: snapshot.percentage)
-            // The bolt rides over the battery outline; the view tints the whole
-            // battery symbol with the fixed charging green, so charging reads as
-            // a large green mark rather than a small badge (#0074).
-            let badge = snapshot.isCharging
-                ? WidgetBadge(symbolName: "bolt.fill", role: .charging)
-                : nil
+            // While charging the symbol is the bolt-in-battery palette symbol; the
+            // view colours only the bolt green (#0084).
+            let symbol = snapshot.isCharging
+                ? ChargingIndicatorPalette.symbolName
+                : batterySymbol(percentage: snapshot.percentage)
             let text = options.showPercentage ? (snapshot.percentage.map { "\($0)%" } ?? "") : ""
             let percentageText = snapshot.percentage.map { "\($0)%" } ?? "state unknown"
             var description = "Battery \(percentageText)"
@@ -304,8 +271,7 @@ public enum WidgetPresenter {
             return WidgetPresentation(symbolName: symbol,
                                       text: text,
                                       accessibilityLabel: description,
-                                      indicator: indicator,
-                                      badge: badge)
+                                      indicator: indicator)
         }
     }
 
