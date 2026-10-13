@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
@@ -50,3 +51,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:11:50Z · note: review pass 1: needs some work
 - 2026-10-13T18:11:50Z · status review→active
 - 2026-10-13T18:20:31Z · message_queued at 2026-10-13T18:20:31.043Z
+
