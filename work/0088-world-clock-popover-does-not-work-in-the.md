@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:20:27Z"
+updated_at: "2026-10-13T16:20:35Z"
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -34,7 +34,11 @@ updated_at: "2026-10-13T16:20:27Z"
 - Docs and site pages describe the final behaviour only. The maintainer verifies by eye on the packaged app; do not claim visual sign-off. If the problem only appears in the packaged app and cannot be reproduced in tests, say so and add a debug path that renders the real window.
 
 ## Screenshots
-Attached: the real app (broken) and the shot that was used to approve it.
+Maintainer screenshots 2026-10-13. 1) The REAL packaged app at 23:16 (UTC+7): the time chip popover shows only a blank panel, one date/time line and a search field; nothing usable. 2) The shot that was used to approve #0085: a different, pre-filled layout (rendered oversized, light theme, fixed date 01/01/2026 10:00 UTC+0). The maintainer also wants: no date, current time plus UTC offset only (UTC+7).
+
+![Real app, broken](/api/tasks/0088/attachments/screenshot-1.png)
+
+![Approved shot, different layout](/api/tasks/0088/attachments/screenshot-2.png)
 
 ## Notes for AI
 WORK IN SMALL STAGES and commit after each; do not hand off until the real-flow test and the new shots exist and swift build, swift test --package-path macos and bun run check all pass. Never hand off while swift build fails. Files: WorldClockPopover.swift, WorldClock.swift, BarPopover.swift, the snapshot helpers. Do not commit images.
@@ -42,3 +46,4 @@ WORK IN SMALL STAGES and commit after each; do not hand off until the real-flow 
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
+- 2026-10-13T16:20:35Z · body: section Screenshots
