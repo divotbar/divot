@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-13T10:48:57Z"
-review_passes: 5
+last_close_out_gate_ms: 145606
+last_close_out_gate_at: "2026-10-13T10:53:38.531Z"
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
@@ -18,6 +18,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
+updated_at: "2026-10-13T10:53:38Z"
+review_passes: 5
 review_rounds: 2
 ---
 ## Problem
@@ -204,4 +206,5 @@ The 22 PNG captures for Divot popovers are produced by the `repoos shot --target
 - 2026-10-13T10:45:52Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (349075f) during finalization (#0734)
 - 2026-10-13T10:48:57Z · note: review pass 6: needs some work
 - 2026-10-13T10:48:57Z · needs_input
+- 2026-10-13T10:53:38Z · close-out gate completed in 146s
 
