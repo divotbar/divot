@@ -2,12 +2,12 @@
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
-status: ready
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
@@ -48,3 +48,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T13:29:21Z · body: section Screenshots
 - 2026-10-13T13:29:22Z · status inbox→ready
 - 2026-10-13T13:29:23Z · cli_override, model_override
+- 2026-10-13T13:29:23Z · status ready→active, branch
