@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-13T06:32:07.289Z: repoos check failed: native-core — 􁁛 Test networkPresentationWithoutNameShowsOnlyIcon() passed after 0.041 seconds."
 id: "0077"
 title: "Calendar popover: month view with back/forward and today highlighted, opened from the date chip"
 type: feature
@@ -44,3 +46,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 - 2026-10-13T06:25:22Z · status inbox→ready
 - 2026-10-13T06:25:23Z · cli_override, model_override
 - 2026-10-13T06:25:23Z · status ready→active, branch
+
