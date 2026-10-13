@@ -53,3 +53,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T13:29:23Z · status ready→active, branch
 - 2026-10-13T13:49:17Z · message_queued at 2026-10-13T13:49:17.753Z
 - 2026-10-13T13:49:17Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
+- 2026-10-13T14:26:00Z · message_delivered: 1 message(s)
