@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T07:48:20Z"
+review_passes: 2
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
 type: chore
@@ -12,9 +14,7 @@ branch: feat/offscreen-bar-rendering-to-png-with-pixe
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T07:01:36Z"
-updated_at: "2026-10-13T07:48:20Z"
 review_rounds: 1
-review_passes: 1
 last_check_failure: "repoos check at 2026-10-13T07:42:06.739Z: repoos check failed: ◆ Check plan"
 ---
 ## Problem
@@ -44,3 +44,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:47:13Z · status active→review
 - 2026-10-13T07:47:13Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-13T07:48:20Z · note: review pass 2: needs some work
+
