@@ -509,7 +509,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         volumePopover?.updateTheme(theme)
         appearancePopover?.updateTheme(theme)
         calendarPopover?.updateTheme(theme)
-        worldClockPopover?.applyTheme(theme)
+        worldClockPopover?.updateTheme(theme)
         needsDisplay = true
     }
 

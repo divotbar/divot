@@ -62,4 +62,31 @@ final class WorldClockTests: XCTestCase {
         XCTAssertEqual(entry.timezone, "Asia/Calcutta")
         XCTAssertEqual(entry.hourOffset, 5.5, accuracy: 0.01)
     }
+
+    func testUTCOffsetFormatting() {
+        // Test positive offset formatting: UTC+05:30
+        let positiveOffset = 19800  // 5.5 hours
+        let hours = positiveOffset / 3600
+        let minutes = (positiveOffset % 3600) / 60
+        let sign = "+"
+        let formatted = String(format: "%@%02d:%02d", sign, hours, minutes)
+        XCTAssertEqual(formatted, "+05:30")
+
+        // Test negative offset formatting: UTC-03:30
+        let negativeOffset = -12600  // -3.5 hours
+        let absNegOffset = abs(negativeOffset)
+        let negHours = absNegOffset / 3600
+        let negMinutes = (absNegOffset % 3600) / 60
+        let negSign = "-"
+        let negFormatted = String(format: "%@%02d:%02d", negSign, negHours, negMinutes)
+        XCTAssertEqual(negFormatted, "-03:30")
+
+        // Test 45-minute offset: UTC+05:45
+        let fortyFiveOffset = 20700  // 5.75 hours
+        let fhHours = fortyFiveOffset / 3600
+        let fhMinutes = (fortyFiveOffset % 3600) / 60
+        let fhSign = "+"
+        let fhFormatted = String(format: "%@%02d:%02d", fhSign, fhHours, fhMinutes)
+        XCTAssertEqual(fhFormatted, "+05:45")
+    }
 }

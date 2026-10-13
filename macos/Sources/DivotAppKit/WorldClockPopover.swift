@@ -9,6 +9,7 @@ public final class WorldClockPopoverController {
 
     private let host = BarPopoverHost()
     private var content: WorldClockPopoverContentController?
+    private var refreshTimer: Timer?
 
     public init(openDateTimeSettings: @escaping @MainActor () -> Void,
                getConfiguration: @escaping @MainActor () -> DivotConfiguration) {
@@ -33,29 +34,56 @@ public final class WorldClockPopoverController {
                          timeFormat: config.widgets.time.timeFormat,
                          showSeconds: config.widgets.time.seconds,
                          customPattern: config.widgets.time.customPattern)
+
+        startRefreshTimer()
+    }
+
+    private func startRefreshTimer() {
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.refreshContent()
+        }
+    }
+
+    private func refreshContent() {
+        guard let content = content else { return }
+        let config = getConfiguration()
+        content.render(timezones: config.widgets.time.timezones,
+                      timeFormat: config.widgets.time.timeFormat,
+                      showSeconds: config.widgets.time.seconds,
+                      customPattern: config.widgets.time.customPattern)
     }
 
     /// Hide the popover and clear the controller reference.
     public func dismiss() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
         host.dismiss()
         content = nil
     }
 
     /// Toggle the popover: dismiss if open, present otherwise.
     public func toggle(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
-        if host.isShown {
+        if host.itemClickCloses(relativeTo: view) {
             dismiss()
         } else {
             present(relativeTo: view, theme: theme)
         }
     }
 
-    /// Apply a theme to the open popover without closing it.
-    public func applyTheme(_ theme: BarTheme) {
-        content?.apply(theme: theme)
+    /// Update the shown popover's theme without closing it.
+    /// Used when the bar's theme changes while the popover is open.
+    public func updateTheme(_ theme: BarTheme) {
+        if host.isShown {
+            host.restyle(theme: theme)
+        }
+        if let content {
+            content.theme = theme
+        }
     }
 
     private func handleClosed() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
         content = nil
     }
 }
@@ -165,9 +193,11 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         }
 
         let offset = TimeZone.current.secondsFromGMT(for: date)
-        let hours = offset / 3600
-        let minutes = abs(offset % 3600) / 60
-        let offsetStr = String(format: "%+03d:%02d", hours, minutes)
+        let sign = offset >= 0 ? "+" : "-"
+        let absOffset = abs(offset)
+        let hours = absOffset / 3600
+        let minutes = (absOffset % 3600) / 60
+        let offsetStr = String(format: "%@%02d:%02d", sign, hours, minutes)
 
         return "\(dateTimeStr) (UTC\(offsetStr))"
     }
