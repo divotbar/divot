@@ -29,7 +29,7 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
 | Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout, the theme-aware label/secondary/link colours, and the anchored `NSPopover` lifecycle (transient + outside-click/Escape monitors, same-item toggle) reused by the Wi-Fi, volume, and appearance popovers. |
 | Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
-| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a theme-family swatch grid plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
+| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a vertical list of theme-family options plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
 | App wiring | `macos/Sources/DivotApp/DivotAppDelegate.swift`, `DivotAppWidgetReport.swift` | First-launch defaults, main-actor sink, action handling, `divot --widgets`. |
 
 ## Providers and lifecycle
@@ -192,9 +192,10 @@ so any click outside it, or Escape, dismisses it; a second click on the same bar
 item toggles it closed. The monitors are installed while it is shown and removed
 the instant it closes — no polling. Its text is painted from the bar's `BarTheme`
 (`BarTheme.popoverPalette`), so its label/secondary/link roles clear the same
-contrast floors the theme audit checks; a family theme paints the popover's own
-background so it matches the bar exactly, the native theme keeps the popover's
-system material, and the popover adopts the bar's light/dark variant either way.
+contrast floors the theme audit checks; all themes paint the popover's own solid,
+opaque background from the theme palette so it matches the bar exactly and renders
+predictably regardless of what is behind it, and the popover adopts the bar's light/dark
+variant either way.
 Whether the slider
 actually moves the real output volume, and whether the item's percentage follows
 on screen, are **not verified here**: that is the maintainer's packaged-app check.
@@ -206,18 +207,17 @@ as the Wi-Fi and volume popovers (`BarPopover.swift` owns the shared layout and
 `.transient` lifecycle; `AppearancePopover.swift` supplies the rows) instead of
 toggling light/dark directly. Task 0073 restyled it compact and horizontal: it
 contains a **Mode** row as one horizontal `System`/`Light`/`Dark` segmented
-control matching `appearance.mode`, a wrapped grid of theme-family options
+control matching `appearance.mode`, a vertical list of theme-family options
 (`Native`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`, matching
-`appearance.family`) where each option shows a small colour swatch taken from
+`appearance.family`) where each row is left-aligned and shows a small colour swatch taken from
 that family's own palette (`ThemeResolver.swatch`, so a new family needs no
-hand-copied colour) and outlines the current theme, then a final **Open Divot
+hand-copied colour) and the family name, with the current theme clearly marked, then a final **Open Divot
 Settings…** row that opens Divot's own settings window, not a System Settings
 pane. The shared width floor is lowered for this content so the popover hugs the
-control and grid instead of leaving an empty block beside them; the Wi-Fi and
-volume popovers keep the shared floor. The chosen ring and option labels come from
-the bar's `BarTheme` (a family theme also paints the popover background from it),
-so the popover matches the bar in light and dark and under increased contrast
-instead of a fixed system tint.
+control and list instead of leaving an empty block beside them; the Wi-Fi and
+volume popovers keep the shared floor. All popover content (title, labels, rows, links) is left-aligned. All themes paint the popover with a solid, opaque background from the theme palette and a thin border (rounded corners for curated families), so the popover renders predictably regardless of what is behind it. The chosen ring and option labels come from
+the bar's `BarTheme`,
+so the popover matches the bar in light and dark and under increased contrast.
 
 Both lists are built from the configuration enums
 (`AppearanceConfiguration.Mode.allCases` and `.Family.allCases`), so a new family
@@ -297,7 +297,7 @@ asserted, by category:
   segment selected, every family is offered from the enums with the current one
   outlined, a theme swatch is drawn from the resolved family palette (and follows
   the system variant for `system` mode, with native falling back to system
-  colours), the grid wraps to at most three columns, the shared width floor is
+  colours), the theme options are displayed in a vertical list with one per row, the shared width floor is
   dropped for this content, a selection forwards its value, every option carries
   an accessibility label and a selected/not-selected value and refuses no first
   responder, focus lands on the mode control, and the settings row reports.

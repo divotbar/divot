@@ -69,15 +69,17 @@ class BarPopoverContentController: NSViewController {
     /// before the view loads (a no-op until then).
     func applyTheme() {
         guard isViewLoaded else { return }
-        // A family theme paints its own flat background so the popover matches
-        // the bar exactly; the native theme keeps the popover's system material,
-        // which already matches once the popover adopts the bar's light/dark
-        // appearance.
+        // All themes paint a solid, opaque background so the popover renders
+        // predictably regardless of what is behind it. Family themes use their
+        // palette background; native uses the system window background (resolved
+        // to light/dark from the popover's appearance setting).
+        view.wantsLayer = true
+        view.layer?.backgroundColor = theme.popoverPalette.background.cgColor
         if theme.usesSystemColors {
-            view.layer?.backgroundColor = nil
+            view.layer?.borderWidth = 0
         } else {
-            view.wantsLayer = true
-            view.layer?.backgroundColor = theme.popoverPalette.background.cgColor
+            view.layer?.borderColor = theme.popoverPalette.separator.cgColor
+            view.layer?.borderWidth = 1
             view.layer?.cornerRadius = Self.contentCornerRadius
             view.layer?.masksToBounds = true
         }
@@ -117,6 +119,7 @@ class BarPopoverContentController: NSViewController {
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.textColor = theme.popoverPalette.label
         label.identifier = Self.headerIdentifier
+        label.alignment = .left
         return label
     }
 
@@ -137,6 +140,7 @@ class BarPopoverContentController: NSViewController {
         label.textColor = theme.popoverPalette.secondary
         label.identifier = Self.secondaryIdentifier
         label.maximumNumberOfLines = 0
+        label.alignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         label.widthAnchor.constraint(lessThanOrEqualToConstant: 248).isActive = true
         return label
@@ -332,9 +336,21 @@ final class BarPopoverHost: NSObject, NSPopoverDelegate {
         content.applyTheme()
         popover.contentSize = content.preferredSize
         popover.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
+        // Make the popover window opaque and solid-backed from the theme palette
+        // so the popover always renders predictably regardless of what is behind it.
+        configurePopoverWindowOpacity(popover, theme: content.theme)
         self.popover = popover
         anchor = view
         startDismissMonitors()
+    }
+
+    /// Configure the popover window to be opaque and solid-backed from the theme
+    /// palette, disabling any vibrancy/translucency material.
+    private func configurePopoverWindowOpacity(_ popover: NSPopover, theme: BarTheme) {
+        guard let window = popover.contentViewController?.view.window else { return }
+        let palette = theme.popoverPalette
+        window.isOpaque = true
+        window.backgroundColor = palette.background
     }
 
     /// Match the popover to a content controller whose preferred size changed.
