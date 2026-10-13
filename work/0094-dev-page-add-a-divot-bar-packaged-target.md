@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 122718
-last_close_out_gate_at: "2026-10-13T21:59:27.423Z"
 id: "0094"
 title: "Dev page: add a 'Divot bar (packaged)' target that rebuilds and runs the real dist/Divot.app"
 type: feature
-status: review
+status: done
 priority: p2
 area: [macos, infra]
+merged_commit: f9c337fc79f5bc2d4ce2d6adf15d9d03a742166a
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/dev-page-add-a-divot-bar-packaged-target
 created_at: "2026-10-13T17:21:21Z"
-updated_at: "2026-10-13T21:59:27Z"
+updated_at: "2026-10-13T21:59:33Z"
+last_close_out_gate_ms: 122718
+last_close_out_gate_at: "2026-10-13T21:59:27.423Z"
 review_passes: 1
 ---
 ## Problem
@@ -51,4 +52,4 @@ The Dev page itself cannot drive this branch: RepoOS runs dev targets in the pro
 - 2026-10-13T20:08:00Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T20:08:57Z · note: review pass 1: good to go
 - 2026-10-13T21:59:27Z · close-out gate completed in 123s
-
+- 2026-10-13T21:59:33Z · status review→done, release:success
