@@ -12,7 +12,7 @@ branch: feat/offscreen-bar-rendering-to-png-with-pixe
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T07:01:36Z"
-updated_at: "2026-10-13T07:22:38Z"
+updated_at: "2026-10-13T07:22:43Z"
 ---
 ## Problem
 #0078 renders the popovers offscreen. The bar itself (workspaces, front app and right-side chips) has no offscreen render, so bar layout, spacing, chip style and the charging colour have no visual evidence.
