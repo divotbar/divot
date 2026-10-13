@@ -8,10 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/charging-indicator-must-be-a-real-green-
-cli_override: opencode
-model_override: opencode-go/deepseek-v4.1-flash
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T04:46:50Z"
+updated_at: "2026-10-13T04:46:51Z"
 ---
 ## Problem
 #0058 drew the charging bolt in 'the theme's accent set'. On themes whose accent is not green (maintainer screenshot 2026-10-13, Dracula: the bolt is purple/blue) charging is not obvious. The maintainer wants it unmistakable.
@@ -48,3 +48,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:14:01Z · message_delivered: 1 message(s)
 - 2026-10-13T04:18:41Z · body: section Approach
 - 2026-10-13T04:36:46Z · message_queued at 2026-10-13T04:36:46.445Z
+- 2026-10-13T04:46:51Z · cli_override, model_override
