@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:54:22Z"
+updated_at: "2026-10-13T18:59:56Z"
 review_passes: 7
 review_rounds: 2
 dev_error_count: 1
@@ -127,6 +127,15 @@ Rendered at the fixed instant 2026-01-01T10:00Z local UTC: header `10:00 UTC+0` 
 
 The empty state with `los` typed into the real search field and the result `San Francisco` visible directly beneath it, flush with the other rows; the Add row and the settings link are still present. Proves typing now returns a usable result instead of nothing.
 
+## Root causes
+Reproduced first in the REAL controller path: a test drives `BarPopoverHost`/`BarPopoverPanel` with the world clock content controller, types into the search field with `stringValue` plus the `NSControl.textDidChangeNotification`, and invokes the result row action.
+
+1. **Panel sizing**: `render()` never called `host.resize(to:)`, so the panel stayed at its initial size while the stack grew underneath — the large blank chrome in the packaged app. Fixed by re-rendering and resizing to `preferredSize` on every state change.
+2. **Search keystrokes**: the results only refreshed on `NSSearchField.action` (Return / the search button), never per keystroke, so typing showed nothing usable. Fixed by observing `NSControl.textDidChangeNotification`.
+3. **Absent vs empty config**: an empty list was conflated with "never configured", so the defaults could reappear after the user removed them. Fixed: `widgets.time.timezones` is `[String]?` and `WorldClock.resolvedTimezones` maps absent → the three defaults (minus the local zone) and any stored array (including `[]`) → itself.
+4. **Add/remove did not rebuild**: the callbacks reported the new list but did not re-render, so rows appeared only on the next tick. Fixed: the outer controller persists, then re-renders and resizes.
+5. **Shots did not exercise the real path**: the snapshots pre-loaded zones and rendered a separate layout at a fixed size. Fixed: the world-clock shots render the real content controller through its own render/`preferredSize` for the empty, defaults, one-zone, day-label and add-flow states.
+
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
@@ -199,3 +208,4 @@ The empty state with `los` typed into the real search field and the result `San 
 - 2026-10-13T18:45:32Z · body: section Shots
 - 2026-10-13T18:52:10Z · body: section Shots
 - 2026-10-13T18:54:22Z · body: section Shot descriptions
+- 2026-10-13T18:59:56Z · body: section Root causes
