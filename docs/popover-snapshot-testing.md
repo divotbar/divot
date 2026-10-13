@@ -31,6 +31,25 @@ scripts/snapshots.sh
 
 This runs the test suite and prints the snapshot output directory. The tests run as part of `swift test --package-path macos` and report clearly if they cannot render (e.g., on headless systems).
 
+### Snapshot token filtering
+
+When developing a UI task, you can render only the snapshots that changed by passing `DIVOT_SNAPSHOT_ONLY=<tokens>`:
+
+```bash
+scripts/snapshots.sh --only worldclock
+DIVOT_SNAPSHOT_ONLY=wifi,volume swift test --package-path macos
+```
+
+Tokens match any substring in the snapshot filename. Known tokens:
+- `bar`: right-hand bar group (battery, clock, network, volume)
+- `volume`: volume popover
+- `wifi`: Wi-Fi popover and Wi-Fi permission message
+- `appearance`: appearance (theme picker) popover
+- `calendar`: calendar popover
+- `worldclock`: world clock popover (all timezone variants)
+
+Unknown tokens produce a diagnostic message and zero snapshots. Assertions still run for all snapshots, filtered or not.
+
 ## Pixel assertions
 
 When snapshots render successfully, each test suite verifies ALL of the following:
@@ -72,6 +91,33 @@ The tests sample pixels at fixed coordinates that assume the default font and sy
 - **Popover pixel assertions (#0083).** `assertPixelRules` runs for every popover, all five families, light and dark: the fill is opaque and equals the palette background; every ink row's first pixel is inside the leading inset (nothing centred or right-aligned); every text band reaches 4:1 against the sampled background; and the selected fill (chosen theme row, today) is visible.
 - **What the shots do and do not prove.** They render the content view over the solid palette fill, so they prove alignment, contrast and the selected style. They do not draw the popover window, so they cannot show the real chrome. The translucency fix is proven by the runtime test `realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme`, which presents the real panel and walks its view hierarchy (no `NSVisualEffectView`, alpha-1 chrome and content fill), not by the images. Visual sign-off on the packaged app is the maintainer's.
 - **Headless.** With no usable graphics context the tests skip and no PNGs are produced; RepoOS then records no shots.
+
+### Per-task shot selection
+
+RepoOS tasks can declare `## Shots` entries that name only the images they changed. When you pass `env` and `glob` parameters to a shot entry, RepoOS runs the target with the environment variables set and collects only matching files. Use this to render only the parts of Divot you changed:
+
+```json
+[
+  {
+    "target": "Divot bar",
+    "label": "World clock popover updated",
+    "env": {"DIVOT_SNAPSHOT_ONLY": "worldclock"},
+    "glob": "*worldclock*.png"
+  }
+]
+```
+
+Declare this in your task `## Shots` section (example from a Divot task):
+
+```bash
+repoos update <id> --shots '[{"target": "Divot bar", "label": "World clock popover", "env": {"DIVOT_SNAPSHOT_ONLY": "worldclock"}, "glob": "*worldclock*.png"}]'
+```
+
+Ad hoc from the command line:
+
+```bash
+repoos shot --target "Divot bar" --env DIVOT_SNAPSHOT_ONLY=worldclock --glob "*worldclock*.png"
+```
 
 ## Assertion strategy
 

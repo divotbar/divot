@@ -160,6 +160,6 @@ message points at this section form.
 
 ## Divot conventions
 
-Start at `docs/README.md`. macOS 26+ / Apple silicon; Swift 6.2+, AppKit for the persistent bar, optional SwiftUI for settings. No native runtime dependencies, WebKit bar, private APIs, or permanent render loop. Main actor owns UI; providers collect off-main and update only changed widgets.
+Start at `docs/README.md`. macOS 26+ / Apple silicon; Swift 6.2+, AppKit for the persistent bar, optional SwiftUI for settings. No native runtime dependencies, WebKit bar, private APIs, or permanent render loop. Main actor owns UI; providers collect off-main and update only changed widgets. UI tasks declare `## Shots` entries that name only the images they changed, using `env: {"DIVOT_SNAPSHOT_ONLY": "<token>"}` and `glob: "*<token>*.png"` (see `docs/popover-snapshot-testing.md`).
 
 Website: Vue 3/VitePress, static output, Bun tooling. Run `bun run check` and `swift test --package-path macos`. Use the existing local Lake Tahoe photo with its credited CC BY-SA 3.0 license; code/docs are MIT. No invented release links, benchmarks, or app availability. Public copy must distinguish planned behavior from implemented code. Keep the Tahoe editorial direction: warm paper, alpine blue/pine, restrained typography; avoid generic card grids and decorative animation.
