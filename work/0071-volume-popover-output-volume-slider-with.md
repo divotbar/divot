@@ -2,7 +2,7 @@
 id: "0071"
 title: "Volume popover: output volume slider with mute and an Open Sound Settings row"
 type: feature
-status: inbox
+status: ready
 needs_input: true
 needs_input_reason: needs-human-step
 needs_input_detail: "Acceptance criteria mention a real device, physical hardware, accounts, credentials, or third-party registration — split that verification into a separate human-only task. (matched: device verification)"
@@ -12,7 +12,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T02:01:04Z"
-updated_at: "2026-10-13T02:01:10Z"
+updated_at: "2026-10-13T02:01:13Z"
 ---
 ## Problem
 Clicking the volume item only opens a System Settings pane. The maintainer wants a popup/dropdown with a slider to change the volume, like the new Wi-Fi popover (#0070).
@@ -39,3 +39,4 @@ Look at how the volume provider reads volume today and how #0070 built its popov
 - 2026-10-13T02:01:04Z · needs_input
 - 2026-10-13T02:01:09Z · body: section Acceptance criteria
 - 2026-10-13T02:01:10Z · body: section Notes for AI
+- 2026-10-13T02:01:13Z · status inbox→ready
