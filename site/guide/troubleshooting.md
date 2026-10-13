@@ -44,6 +44,22 @@ Both configurable sides, per-item options, layout, the System/Light/Dark variant
 
 Run `divot status --json` for a read-only diagnostic snapshot: the app version, whether a Divot app instance is running, the Accessibility and Location permission readings, the detected workspace adapter (AeroSpace or yabai), and the config path with its validity. The plain `divot status` prints the same facts in words. It never asks for or grants a permission; when Accessibility or Location is missing, the report names the System Settings pane to open (`Privacy & Security › Accessibility` or `Privacy & Security › Location Services`). If the config file is invalid, the status lists the failing field and notes that the running app keeps the last valid configuration. Because the app watches the file, a valid `divot config set` applies without a restart.
 
+## Notification banners overlap the Divot bar
+
+When the native macOS menu bar is auto-hidden (set to auto-hide in System Settings), notification banners from Calendar, Mail, or other apps may appear with their top edge tucked under the Divot bar, partly covering the banner's title. This is a reported limitation.
+
+### Why it happens
+
+Divot is positioned at the very top of the screen (y=0) to stay out of the way while the menu bar is hidden. Notification banners also appear near the top of the screen in this case. The visual overlap is reported by the maintainer, but the exact positioning mechanism and z-order (which draws on top) have not been measured.
+
+A precise explanation requires window-level data from a live notification on macOS.
+
+### What to do
+
+- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. Banners are expected to reposition below the visible menu bar, avoiding overlap. (Not verified with a live notification; awaiting testing.)
+- **Use Divot's cursor-reveal setting:** Turn on **Settings → Move below the menu bar when it appears**. When you move your pointer to the top of the screen, the native menu bar slides into view and Divot slides below it temporarily. Banners do not follow this animation, so overlap can still occur if a notification arrives while the bar is at the top.
+- **Accept the limitation:** This is how some third-party top-edge bars behave on macOS. Notification content is still readable, just with partial overlap at the very top.
+
 ## Report a problem
 
 When repository hosting is provisioned, include OS, hardware, commit, enabled widgets, display layout, expected behavior, actual behavior, and minimal reproduction. Remove secrets from configurations and captures. Performance reports also need the measurement method.
