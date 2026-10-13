@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 51756
-last_close_out_gate_at: "2026-10-13T06:23:50.067Z"
 id: "0076"
 title: "Popovers: solid predictable background, left-aligned layout, vertical theme list"
 type: bug
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: 3fd79d67dcc061979844a55211e85caddf6094e9
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/popovers-solid-predictable-background-le
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
-updated_at: "2026-10-13T06:23:50Z"
+updated_at: "2026-10-13T06:23:52Z"
+last_close_out_gate_ms: 51756
+last_close_out_gate_at: "2026-10-13T06:23:50.067Z"
 review_passes: 5
 review_rounds: 2
 ---
@@ -74,4 +75,4 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T06:20:25Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T06:22:12Z · note: review pass 5: good to go
 - 2026-10-13T06:23:50Z · close-out gate completed in 52s
-
+- 2026-10-13T06:23:52Z · status review→done, release:success
