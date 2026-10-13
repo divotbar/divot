@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:22:12Z"
+updated_at: "2026-10-13T17:27:41Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -70,24 +70,24 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ```json
 [
 {
-  "label": "Empty state (0 zones): Shows hint \"No other timezones. Add one below.\" with Add row",
-  "target": "Divot bar",
-  "glob": "*world-clock*zero-timezones*"
+"label": "Empty state (0 zones): Shows hint \"No other timezones. Add one below.\" with Add row",
+"target": "Divot bar",
+"glob": "*world-clock*zero-timezones*"
 },
 {
-  "label": "Default state: Three default zones (San Francisco, London, Singapore)",
-  "target": "Divot bar",
-  "glob": "*world-clock*two-timezones*"
+"label": "Default state: Three default zones (San Francisco, London, Singapore)",
+"target": "Divot bar",
+"glob": "*world-clock*two-timezones*"
 },
 {
-  "label": "With day labels: Four zones showing Yesterday/Tomorrow when day differs from local",
-  "target": "Divot bar",
-  "glob": "*world-clock*day-label*"
+"label": "With day labels: Four zones showing Yesterday/Tomorrow when day differs from local",
+"target": "Divot bar",
+"glob": "*world-clock*day-label*"
 },
 {
-  "label": "Full list: Four zones with current time and hour offset",
-  "target": "Divot bar",
-  "glob": "*world-clock*four-timezones*"
+"label": "Full list: Four zones with current time and hour offset",
+"target": "Divot bar",
+"glob": "*world-clock*four-timezones*"
 }
 ]
 ```
@@ -127,3 +127,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:19:36Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:22:01Z · body: section Shots
 - 2026-10-13T17:22:12Z · body: section Shots
+- 2026-10-13T17:27:41Z · message_queued at 2026-10-13T17:27:41.211Z
