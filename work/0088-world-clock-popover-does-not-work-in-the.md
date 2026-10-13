@@ -2,7 +2,7 @@
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:55:38Z"
+updated_at: "2026-10-13T16:58:21Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -80,3 +80,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T16:49:20Z · note: review pass 1: needs some work
 - 2026-10-13T16:49:20Z · status review→active
 - 2026-10-13T16:55:38Z · message_queued at 2026-10-13T16:55:38.559Z
+- 2026-10-13T16:58:21Z · status active→review
