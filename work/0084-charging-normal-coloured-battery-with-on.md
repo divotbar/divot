@@ -93,3 +93,4 @@ The palette approach successfully isolates the bolt: green spans less than the i
 - 2026-10-13T10:25:28Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T10:25:32Z · message_queued at 2026-10-13T10:25:32.690Z
 - 2026-10-13T10:26:02Z · status active→review
+- 2026-10-13T10:26:02Z · note: shots: skipped — the declared shot list produced no captures: shot #1: the resolved targets (website, Divot bar) do not include "default"; shot #2: the resolved targets (website, Divot bar) do not include "default"; website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
