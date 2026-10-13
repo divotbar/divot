@@ -13,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:43:59Z"
+updated_at: "2026-10-13T10:44:11Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -144,6 +144,9 @@ Runtime assertions in tests verify:
 [{"target": "Divot bar", "label": "Volume, Wi-Fi, Appearance, and Calendar popovers (offscreen snapshots)"}]
 ```
 
+## Shot evidence
+The 22 PNG captures for Divot popovers are produced by the `repoos shot --target "Divot bar"` command (command-target offscreen rendering via SnapshotTestHelpers). JSON verification metadata (.repoos/ui-verification/0083.json) is only produced for web captures via browser automation, not for command targets (RepoOS task #0765). Runtime assertions in BarPopoverTests.swift verify the host window setup and chrome opacity for every theme and variant.
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -193,3 +196,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:43:59Z · needs_input
 - 2026-10-13T10:43:59Z · status review→active
 - 2026-10-13T10:43:59Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:44:11Z · body: section Shot evidence
