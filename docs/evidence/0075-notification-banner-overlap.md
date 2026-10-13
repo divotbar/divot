@@ -8,15 +8,26 @@ position themselves below the Divot bar (banner title row partly covered).
 
 ## Measurement attempts
 
-- **Local probe run 2026-10-13:** `divot-notification-banner-probe` built and ran successfully;
-  no notification banners were visible (environment does not support GUI notifications).
-- **Live notification trigger 2026-10-13:** Attempted to trigger test notifications using
-  `osascript` and `NSUserNotification`; notifications were not displayed in the window list
-  (sandboxed environment, notifications blocked). **Could not measure actual banner window
-  levels or bounds.**
+**Probe 2026-10-13:** Built and ran `divot-notification-banner-probe` (queries
+`CGWindowListCopyWindowInfo` for all windows, filters for NotificationCenter owner and
+high window levels). **Result: no notification windows found.**
 
-Measurement requires a human on macOS with notifications enabled to run the probe with a
-live notification and capture `kCGWindowLevel` + `kCGWindowBounds`.
+**Trigger attempts 2026-10-13:** Attempted to create a live test notification:
+- `osascript -e 'display notification "Divot probe" with title "Divot probe"'` — process
+  ran, but no notification appeared in the window list.
+- `NSUserNotification` (deprecated API) via Swift — notification was delivered via
+  `NSUserNotificationCenter.default.deliver()`, but no window appeared in the list.
+
+Both attempts were performed in a sandboxed environment where GUI notifications may be
+blocked or unsupported. The notification delivery calls completed without error, but the
+windows were never queryable.
+
+**Outcome:** Could not measure actual banner window levels or bounds due to environment
+limitations (notifications not displayed or not enumerated by `CGWindowListCopyWindowInfo`).
+
+**Next step:** A human on macOS with notifications enabled must run the probe while a real
+notification is visible (e.g., Calendar notification triggered by an event), and paste the
+banner's `kCGWindowLevel` and `kCGWindowBounds` values into this document.
 
 ## What was observed
 
@@ -169,11 +180,14 @@ fix is apparent without architectural changes.
 
 ## Limitations and constraints
 
-1. **No notification banners were visible during this probe.** Window levels, exact
-   y-coordinates, and z-order cannot be determined from missing windows. This is the
-   most critical gap. Maintainer must re-run `divot-notification-banner-probe` with
-   a live banner and attach `kCGWindowLevel` and `kCGWindowBounds` values to confirm
-   the overlap mechanism.
+1. **Notification windows were not observed despite trigger attempts.** Attempted to create
+   notifications via `osascript` and deprecated `NSUserNotification` API in a sandboxed
+   environment. Notification delivery succeeded, but windows did not appear in
+   `CGWindowListCopyWindowInfo` results (notifications may be blocked or unsupported
+   in this environment). Window levels, y-coordinates, and z-order cannot be determined.
+   This is the most critical gap. Maintainer must re-run `divot-notification-banner-probe`
+   on real macOS with a live, visible notification and attach `kCGWindowLevel` and
+   `kCGWindowBounds` values.
 
 2. **Divot bar height and shadow extension are not measured in the running app.**
    `BarPanels.swift` defines an optional 6-point bottom shadow; the actual panel
@@ -186,9 +200,11 @@ fix is apparent without architectural changes.
 4. **Menu-bar visibility change (auto-hide toggle) was not tested with a live banner.**
    The assumption that banners reposition when the menu bar reveals is unvalidated.
 
-5. **No attempt to trigger a notification** during the probe (to avoid assumptions
-   about window queryability timing). Maintainer must provide a real notification
-   capture.
+5. **Environment limitations prevented live testing.** The sandboxed environment where
+   the investigation was performed does not support GUI notifications or does not
+   enumerate them via `CGWindowListCopyWindowInfo`. Results from this environment
+   cannot be extrapolated to real macOS behavior. Maintainer must test on hardware
+   where notifications are actually displayed.
 
 ## Not observed — a human must supply
 
