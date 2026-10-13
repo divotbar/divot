@@ -3,9 +3,6 @@ id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-failed
-needs_input_detail: the cursor agent timed out after 900s
 priority: p0
 area: macos
 assigned_to: ""
@@ -16,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:24:28Z"
+updated_at: "2026-10-13T10:24:31Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -174,3 +171,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T09:41:06Z · note: review pass 2: failed — no usable report
 - 2026-10-13T09:41:06Z · needs_input
 - 2026-10-13T10:24:28Z · review_cli_override, review_model_override
+- 2026-10-13T10:24:31Z · needs_input (review-failed) cleared for review again by human
