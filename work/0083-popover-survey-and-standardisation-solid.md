@@ -183,3 +183,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:37:43Z · needs_input
 - 2026-10-13T10:37:43Z · status review→active
 - 2026-10-13T10:37:43Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:37:43Z · message_delivered: 1 message(s)
