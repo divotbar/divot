@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:29:39Z"
+updated_at: "2026-10-13T10:29:46Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -57,15 +57,18 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 ```
 
 ## Visual verification
-Snapshot renderings confirm the implementation:
+Captured Divot bar snapshots:
 
-1. **Light theme (Native), chips off, charging**: Battery outline and fill render in black (the normal label colour for light themes); the bolt is the fixed green (#248E3C) and sits within the battery glyph with a visible halo around it.
+- **Native light, chips off, charging**: Battery outline and fill render in black (the normal label colour for light themes); the bolt is the fixed green (#248E3C) with a visible halo separating it from the body, confirming bolt-only colouring.
+- **Native dark, chips off, charging**: Battery outline and fill render in white (the normal label colour for dark themes); the bolt is the same fixed green, legible against the white fill.
 
-2. **Dark theme (Dracula), chips on, charging**: Battery outline and fill render in white (the normal label colour for dark themes); the bolt is the same fixed green and remains legible against the white battery fill.
+BarSnapshotTests further verify:
+- All theme families (Native, Gruvbox, Ayu, Dracula, Tokyo Night) in light and dark render charging body pixels as the normal label colour.
+- Green pixels span less than the icon width, confined to the bolt region only.
+- Not-charging states contain no green pixels.
+- Body pixels match the label colour for the theme, not the fixed green.
 
-3. **Not charging (all themes)**: No green pixels, no bolt, battery renders in the normal label colour.
-
-The palette approach successfully isolates the bolt: green spans less than the icon width (only the bolt region), while the body occupies the full battery slot.
+The palette approach successfully isolates the bolt from the body: the fixed green applies only to the symbol's bolt layer (index 0), while outline (index 1) and fill (index 2) receive the item's normal label colour.
 
 ## Activity
 
@@ -96,3 +99,4 @@ The palette approach successfully isolates the bolt: green spans less than the i
 - 2026-10-13T10:29:10Z · message_delivered: 1 message(s)
 - 2026-10-13T10:29:10Z · status review→active
 - 2026-10-13T10:29:39Z · body: section Shots
+- 2026-10-13T10:29:46Z · body: section Visual verification
