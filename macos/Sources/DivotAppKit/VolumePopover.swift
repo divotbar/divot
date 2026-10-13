@@ -123,7 +123,7 @@ final class VolumePopoverContentController: BarPopoverContentController {
         slider.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         percentLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
-        percentLabel.alignment = .right
+        percentLabel.alignment = .left
         percentLabel.textColor = theme.popoverPalette.label
         percentLabel.setContentHuggingPriority(.required, for: .horizontal)
         percentLabel.setContentCompressionResistancePriority(.required, for: .horizontal)

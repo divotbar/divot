@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T06:22:12Z"
-review_passes: 5
 id: "0076"
 title: "Popovers: solid predictable background, left-aligned layout, vertical theme list"
 type: bug
@@ -13,7 +11,7 @@ branch: feat/popovers-solid-predictable-background-le
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
-review_rounds: 2
+updated_at: "2026-10-13T05:55:43Z"
 ---
 ## Problem
 Maintainer feedback with screenshots (2026-10-13) on the Appearance, Volume and Wi-Fi popovers after #0073:
@@ -45,30 +43,3 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T05:50:08Z · cli_override, model_override
 - 2026-10-13T05:50:09Z · status ready→active, branch
 - 2026-10-13T05:55:43Z · status active→review
-- 2026-10-13T05:55:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T05:57:02Z · note: review pass 1: needs some work
-- 2026-10-13T05:57:02Z · status review→active
-- 2026-10-13T05:58:51Z · status active→review
-- 2026-10-13T05:58:51Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T06:00:28Z · note: review pass 2: needs some work
-- 2026-10-13T06:00:28Z · status review→active
-- 2026-10-13T06:01:27Z · message_queued at 2026-10-13T06:01:27.365Z
-- 2026-10-13T06:02:16Z · status active→review
-- 2026-10-13T06:02:17Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T06:06:03Z · note: review pass 3: needs some work
-- 2026-10-13T06:06:03Z · needs_input
-- 2026-10-13T06:11:11Z · needs_input
-- 2026-10-13T06:11:11Z · status review→active
-- 2026-10-13T06:11:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-13T06:11:11Z · message_delivered: 1 message(s)
-- 2026-10-13T06:13:00Z · status active→review
-- 2026-10-13T06:13:01Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T06:14:15Z · note: review pass 4: needs some work
-- 2026-10-13T06:14:15Z · needs_input
-- 2026-10-13T06:19:28Z · needs_input
-- 2026-10-13T06:19:28Z · status review→active
-- 2026-10-13T06:19:28Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-13T06:20:25Z · status active→review
-- 2026-10-13T06:20:25Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T06:22:12Z · note: review pass 5: good to go
-
