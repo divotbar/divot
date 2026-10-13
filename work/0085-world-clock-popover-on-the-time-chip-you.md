@@ -72,3 +72,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T14:43:31Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T14:43:31Z · message_delivered: 1 message(s)
 - 2026-10-13T14:44:03Z · status active→review
+- 2026-10-13T14:44:03Z · note: handoff requested (cli)
