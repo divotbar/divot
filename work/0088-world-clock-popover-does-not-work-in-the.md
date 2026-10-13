@@ -244,3 +244,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-13T19:19:38Z · body: section Shots
 - 2026-10-13T19:21:44Z · body: section Shot descriptions
 - 2026-10-13T19:24:50Z · status active→review
+- 2026-10-13T19:24:50Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
