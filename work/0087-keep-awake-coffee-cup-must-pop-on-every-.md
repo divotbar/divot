@@ -11,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T16:42:26Z"
+updated_at: "2026-10-13T16:42:27Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -85,3 +85,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:38:52Z · status review→active
 - 2026-10-13T16:39:13Z · message_queued at 2026-10-13T16:39:13.282Z
 - 2026-10-13T16:42:26Z · status active→review
+- 2026-10-13T16:42:27Z · note: shots: skipped — 48 handoff shots already captured for this exact plan (565b6b9) during finalization (#0734)
