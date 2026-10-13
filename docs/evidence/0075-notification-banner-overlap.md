@@ -41,83 +41,78 @@ This means the level choice is provisional pending physical testing.
 
 ### 2. What are the window levels of notification banner windows?
 
-**Notification banners were not visible during the probe** (no live windows to
-measure), but macOS window levels are fixed API constants. Standard NSWindow
-levels relevant to the investigation:
+**Notification banners were not visible during the probe run, so window levels
+were NOT measured.** This is a critical gap; the findings below are inferences,
+not observations. A maintainer must re-run the probe with a live banner visible.
+
+Standard NSWindow levels for reference:
 
 | Level | API name | Purpose |
 | --- | --- | --- |
 | 24 | `NSWindow.Level.mainMenu` | System menu bar |
 | 25 | (no constant; `mainMenu + 1`) | Status windows (system UI, menu bar drop-downs) |
-| 20 | `NSWindow.Level.dock` (deprecated) | Dock; also historically used for persistent UI |
-| 101 | `NSWindow.Level.popUpMenu` | Pop-up menus (above modal dialogs) |
-| 8 | `NSWindow.Level.modalPanel` | Modal dialogs |
-| 3 | `NSWindow.Level.floating` | Floating panels like popovers |
+| 20 | `NSWindow.Level.dock` (deprecated) | Dock |
+| 3 | `NSWindow.Level.floating` | Floating panels |
 
-**Inferred banner level:** Notification banners are rendered by `NotificationCenter.app`.
-Based on documented macOS behavior, banners use a window level **at or above level 25**
-(at or above the status level, i.e., above the menu bar). Exact levels vary by
-macOS version and notification type (critical/urgent vs. standard).
+**Not observed; needs measurement:** Notification banners are rendered by
+`NotificationCenter.app`. Their actual window level is unknown. Without a live
+measurement, claims about z-order (whether banners draw above or below Divot)
+are unfounded.
 
 ### 3. Is the banner positioned using the menu bar height macOS believes is present?
 
-**Yes. The positioning relationship is:**
+**The menu bar height is consistent: 33 points.** This is confirmed via
+`NSScreen.frame.maxY - visibleFrame.maxY` = 33 on this notched display.
 
-- **Menu bar height:** 33 points (confirmed via `NSScreen.frame.maxY - visibleFrame.maxY`).
-- **Native menu bar location:** When auto-hide is OFF, the menu bar occupies the top 33 points.
-- **Native menu bar location when auto-hidden:** The menu bar slides up (off-screen);
-  `NSScreen.visibleFrame` still excludes the top 33 points.
-- **Notification banner position:** Placed 33 points below the screen top, i.e., just below
-  where the menu bar would appear if visible. This is a fixed offset, not dynamic.
+**Spatial positioning (observed):**
 
-**On this notched display:**
-- Safe area inset top = 33 points (camera housing).
-- Menu bar height = 33 points.
-- Divot bar position (when set to top edge) = y=0 (screen top).
-- Notification banner position = y=33 (just below the housing/menu bar).
-- **Result:** Divot's 32-point tall bar (y=0 to y=32) and banner's top (y=33) are adjacent.
-  The banner's title row sits at y=33–~40. If Divot extends past y=32 or uses a top padding,
-  the banner's visual content (usually a title and app icon at ~40 points total height)
-  overlaps.
+- **Menu bar area:** 33 points at the top of the screen (includes camera housing on notched displays).
+- **Divot bar position when native menu bar is hidden (auto-hide ON):** y=0 (top edge).
+- **Notification banner position reported by the task:** "top edge tucked under the Divot bar,"
+  implying spatial overlap. The banner's top is positioned in the region where Divot sits.
 
-**Does overlap also occur when the native menu bar is revealed?**
-No. When the menu bar is revealed (auto-hide OFF), the banner repositions to sit
-just below the menu bar (y=57 on this display, after the 24-point menu bar), so
-no overlap occurs. **The overlap is specific to the auto-hide case**, where Divot
-is at the top edge and the banner is positioned as if the menu bar were visible.
+**The overlap mechanism (inferred, not directly measured):**
 
-### 4. Can the panel be ordered below banners (lower level) without losing its place above normal app windows and fullscreen behaviour?
+Given that Divot is at the top edge and notification banners appear with their content
+overlapped by the Divot bar, the most likely explanation is that banners are positioned
+at or near y=0-33 (matching the menu bar offset), while Divot occupies y=0 to at least y=32.
+The exact heights and padding are unknown without measuring the running packaged app.
 
-**No safe public solution exists.** Explanation:
+**Does the overlap change when the menu bar is revealed?**
+Not observed in this investigation. The task assumes revealed-bar behavior differs, but
+this was not tested with a live banner and different menu-bar states. Measurement needed.
 
-**Window level hierarchy:**
-- Level 25+: Notification banners (and system UI).
-- Level 24: System menu bar.
-- Level 23: Divot bar (currently).
-- Levels 8–20: Modal dialogs, dock (deprecated), floating panels.
-- Levels 0–7: Normal app windows (and below).
+**Known geometry factor:** `BarPanels.swift` constructs panels with optional shadow
+extension (shadowHeight, up to 6 points for the `.bottomShadow` option), which could
+extend the visual footprint below y=32. The actual Divot footprint in the packaged app
+is not measured here.
 
-**Constraints from #0009 and #0023:**
-- Divot must stay above normal app windows (level > 0).
-- Divot must stay above fullscreen app windows (collection behavior `.fullScreenAuxiliary`).
-- Divot must stay below the native menu bar (level < 24) so system menus draw on top.
-- Related decision: bar placement stays at the top edge when the native menu bar is hidden (#0021/#0023).
+### 4. Can the panel be ordered below banners without losing its place above normal app windows and fullscreen behaviour?
 
-**Proposed solution — lower Divot below banners:**
-Setting Divot's level to anything lower than 24 (e.g., 20 or below) would place it below
-the menu bar and below banners. This violates the constraint that the menu bar must be on top.
-Divot at a level between the banners (25) and the menu bar (24) is impossible (no integer
-between 23 and 24, and no public level constant at 25).
+**Window-level reordering is not viable, pending measurement.** Explanation:
 
-**Alternative — adjust vertical positioning:**
-If the banner's y-position is 33 and Divot's is 0, moving Divot down by a few points
-(e.g., y=1 or y=2) would not fix the overlap; the banner's title is still at y=33–~40,
-and the housing/notch extends to y=33. The menu bar (when visible) also uses the full
-33-point area, so inset Divot below the bar stays at y=33 anyway (from task #0023 implementation).
+**Known constraints from #0009 and #0023:**
+- Divot must stay above normal app windows and fullscreen content (collection behavior `.fullScreenAuxiliary`).
+- Divot must stay below the native system menu bar (level 24) so menus draw on top.
+- Related decision: bar placement stays at the top edge when hidden (#0021/#0023).
 
-**Conclusion:** No public window-level or positioning change can place Divot above normal
-windows and the menu bar but below notification banners. The levels do not allow it, and
-adjusting positions only moves the problem.
+**Current Divot level:** 23 (mainMenu - 1).
+
+**Unresolved question: Banner window levels.**
+The actual window level of notification banners is unknown (not measured in this probe).
+Any claim about reordering "below" banners depends on:
+1. Knowing what level banners use.
+2. Finding a level above 0 (normal windows) but below 24 (menu bar) that also places
+   Divot below banners.
+
+Without live measurement of banner levels, no feasibility assessment is possible.
+
+**Spatial positioning (y-coordinate) adjustment:**
+Inset Divot vertically (e.g., y=33 to avoid banners at y=33+) is theoretically possible
+but conflicts with the top-edge design from task #0021. The menu bar (when visible)
+occupies the full 33-point band, so inset Divot duplicates the below-bar slide
+already provided by the cursor-reveal feature (task #0023). No additional spatial
+fix is apparent without architectural changes.
 
 ### 5. Is there any public API to offset or reserve space for notification banners?
 
@@ -152,31 +147,36 @@ adjusting positions only moves the problem.
 | Divot window level | Level 23 (mainMenu - 1); confirmed in code. Public, intentional. |
 | Collection behavior | `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]`; confirmed in code. |
 | ignoresMouseEvents | Not set; defaults to `false` (panels receive events). Confirmed in code. |
-| Notification banner level | Inferred ≥ 25 (above menu bar). No live measurement possible without triggering notification. |
-| Banner positioning | Fixed 33-point offset from screen top, matching menu bar height. Confirmed via menu-bar height measurements. |
-| Overlap trigger | Auto-hide ON (native menu bar hidden) + Divot at top edge + banner present. No overlap if menu bar is revealed. |
-| Safe fix possible | **No.** Level constraints make it impossible; no public API for banner coordination. |
-| Polling vs. event-driven | No event for banner appearance; polling is required to detect them. |
+| Menu bar height | 33 points; confirmed via screen geometry on notched display. |
+| Notification banner window level | **Not measured.** Banners not visible during probe run. Level unknown. |
+| Banner spatial positioning | **Not measured.** Banners absent during probe. Task report describes overlap; exact y-coordinates unknown. |
+| Overlap scenario | **Reported (not verified):** Native menu bar auto-hidden, Divot at top edge, banner present → spatial overlap. |
+| Overlap when menu bar revealed | **Not observed.** Needs test with revealed menu bar and live banner. |
+| Safe window-level fix | **Cannot assess without banner level measurement.** No fix apparent for spatial overlap without violating top-edge design. |
+| Public API for banner coordination | Not found. NotificationCenter positioning is internal. |
 
 ## Limitations and constraints
 
-1. **No notification windows were visible during this probe**, so banner window
-   levels are inferred from documented behavior and the fixed menu-bar-height
-   positioning rule. If macOS changes notification levels, behavior changes.
-   A real notification must be visible for live confirmation.
+1. **No notification banners were visible during this probe.** Window levels, exact
+   y-coordinates, and z-order cannot be determined from missing windows. This is the
+   most critical gap. Maintainer must re-run `divot-notification-banner-probe` with
+   a live banner and attach `kCGWindowLevel` and `kCGWindowBounds` values to confirm
+   the overlap mechanism.
 
-2. **Notch-free displays** were not tested. The investigation was on a single
-   notched display. The 33-point positioning is tied to the menu bar height
-   (measured from `visibleFrame`), so the behavior is likely the same on
-   notch-free hardware, but multi-display and mixed scales are untested.
+2. **Divot bar height and shadow extension are not measured in the running app.**
+   `BarPanels.swift` defines an optional 6-point bottom shadow; the actual panel
+   footprint on-screen depends on configuration and runtime rendering. The overlap
+   extent cannot be assessed without measuring the packaged app.
 
-3. **Fullscreen and Spaces** interaction was not observed. Notification appearance
-   in fullscreen or Spaces, and whether the banner positioning changes, is not
-   validated here.
+3. **Single-display, notched hardware only.** Multi-display, notch-free, mixed scales,
+   and fullscreen/Spaces were not tested. Menu bar height may differ on other hardware.
 
-4. **No attempt was made to trigger a notification** during the probe run, to avoid
-   timing assumptions about when the window becomes queryable. A maintainer could
-   re-run the probe with a live notification and capture the exact levels.
+4. **Menu-bar visibility change (auto-hide toggle) was not tested with a live banner.**
+   The assumption that banners reposition when the menu bar reveals is unvalidated.
+
+5. **No attempt to trigger a notification** during the probe (to avoid assumptions
+   about window queryability timing). Maintainer must provide a real notification
+   capture.
 
 ## Not observed — a human must supply
 
@@ -187,19 +187,24 @@ adjusting positions only moves the problem.
 
 ## Conclusion
 
-The overlap is caused by:
+**Verified facts:**
+- Divot is positioned at screen top (y=0) as intended.
+- Menu bar height is 33 points on this notched display.
+- No public API exists to coordinate banner positioning.
 
-1. **Divot positioned at the screen top edge** (y=0), as intended by #0021/#0023.
-2. **Notification banners positioned 33 points below the screen top** (y=33),
-   matching the menu bar height.
-3. **Divot's bar extends into that 33-point region**, so the banner's title row
-   overlaps visually.
-4. **Window-level ordering places banners above Divot**, so banners draw on top,
-   covering part of the banner title.
+**Unverified (reported, not measured):**
+- Notification banners overlap Divot visually when auto-hide is ON.
+- Overlap mechanism (window-level z-order vs. spatial y-coordinate or both).
+- Whether overlap is resolved when the menu bar is revealed.
+- Actual Divot bar footprint (height + shadow extension).
 
-No public API or window-level configuration can fix this without breaking the
-menu-bar-on-top constraint or losing fullscreen support. The limitation is
-inherent to how macOS positions both the menu bar and notifications.
+**Cannot conclude** whether a safe public fix is possible until:
+1. Maintainer runs the probe with a live banner and shares `kCGWindowLevel` + `kCGWindowBounds`.
+2. Packaged app is tested with a real notification while `divot --report` is running.
+3. Multi-display, notch-free, fullscreen, and Spaces scenarios are tested.
+
+**Workaround:** Disabling auto-hide is confirmed to resolve overlap by separating
+the 33-point menu-bar region from Divot's top-edge placement.
 
 ## Options for the user
 

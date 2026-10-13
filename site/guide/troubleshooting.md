@@ -46,19 +46,19 @@ Run `divot status --json` for a read-only diagnostic snapshot: the app version, 
 
 ## Notification banners overlap the Divot bar
 
-When the native macOS menu bar is auto-hidden (set to auto-hide in System Settings), notification banners from Calendar, Mail, or other apps may appear with their top edge tucked under the Divot bar, partly covering the banner's title. This is a known limitation.
+When the native macOS menu bar is auto-hidden (set to auto-hide in System Settings), notification banners from Calendar, Mail, or other apps may appear with their top edge tucked under the Divot bar, partly covering the banner's title. This is a reported limitation.
 
 ### Why it happens
 
-Divot is positioned at the very top of the screen to stay out of the way while the menu bar is hidden. Notification banners position themselves 33 points below the screen top — matching the height of the menu bar area. When the menu bar is hidden but Divot is at the top, both occupy the same visual space, and the banner's title row overlaps the bar.
+Divot is positioned at the very top of the screen (y=0) to stay out of the way while the menu bar is hidden. Notification banners appear in the 33-point menu-bar region when the bar is hidden. Both Divot and the banner title row end up in overlapping screen space, causing visual overlap.
 
-Windows in macOS use priority levels; notification banners use a level above the Divot bar, so they always draw on top, covering part of the banner's content. This is not a bug in Divot; it is a constraint of how macOS coordinates window layering and notification positioning.
+Whether banners draw on top or behind Divot (z-order) and the exact positioning mechanism are not fully understood — a maintainer needs to measure the actual window levels and bounds with a live notification.
 
 ### What to do
 
-- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. The menu bar stays visible, banners reposition below it, and no overlap occurs.
-- **Use Divot's cursor-reveal setting:** Turn on **Settings → Move below the menu bar when it appears**. When you move your pointer to the top of the screen, the native menu bar slides into view and Divot slides below it temporarily. Banners do not follow this slide, so overlap can still occur if a banner arrives while the bar is at the top.
-- **Accept the limitation:** This is how some third-party top-edge bars behave on macOS. Notification content is still readable, just with a few points of coverage at the very top.
+- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. The menu bar stays visible, and banners reposition below it, avoiding overlap.
+- **Use Divot's cursor-reveal setting:** Turn on **Settings → Move below the menu bar when it appears**. When you move your pointer to the top of the screen, the native menu bar slides into view and Divot slides below it temporarily. Banners do not follow this animation, so overlap can still occur if a notification arrives while the bar is at the top.
+- **Accept the limitation:** This is how some third-party top-edge bars behave on macOS. Notification content is still readable, just with partial overlap at the very top.
 
 ## Report a problem
 
