@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:16:18Z"
+updated_at: "2026-10-13T09:19:34Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -96,3 +96,4 @@ HEAD at time of work was the commit shown by `git log -1` on this branch. The ma
 - 2026-10-13T09:13:24Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (cdf5233) during finalization (#0734)
 - 2026-10-13T09:16:17Z · note: review pass 1: needs some work
 - 2026-10-13T09:16:18Z · status review→active
+- 2026-10-13T09:19:34Z · message_queued at 2026-10-13T09:19:34.485Z
