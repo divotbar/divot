@@ -12,7 +12,7 @@ branch: feat/appearance-popover-light-dark-mode-and-t
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:47Z"
-updated_at: "2026-10-13T02:20:08Z"
+updated_at: "2026-10-13T02:33:35Z"
 ---
 ## Problem
 Clicking the moon (Appearance) item only toggles Divot's own light/dark mode (#0037). The maintainer wants a popup/dropdown on that item to either set light/dark or pick the theme family (Gruvbox, Ayu, etc.).
@@ -41,3 +41,4 @@ Look at how the Appearance item toggles today and how the Settings window reads 
 - 2026-10-13T02:20:07Z · status inbox→ready
 - 2026-10-13T02:20:07Z · cli_override, model_override
 - 2026-10-13T02:20:08Z · status ready→active, branch
+- 2026-10-13T02:33:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
