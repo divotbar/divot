@@ -81,10 +81,14 @@ public enum KeepAwakeIndicatorPalette {
 /// family and both appearances — a mid green that clears the 3:1 non-text floor
 /// against every curated dark bar background *and* every light one. Apple's
 /// bright system green fails a light bar and a light-green dark variant fails a
-/// dark one, so no brighter system green can be the single value. The bar tints
-/// the whole battery symbol with it while charging, so the state is carried by a
-/// large mark rather than a small bolt over the outline and the optional chip.
+/// dark one, so no brighter system green can be the single value. Only the bolt
+/// of the charging battery symbol is this green; the outline and fill keep the
+/// normal label colour (#0084).
 public enum ChargingIndicatorPalette {
+    /// The SF Symbol drawn while charging: a battery with a bolt, whose palette
+    /// layers (bolt, outline, fill) let the view colour the bolt alone.
+    public static let symbolName = "battery.100.bolt"
+
     /// The one fixed charging green.
     public static let greenHex = "#248E3C"
 

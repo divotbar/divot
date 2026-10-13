@@ -13,6 +13,21 @@ public enum NativeStatusSymbol {
         return NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
             .withSymbolConfiguration(configuration)
     }
+
+    /// The charging battery (#0084): `battery.100.bolt` drawn with a palette so
+    /// ONLY the bolt is the fixed charging green and the outline and fill keep
+    /// `bodyColor`, the item's normal label colour. On macOS 26 the symbol's
+    /// palette layers are ordered bolt, outline, fill (verified by rendering the
+    /// symbol with distinct palette colours), so the first colour is the bolt.
+    public static func chargingImage(metrics: BarMetrics, bodyColor: NSColor) -> NSImage? {
+        let palette = NSImage.SymbolConfiguration(paletteColors: [NSColor(ChargingIndicatorPalette.green),
+                                                                  bodyColor, bodyColor])
+        let configuration = NSImage.SymbolConfiguration(pointSize: metrics.statusSymbolPointSize,
+                                                        weight: .regular)
+            .applying(palette)
+        return NSImage(systemSymbolName: ChargingIndicatorPalette.symbolName, accessibilityDescription: nil)?
+            .withSymbolConfiguration(configuration)
+    }
 }
 
 /// Renders one bar item: an optional SF Symbol plus compact text.
@@ -24,8 +39,6 @@ final class BarItemView: NSView {
     private let iconView = NSImageView()
     private let textField = NSTextField(labelWithString: "")
     private let indicatorView = NSImageView()
-    /// The symbol drawn over the leading icon (the charging bolt, #0058).
-    private let badgeView = NSImageView()
     private var action: WidgetAction = .none
     var onActivate: ((WidgetAction) -> Void)?
     private let metrics: BarMetrics
@@ -48,24 +61,9 @@ final class BarItemView: NSView {
     private(set) var displayedIndicatorSymbolName: String?
     /// Whether the state indicator (the keep-awake cup) is currently drawn.
     var isIndicatorVisible: Bool { !indicatorView.isHidden }
-    /// The SF Symbol the badge view currently draws, or `nil` when no badge is
-    /// shown. Exposed so a test can prove the charging bolt is a separate
-    /// element from the battery outline (#0058).
-    private(set) var displayedBadgeSymbolName: String?
-    /// Whether the badge (the charging bolt) is currently drawn.
-    var isBadgeVisible: Bool { !badgeView.isHidden }
-    /// The tint the badge draws with, or `nil` when no badge is shown. Lets a
-    /// test prove the charging mark uses the fixed charging green, not the theme
-    /// accent (#0074).
-    var badgeTintColor: NSColor? { badgeView.isHidden ? nil : badgeView.contentTintColor }
-    /// The tint the leading icon draws with, so a test can prove the whole
-    /// battery symbol takes the fixed charging green while charging (#0074).
-    var iconTintColor: NSColor { iconView.contentTintColor ?? .labelColor }
     /// The text colour, so the label is proven to keep the foreground colour and
     /// not turn charging green (#0074).
     var itemTextColor: NSColor { textField.textColor ?? .labelColor }
-    /// The semantic role of the badge currently drawn, or `nil` with no badge.
-    private var badgeRole: WidgetBadge.Role?
     /// The chip background opacity, 0–100, matching the workspace chips so the
     /// whole bar fades together (#0052).
     private let chipOpacity: Int
@@ -83,12 +81,6 @@ final class BarItemView: NSView {
         iconView.imageScaling = .scaleProportionallyDown
         iconView.translatesAutoresizingMaskIntoConstraints = true
         addSubview(iconView)
-        // The badge draws over the leading icon, so it must sit above it in the
-        // subview order but below the text and the trailing indicator (#0058).
-        badgeView.imageScaling = .scaleProportionallyDown
-        badgeView.translatesAutoresizingMaskIntoConstraints = true
-        badgeView.isHidden = true
-        addSubview(badgeView)
         indicatorView.imageScaling = .scaleProportionallyDown
         indicatorView.translatesAutoresizingMaskIntoConstraints = true
         // A plain image only: no AppKit bezel, frame, or selection chrome can
@@ -131,7 +123,6 @@ final class BarItemView: NSView {
         applyColors()
 
         applyIndicator(presentation.indicator)
-        applyBadge(presentation.badge)
 
         setAccessibilityRole(action == .none ? .staticText : .button)
         setAccessibilityLabel(presentation.accessibilityLabel)
@@ -153,9 +144,6 @@ final class BarItemView: NSView {
         if let indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: indicatorRole)
         }
-        if let badgeRole {
-            badgeView.contentTintColor = badgeColor(for: badgeRole)
-        }
         // The chip fill lives in `updateLayer`, so a theme change must ask for a
         // redraw to pick up the new `selected` color.
         needsDisplay = true
@@ -163,14 +151,27 @@ final class BarItemView: NSView {
 
     private func applyColors() {
         let isError = presentation?.isError ?? false
-        let charging = presentation?.badge?.role == .charging
         let color = isError ? theme.error : theme.foreground
-        // While charging the whole battery symbol draws in the fixed charging
-        // green, not just the bolt: the larger mark is what makes charging
-        // unmistakable on every family (#0074). The label stays the foreground
-        // colour, and with no charge the icon keeps the normal colour.
-        iconView.contentTintColor = charging ? badgeColor(for: .charging) : color
+        if usesNativeSymbolBox, presentation?.symbolName == ChargingIndicatorPalette.symbolName {
+            // Charging: the palette image carries the green bolt and the normal
+            // label colour; the tint is unused for a palette image (#0084).
+            iconView.image = NativeStatusSymbol.chargingImage(metrics: metrics,
+                                                              bodyColor: resolvedBodyColor(color))
+            iconView.contentTintColor = nil
+        } else {
+            iconView.contentTintColor = color
+        }
         textField.textColor = color
+    }
+
+    /// A palette image bakes its colours in, so resolve a possibly dynamic label
+    /// colour against the item's current appearance before building it.
+    private func resolvedBodyColor(_ color: NSColor) -> NSColor {
+        var resolved = color
+        effectiveAppearance.performAsCurrentDrawingAppearance {
+            resolved = color.usingColorSpace(.sRGB) ?? color
+        }
+        return resolved
     }
 
     /// Draw (or hide) the small state indicator after the text. The color comes
@@ -194,34 +195,6 @@ final class BarItemView: NSView {
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
         indicatorView.toolTip = nil
-    }
-
-    /// Draw (or hide) the symbol that sits over the leading icon. The charging
-    /// bolt and the battery symbol both draw in the one fixed charging green, so
-    /// the whole icon is the green mark and it never follows the theme accent
-    /// (#0074).
-    private func applyBadge(_ badge: WidgetBadge?) {
-        guard let badge,
-              let image = NSImage(systemSymbolName: badge.symbolName, accessibilityDescription: nil) else {
-            badgeView.image = nil
-            badgeView.isHidden = true
-            displayedBadgeSymbolName = nil
-            badgeRole = nil
-            return
-        }
-        badgeView.image = image
-        badgeRole = badge.role
-        badgeView.contentTintColor = badgeColor(for: badge.role)
-        badgeView.isHidden = false
-        displayedBadgeSymbolName = badge.symbolName
-    }
-
-    /// The badge tint: the one fixed charging green (#0074), never the theme
-    /// accent. The same value the contrast audit checks is the one the bar draws.
-    private func badgeColor(for role: WidgetBadge.Role) -> NSColor {
-        switch role {
-        case .charging: return NSColor(ChargingIndicatorPalette.green)
-        }
     }
 
     /// The indicator tint: the audited native hex for the native family, or the
@@ -331,11 +304,6 @@ final class BarItemView: NSView {
             indicatorView.frame = CGRect(x: x, y: (bounds.height - metrics.iconSize) / 2,
                                          width: metrics.iconSize, height: metrics.iconSize)
         }
-        // The badge overlaps the leading icon, so the battery keeps its box and
-        // the bolt is centred on top of it rather than widening the item.
-        if !badgeView.isHidden, !iconView.isHidden {
-            badgeView.frame = iconView.frame
-        }
     }
 
     // MARK: Interaction
@@ -362,11 +330,9 @@ final class BarItemView: NSView {
     /// the light/dark contrast-audited value follows the system.
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
+        applyColors()
         if let role = indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: role)
-        }
-        if let badgeRole {
-            badgeView.contentTintColor = badgeColor(for: badgeRole)
         }
     }
 

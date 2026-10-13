@@ -17,17 +17,14 @@ private let options = WidgetPresentationOptions(clock: ClockFormatOptions(),
                                        options: options)
     #expect(half.text == "50%")
     #expect(half.symbolName == "battery.50")
-    #expect(half.badge == nil)
     #expect(!half.isError)
 
-    // While charging the outline stays the plain full battery and the bolt is a
-    // separate badge so only the bolt can be tinted green (#0058).
+    // While charging the symbol is the bolt-in-battery palette symbol, so the
+    // view can colour only the bolt (#0084).
     let charging = WidgetPresenter.present(id: .battery,
                                            state: state(.battery, .battery(.init(presence: .internalBattery, percentage: 80, isCharging: true))),
                                            options: options)
-    #expect(charging.symbolName == "battery.100")
-    #expect(charging.badge?.symbolName == "bolt.fill")
-    #expect(charging.badge?.role == .charging)
+    #expect(charging.symbolName == "battery.100.bolt")
     #expect(charging.accessibilityLabel.contains("charging"))
 }
 
