@@ -221,24 +221,14 @@ struct NotificationBannerProbe {
                         print("  AppKit-bounds=(\(Int(appKitBounds.minX)), \(Int(appKitBounds.minY)), \(Int(appKitBounds.width)), \(Int(appKitBounds.height)))")
                         print("  alpha=\(String(format: "%.2f", alpha)) on-screen=\(isOnScreen)")
 
-                        if let divotL = divotLayer, let divotB = divotBounds {
-                            let appKitDivotB = flipBoundsToAppKit(divotB, screenHeight: screenHeight)
-                            if layer > divotL {
-                                print("  ↑ Window layer \(layer) is ABOVE Divot panel layer \(divotL) at CG y=\(Int(divotB.minY))")
-                            } else if layer < divotL {
-                                print("  ↓ Window layer \(layer) is below Divot panel layer \(divotL) at CG y=\(Int(divotB.minY))")
-                            } else {
-                                print("  = Window layer \(layer) is AT Divot panel layer \(divotL) at CG y=\(Int(divotB.minY))")
-                            }
-                        } else if let divotL = divotLayer {
-                            if layer > divotL {
-                                print("  ↑ Window layer \(layer) is ABOVE Divot panel layer \(divotL)")
-                            } else if layer < divotL {
-                                print("  ↓ Window layer \(layer) is below Divot panel layer \(divotL)")
-                            } else {
-                                print("  = Window layer \(layer) is AT Divot panel layer \(divotL)")
-                            }
-                        }
+                        let appKitDivotB = divotBounds.map { flipBoundsToAppKit($0, screenHeight: screenHeight) }
+                        let comparisonLine = formatLayerComparison(
+                            windowType: windowType,
+                            windowLayer: layer,
+                            divotPanelLayer: divotLayer,
+                            divotAppKitBounds: appKitDivotB
+                        )
+                        print("  \(comparisonLine)")
 
                         print("")
                     }

@@ -179,3 +179,46 @@ public func findDivotPanelWindow(_ windowList: [[String: Any]]) -> [String: Any]
         return bounds.minY < 50
     }
 }
+
+/// Format a comparison line between a window's layer and Divot's measured layer.
+/// Returns a string like "ControlCenter panel layer 101 is above Divot panel layer 24 (Divot y=1068 h=39)"
+/// or "No Divot panel found" if Divot is not in the list.
+public func formatLayerComparison(
+    windowType: WindowType,
+    windowLayer: Int,
+    divotPanelLayer: Int?,
+    divotAppKitBounds: CGRect?
+) -> String {
+    guard let divotLayer = divotPanelLayer else {
+        return "No Divot panel found"
+    }
+
+    let typeName: String
+    switch windowType {
+    case .notificationBanner:
+        typeName = "NotificationCenter banner"
+    case .controlCenter:
+        typeName = "ControlCenter panel"
+    case .divot:
+        typeName = "Divot panel"
+    case .other:
+        typeName = "window"
+    }
+
+    let comparison: String
+    if windowLayer > divotLayer {
+        comparison = "is above"
+    } else if windowLayer < divotLayer {
+        comparison = "is below"
+    } else {
+        comparison = "is at the same"
+    }
+
+    if let bounds = divotAppKitBounds {
+        let y = Int(bounds.minY)
+        let h = Int(bounds.height)
+        return "\(typeName) layer \(windowLayer) \(comparison) Divot panel layer \(divotLayer) (Divot y=\(y) h=\(h))"
+    } else {
+        return "\(typeName) layer \(windowLayer) \(comparison) Divot panel layer \(divotLayer)"
+    }
+}

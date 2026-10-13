@@ -385,6 +385,77 @@ struct WindowSnapshotTests {
     }
 }
 
+@Suite("Layer comparison formatting")
+struct LayerComparisonTests {
+    @Test("Format comparison: window above Divot with bounds")
+    func formatComparisonAboveWithBounds() {
+        let divotBounds = CGRect(x: 0, y: 0, width: 1710, height: 33)
+        let result = formatLayerComparison(
+            windowType: .controlCenter,
+            windowLayer: 101,
+            divotPanelLayer: 24,
+            divotAppKitBounds: divotBounds
+        )
+        #expect(result.contains("ControlCenter panel"))
+        #expect(result.contains("layer 101"))
+        #expect(result.contains("above"))
+        #expect(result.contains("Divot panel layer 24"))
+        #expect(result.contains("Divot y="))
+        #expect(result.contains("h=33"))
+    }
+
+    @Test("Format comparison: window below Divot")
+    func formatComparisonBelow() {
+        let divotBounds = CGRect(x: 0, y: 0, width: 1710, height: 33)
+        let result = formatLayerComparison(
+            windowType: .other,
+            windowLayer: 10,
+            divotPanelLayer: 24,
+            divotAppKitBounds: divotBounds
+        )
+        #expect(result.contains("window"))
+        #expect(result.contains("layer 10"))
+        #expect(result.contains("below"))
+    }
+
+    @Test("Format comparison: window at same layer as Divot")
+    func formatComparisonAtSameLayer() {
+        let divotBounds = CGRect(x: 0, y: 0, width: 1710, height: 33)
+        let result = formatLayerComparison(
+            windowType: .notificationBanner,
+            windowLayer: 24,
+            divotPanelLayer: 24,
+            divotAppKitBounds: divotBounds
+        )
+        #expect(result.contains("NotificationCenter banner"))
+        #expect(result.contains("layer 24"))
+        #expect(result.contains("at the same"))
+    }
+
+    @Test("Format comparison: no Divot panel found")
+    func formatComparisonNoDivot() {
+        let result = formatLayerComparison(
+            windowType: .controlCenter,
+            windowLayer: 101,
+            divotPanelLayer: nil,
+            divotAppKitBounds: nil
+        )
+        #expect(result == "No Divot panel found")
+    }
+
+    @Test("Format comparison: Divot panel type label")
+    func formatComparisonDivotType() {
+        let divotBounds = CGRect(x: 0, y: 0, width: 1710, height: 33)
+        let result = formatLayerComparison(
+            windowType: .divot,
+            windowLayer: 23,
+            divotPanelLayer: 24,
+            divotAppKitBounds: divotBounds
+        )
+        #expect(result.contains("Divot panel layer 23"))
+    }
+}
+
 @Suite("Find Divot panel")
 struct FindDivotPanelTests {
     @Test("Find Divot panel at top edge")
