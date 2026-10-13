@@ -19,6 +19,6 @@ Read in this order:
 15. [Performance harness evidence](evidence/0007-performance-harness.md): what the harness and accessibility checks cover, and what a person must still measure.
 16. [Local preview evidence](evidence/0014-local-preview.md): what the packaging smoke test observed, and what it does not prove.
 17. [Cursor-reveal slide evidence](evidence/0023-cursor-reveal-menu-bar-slide.md): automated checks for task 0023, and what still needs a screen capture.
-18. [Popover snapshot testing](popover-snapshot-testing.md): offscreen rendering of popovers for visual review and pixel assertions; local evidence only, no golden images.
+18. [Popover and bar snapshot testing](popover-snapshot-testing.md): offscreen rendering of the popovers and the right-hand bar group for visual review and pixel assertions; local evidence only, no golden images.
 
 `docs/` is engineering context. `site/` is public documentation and marketing. Keep implementation status consistent across both. The app is not shipping yet.
