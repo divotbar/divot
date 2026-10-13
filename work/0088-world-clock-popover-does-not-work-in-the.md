@@ -128,3 +128,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:22:01Z · body: section Shots
 - 2026-10-13T17:22:12Z · body: section Shots
 - 2026-10-13T17:27:41Z · message_queued at 2026-10-13T17:27:41.211Z
+- 2026-10-13T17:27:41Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
