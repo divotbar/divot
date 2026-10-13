@@ -86,3 +86,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:00:08Z · message_delivered: 1 message(s)
 - 2026-10-13T17:00:08Z · status review→active
 - 2026-10-13T17:06:13Z · status active→review
+- 2026-10-13T17:06:13Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (3e4e0c11) during finalization (#0734)
