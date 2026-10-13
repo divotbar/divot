@@ -11,8 +11,8 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:37:45Z"
-review_passes: 3
+updated_at: "2026-10-13T10:44:09Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -50,25 +50,40 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 "target": "Divot bar"
 },
 {
+"label": "Native light theme, chips on: battery body black over blue chip, bolt green",
+"target": "Divot bar"
+},
+{
 "label": "Native dark theme, chips off: battery body white, bolt green",
+"target": "Divot bar"
+},
+{
+"label": "Native dark theme, chips on: battery body white over dark chip, bolt green",
 "target": "Divot bar"
 }
 ]
 ```
 
 ## Visual verification
-Captured Divot bar snapshots:
+Captured Divot bar snapshots with charging enabled show:
 
-- **Native light, chips off, charging**: Battery outline and fill render in black (the normal label colour for light themes); the bolt is the fixed green (#248E3C) with a visible halo separating it from the body, confirming bolt-only colouring.
-- **Native dark, chips off, charging**: Battery outline and fill render in white (the normal label colour for dark themes); the bolt is the same fixed green, legible against the white fill.
+1. **Native light, chips off**: Battery outline and fill render in black (the normal label colour for light themes); the bolt is the fixed green (#248E3C) with a visible halo separating it from the body.
 
-BarSnapshotTests further verify:
-- All theme families (Native, Gruvbox, Ayu, Dracula, Tokyo Night) in light and dark render charging body pixels as the normal label colour.
-- Green pixels span less than the icon width, confined to the bolt region only.
-- Not-charging states contain no green pixels.
-- Body pixels match the label colour for the theme, not the fixed green.
+2. **Native light, chips on**: Battery body remains black over the translucent blue chip background; the green bolt remains visible and distinct.
 
-The palette approach successfully isolates the bolt from the body: the fixed green applies only to the symbol's bolt layer (index 0), while outline (index 1) and fill (index 2) receive the item's normal label colour.
+3. **Native dark, chips off**: Battery outline and fill render in white (the normal label colour for dark themes); the bolt is the fixed green, legible against the white fill with a clear halo.
+
+4. **Native dark, chips on**: Battery body remains white over the dark blue chip background; the green bolt stays distinguishable.
+
+BarSnapshotTests verify across all theme families (Native, Gruvbox, Ayu, Dracula, Tokyo Night) in light and dark:
+- Charging body pixels render as the normal label colour for the theme
+- Green pixels are confined to the bolt region only, spanning less than the icon width
+- Not-charging states render no green pixels
+- Chips on/off, default/large text sizes: body stays the label colour, bolt-only green throughout
+
+The palette configuration on battery.100.bolt successfully isolates bolt colouring: only layer 0 (bolt) receives the fixed green, while layers 1 (outline) and 2 (fill) receive the item's normal label colour.
+
+**Shot evidence note:** Evidence is from command-target captures (Divot bar snapshots); .repoos/ui-verification/*.json is not applicable for command targets (see RepoOS task #0765).
 
 ## Activity
 
@@ -107,3 +122,13 @@ The palette approach successfully isolates the bolt from the body: the fixed gre
 - 2026-10-13T10:37:44Z · needs_input
 - 2026-10-13T10:37:45Z · status review→active
 - 2026-10-13T10:37:45Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:38:36Z · body: section Shots
+- 2026-10-13T10:38:43Z · body: section Visual verification
+- 2026-10-13T10:39:09Z · status active→review
+- 2026-10-13T10:39:09Z · note: shots: skipped — 8 handoff shots already captured for this exact plan (9ff4e35) during finalization (#0734)
+- 2026-10-13T10:41:00Z · note: review pass 5: needs some work
+- 2026-10-13T10:41:00Z · needs_input
+- 2026-10-13T10:44:00Z · needs_input
+- 2026-10-13T10:44:00Z · status review→active
+- 2026-10-13T10:44:00Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:44:09Z · body: section Visual verification
