@@ -51,9 +51,9 @@ private extension NSColor {
             let chipRatio = ContrastAudit.ratio(green, chipFill)
             // Cup uses a strong outline (pure black for light, pure white for dark) for chip contrast.
             let strongOutlineColor = SRGBColor(
-                red: dark ? 0.99 : 0.01,
-                green: dark ? 0.99 : 0.01,
-                blue: dark ? 0.99 : 0.01
+                red: dark ? 1.0 : 0.0,
+                green: dark ? 1.0 : 0.0,
+                blue: dark ? 1.0 : 0.0
             )
             let outlineChipRatio = ContrastAudit.ratio(strongOutlineColor, chipFill)
             let combinedRatio = max(chipRatio, outlineChipRatio)
