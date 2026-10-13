@@ -96,3 +96,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:24:35Z · note: handoff requested (ui-review)
 - 2026-10-13T19:24:36Z · status active→review
 - 2026-10-13T19:24:36Z · note: review without checks by human
+- 2026-10-13T19:24:36Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (82a4efae) during finalization (#0734)
