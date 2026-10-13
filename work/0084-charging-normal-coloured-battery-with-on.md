@@ -1,8 +1,13 @@
 ---
+updated_at: "2026-10-13T10:46:52Z"
+review_passes: 5
 id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: macos
 assigned_to: ""
@@ -11,8 +16,6 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:39:09Z"
-review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -83,6 +86,8 @@ BarSnapshotTests verify across all theme families (Native, Gruvbox, Ayu, Dracula
 
 The palette configuration on battery.100.bolt successfully isolates bolt colouring: only layer 0 (bolt) receives the fixed green, while layers 1 (outline) and 2 (fill) receive the item's normal label colour.
 
+**Shot evidence note:** Evidence is from command-target captures (Divot bar snapshots); .repoos/ui-verification/*.json is not applicable for command targets (see RepoOS task #0765).
+
 ## Activity
 
 - 2026-10-13T09:05:20Z · created · njachowski@gmail.com
@@ -124,3 +129,13 @@ The palette configuration on battery.100.bolt successfully isolates bolt colouri
 - 2026-10-13T10:38:43Z · body: section Visual verification
 - 2026-10-13T10:39:09Z · status active→review
 - 2026-10-13T10:39:09Z · note: shots: skipped — 8 handoff shots already captured for this exact plan (9ff4e35) during finalization (#0734)
+- 2026-10-13T10:41:00Z · note: review pass 5: needs some work
+- 2026-10-13T10:41:00Z · needs_input
+- 2026-10-13T10:44:00Z · needs_input
+- 2026-10-13T10:44:00Z · status review→active
+- 2026-10-13T10:44:00Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:44:09Z · body: section Visual verification
+- 2026-10-13T10:44:38Z · status active→review
+- 2026-10-13T10:46:52Z · note: review pass 6: needs some work
+- 2026-10-13T10:46:52Z · needs_input
+
