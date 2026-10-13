@@ -3,6 +3,9 @@ id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
 status: active
+needs_input: true
+needs_input_reason: dev-error
+needs_input_detail: the agent process exited with an error — open the task to see the full output
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,7 +14,8 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T18:55:31Z"
+updated_at: "2026-10-13T19:06:09Z"
+dev_error_count: 1
 ---
 ## Problem
 Clicking the battery item toggles keep-awake (#0018, #0051), but the only feedback is the small cup appearing or disappearing, which is easy to miss. The maintainer wants a short message under the battery item saying whether caffeine is now on or off, regardless of Focus/Do Not Disturb.
@@ -41,3 +45,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T18:55:30Z · status inbox→ready
 - 2026-10-13T18:55:30Z · cli_override, model_override
 - 2026-10-13T18:55:31Z · status ready→active, branch
+- 2026-10-13T19:06:09Z · agent exited with an error (claude) · the agent process exited with an error — open the task to see the full output
