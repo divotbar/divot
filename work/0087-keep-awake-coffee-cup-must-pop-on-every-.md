@@ -2,7 +2,7 @@
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -155,4 +155,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:17:28Z · handoff failed · task-file handoff failed at validate · handoff worktree does not match the registered task worktree
 - 2026-10-13T18:21:23Z · needs_input
 - 2026-10-13T18:35:22Z · note: handoff requested (ui-review)
-- 2026-10-13T18:36:14Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:36:14Z · status active→review
