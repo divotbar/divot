@@ -33,7 +33,7 @@ limitations (notifications not displayed or not enumerated by `CGWindowListCopyW
 
 **Next step:** A human on macOS with notifications enabled must run the probe while a real
 notification is visible (e.g., Calendar notification triggered by an event). The probe will
-output the banner's `kCGWindowLevel` (via parseWindowLevelFromDict) and bounds in AppKit
+output the banner's `kCGWindowLayer` (via parseWindowLayerFromDict) and bounds in AppKit
 coordinates (via flipBoundsToAppKit). Paste those values into this document.
 
 ## What was observed
@@ -193,7 +193,7 @@ fix is apparent without architectural changes.
    `CGWindowListCopyWindowInfo` results (notifications may be blocked or unsupported
    in this environment). Window levels, y-coordinates, and z-order cannot be determined.
    This is the most critical gap. Maintainer must re-run `divot-notification-banner-probe`
-   on real macOS with a live, visible notification and attach `kCGWindowLevel` and
+   on real macOS with a live, visible notification and attach `kCGWindowLayer` and
    `kCGWindowBounds` values.
 
 2. **Divot bar height and shadow extension are not measured in the running app.**
