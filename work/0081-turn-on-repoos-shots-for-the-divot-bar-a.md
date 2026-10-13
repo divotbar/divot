@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
@@ -87,3 +88,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:47:48Z · needs_input (review-rounds-exhausted) dismissed by human
 - 2026-10-13T08:48:45Z · status review→active
 - 2026-10-13T08:48:45Z · note: close-out repair: merge-conflict
+
