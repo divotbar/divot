@@ -50,7 +50,7 @@ required = true
 
 [[check.steps]]
 name = "native-core"
-command = "swift test --package-path macos"
+command = "scripts/swift-test-lock.sh"
 required = true
 
 [[check.steps]]
@@ -81,7 +81,7 @@ readyPath = "/"
 name = "Divot bar"
 areas = ["macos"]
 paths = ["macos/Sources/**", "macos/Tests/**"]
-command = 'DIVOT_SNAPSHOT_DIR="$REPOOS_SHOT_DIR" DIVOT_SNAPSHOT_SET=shots swift test --package-path macos --filter SnapshotTests'
+command = 'DIVOT_SNAPSHOT_DIR="$REPOOS_SHOT_DIR" DIVOT_SNAPSHOT_SET=shots scripts/swift-test-lock.sh --filter SnapshotTests'
 outputGlob = ["**/*.png"]
 requires = ["swift"]
 timeoutMs = 900000

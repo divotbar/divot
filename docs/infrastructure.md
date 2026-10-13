@@ -25,6 +25,7 @@ Bun for web dependencies/scripts; pin dependencies in `bun.lock`. VitePress gene
 bun install --frozen-lockfile
 bun run check
 swift test --package-path macos
+scripts/swift-test-lock.sh    # the same suite, serialized across worktrees (#0091)
 swift build --package-path macos --product divot
 swift build --package-path macos -c release --product divot
 macos/.build/release/divot --bench
@@ -34,6 +35,14 @@ repoos check
 ```
 
 The RepoOS plan declares web configuration validation/static build, native core tests, an app build gate (`native-app`), and a local preview package-and-launch gate (`native-app-bundle`). `bun run check` also runs `scripts/docs-drift.ts`, which fails a native configuration-source change that does not update `docs/configuration.md` and `site/reference/configuration.md` (`DOCS_DRIFT_ALLOW=1` overrides it when a task records why no docs change applies). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md) and the [local preview](local-preview.md).
+
+## Tests
+
+Tests run windowless. A `swift test --package-path macos` run must never put a Divot bar, popover, or panel on screen, steal focus, or leave a stray process behind, so the suite is safe to run while the maintainer is at the machine. Every call that makes a Divot window visible goes through the injectable `WindowPresenting` seam (`macos/Sources/DivotAppKit/WindowPresenter.swift`): production uses `SystemWindowPresenter`, and tests inject `RecordingWindowPresenter`, a no-op that records the call so a test can assert "would present" without ordering anything front. Offscreen snapshot renders are unaffected — they render views, not visible windows.
+
+Two guards enforce the rule. The AppKit tests that build windows carry the `.windowless` trait (`WindowlessTestSupport.swift`), which fails a test that leaves any `NSApp.windows` entry visible, and `WindowlessAppKitTests` lists the on-screen windows owned by the test process (`CGWindowListCopyWindowInfo`) before and after exercising the presentation paths. No test activates the app, changes its activation policy, posts a real system notification, or opens System Settings.
+
+Run the suite through `scripts/swift-test-lock.sh` (also `just macos-test` and `bun run test:core`). It takes a lock under the shared repository's `macos/.build` so only one `swift test` runs at a time per machine, letting parallel agent runs queue instead of piling up test processes and spiking the load. The lock is released on exit, breaks a lock left by a dead process, and times out (`DIVOT_SWIFT_TEST_LOCK_WAIT`, default 1800s) rather than blocking forever.
 
 ## Continuous integration
 
