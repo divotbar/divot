@@ -37,3 +37,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T03:53:52Z · cli_override, model_override
 - 2026-10-13T03:53:52Z · status ready→active, branch
 - 2026-10-13T04:12:19Z · message_queued at 2026-10-13T04:12:19.167Z
+- 2026-10-13T04:12:19Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
