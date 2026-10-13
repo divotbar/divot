@@ -1,10 +1,8 @@
 ---
-updated_at: "2026-10-13T05:57:02Z"
-review_passes: 1
 id: "0076"
 title: "Popovers: solid predictable background, left-aligned layout, vertical theme list"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
@@ -13,6 +11,9 @@ branch: feat/popovers-solid-predictable-background-le
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
+updated_at: "2026-10-13T05:57:02Z"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 Maintainer feedback with screenshots (2026-10-13) on the Appearance, Volume and Wi-Fi popovers after #0073:
@@ -46,4 +47,4 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T05:55:43Z · status active→review
 - 2026-10-13T05:55:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T05:57:02Z · note: review pass 1: needs some work
-
+- 2026-10-13T05:57:02Z · status review→active
