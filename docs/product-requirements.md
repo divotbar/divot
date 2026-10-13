@@ -42,7 +42,7 @@ Both sides are ordered `left`/`right` groups, and any supported item can move be
 
 ## Release acceptance
 
-Two monitors with different scales; a built-in notched screen; an external notch-free screen; unplug/replug; sleep/wake; app activation; fullscreen transitions; persistent menu-bar top/below transitions; reduced motion/transparency; light/dark and all four theme families; and VoiceOver must pass on physical hardware. Performance must pass the documented protocol. Sign and notarize the app; installation must not instruct users to strip quarantine. Website is static, responsive, keyboard usable, and labels unfinished features accurately.
+Two monitors with different scales; a built-in notched screen; an external notch-free screen; unplug/replug; sleep/wake; app activation; fullscreen transitions; persistent menu-bar top/below transitions; reduced motion/transparency; light/dark and every theme family; and VoiceOver must pass on physical hardware. Performance must pass the documented protocol. Sign and notarize the app; installation must not instruct users to strip quarantine. Website is static, responsive, keyboard usable, and labels unfinished features accurately.
 
 ## Outside MVP
 

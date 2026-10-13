@@ -12,7 +12,7 @@ The initial engineering budgets are below 0.5% of one CPU core at idle, below 50
 
 ## How we will measure
 
-Optimized Release builds on a recorded reference Mac. Repeat idle and interaction workloads, including both appearance modes and all four theme families. Include helpers and WindowServer effects, and compare identical widgets with other bars. Publish hardware, OS, configuration, timing method, and limitations with results.
+Optimized Release builds on a recorded reference Mac. Repeat idle and interaction workloads, including both appearance modes and every curated theme family. Include helpers and WindowServer effects, and compare identical widgets with other bars. Publish hardware, OS, configuration, timing method, and limitations with results.
 
 An in-process harness (`divot --bench`) now covers the deterministic part — the default workload, both appearance modes, the curated families, workspace bursts, provider cancellation, menu-bar reveal/hide, keyboard actions, and the accessibility contract — but it never reports a target or a prior result. Helper-process cost, WindowServer/compositor cost, and on-device VoiceOver/display checks are captured separately with Instruments and a person. **No performance results have been published yet**; the numbers a claim needs must be measured on the stable reference machine, not inferred from these targets.
 
