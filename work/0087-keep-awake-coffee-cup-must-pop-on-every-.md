@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T17:14:35Z"
-review_passes: 6
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
@@ -16,6 +14,8 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
+updated_at: "2026-10-13T17:15:39Z"
+review_passes: 6
 review_rounds: 2
 ---
 ## Problem
