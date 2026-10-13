@@ -208,13 +208,13 @@ toggling light/dark directly. Task 0073 restyled it compact and horizontal: it
 contains a **Mode** row as one horizontal `System`/`Light`/`Dark` segmented
 control matching `appearance.mode`, a vertical list of theme-family options
 (`Native`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`, matching
-`appearance.family`) where each row shows a small colour swatch taken from
+`appearance.family`) where each row is left-aligned and shows a small colour swatch taken from
 that family's own palette (`ThemeResolver.swatch`, so a new family needs no
 hand-copied colour) and the family name, with the current theme clearly marked, then a final **Open Divot
 Settings…** row that opens Divot's own settings window, not a System Settings
 pane. The shared width floor is lowered for this content so the popover hugs the
-control and grid instead of leaving an empty block beside them; the Wi-Fi and
-volume popovers keep the shared floor. The chosen ring and option labels come from
+control and list instead of leaving an empty block beside them; the Wi-Fi and
+volume popovers keep the shared floor. All popover content (title, labels, rows, links) is left-aligned. For curated families, the popover has a solid, opaque background from the theme's palette, a thin separator-colored border, and rounded corners; for the native family, the popover uses the system appearance. The chosen ring and option labels come from
 the bar's `BarTheme` (a family theme also paints the popover background from it),
 so the popover matches the bar in light and dark and under increased contrast
 instead of a fixed system tint.
@@ -297,7 +297,7 @@ asserted, by category:
   segment selected, every family is offered from the enums with the current one
   outlined, a theme swatch is drawn from the resolved family palette (and follows
   the system variant for `system` mode, with native falling back to system
-  colours), the grid wraps to at most three columns, the shared width floor is
+  colours), the theme options are displayed in a vertical list with one per row, the shared width floor is
   dropped for this content, a selection forwards its value, every option carries
   an accessibility label and a selected/not-selected value and refuses no first
   responder, focus lands on the mode control, and the settings row reports.
