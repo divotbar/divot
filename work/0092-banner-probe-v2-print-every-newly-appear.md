@@ -3,6 +3,9 @@ id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 assigned_to: ""
@@ -67,3 +70,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:52:10Z · status active→review
 - 2026-10-13T18:52:10Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (4c1b5492) during finalization (#0734)
 - 2026-10-13T18:53:07Z · note: review pass 4: needs some work
+- 2026-10-13T18:53:07Z · needs_input
