@@ -58,3 +58,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:40:09Z · status review→active
 - 2026-10-13T18:41:26Z · message_delivered: 1 message(s)
 - 2026-10-13T18:44:32Z · status active→review
+- 2026-10-13T18:44:32Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (4c1b5492) during finalization (#0734)
