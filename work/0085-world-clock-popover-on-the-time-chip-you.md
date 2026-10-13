@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T15:50:36Z"
+updated_at: "2026-10-13T15:52:19Z"
 review_passes: 5
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
@@ -49,11 +49,25 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 ```json
 [
 {
-  "target": "Divot bar",
-  "label": "World clock popover (world-clock-* snapshots)"
+"target": "Divot bar",
+"label": "World clock popover (world-clock-* snapshots)"
 }
 ]
 ```
+
+## Shot evidence
+Declared target: **Divot bar** (the command capture target in `repoos.toml`), which runs the snapshot suites with `DIVOT_SNAPSHOT_SET=shots` into `REPOOS_SHOT_DIR`. The reduced set now includes 16 `world-clock-*` PNGs: Native and Gruvbox × light and dark × {zero, two, four timezones, day-label}. I looked at the captured images; each shows:
+
+- **zero timezones** (`world-clock-popover-native-light-default-zero-timezones`): the `Local (Asia/Jakarta)` header, the local date and time with the UTC offset (`13/10/2026, 22:50 (UTC+07:00)`), then the `Add timezone…` row and its search field. No zone rows.
+- **two timezones** (Native light, Gruvbox dark): Los Angeles `08:51 (14 h behind)` and Tokyo `00:51 (2 h ahead) Tomorrow`, each left-aligned with a remove control; the Tokyo row carries the day label because at 22:51 Jakarta it is already the next day.
+- **four timezones** (Native dark): adds London `16:51 (6 h behind)` and Calcutta `21:21 (1 h 30 min behind)`, so a half-hour offset renders correctly alongside the whole-hour rows.
+- **day-label** (Native and Gruvbox, light and dark): rendered at the fixed instant 2026-01-01T10:00Z local UTC — Kiritimati `00:00 (14 h ahead) Tomorrow`, Midway `23:00 (11 h behind) Yesterday`, Tokyo `19:00 (9 h ahead)`, Los Angeles `02:00 (8 h behind)`. This proves both Yesterday and Tomorrow across the date line.
+
+Every image shows the same structure: the local header, left-aligned rows, a remove control per row, and the `Add timezone…` search row. The light and dark images use the theme's popover background and text roles.
+
+What the offscreen shots do **not** prove: they render the content view over the solid palette fill, not the real popover window. They cannot show outside-click/Escape dismissal, the anchor arrow, keyboard focus, VoiceOver, or the live tick refresh; those are covered by unit tests (`WorldClockPopoverContentTests`, `WorldClockPopoverContrastTests`) and still need the maintainer's eye on the packaged app.
+
+`.repoos/ui-verification/0085.json` is produced only for web captures (RepoOS #0765); native command targets collect their PNGs from `REPOOS_SHOT_DIR`, so no `ui-verification` JSON exists for this task and that is expected. Note: `repoos update --shots` currently validates against preview targets only and rejects the command target `Divot Bar`, so the fenced `## Shots` list was written through the validated `--section` path instead.
 
 
 ## Activity
@@ -110,3 +124,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T15:44:44Z · status review→active
 - 2026-10-13T15:44:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T15:50:36Z · body: section Shots
+- 2026-10-13T15:52:19Z · body: section Shot evidence
