@@ -1,4 +1,6 @@
 ---
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-13T18:20:01.774Z: repoos check failed: ◆ Check plan"
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
@@ -47,3 +49,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:11:18Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T18:11:50Z · note: review pass 1: needs some work
 - 2026-10-13T18:11:50Z · status review→active
+
