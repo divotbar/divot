@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:39:09Z"
+updated_at: "2026-10-13T10:39:33Z"
 review_passes: 3
 review_rounds: 2
 ---
