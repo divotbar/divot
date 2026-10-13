@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T19:12:43Z"
+updated_at: "2026-10-13T19:15:48Z"
 review_passes: 7
 review_rounds: 2
 dev_error_count: 1
@@ -236,3 +236,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-13T19:09:06Z · body: section Shot descriptions
 - 2026-10-13T19:12:43Z · status active→review
 - 2026-10-13T19:12:43Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T19:15:48Z · note: review pass 8: needs some work
