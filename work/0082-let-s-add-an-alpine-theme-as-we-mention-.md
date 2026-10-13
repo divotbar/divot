@@ -2,7 +2,7 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: review
+status: active
 priority: p2
 area: web
 assigned_to: ai
@@ -84,3 +84,5 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T10:32:20Z · note: review pass 3: needs some work
 - 2026-10-13T10:32:20Z · needs_input
 - 2026-10-13T10:37:44Z · needs_input
+- 2026-10-13T10:37:44Z · status review→active
+- 2026-10-13T10:37:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
