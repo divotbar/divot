@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 87214
-last_close_out_gate_at: "2026-10-13T17:17:17.683Z"
 id: "0091"
 title: Tests must never put real Divot bars or popovers on the maintainer's screen
 type: bug
-status: review
+status: done
 priority: p1
 area: macos
+merged_commit: 2a392b152dc73fb887aa4f1d0e60a4986a5e8d4f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/tests-must-never-put-real-divot-bars-or-
 created_at: "2026-10-13T16:33:40Z"
-updated_at: "2026-10-13T17:17:17Z"
+updated_at: "2026-10-13T17:17:21Z"
+last_close_out_gate_ms: 87214
+last_close_out_gate_at: "2026-10-13T17:17:17.683Z"
 review_passes: 1
 ---
 ## Problem
@@ -56,4 +57,4 @@ Verification: `scripts/swift-test-lock.sh` (full suite, 787 tests) passes. `Wind
 - 2026-10-13T17:12:29Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T17:13:50Z · note: review pass 1: good to go
 - 2026-10-13T17:17:17Z · close-out gate completed in 87s
-
+- 2026-10-13T17:17:21Z · status review→done, release:success
