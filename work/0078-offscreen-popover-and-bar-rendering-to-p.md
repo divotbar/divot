@@ -2,7 +2,7 @@
 id: "0078"
 title: Offscreen popover and bar rendering to PNG with pixel assertions (gitignored output)
 type: chore
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0076"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T06:23:20Z"
-updated_at: "2026-10-13T06:23:20Z"
+updated_at: "2026-10-13T06:25:24Z"
 ---
 ## Problem
 Native UI changes here have no visual evidence: RepoOS shots only cover web targets, so every macOS task reports 'shots: skipped'. Look, alignment, translucency and contrast problems were found only by the maintainer's eye (Appearance, Volume and Wi-Fi popovers, #0072-#0076). A RepoOS feature for command-based native shots is filed separately in the RepoOS repo (#0761); this task gives Divot something to feed it.
@@ -33,3 +33,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 ## Activity
 
 - 2026-10-13T06:23:20Z · created · njachowski@gmail.com
+- 2026-10-13T06:25:24Z · status inbox→ready
