@@ -1,4 +1,6 @@
 ---
+last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
+last_handoff_failure_sha: 41f9a14aa56bad842932b2f35cee128cf13c85eb
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
@@ -63,3 +65,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:22:03Z · status active→review
 - 2026-10-13T17:22:03Z · note: handoff requested (cli)
 - 2026-10-13T17:28:02Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
+
