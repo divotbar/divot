@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
@@ -240,3 +241,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-13T19:15:49Z · needs_input
 - 2026-10-13T19:17:06Z · status review→active, needs_input
 - 2026-10-13T19:17:06Z · note: close-out repair: merge-conflict
+
