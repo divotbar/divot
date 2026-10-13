@@ -134,3 +134,4 @@ Window-level analysis shows notification banners use a level at or above 25 (abo
 - 2026-10-13T06:11:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T06:12:20Z · body: section Findings
 - 2026-10-13T06:12:54Z · status active→review
+- 2026-10-13T06:12:54Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
