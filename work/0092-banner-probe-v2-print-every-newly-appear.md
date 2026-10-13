@@ -11,7 +11,7 @@ branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
-updated_at: "2026-10-13T18:52:44Z"
+updated_at: "2026-10-13T18:53:07Z"
 review_passes: 3
 last_check_failure: "repoos check at 2026-10-13T18:41:26.243Z: repoos check failed: native-core — 􁁛 Suite \"Windowless presentation\" passed after 10.578 seconds."
 review_rounds: 2
@@ -66,3 +66,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:49:54Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:52:10Z · status active→review
 - 2026-10-13T18:52:10Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (4c1b5492) during finalization (#0734)
+- 2026-10-13T18:53:07Z · note: review pass 4: needs some work
