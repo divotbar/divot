@@ -9,8 +9,10 @@ depends_on: ["0076"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T05:58:05Z"
-updated_at: "2026-10-13T06:25:22Z"
+updated_at: "2026-10-13T06:25:23Z"
 ---
 ## Problem
 Clicking the date item currently only opens a System Settings pane. The maintainer wants a calendar popup, as in the macOS menu bar clock, to glance at other days and months.
@@ -40,3 +42,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 
 - 2026-10-13T05:58:05Z · created · njachowski@gmail.com
 - 2026-10-13T06:25:22Z · status inbox→ready
+- 2026-10-13T06:25:23Z · cli_override, model_override
