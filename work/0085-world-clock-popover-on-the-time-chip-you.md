@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T13:29:22Z"
+updated_at: "2026-10-13T13:29:23Z"
 ---
 ## Problem
 Clicking the time chip only opens a System Settings pane. The date chip now opens a useful calendar (#0077); the time chip needs something equally useful. The maintainer lives in Jakarta and often needs the time in California (and others).
@@ -45,3 +47,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T13:29:11Z · created · njachowski@gmail.com
 - 2026-10-13T13:29:21Z · body: section Screenshots
 - 2026-10-13T13:29:22Z · status inbox→ready
+- 2026-10-13T13:29:23Z · cli_override, model_override
