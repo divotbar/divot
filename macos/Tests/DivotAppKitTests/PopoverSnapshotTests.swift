@@ -250,13 +250,74 @@ struct PopoverSnapshotTests {
                 "No sampled text pixels found with contrast >= \(ContrastAudit.textThreshold):1")
     }
 
-    /// Run all assertions on a rendered snapshot.
-    private func assertAllPixelProperties(rep: NSBitmapImageRep, theme: BarTheme) {
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-        assertLeftAlignment(in: rep, theme: theme)
-        assertNoClipping(in: rep, theme: theme)
-        assertTextContrast(in: rep, theme: theme)
+    /// The sound pixel assertions (#0083), run on the offscreen render of the
+    /// content view over the popover's solid background:
+    /// - the bitmap is opaque and the fill matches the palette;
+    /// - every ink row's first non-background pixel sits within the leading inset
+    ///   (so nothing is centred or right-aligned);
+    /// - every text band (taller than a hairline) reaches AA-ish contrast against
+    ///   the sampled background, except bands drawn on the selected fill, which
+    ///   must instead contain the palette's selected colour.
+    /// `expectSelectedFill` demands the selected fill is visible (today, chosen row).
+    private func assertPixelRules(rep: NSBitmapImageRep, size: NSSize, theme: BarTheme,
+                                  expectSelectedFill: Bool, label: String) {
+        guard let buffer = PixelBuffer(rep) else { return }
+        let palette = theme.popoverPalette
+        func rgb(_ c: NSColor) -> RGB {
+            let c = c.usingColorSpace(.sRGB)!
+            return RGB(r: Double(c.redComponent), g: Double(c.greenComponent), b: Double(c.blueComponent))
+        }
+        let bg = rgb(palette.background)
+        let selected = rgb(palette.selected)
+        let scale = Double(buffer.width) / Double(size.width)
+
+        // Background: opaque, and the mid-right edge is exactly the palette fill.
+        #expect(buffer.alpha(buffer.width - 4, buffer.height / 2) == 1, "\(label): fill is opaque")
+        #expect(buffer.color(buffer.width - 4, buffer.height / 2).delta(bg) < 0.02, "\(label): fill matches palette")
+
+        // Ink rows.
+        var bands: [[Int]] = []
+        var current: [Int] = []
+        var rowFirstInk: [Int: Int] = [:]
+        // Ignore a 3pt margin: the content layer's rounded corners are cut out there.
+        let margin = Int(3 * scale)
+        for y in margin..<(buffer.height - margin) {
+            var first: Int?
+            for x in margin..<(buffer.width - margin) where buffer.color(x, y).delta(bg) > 0.08 {
+                first = x
+                break
+            }
+            if let first {
+                rowFirstInk[y] = first
+                current.append(y)
+            } else if !current.isEmpty {
+                bands.append(current)
+                current = []
+            }
+        }
+        if !current.isEmpty { bands.append(current) }
+
+        let leadingLimit = 26.0 * scale
+        var selectedSeen = false
+        for band in bands where Double(band.count) > 2 * scale {
+            let first = band.compactMap { rowFirstInk[$0] }.min() ?? 0
+            #expect(Double(first) <= leadingLimit,
+                    "\(label): row at y=\(band[0]) starts at x=\(Double(first) / scale)pt, beyond the leading inset")
+            var best = 0.0
+            var onSelected = false
+            for y in band {
+                for x in margin..<(buffer.width - margin) {
+                    let c = buffer.color(x, y)
+                    if c.delta(selected) < 0.03 && selected.delta(bg) > 0.08 { onSelected = true; continue }
+                    best = max(best, ContrastAudit.ratio(c.srgb, bg.srgb))
+                }
+            }
+            if onSelected { selectedSeen = true; continue }
+            #expect(best >= 4.0, "\(label): text band at y=\(band[0]) contrast \(best)")
+        }
+        if expectSelectedFill {
+            #expect(selectedSeen, "\(label): selected fill is visible")
+        }
     }
 
     // MARK: - Popover content controllers
@@ -281,6 +342,7 @@ struct PopoverSnapshotTests {
     private func makeAppearancePopoverController(fontSize: CGFloat = 12) -> AppearancePopoverContentController {
         let controller = AppearancePopoverContentController()
         _ = controller.view
+        controller.update(.default)
         if fontSize != 12 {
             applyFontSize(fontSize, to: controller.view)
         }
@@ -297,6 +359,21 @@ struct PopoverSnapshotTests {
         if fontSize != 12 {
             applyFontSize(fontSize, to: controller.view)
         }
+        return controller
+    }
+
+    private func makeWifiPermissionController(fontSize: CGFloat = 12) -> WifiPopoverContentController {
+        let controller = WifiPopoverContentController()
+        _ = controller.view
+        controller.render(.permissionDenied)
+        return controller
+    }
+
+    private func makeCalendarController(fontSize: CGFloat = 12) -> CalendarPopoverContentController {
+        let controller = CalendarPopoverContentController()
+        _ = controller.view
+        // A fixed month with "today" inside it so the filled highlight is rendered.
+        controller.update(CalendarMonthLayout.`for`(.today()))
         return controller
     }
 
@@ -324,7 +401,8 @@ struct PopoverSnapshotTests {
         maker: (CGFloat) -> BarPopoverContentController,
         appearance: AppearanceConfiguration,
         isDark: Bool,
-        fontSize: CGFloat
+        fontSize: CGFloat,
+        expectSelectedFill: Bool = false
     ) throws {
         let theme = BarTheme.resolve(appearance, dark: isDark)
         let controller = maker(fontSize)
@@ -333,7 +411,7 @@ struct PopoverSnapshotTests {
         // appearance; an offscreen render of the bare content view has neither.
         controller.view.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
         controller.view.wantsLayer = true
-        controller.view.layer?.backgroundColor = theme.popoverPalette.background.cgColor
+        controller.view.layer?.backgroundColor = theme.popoverPalette.background.withAlphaComponent(1).cgColor
 
         let size = controller.preferredSize
         controller.view.frame = NSRect(origin: .zero, size: size)
@@ -346,13 +424,8 @@ struct PopoverSnapshotTests {
         }
 
         try writeBitmapToPNG(name: name, rep: rep)
-        // The pixel assertions below have not held since offscreen rendering began
-        // working: until #0081 the render guard misreported every popover as
-        // headless, so they never ran. Re-enabling them needs the palette,
-        // alignment and contrast expectations reconciled with the bare content
-        // view, which is out of scope here. PNGs are still written for review.
-        _ = theme
-        // assertAllPixelProperties(rep: rep, theme: theme)
+        assertPixelRules(rep: rep, size: size, theme: theme,
+                         expectSelectedFill: expectSelectedFill, label: name)
     }
 
     // MARK: - Tests
@@ -397,7 +470,30 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "appearance-popover-\(familyName)-\(variantName)-default"
-                try testPopover(name: name, maker: makeAppearancePopoverController, appearance: appearance, isDark: isDark, fontSize: 12)
+                try testPopover(name: name, maker: makeAppearancePopoverController, appearance: appearance, isDark: isDark, fontSize: 12, expectSelectedFill: true)
+            }
+        }
+    }
+
+    @Test("Wi-Fi permission message — all themes × light/dark")
+    func wifiPermissionMatrix() throws {
+        for family in [AppearanceConfiguration.Family.native, .gruvbox, .ayu, .dracula, .tokyoNight] {
+            for (variantName, isDark) in [("light", false), ("dark", true)] {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                try testPopover(name: "wifi-permission-popover-\(family.rawValue)-\(variantName)-default",
+                                maker: makeWifiPermissionController, appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("Calendar popover — all themes × light/dark")
+    func calendarPopoverMatrix() throws {
+        for family in [AppearanceConfiguration.Family.native, .gruvbox, .ayu, .dracula, .tokyoNight] {
+            for (variantName, isDark) in [("light", false), ("dark", true)] {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                try testPopover(name: "calendar-popover-\(family.rawValue)-\(variantName)-default",
+                                maker: makeCalendarController, appearance: appearance, isDark: isDark, fontSize: 12,
+                                expectSelectedFill: true)
             }
         }
     }

@@ -126,14 +126,42 @@ public struct BarTheme: Equatable {
         public let secondary: NSColor
         public let link: NSColor
         public let separator: NSColor
+        /// The filled selected-state background (chosen theme row, today).
+        public let selected: NSColor
+        /// Text drawn on `selected`.
+        public let selectedForeground: NSColor
     }
 
+    /// The one popover palette. Every colour is a concrete, fully opaque sRGB
+    /// value (no dynamic or translucent system colours), so a popover renders
+    /// the same solid fill and readable text regardless of what is behind it.
+    /// Family themes use their audited tokens; native uses fixed light/dark
+    /// values chosen to clear the contrast audit.
     public var popoverPalette: PopoverPalette {
-        PopoverPalette(background: background,
-                       label: foreground,
-                       secondary: secondary,
-                       link: link,
-                       separator: border)
+        if usesSystemColors {
+            func rgb(_ hex: UInt32) -> NSColor {
+                NSColor(srgbRed: CGFloat((hex >> 16) & 0xFF) / 255,
+                        green: CGFloat((hex >> 8) & 0xFF) / 255,
+                        blue: CGFloat(hex & 0xFF) / 255,
+                        alpha: 1)
+            }
+            return isDark
+                ? PopoverPalette(background: rgb(0x2B2B2B), label: rgb(0xF5F5F7),
+                                 secondary: rgb(0xC0C0C6), link: rgb(0x7DB8FF),
+                                 separator: rgb(0x4A4A4A),
+                                 selected: rgb(0x2F6FD0), selectedForeground: rgb(0xFFFFFF))
+                : PopoverPalette(background: rgb(0xF4F4F4), label: rgb(0x1D1D1F),
+                                 secondary: rgb(0x55555A), link: rgb(0x0A5FCC),
+                                 separator: rgb(0xCFCFCF),
+                                 selected: rgb(0x0A5FCC), selectedForeground: rgb(0xFFFFFF))
+        }
+        return PopoverPalette(background: background.withAlphaComponent(1),
+                              label: foreground,
+                              secondary: secondary,
+                              link: link,
+                              separator: border,
+                              selected: selected,
+                              selectedForeground: selectedForeground)
     }
 
     /// The popover's light/dark appearance, so its chrome and system controls

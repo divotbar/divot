@@ -6,6 +6,26 @@ import DivotCore
 private class CalendarDayButton: NSButton {
     weak var navigationHandler: CalendarPopoverContentController?
 
+    /// The filled selected-state disc (today), or `nil` for a plain day.
+    var highlightFill: NSColor? { didSet { needsDisplay = true } }
+    var textColor: NSColor = .labelColor { didSet { needsDisplay = true } }
+    var isEmphasised = false { didSet { needsDisplay = true } }
+
+    override func draw(_ dirtyRect: NSRect) {
+        if let fill = highlightFill {
+            fill.setFill()
+            NSBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), xRadius: 6, yRadius: 6).fill()
+        }
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11, weight: isEmphasised ? .semibold : .regular),
+            .foregroundColor: textColor
+        ]
+        let size = (title as NSString).size(withAttributes: attributes)
+        (title as NSString).draw(at: NSPoint(x: floor((bounds.width - size.width) / 2),
+                                             y: floor((bounds.height - size.height) / 2)),
+                                 withAttributes: attributes)
+    }
+
     override func keyDown(with event: NSEvent) {
         guard let handler = navigationHandler else {
             super.keyDown(with: event)
@@ -100,6 +120,17 @@ public final class CalendarPopoverController {
     /// Whether the popover is currently shown.
     public var isShown: Bool { host.isShown }
 
+    /// Update the shown popover's theme without closing it.
+    /// Used when the bar's theme changes while the popover is open.
+    public func updateTheme(_ theme: BarTheme) {
+        if host.isShown {
+            host.restyle(theme: theme)
+        }
+        if let content {
+            content.theme = theme
+        }
+    }
+
     /// The popover closed for any reason.
     private func handleClosed() {
         if let observer = dayChangeObserver {
@@ -129,11 +160,14 @@ final class CalendarPopoverContentController: BarPopoverContentController {
     private let headerLabel = NSTextField(labelWithString: "")
     private let prevButton = NSButton(image: NSImage(systemSymbolName: "chevron.left", accessibilityDescription: nil) ?? NSImage(), target: nil, action: nil)
     private let nextButton = NSButton(image: NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil) ?? NSImage(), target: nil, action: nil)
-    private let todayButton = NSButton(title: "Today", target: nil, action: nil)
+    private lazy var todayButton: NSView = linkButton("Today", action: #selector(todayTapped))
     private let weekdayStack = NSStackView()
     private var dayGridView: NSView?
     private var currentLayout: CalendarMonthLayout?
     fileprivate var dayButtons: [[CalendarDayButton]] = []
+
+    /// The grid is a fixed seven columns wide; hug it rather than pad.
+    override var minimumContentWidth: CGFloat { 0 }
 
     override func loadView() {
         super.loadView()
@@ -160,32 +194,36 @@ final class CalendarPopoverContentController: BarPopoverContentController {
         nextButton.target = self
         nextButton.action = #selector(nextMonth)
 
-        todayButton.isBordered = false
-        todayButton.bezelStyle = .inline
-        todayButton.font = .systemFont(ofSize: 12)
-        todayButton.setAccessibilityLabel("Today")
-        todayButton.target = self
-        todayButton.action = #selector(todayTapped)
 
-        let headerRow = NSStackView(views: [prevButton, headerLabel, nextButton])
+        let headerRow = NSStackView(views: [headerLabel, prevButton, nextButton])
         headerRow.orientation = .horizontal
         headerRow.alignment = .centerY
         headerRow.spacing = 8
         headerRow.distribution = .fill
+        prevButton.contentTintColor = theme.popoverPalette.label
+        nextButton.contentTintColor = theme.popoverPalette.label
         headerLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
         stack.addArrangedSubview(headerRow)
 
         weekdayStack.orientation = .horizontal
         weekdayStack.alignment = .centerY
-        weekdayStack.distribution = .fillEqually
-        weekdayStack.spacing = 0
+        weekdayStack.distribution = .gravityAreas
+        weekdayStack.spacing = 2
         stack.addArrangedSubview(weekdayStack)
 
         stack.addArrangedSubview(separator())
         stack.addArrangedSubview(todayButton)
         stack.addArrangedSubview(separator())
         stack.addArrangedSubview(linkButton("Open Date & Time Settings...", action: #selector(openDateTimeSettings)))
+    }
+
+    /// Rebuild the grid and header colours when the theme changes after load.
+    override func restyle(_ theme: BarTheme) {
+        super.restyle(theme)
+        prevButton.contentTintColor = theme.popoverPalette.label
+        nextButton.contentTintColor = theme.popoverPalette.label
+        if let layout = currentLayout { update(layout) }
     }
 
     /// Update the calendar display for a new month layout.
@@ -196,10 +234,12 @@ final class CalendarPopoverContentController: BarPopoverContentController {
         weekdayStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         for name in layout.weekdayNames {
             let label = NSTextField(labelWithString: name)
-            label.font = .systemFont(ofSize: 11, weight: .medium)
+            label.font = .systemFont(ofSize: 11, weight: .semibold)
             label.textColor = theme.popoverPalette.secondary
             label.identifier = Self.secondaryIdentifier
             label.alignment = .center
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.widthAnchor.constraint(equalToConstant: 28).isActive = true
             weekdayStack.addArrangedSubview(label)
         }
 
@@ -251,16 +291,13 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                 button.font = .systemFont(ofSize: 11)
                 button.setButtonType(.momentaryPushIn)
 
+                let palette = theme.popoverPalette
                 if isToday {
-                    button.bezelColor = theme.selected
-                    button.contentTintColor = theme.selectedForeground
-                    button.font = .systemFont(ofSize: 11, weight: .semibold)
+                    button.highlightFill = palette.selected
+                    button.textColor = palette.selectedForeground
+                    button.isEmphasised = true
                 } else {
-                    button.contentTintColor = theme.popoverPalette.label
-                }
-
-                if !calDay.isCurrentMonth {
-                    button.alphaValue = 0.4
+                    button.textColor = calDay.isCurrentMonth ? palette.label : palette.secondary
                 }
 
                 gridView.addSubview(button)

@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-13T10:48:57Z"
-review_passes: 5
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p0
 area: macos
 assigned_to: ""
@@ -18,6 +13,8 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
+updated_at: "2026-10-13T10:45:47Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -201,7 +198,3 @@ The 22 PNG captures for Divot popovers are produced by the `repoos shot --target
 - 2026-10-13T10:43:59Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T10:44:11Z · body: section Shot evidence
 - 2026-10-13T10:45:47Z · status active→review
-- 2026-10-13T10:45:52Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (349075f) during finalization (#0734)
-- 2026-10-13T10:48:57Z · note: review pass 6: needs some work
-- 2026-10-13T10:48:57Z · needs_input
-

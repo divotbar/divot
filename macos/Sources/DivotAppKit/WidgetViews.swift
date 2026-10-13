@@ -527,6 +527,11 @@ final class BarContentView: NSView, BarContentLifecycle {
         appIconButton?.apply(theme: theme)
         for view in itemViews.values { view.apply(theme: theme) }
         for view in workspaceViews.values { view.apply(theme: theme) }
+        // Update open popovers without closing them
+        wifiPopover?.updateTheme(theme)
+        volumePopover?.updateTheme(theme)
+        appearancePopover?.updateTheme(theme)
+        calendarPopover?.updateTheme(theme)
         needsDisplay = true
     }
 

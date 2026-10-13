@@ -70,6 +70,17 @@ public final class AppearancePopoverController {
     /// Whether the popover is currently shown. Exposed for tests and callers.
     public var isShown: Bool { host.isShown }
 
+    /// Update the shown popover's theme without closing it.
+    /// Used when the bar's theme changes while the popover is open.
+    public func updateTheme(_ theme: BarTheme) {
+        if host.isShown {
+            host.restyle(theme: theme)
+        }
+        if let content {
+            content.theme = theme
+        }
+    }
+
     /// The popover closed for any reason; drop the observer and the rows.
     private func handleClosed() {
         model.stopObserving()
@@ -148,8 +159,7 @@ final class AppearancePopoverContentController: BarPopoverContentController {
     override func restyle(_ theme: BarTheme) {
         super.restyle(theme)
         for button in familyButtons.values {
-            button.contentTintColor = theme.popoverPalette.label
-            button.highlightColor = theme.popoverPalette.link
+            button.palette = theme.popoverPalette
         }
     }
 
@@ -199,11 +209,7 @@ final class AppearancePopoverContentController: BarPopoverContentController {
                 familyButtons[family] = button
                 return button
             }
-            let row = NSStackView(views: buttons)
-            row.orientation = .horizontal
-            row.alignment = .top
-            row.spacing = 6
-            rows.append(row)
+            rows.append(contentsOf: buttons)
             index = end
         }
         return rows
@@ -263,11 +269,15 @@ final class ThemeSwatchButton: NSButton {
     var isChosen = false {
         didSet { needsDisplay = true }
     }
-    /// The colour of the chosen outline: the theme's contrast-safe link role, so
-    /// the highlight matches the bar instead of a fixed system accent.
-    var highlightColor: NSColor = .controlAccentColor {
+    /// The popover palette the row draws from (text, selected fill).
+    var palette: BarTheme.PopoverPalette? {
         didSet { needsDisplay = true }
     }
+
+    static let rowHeight: CGFloat = 28
+    static let leadingInset: CGFloat = 8
+    private static let swatchSide: CGFloat = 18
+    private static let gap: CGFloat = 8
 
     init(family: AppearanceConfiguration.Family, target: AnyObject?, action: Selector) {
         super.init(frame: .zero)
@@ -278,23 +288,22 @@ final class ThemeSwatchButton: NSButton {
         self.setButtonType(.momentaryPushIn)
         self.alignment = .left
         self.font = .systemFont(ofSize: 12)
-        self.imagePosition = .imageLeading
-        self.imageHugsTitle = true
+        self.imagePosition = .imageOnly
         self.refusesFirstResponder = false
         self.setAccessibilityRole(.radioButton)
         self.setAccessibilityLabel("Theme: \(family.displayName)")
-        self.setContentHuggingPriority(.required, for: .horizontal)
     }
 
     required init?(coder: NSCoder) {
         fatalError("ThemeSwatchButton is created in code")
     }
 
-    /// Add breathing room around the swatch and name so the chosen ring has
-    /// somewhere to sit.
+    private var labelFont: NSFont { .systemFont(ofSize: 12, weight: isChosen ? .semibold : .regular) }
+
     override var intrinsicContentSize: NSSize {
-        let base = super.intrinsicContentSize
-        return NSSize(width: base.width + 14, height: base.height + 8)
+        let text = (title as NSString).size(withAttributes: [.font: labelFont]).width
+        return NSSize(width: Self.leadingInset + Self.swatchSide + Self.gap + ceil(text) + Self.leadingInset,
+                      height: Self.rowHeight)
     }
 
     /// Draw the swatch for a palette sample, or the macOS semantic colours for
@@ -304,20 +313,26 @@ final class ThemeSwatchButton: NSButton {
         self.image = ThemeSwatchButton.image(for: swatch)
     }
 
+    /// Every row is drawn the same way: swatch then name, flush left at the
+    /// leading inset. The chosen row is the shared selected style: a filled
+    /// rounded rect in the palette's `selected` role with its contrast-safe text.
     override func draw(_ dirtyRect: NSRect) {
-        if isChosen, let context = NSGraphicsContext.current {
-            context.saveGraphicsState()
-            let highlight = NSBezierPath(roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5),
-                                         xRadius: 7,
-                                         yRadius: 7)
-            highlightColor.withAlphaComponent(0.16).setFill()
-            highlight.fill()
-            highlightColor.setStroke()
-            highlight.lineWidth = 1.5
-            highlight.stroke()
-            context.restoreGraphicsState()
+        let palette = self.palette ?? BarTheme.systemDefault.popoverPalette
+        if isChosen {
+            palette.selected.setFill()
+            NSBezierPath(roundedRect: bounds, xRadius: 6, yRadius: 6).fill()
         }
-        super.draw(dirtyRect)
+        let side = Self.swatchSide
+        image?.draw(in: NSRect(x: Self.leadingInset, y: floor((bounds.height - side) / 2),
+                               width: side, height: side))
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: labelFont,
+            .foregroundColor: isChosen ? palette.selectedForeground : palette.label
+        ]
+        let size = (title as NSString).size(withAttributes: attributes)
+        (title as NSString).draw(at: NSPoint(x: Self.leadingInset + side + Self.gap,
+                                             y: floor((bounds.height - size.height) / 2)),
+                                 withAttributes: attributes)
     }
 
     /// A rounded swatch: the family's background with its accent as a centred

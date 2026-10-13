@@ -66,6 +66,17 @@ public final class VolumePopoverController {
     /// Whether the popover is currently shown. Exposed for tests and callers.
     public var isShown: Bool { host.isShown }
 
+    /// Update the shown popover's theme without closing it.
+    /// Used when the bar's theme changes while the popover is open.
+    public func updateTheme(_ theme: BarTheme) {
+        if host.isShown {
+            host.restyle(theme: theme)
+        }
+        if let content {
+            content.theme = theme
+        }
+    }
+
     /// The popover closed for any reason; drop the listeners and the rows.
     private func handleClosed() {
         model.stopObserving()
@@ -101,6 +112,8 @@ final class VolumePopoverContentController: BarPopoverContentController {
     var onMuteToggled: ((Bool) -> Void)?
     var onOpenSoundSettings: (() -> Void)?
 
+    static let labelIdentifier = NSUserInterfaceItemIdentifier("divot.popover.label")
+
     let slider = NSSlider(value: 0, minValue: 0, maxValue: 1, target: nil, action: nil)
     let percentLabel = NSTextField(labelWithString: "")
     let muteButton = NSButton(checkboxWithTitle: "Mute", target: nil, action: nil)
@@ -125,6 +138,7 @@ final class VolumePopoverContentController: BarPopoverContentController {
         percentLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
         percentLabel.alignment = .left
         percentLabel.textColor = theme.popoverPalette.label
+        percentLabel.identifier = Self.labelIdentifier
         percentLabel.setContentHuggingPriority(.required, for: .horizontal)
         percentLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         percentLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 36).isActive = true
@@ -194,6 +208,12 @@ final class VolumePopoverContentController: BarPopoverContentController {
             statusLabel.isHidden = false
             slider.setAccessibilityValue("Unavailable")
         }
+    }
+
+    override func restyle(_ theme: BarTheme) {
+        super.restyle(theme)
+        percentLabel.textColor = theme.popoverPalette.label
+        statusLabel.textColor = theme.popoverPalette.secondary
     }
 
     // MARK: - Actions
