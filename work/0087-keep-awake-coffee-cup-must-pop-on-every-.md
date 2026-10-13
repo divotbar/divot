@@ -189,3 +189,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:44:22Z · status review→active
 - 2026-10-13T18:44:22Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:45:18Z · status active→review
+- 2026-10-13T18:45:18Z · note: shots: skipped — 8 shots already captured — an engineer-made capture pre-empts the automatic one
