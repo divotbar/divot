@@ -2,20 +2,27 @@
 
 ## Overview
 
-`PopoverSnapshotTests` renders Divot's bar popovers offscreen to PNG files for visual review and pixel-level assertions. The tests run headlessly without requiring a display; on systems without a frame buffer (e.g., CI), they print a clear message and pass without rendering.
+`PopoverSnapshotTests` renders Divot's bar and popovers offscreen to PNG files for visual review and pixel-level assertions. The tests run headlessly without requiring a display; on systems without a frame buffer (e.g., CI), they print a clear message and pass without rendering.
 
-**Important:** Rendered snapshots are local evidence only — they are stored in the gitignored `macos/.build/snapshots/` directory and are not tracked in git. Snapshots are not reproduced across machines or macOS versions; they serve as a checkpoint for the developer who runs them.
+**Important:** Rendered snapshots are local evidence only — they are stored in the gitignored `macos/.build/snapshots/` directory and are not tracked in git. Snapshots are not reproduced across machines or macOS versions; they serve as a checkpoint for the developer who runs them locally.
 
 ## What gets rendered
 
+### Popovers
 - **Volume popover**: output device name, level slider, mute toggle, and Settings link
 - **Wi-Fi popover**: nearby networks list, current network marker, and Settings link
 - **Appearance popover**: light/dark mode controls, theme family swatches, and Settings link
 
-Each popover is rendered for:
-- All theme families: native, Gruvbox, Ayu, Dracula, Tokyo Night
-- Both light and dark variants (where applicable)
-- Default text size and one larger size (when implemented)
+### Coverage matrix
+Each popover is rendered at:
+- All five theme families: native, Gruvbox, Ayu, Dracula, Tokyo Night
+- Both light and dark variants (10 configurations each)
+- Default text size (12pt) and one larger size (16pt)
+
+This produces 60 popover snapshots (3 popovers × 5 families × 2 variants × 2 sizes).
+
+### Bar rendering
+The workspace bar (`WorkspaceBarView`) requires complex state setup involving `WorkspaceFeed` and `WorkspaceAdapting`. Bar snapshot rendering is deferred to future work; the assertion framework is ready for it when the integration is completed.
 
 ## Running the tests
 
@@ -29,14 +36,19 @@ This runs the test suite and prints the snapshot output directory. The tests run
 
 ## Pixel assertions
 
-When snapshots render successfully, the test verifies:
+When snapshots render successfully, each test suite verifies ALL of the following:
 
-1. **Background opacity**: All background pixels have alpha = 1.0 (fully opaque)
-2. **Background color**: Center pixels match the theme's popover palette color (within sRGB tolerance)
-3. **Left alignment**: Content columns start near the expected 12pt inset
-4. **No clipping**: Content bounds stay within the popover frame
+1. **Background opacity** (`assertBackgroundOpaque`): All sampled background pixels have alpha ≥ 0.99 (fully opaque). Samples multiple points across the content area.
 
-These assertions do not use stored baseline images — they verify the popover against the theme palette it was rendered with, so they pass on any machine that has the same text layout and theme colors.
+2. **Background color** (`assertBackgroundColor`): Sampled background pixels match the theme's popover palette background color within 0.01 sRGB tolerance (per channel). Samples multiple points to verify consistency.
+
+3. **Text contrast** (`assertTextContrast`): Locates non-background (text) pixels in header and content regions, then verifies that at least one text pixel meets the WCAG AA threshold (4.5:1 contrast ratio) against the sampled background color. Uses `ContrastAudit.ratio()` and the palette colors.
+
+4. **Left alignment** (`assertLeftAlignment`): Scans multiple rows in the middle content region and verifies that the first non-background pixel column (content start) lies within ±5 pixels of the expected 12pt leading inset from the popover edge.
+
+5. **No clipping** (`assertNoClipping`): Samples pixels at the four edges (left, right, top, bottom) and verifies that no content-like pixels appear in the outermost 4px margin (indicates content is clipped or extends beyond the frame).
+
+These assertions do not use stored baseline images — they verify against the theme palette it was rendered with, so they pass on any machine that has the same layout and theme colors.
 
 ## Known limitations
 

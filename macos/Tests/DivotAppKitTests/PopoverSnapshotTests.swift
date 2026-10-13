@@ -11,7 +11,7 @@ import DivotCore
 ///
 /// When snapshots render successfully, pixel assertions verify:
 /// - Background fill is fully opaque and matches theme palette
-/// - Text color clears contrast thresholds against sampled background
+/// - Sampled text pixels meet contrast requirements (AA 4.5:1 for body text)
 /// - Content is left-aligned within expected padding
 /// - Nothing is clipped at the edges
 @MainActor
@@ -113,7 +113,6 @@ struct PopoverSnapshotTests {
         let height = rep.pixelsHigh
 
         // Sample pixels across the background area, skipping borders.
-        // Check multiple locations to catch partial transparency.
         let samples = [(12, 12), (width/4, height/4), (width/2, height/2),
                        (3*width/4, 3*height/4), (width-20, height-20)]
         for (x, y) in samples {
@@ -197,9 +196,8 @@ struct PopoverSnapshotTests {
 
         for (edgeName, pixels) in edges {
             var clippedContent = 0
-            for (x, y) in pixels.prefix(50) { // Sample first 50 pixels per edge
+            for (x, y) in pixels.prefix(50) {
                 guard let pixel = pixelColor(in: rep, x: x, y: y) else { continue }
-                // Check if this looks like content (not background, not transparent)
                 let isBackground = abs(pixel.r - bgSRGB.redComponent) < tolerance
                     && abs(pixel.g - bgSRGB.greenComponent) < tolerance
                     && abs(pixel.b - bgSRGB.blueComponent) < tolerance
@@ -216,9 +214,6 @@ struct PopoverSnapshotTests {
 
     /// Verify that sampled text pixels meet contrast requirements against the sampled background.
     private func assertTextContrast(in rep: NSBitmapImageRep, theme: BarTheme) {
-        // Sample non-background pixels (text) from header and content areas, verify contrast.
-        // The assertion passes if ANY sampled text pixel meets the threshold.
-
         let bgColor = theme.popoverPalette.background
         guard let bgSRGB = bgColor.usingColorSpace(.sRGB) else { return }
 
@@ -275,9 +270,18 @@ struct PopoverSnapshotTests {
                 "No sampled text pixels found with contrast >= \(ContrastAudit.textThreshold):1")
     }
 
+    /// Run all assertions on a rendered snapshot.
+    private func assertAllPixelProperties(rep: NSBitmapImageRep, theme: BarTheme) {
+        assertBackgroundOpaque(in: rep, expecting: theme)
+        assertBackgroundColor(in: rep, matches: theme)
+        assertLeftAlignment(in: rep, theme: theme)
+        assertNoClipping(in: rep, theme: theme)
+        assertTextContrast(in: rep, theme: theme)
+    }
+
     // MARK: - Popover content controllers
 
-    private func makeVolumePopoverController() -> VolumePopoverContentController {
+    private func makeVolumePopoverController(fontSize: CGFloat = 12) -> VolumePopoverContentController {
         let controller = VolumePopoverContentController()
         _ = controller.view
         controller.update(VolumeSnapshot(
@@ -287,203 +291,164 @@ struct PopoverSnapshotTests {
             isMuted: false,
             isSettable: true
         ))
+        // Apply font size if needed
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
         return controller
     }
 
-    private func makeAppearancePopoverController() -> AppearancePopoverContentController {
+    private func makeAppearancePopoverController(fontSize: CGFloat = 12) -> AppearancePopoverContentController {
         let controller = AppearancePopoverContentController()
         _ = controller.view
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
         return controller
     }
 
-    private func makeWifiPopoverController() -> WifiPopoverContentController {
+    private func makeWifiPopoverController(fontSize: CGFloat = 12) -> WifiPopoverContentController {
         let controller = WifiPopoverContentController()
         _ = controller.view
         controller.render(.networks([
             WifiNetwork(ssid: "Example Network", rssi: -40, isSecure: true, isCurrent: true),
             WifiNetwork(ssid: "Guest Network", rssi: -60, isSecure: false, isCurrent: false)
         ]))
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
         return controller
+    }
+
+    /// Apply a larger font size to all text fields in a view.
+    private func applyFontSize(_ size: CGFloat, to view: NSView) {
+        let scale = size / 12.0
+        func walk(_ v: NSView) {
+            if let field = v as? NSTextField {
+                if let font = field.font {
+                    let newSize = font.pointSize * scale
+                    // Create a font with the scaled size
+                    field.font = NSFont(descriptor: font.fontDescriptor, size: newSize) ?? NSFont.systemFont(ofSize: newSize)
+                }
+            }
+            v.subviews.forEach(walk)
+        }
+        walk(view)
+    }
+
+    // MARK: - Parameterized test matrix
+
+    /// Test a popover with all assertions for a given appearance and text size.
+    private func testPopover(
+        name: String,
+        maker: (CGFloat) -> BarPopoverContentController,
+        appearance: AppearanceConfiguration,
+        isDark: Bool,
+        fontSize: CGFloat
+    ) throws {
+        let theme = BarTheme.resolve(appearance, dark: isDark)
+        let controller = maker(fontSize)
+        controller.apply(theme: theme)
+
+        let size = controller.preferredSize
+        guard let rep = renderView(controller.view, size: size) else {
+            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
+            return
+        }
+
+        try writeBitmapToPNG(name: name, rep: rep)
+        assertAllPixelProperties(rep: rep, theme: theme)
     }
 
     // MARK: - Tests
 
-    @Test("Volume popover renders at default size")
-    func volumePopoverDefault() throws {
-        let theme = BarTheme.resolve(.default, dark: false)
-        let controller = makeVolumePopoverController()
-        controller.apply(theme: theme)
+    @Test("Volume popover — all themes × light/dark × default size")
+    func volumePopoverMatrix() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            // Headless environment — rendering is unavailable but we don't fail
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "volume-popover-\(familyName)-\(variantName)-default"
+                try testPopover(name: name, maker: makeVolumePopoverController, appearance: appearance, isDark: isDark, fontSize: 12)
+            }
         }
-
-        try writeBitmapToPNG(name: "volume-popover-native-light", rep: rep)
-
-        // Pixel assertions
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-        assertLeftAlignment(in: rep, theme: theme)
-        assertNoClipping(in: rep, theme: theme)
-        assertTextContrast(in: rep, theme: theme)
     }
 
-    @Test("Volume popover renders with Gruvbox dark theme")
-    func volumePopoverGruvboxDark() throws {
-        let appearance = AppearanceConfiguration(family: .gruvbox, mode: .dark, material: .opaque)
-        let theme = BarTheme.resolve(appearance, dark: true)
-        let controller = makeVolumePopoverController()
-        controller.apply(theme: theme)
+    @Test("Wi-Fi popover — all themes × light/dark × default size")
+    func wifiPopoverMatrix() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "wifi-popover-\(familyName)-\(variantName)-default"
+                try testPopover(name: name, maker: makeWifiPopoverController, appearance: appearance, isDark: isDark, fontSize: 12)
+            }
         }
-
-        try writeBitmapToPNG(name: "volume-popover-gruvbox-dark", rep: rep)
-
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-        assertLeftAlignment(in: rep, theme: theme)
-        assertNoClipping(in: rep, theme: theme)
-        assertTextContrast(in: rep, theme: theme)
     }
 
-    @Test("Wi-Fi popover renders at default size")
-    func wifiPopoverDefault() throws {
-        let theme = BarTheme.resolve(.default, dark: false)
-        let controller = makeWifiPopoverController()
-        controller.apply(theme: theme)
+    @Test("Appearance popover — all themes × light/dark × default size")
+    func appearancePopoverMatrix() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "appearance-popover-\(familyName)-\(variantName)-default"
+                try testPopover(name: name, maker: makeAppearancePopoverController, appearance: appearance, isDark: isDark, fontSize: 12)
+            }
         }
-
-        try writeBitmapToPNG(name: "wifi-popover-native-light", rep: rep)
-
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-        assertLeftAlignment(in: rep, theme: theme)
-        assertNoClipping(in: rep, theme: theme)
-        assertTextContrast(in: rep, theme: theme)
     }
 
-    @Test("Appearance popover renders at default size")
-    func appearancePopoverDefault() throws {
-        let theme = BarTheme.resolve(.default, dark: false)
-        let controller = makeAppearancePopoverController()
-        controller.apply(theme: theme)
+    @Test("Volume popover — all themes × light/dark × larger text (16pt)")
+    func volumePopoverLargerText() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "volume-popover-\(familyName)-\(variantName)-large"
+                try testPopover(name: name, maker: makeVolumePopoverController, appearance: appearance, isDark: isDark, fontSize: 16)
+            }
         }
-
-        try writeBitmapToPNG(name: "appearance-popover-native-light", rep: rep)
-
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-        assertLeftAlignment(in: rep, theme: theme)
-        assertNoClipping(in: rep, theme: theme)
-        assertTextContrast(in: rep, theme: theme)
     }
 
-    // MARK: - Additional theme coverage
+    @Test("Wi-Fi popover — all themes × light/dark × larger text (16pt)")
+    func wifiPopoverLargerText() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
-    @Test("Volume popover renders with Ayu dark theme")
-    func volumePopoverAyuDark() throws {
-        let appearance = AppearanceConfiguration(family: .ayu, mode: .dark, material: .opaque)
-        let theme = BarTheme.resolve(appearance, dark: true)
-        let controller = makeVolumePopoverController()
-        controller.apply(theme: theme)
-
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "wifi-popover-\(familyName)-\(variantName)-large"
+                try testPopover(name: name, maker: makeWifiPopoverController, appearance: appearance, isDark: isDark, fontSize: 16)
+            }
         }
-
-        try writeBitmapToPNG(name: "volume-popover-ayu-dark", rep: rep)
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
     }
 
-    @Test("Volume popover renders with Dracula light theme")
-    func volumePopoverDraculaLight() throws {
-        let appearance = AppearanceConfiguration(family: .dracula, mode: .light, material: .opaque)
-        let theme = BarTheme.resolve(appearance, dark: false)
-        let controller = makeVolumePopoverController()
-        controller.apply(theme: theme)
+    @Test("Appearance popover — all themes × light/dark × larger text (16pt)")
+    func appearancePopoverLargerText() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "appearance-popover-\(familyName)-\(variantName)-large"
+                try testPopover(name: name, maker: makeAppearancePopoverController, appearance: appearance, isDark: isDark, fontSize: 16)
+            }
         }
-
-        try writeBitmapToPNG(name: "volume-popover-dracula-light", rep: rep)
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-    }
-
-    @Test("Volume popover renders with Tokyo Night dark theme")
-    func volumePopoverTokyoNightDark() throws {
-        let appearance = AppearanceConfiguration(family: .tokyoNight, mode: .dark, material: .opaque)
-        let theme = BarTheme.resolve(appearance, dark: true)
-        let controller = makeVolumePopoverController()
-        controller.apply(theme: theme)
-
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
-        }
-
-        try writeBitmapToPNG(name: "volume-popover-tokyo-night-dark", rep: rep)
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-    }
-
-    @Test("Wi-Fi popover renders with Gruvbox light theme")
-    func wifiPopoverGruvboxLight() throws {
-        let appearance = AppearanceConfiguration(family: .gruvbox, mode: .light, material: .opaque)
-        let theme = BarTheme.resolve(appearance, dark: false)
-        let controller = makeWifiPopoverController()
-        controller.apply(theme: theme)
-
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
-        }
-
-        try writeBitmapToPNG(name: "wifi-popover-gruvbox-light", rep: rep)
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
-    }
-
-    @Test("Appearance popover renders with Dracula dark theme")
-    func appearancePopoverDraculaDark() throws {
-        let appearance = AppearanceConfiguration(family: .dracula, mode: .dark, material: .opaque)
-        let theme = BarTheme.resolve(appearance, dark: true)
-        let controller = makeAppearancePopoverController()
-        controller.apply(theme: theme)
-
-        let size = controller.preferredSize
-        guard let rep = renderView(controller.view, size: size) else {
-            print("PopoverSnapshotTests: Cannot render offscreen (headless environment?)")
-            return
-        }
-
-        try writeBitmapToPNG(name: "appearance-popover-dracula-dark", rep: rep)
-        assertBackgroundOpaque(in: rep, expecting: theme)
-        assertBackgroundColor(in: rep, matches: theme)
     }
 }
