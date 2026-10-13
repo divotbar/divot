@@ -1,6 +1,26 @@
 import AppKit
 import DivotCore
 
+/// A custom button for calendar day cells that handles arrow key forwarding.
+@MainActor
+private class CalendarDayButton: NSButton {
+    weak var navigationHandler: CalendarPopoverContentController?
+
+    override func keyDown(with event: NSEvent) {
+        guard let handler = navigationHandler else {
+            super.keyDown(with: event)
+            return
+        }
+
+        switch event.keyCode {
+        case 123, 124, 125, 126: // Arrow keys
+            handler.handleArrowKey(event.keyCode)
+        default:
+            super.keyDown(with: event)
+        }
+    }
+}
+
 /// A popover anchored to the bar's date item that shows a calendar month grid
 /// with navigation and today highlighting.
 ///
@@ -113,7 +133,7 @@ final class CalendarPopoverContentController: BarPopoverContentController {
     private let weekdayStack = NSStackView()
     private var dayGridView: NSView?
     private var currentLayout: CalendarMonthLayout?
-    var dayButtons: [[NSButton]] = []
+    fileprivate var dayButtons: [[CalendarDayButton]] = []
 
     override func loadView() {
         super.loadView()
@@ -211,13 +231,14 @@ final class CalendarPopoverContentController: BarPopoverContentController {
         dayButtons = []
 
         for (weekIdx, week) in layout.weeks.enumerated() {
-            var weekButtons: [NSButton] = []
+            var weekButtons: [CalendarDayButton] = []
             for (dayIdx, calDay) in week.enumerated() {
-                let button = NSButton(title: "\(calDay.day)", target: self, action: nil)
+                let button = CalendarDayButton(title: "\(calDay.day)", target: self, action: nil)
                 button.isBordered = false
                 button.bezelStyle = .inline
                 button.font = .systemFont(ofSize: 11)
                 button.translatesAutoresizingMaskIntoConstraints = false
+                button.navigationHandler = self
 
                 let isToday = isToday(calDay.date)
                 let dayFormatter = DateFormatter()
@@ -231,6 +252,7 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                 button.setButtonType(.momentaryPushIn)
 
                 if isToday {
+                    button.bezelColor = theme.accent
                     button.contentTintColor = theme.accent
                     button.font = .systemFont(ofSize: 11, weight: .semibold)
                 } else {
@@ -294,18 +316,15 @@ final class CalendarPopoverContentController: BarPopoverContentController {
         onOpenDateTimeSettings?()
     }
 
-    override func keyDown(with event: NSEvent) {
-        guard !dayButtons.isEmpty else {
-            super.keyDown(with: event)
-            return
-        }
+    func handleArrowKey(_ keyCode: UInt16) {
+        guard !dayButtons.isEmpty else { return }
 
-        if let firstResponder = view.window?.firstResponder as? NSButton,
+        if let firstResponder = view.window?.firstResponder as? CalendarDayButton,
            let (row, col) = findButtonPosition(firstResponder) {
             let dayCount = dayButtons.count
             let colCount = dayButtons[0].count
 
-            switch event.keyCode {
+            switch keyCode {
             case 123: // Left arrow
                 let newCol = col > 0 ? col - 1 : colCount - 1
                 let newRow = col > 0 ? row : (row > 0 ? row - 1 : dayCount - 1)
@@ -329,14 +348,12 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                     view.window?.makeFirstResponder(dayButtons[newRow][col])
                 }
             default:
-                super.keyDown(with: event)
+                break
             }
-        } else {
-            super.keyDown(with: event)
         }
     }
 
-    private func findButtonPosition(_ button: NSButton) -> (row: Int, col: Int)? {
+    private func findButtonPosition(_ button: CalendarDayButton) -> (row: Int, col: Int)? {
         for (rowIdx, row) in dayButtons.enumerated() {
             for (colIdx, btn) in row.enumerated() {
                 if btn === button {
@@ -345,5 +362,15 @@ final class CalendarPopoverContentController: BarPopoverContentController {
             }
         }
         return nil
+    }
+
+    private func contrastColor(against backgroundColor: NSColor) -> NSColor {
+        let components = backgroundColor.cgColor.components ?? [0, 0, 0, 1]
+        let red = components.count > 0 ? components[0] : 0
+        let green = components.count > 1 ? components[1] : 0
+        let blue = components.count > 2 ? components[2] : 0
+
+        let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+        return luminance > 0.5 ? NSColor.black : NSColor.white
     }
 }
