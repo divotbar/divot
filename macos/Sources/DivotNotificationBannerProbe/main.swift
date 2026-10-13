@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import CoreGraphics
+import DivotProbeCommon
 
 /// A read-only probe for task 0075: investigate macOS notification banner
 /// window levels and ordering relative to the Divot bar.
@@ -70,7 +71,7 @@ struct NotificationBannerProbe {
             let level = window["kCGWindowLevel"] as? Int ?? 0
             let owner = window["kCGWindowOwnerName"] as? String ?? "?"
             let name = window["kCGWindowName"] as? String ?? "(no name)"
-            let bounds = window["kCGWindowBounds"] as? CGRect ?? .zero
+            let bounds = parseBoundsFromWindowDict(window)
             let y = Int(bounds.minY)
             let height = Int(bounds.height)
 
@@ -103,7 +104,7 @@ struct NotificationBannerProbe {
                 minLevel = min(minLevel, level)
                 maxLevel = max(maxLevel, level)
 
-                let bounds = window["kCGWindowBounds"] as? CGRect ?? .zero
+                let bounds = parseBoundsFromWindowDict(window)
                 let name = window["kCGWindowName"] as? String ?? "(no name)"
                 print("  level=\(level) name=\(name) frame=(\(Int(bounds.minX)), \(Int(bounds.minY)), \(Int(bounds.width)), \(Int(bounds.height)))")
             }

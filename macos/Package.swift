@@ -16,11 +16,13 @@ let package = Package(
         .target(name: "DivotCore"),
         .target(name: "DivotAppKit", dependencies: ["DivotCore"],
                 resources: [.process("Resources")]),
+        .target(name: "DivotProbeCommon"),
         .executableTarget(name: "DivotApp", dependencies: ["DivotCore", "DivotAppKit"]),
         .executableTarget(name: "DivotMenuBarProbe", dependencies: ["DivotCore", "DivotAppKit"]),
         .executableTarget(name: "DivotSpacesProbe", dependencies: ["DivotCore"]),
-        .executableTarget(name: "DivotNotificationBannerProbe", dependencies: ["DivotCore", "DivotAppKit"]),
+        .executableTarget(name: "DivotNotificationBannerProbe", dependencies: ["DivotProbeCommon"]),
         .testTarget(name: "DivotCoreTests", dependencies: ["DivotCore"]),
-        .testTarget(name: "DivotAppKitTests", dependencies: ["DivotAppKit"])
+        .testTarget(name: "DivotAppKitTests", dependencies: ["DivotAppKit"]),
+        .testTarget(name: "DivotProbeCommonTests", dependencies: ["DivotProbeCommon"])
     ]
 )
