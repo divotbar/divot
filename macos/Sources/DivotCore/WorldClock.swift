@@ -52,7 +52,8 @@ public enum WorldClock {
                 continue
             }
 
-            let displayName = tzString.components(separatedBy: "/").last ?? tzString
+            let displayName = (tzString.components(separatedBy: "/").last ?? tzString)
+                .replacingOccurrences(of: "_", with: " ")
             let offsetSeconds = tz.secondsFromGMT(for: referenceDate)
             let localOffsetSeconds = localTimeZone.secondsFromGMT(for: referenceDate)
             let diffSeconds = offsetSeconds - localOffsetSeconds
@@ -60,14 +61,23 @@ public enum WorldClock {
 
             var localCalendar = calendar
             localCalendar.timeZone = localTimeZone
-            let localStartOfDay = localCalendar.startOfDay(for: referenceDate)
-
             var tzCalendar = calendar
             tzCalendar.timeZone = tz
-            let tzStartOfDay = tzCalendar.startOfDay(for: referenceDate)
+
+            // Compare the calendar date in the target zone with the local
+            // calendar date, not the absolute elapsed time: an offset can cross
+            // midnight in under 24 hours (and a half-hour zone in even less).
+            let localDay = localCalendar.dateComponents([.year, .month, .day], from: referenceDate)
+            let tzDay = tzCalendar.dateComponents([.year, .month, .day], from: referenceDate)
+            let dayDifference: Int
+            if let localStart = localCalendar.date(from: localDay),
+               let tzStart = localCalendar.date(from: tzDay) {
+                dayDifference = localCalendar.dateComponents([.day], from: localStart, to: tzStart).day ?? 0
+            } else {
+                dayDifference = 0
+            }
 
             let dayLabel: String?
-            let dayDifference = localCalendar.dateComponents([.day], from: localStartOfDay, to: tzStartOfDay).day ?? 0
             if dayDifference == 0 {
                 dayLabel = nil
             } else if dayDifference == 1 {

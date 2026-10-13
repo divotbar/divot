@@ -402,6 +402,22 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    /// A world clock controller rendered at a fixed instant and local zone so a
+    /// Yesterday/Tomorrow day label is deterministic: local 2026-01-01T10:00Z,
+    /// where Kiritimati (UTC+14) is already tomorrow and Midway (UTC-11) is
+    /// still yesterday.
+    private func makeWorldClockDayLabelController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = WorldClockPopoverContentController()
+        _ = controller.view
+        controller.render(timezones: ["Pacific/Kiritimati", "Pacific/Midway", "Asia/Tokyo", "America/Los_Angeles"],
+                         timeFormat: .ampm,
+                         showSeconds: false,
+                         customPattern: nil,
+                         at: Date(timeIntervalSince1970: 1_767_261_600),
+                         localTimeZone: TimeZone(identifier: "UTC")!)
+        return controller
+    }
+
     /// Apply a larger font size to all text fields in a view.
     private func applyFontSize(_ size: CGFloat, to view: NSView) {
         let scale = size / 12.0
@@ -577,7 +593,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-zero-timezones"
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-zero-timezones"
                 try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 0, fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
@@ -593,7 +609,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-two-timezones"
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-two-timezones"
                 try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 2, fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
@@ -609,8 +625,24 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-four-timezones"
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-four-timezones"
                 try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 4, fontSize: $0) },
+                               appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("World clock popover — day label (Yesterday/Tomorrow), all themes × light/dark")
+    func worldClockPopoverDayLabel() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-day-label"
+                try testPopover(name: name, maker: { self.makeWorldClockDayLabelController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }

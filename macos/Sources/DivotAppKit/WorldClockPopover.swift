@@ -121,20 +121,27 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         stack.addArrangedSubview(settingsButton)
     }
 
-    func render(timezones: [String], timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) {
+    func render(timezones: [String],
+                timeFormat: TimeConfiguration.Format,
+                showSeconds: Bool,
+                customPattern: String? = nil,
+                at date: Date = Date(),
+                localTimeZone: TimeZone = .current,
+                calendar: Calendar = .current) {
         clearRows()
         self.currentTimezones = timezones
 
-        let now = Date()
-        let entries = WorldClock.entries(for: timezones)
+        let now = date
+        let entries = WorldClock.entries(for: timezones, at: date,
+                                         localTimeZone: localTimeZone, calendar: calendar)
 
-        let localLabel = NSTextField(labelWithString: "Local")
+        let localLabel = NSTextField(labelWithString: "Local (\(localTimeZone.identifier))")
         localLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         localLabel.textColor = theme.popoverPalette.label
         localLabel.identifier = Self.headerIdentifier
         stack.addArrangedSubview(localLabel)
 
-        let localTime = NSTextField(labelWithString: formatLocalTime(now, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern))
+        let localTime = NSTextField(labelWithString: formatLocalTime(now, timeZone: localTimeZone, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern))
         localTime.font = .systemFont(ofSize: 12)
         localTime.textColor = theme.popoverPalette.secondary
         localTime.identifier = Self.secondaryIdentifier
@@ -173,6 +180,8 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             removeButton.tag = index
             removeButton.target = self
             removeButton.action = #selector(removeTimezone(_:))
+            removeButton.setAccessibilityLabel("Remove \(entry.displayName)")
+            removeButton.toolTip = "Remove \(entry.displayName)"
 
             let textStack = NSStackView(views: [label, info])
             textStack.orientation = .vertical
@@ -210,7 +219,9 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         search.target = self
         search.action = #selector(searchTimezones(_:))
         search.searchMenuTemplate = makeTimezoneMenu()
+        search.setAccessibilityLabel("Add timezone")
         self.searchField = search
+        styleSearchField()
 
         let addStack = NSStackView(views: [addLabel])
         addStack.orientation = .vertical
@@ -220,6 +231,24 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
 
         addStack.addArrangedSubview(search)
         self.stack.addArrangedSubview(addStack)
+    }
+
+    /// Recolour the search field's text and placeholder from the theme, so the
+    /// placeholder clears the same contrast floor as the other secondary text
+    /// (the system default placeholder colour is intentionally dimmer).
+    override func restyle(_ theme: BarTheme) {
+        super.restyle(theme)
+        styleSearchField()
+    }
+
+    private func styleSearchField() {
+        guard let search = searchField else { return }
+        let palette = theme.popoverPalette
+        search.textColor = palette.label
+        let font = search.font ?? .systemFont(ofSize: 11)
+        search.placeholderAttributedString = NSAttributedString(
+            string: "Search (e.g., Tokyo, Asia/Tokyo)",
+            attributes: [.foregroundColor: palette.secondary, .font: font])
     }
 
     @objc private func removeTimezone(_ sender: NSButton) {
@@ -263,10 +292,10 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         return menu
     }
 
-    private func formatLocalTime(_ date: Date, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
+    private func formatLocalTime(_ date: Date, timeZone: TimeZone, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
         let formatter = DateFormatter()
         formatter.locale = .current
-        formatter.timeZone = .current
+        formatter.timeZone = timeZone
 
         let dateTimeStr: String
         if timeFormat == .custom, let customPattern = customPattern, !customPattern.isEmpty {
@@ -286,7 +315,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             dateTimeStr = formatter.string(from: date)
         }
 
-        let offset = TimeZone.current.secondsFromGMT(for: date)
+        let offset = timeZone.secondsFromGMT(for: date)
         let sign = offset >= 0 ? "+" : "-"
         let absOffset = abs(offset)
         let hours = absOffset / 3600
