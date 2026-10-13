@@ -2,7 +2,7 @@
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
@@ -62,3 +62,5 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:45:22Z · note: review pass 3: needs some work
 - 2026-10-13T18:45:22Z · needs_input
 - 2026-10-13T18:49:54Z · needs_input
+- 2026-10-13T18:49:54Z · status review→active
+- 2026-10-13T18:49:54Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
