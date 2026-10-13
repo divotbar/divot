@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-13T16:39:27Z"
-review_passes: 1
+last_close_out_gate_ms: 50649
+last_close_out_gate_at: "2026-10-13T16:46:41.610Z"
 id: "0089"
 title: "Fix the banner probe: window level is read from a key that does not exist, so every level prints 0"
 type: bug
@@ -13,6 +13,8 @@ branch: feat/fix-the-banner-probe-window-level-is-rea
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:29:02Z"
+updated_at: "2026-10-13T16:46:41Z"
+review_passes: 1
 ---
 ## Problem
 The maintainer ran divot-notification-banner-probe on 2026-10-13 (macOS 26.5.2, one display, safeArea.top 33). Every window printed level=0, including Divot, Finder, the Dock and the Dock's Wallpaper window, which is impossible (the wallpaper layer is a large negative number, Dock and menu bar layers are positive). Cause: macos/Sources/DivotProbeCommon/WindowBounds.swift parseWindowLevelFromDict reads dict["kCGWindowLevel"], but CGWindowListCopyWindowInfo dictionaries carry the window layer under kCGWindowLayer (as in DivotSpacesProbe: info[kCGWindowLayer as String]); the other key does not exist, so the NSNumber cast always falls back to 0. The measurement task #0080 depends on this probe, so its output is currently useless.
@@ -42,4 +44,5 @@ Related: #0075, #0080. Evidence of the bug: all windows in the maintainer's outp
 - 2026-10-13T16:38:41Z · status active→review
 - 2026-10-13T16:38:51Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T16:39:27Z · note: review pass 1: good to go
+- 2026-10-13T16:46:41Z · close-out gate completed in 51s
 
