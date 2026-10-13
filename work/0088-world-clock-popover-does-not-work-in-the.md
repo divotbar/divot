@@ -133,3 +133,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
