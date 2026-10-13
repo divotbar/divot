@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:12:20Z"
+updated_at: "2026-10-13T09:12:23Z"
 ---
 ## Problem
 Maintainer screenshots (2026-10-13, 15:51, Appearance, Wi-Fi and Calendar popovers) show the popovers are still wrong in the running app after #0072-#0077, even though those tasks passed review:
