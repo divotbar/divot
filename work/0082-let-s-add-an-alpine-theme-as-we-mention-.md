@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T10:27:06Z"
-review_passes: 2
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
@@ -13,6 +11,8 @@ branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
+updated_at: "2026-10-13T10:27:06Z"
+review_passes: 2
 last_check_failure: "repoos check at 2026-10-13T09:41:07.861Z: repoos check failed: ◆ Check plan"
 review_rounds: 1
 ---
@@ -77,4 +77,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T10:24:00Z · status active→review
 - 2026-10-13T10:24:00Z · note: shots: skipped — 3 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T10:27:06Z · note: review pass 2: needs some work
-
+- 2026-10-13T10:27:06Z · message_delivered: 1 message(s)
