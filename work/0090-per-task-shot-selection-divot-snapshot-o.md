@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:04:17Z"
+updated_at: "2026-10-13T17:05:19Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -49,3 +49,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:01:33Z · message_queued at 2026-10-13T17:01:33.611Z
 - 2026-10-13T17:04:16Z · status active→review
 - 2026-10-13T17:04:17Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (1fd8828b) during finalization (#0734)
+- 2026-10-13T17:05:19Z · note: review pass 2: needs some work
