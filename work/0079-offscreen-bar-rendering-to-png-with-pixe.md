@@ -1,5 +1,4 @@
 ---
-check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-13T07:42:06.739Z: repoos check failed: ◆ Check plan"
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
@@ -36,4 +35,5 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:22:36Z · status inbox→ready
 - 2026-10-13T07:22:37Z · cli_override, model_override
 - 2026-10-13T07:22:38Z · status ready→active, branch
+
 
