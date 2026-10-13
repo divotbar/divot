@@ -112,15 +112,15 @@ This command also prints the snapshot output directory.
 
 ## Pixel assertions
 
-When snapshots render successfully, each test verifies ALL of the following:
+When snapshots render successfully, each test verifies:
 
 1. **Background color** (`assertBackgroundColor`): The bar's background matches the theme's palette background color within a tolerance of 0.1 sRGB per channel, accounting for subpixel rendering differences.
 
-2. **Right edge inset** (`assertRightEdgeInset`): The bar respects the fixed 17 pt inset from `BarMetrics.rightEdgeInset`, which keeps the camera-in-use indicator clear. This is verified as a structural metric.
+2. **Right edge inset** (`assertRightEdgeInset`): Verifies that `BarMetrics.rightEdgeInset == 17`, confirming the constant is defined correctly to reserve space for the camera-in-use indicator. Full pixel-level validation of the inset would require a more complex bar layout with multiple items.
 
 3. **Text contrast** (`assertTextContrast`): When text pixels are present, they meet the WCAG AA threshold (4.5:1 contrast) against the background. If no text is found, the assertion passes (the bar may be icons-only or minimal).
 
-4. **Chip styling** (`assertChipOpacity`): When chips are enabled, the visual styling reflects the `chipOpacity` setting. When disabled, the bar renders without the chip background.
+4. **Chip styling** (`assertChipOpacity`): Confirms rendering succeeds and produces a non-empty bitmap. Full validation of chip visual styling would require injecting test items with known dimensions and tracking their pixel boundaries.
 
 ## Known limitations
 
