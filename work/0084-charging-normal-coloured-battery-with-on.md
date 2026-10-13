@@ -2,7 +2,7 @@
 id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
@@ -89,3 +89,5 @@ The palette approach successfully isolates the bolt: green spans less than the i
 - 2026-10-13T09:41:06Z · note: review pass 2: failed — no usable report
 - 2026-10-13T09:41:06Z · needs_input
 - 2026-10-13T10:25:28Z · needs_input
+- 2026-10-13T10:25:28Z · status review→active
+- 2026-10-13T10:25:28Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
