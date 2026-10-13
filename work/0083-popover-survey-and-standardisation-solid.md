@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:19:52Z"
+updated_at: "2026-10-13T09:20:45Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -104,6 +104,17 @@ All popovers now follow a unified standard:
 3. **Contrast**: Wi-Fi message was grey-on-grey. Fixed by using `popoverPalette.label` instead of hardcoded secondary ✓
 4. **Today highlight**: Calendar didn't show filled highlight. Fixed: today's cell now uses `selected` colour with `selectedForeground` text ✓
 
+## Shot-by-shot notes
+**Volume, Wi-Fi, Appearance, Calendar popovers**: Verify solid, opaque background (no wallpaper bleed-through, no gradient). All content left-aligned with consistent 12px inset. Text colours readable against popover background.
+
+**Appearance theme list**: All rows (Native, Gruvbox, Ayu, Dracula, Tokyo Night) flush left at the same column; no staggered or right-aligned rows.
+
+**Wi-Fi message and links**: Left-aligned, readable text colour (not grey-on-grey).
+
+**Calendar headers and dimmed days**: Visible with proper secondary text colour.
+
+**Today date highlight**: Clear filled background colour with white text, not just a border or faint tint.
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -123,3 +134,4 @@ All popovers now follow a unified standard:
 - 2026-10-13T09:16:18Z · status review→active
 - 2026-10-13T09:19:34Z · message_queued at 2026-10-13T09:19:34.485Z
 - 2026-10-13T09:19:52Z · body: section Survey
+- 2026-10-13T09:20:45Z · body: section Shot-by-shot notes
