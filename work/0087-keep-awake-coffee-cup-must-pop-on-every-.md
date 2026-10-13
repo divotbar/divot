@@ -11,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T17:49:24Z"
+updated_at: "2026-10-13T17:51:33Z"
 review_passes: 7
 review_rounds: 2
 ---
@@ -42,28 +42,44 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 ```json
 [
 {
-"label": "Keep-awake cup on Native light theme, chips off",
 "target": "Divot bar",
-"route": "/?family=native&mode=light&chipStyle=off",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native light theme, no chips",
+"glob": "keep-awake-native-light-default-chips-off.png"
 },
 {
-"label": "Keep-awake cup on Native dark theme, chips off",
 "target": "Divot bar",
-"route": "/?family=native&mode=dark&chipStyle=off",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native light theme, with chips",
+"glob": "keep-awake-native-light-default-chips-on.png"
 },
 {
-"label": "Keep-awake cup on Gruvbox light theme, chips on",
 "target": "Divot bar",
-"route": "/?family=gruvbox&mode=light&chipStyle=on",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native dark theme, no chips",
+"glob": "keep-awake-native-dark-default-chips-off.png"
 },
 {
-"label": "Keep-awake cup on Gruvbox dark theme, chips on",
 "target": "Divot bar",
-"route": "/?family=gruvbox&mode=dark&chipStyle=on",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native dark theme, with chips",
+"glob": "keep-awake-native-dark-default-chips-on.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox light theme, no chips",
+"glob": "keep-awake-gruvbox-light-default-chips-off.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox light theme, with chips",
+"glob": "keep-awake-gruvbox-light-default-chips-on.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox dark theme, no chips",
+"glob": "keep-awake-gruvbox-dark-default-chips-off.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox dark theme, with chips",
+"glob": "keep-awake-gruvbox-dark-default-chips-on.png"
 }
 ]
 ```
@@ -116,3 +132,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T17:45:16Z · note: review pass 7: needs some work
 - 2026-10-13T17:49:24Z · status review→active
 - 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:51:33Z · body: section Shots
