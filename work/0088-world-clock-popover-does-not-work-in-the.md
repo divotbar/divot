@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:54:04Z"
+updated_at: "2026-10-13T17:56:15Z"
 review_passes: 5
 review_rounds: 2
 ---
@@ -142,3 +142,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:49:24Z · message_delivered: 1 message(s)
 - 2026-10-13T17:54:04Z · status active→review
 - 2026-10-13T17:54:04Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:56:15Z · note: review pass 6: needs some work
