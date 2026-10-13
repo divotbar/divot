@@ -190,24 +190,13 @@ final class BarItemView: NSView {
         displayedIndicatorSymbolName = indicator.symbolName
         let cupColor = indicatorColor(for: indicator.role)
 
-        // Render the cup in the fixed green color.
+        // Render the indicator in the fixed color.
         indicatorView.image = image
         indicatorView.contentTintColor = cupColor
         indicatorView.isHidden = false
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
         indicatorView.toolTip = nil
-    }
-
-    /// Render a cup symbol with an outline for chip contrast. Uses a palette
-    /// where the first color is the outline and the second is the fill.
-    private static func cupWithOutline(image: NSImage, fillColor: NSColor, outlineColor: NSColor) -> NSImage {
-        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .regular)
-        // Use palette: outline color first, then fill color (matches cup.and.saucer layer order)
-        let paletteConfig = NSImage.SymbolConfiguration(paletteColors: [outlineColor, fillColor])
-        let configWithPalette = config.applying(paletteConfig)
-        return NSImage(systemSymbolName: "cup.and.saucer.fill", accessibilityDescription: nil)?
-            .withSymbolConfiguration(configWithPalette) ?? image
     }
 
     /// The indicator tint: the contrast-audited fixed color for every family, so the
