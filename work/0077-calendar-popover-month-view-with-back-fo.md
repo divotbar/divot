@@ -2,7 +2,7 @@
 id: "0077"
 title: "Calendar popover: month view with back/forward and today highlighted, opened from the date chip"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0076"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T05:58:05Z"
-updated_at: "2026-10-13T05:58:05Z"
+updated_at: "2026-10-13T06:25:22Z"
 ---
 ## Problem
 Clicking the date item currently only opens a System Settings pane. The maintainer wants a calendar popup, as in the macOS menu bar clock, to glance at other days and months.
@@ -39,3 +39,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 ## Activity
 
 - 2026-10-13T05:58:05Z · created · njachowski@gmail.com
+- 2026-10-13T06:25:22Z · status inbox→ready
