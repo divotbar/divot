@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T05:59:17Z"
+updated_at: "2026-10-13T05:59:54Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -38,7 +38,31 @@ Find out why, and whether Divot can avoid hiding banner content. This is an inve
 Related decisions: bar placement is the top edge when the native menu bar is hidden (#0021/#0023); Divot hugs the notch (#0028). Do not break those.
 
 ## Findings
-See [evidence/0075-notification-banner-overlap.md](../evidence/0075-notification-banner-overlap.md) for detailed investigation results.
+See [evidence/0075-notification-banner-overlap.md](../evidence/0075-notification-banner-overlap.md) for the detailed investigation.
+
+## What was found
+
+Divot's configuration is confirmed: window level 23 (mainMenu - 1), collection behavior [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle], ignoresMouseEvents defaults to false.
+
+Menu bar height is confirmed: 33 points on this notched display.
+
+## What was NOT found
+
+**Notification banner window levels were not measured** — no banners were visible during the probe. Actual levels, bounds, and z-order (whether banners draw above or below Divot) remain unknown.
+
+**Overlap mechanism unverified** — reported visually by the maintainer but not confirmed with measurements. Spatial overlap (y-coordinate collision) is likely but z-order is unknown.
+
+**Workaround untested** — disabling auto-hide is expected to resolve overlap, but this was not validated with a live notification.
+
+## Next steps for a fix
+
+Maintainer must:
+1. Trigger a real notification with auto-hide ON.
+2. Run `divot-notification-banner-probe` and share the banner's `kCGWindowLevel` and bounds.
+3. Verify whether overlap is resolved when the menu bar is revealed.
+4. Test on multi-display, notch-free, fullscreen, and Spaces scenarios.
+
+Until these measurements are provided, feasibility of a safe public fix cannot be assessed.
 
 ## Summary
 
@@ -68,3 +92,4 @@ Window-level analysis shows notification banners use a level at or above 25 (abo
 - 2026-10-13T05:58:22Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T05:59:17Z · note: review pass 2: needs some work
 - 2026-10-13T05:59:17Z · status review→active
+- 2026-10-13T05:59:54Z · body: section Findings
