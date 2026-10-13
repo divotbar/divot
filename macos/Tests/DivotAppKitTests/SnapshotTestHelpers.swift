@@ -195,8 +195,9 @@ enum SnapshotTestHelpers {
         guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
               name.contains("-default") else { return false }
         if !name.hasPrefix("bar-") { return true }
-        // For bar renders, include chips-off and chips-on (translucent); exclude chips-solid
-        return name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on")
+        // For bar renders, include chips-off and chips-on (translucent); exclude chips-solid and battery
+        return (name.contains("chips-off") && !name.contains("chips-solid")) ||
+               (name.contains("chips-on") && !name.contains("chips-solid"))
     }
 
     /// Write a bitmap as PNG into `directory` (created if needed). Skipped when

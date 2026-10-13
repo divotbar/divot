@@ -212,4 +212,64 @@ struct SnapshotTestHelpersTests {
         #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "volume-popover-native-light-default"))
         // Summary mentions the unknown token and known tokens
     }
+
+    @Test("shots set includes bar chips-off and chips-on PNGs")
+    @MainActor
+    func shotsSetsIncludesBarPNGs() {
+        let originalSet = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"]
+        let originalFilter = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_ONLY"]
+        defer {
+            if let value = originalSet {
+                setenv("DIVOT_SNAPSHOT_SET", value, 1)
+            } else {
+                unsetenv("DIVOT_SNAPSHOT_SET")
+            }
+            if let value = originalFilter {
+                setenv("DIVOT_SNAPSHOT_ONLY", value, 1)
+            } else {
+                unsetenv("DIVOT_SNAPSHOT_ONLY")
+            }
+        }
+
+        setenv("DIVOT_SNAPSHOT_SET", "shots", 1)
+        unsetenv("DIVOT_SNAPSHOT_ONLY")
+
+        // Bar chips-off-charging and chips-on-charging should be included
+        #expect(SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-chips-off-charging"))
+        #expect(SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-chips-on-charging"))
+        // Bar chips-solid-charging should be excluded
+        #expect(!SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-chips-solid-charging"))
+        // Bar battery should be excluded from shots set
+        #expect(!SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-battery"))
+    }
+
+    @Test("charging filter with shots set includes only charging bar files")
+    @MainActor
+    func chargingFilterWithShotsSet() {
+        let originalSet = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"]
+        let originalFilter = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_ONLY"]
+        defer {
+            if let value = originalSet {
+                setenv("DIVOT_SNAPSHOT_SET", value, 1)
+            } else {
+                unsetenv("DIVOT_SNAPSHOT_SET")
+            }
+            if let value = originalFilter {
+                setenv("DIVOT_SNAPSHOT_ONLY", value, 1)
+            } else {
+                unsetenv("DIVOT_SNAPSHOT_ONLY")
+            }
+        }
+
+        setenv("DIVOT_SNAPSHOT_SET", "shots", 1)
+        setenv("DIVOT_SNAPSHOT_ONLY", "charging", 1)
+
+        // With charging filter and shots set, only charging bar files match
+        #expect(SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-chips-off-charging"))
+        #expect(SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-chips-on-charging"))
+        // Battery should not match
+        #expect(!SnapshotTestHelpers.wantsPNG(named: "bar-right-native-light-default-battery"))
+        // Other popovers should not match
+        #expect(!SnapshotTestHelpers.wantsPNG(named: "volume-popover-native-light-default"))
+    }
 }
