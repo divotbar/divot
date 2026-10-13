@@ -19,12 +19,10 @@ private extension NSColor {
 }
 
 /// The keep-awake indicator is one fixed color that must clear the 3:1 non-text
-/// floor against every family's bar background in both light and dark modes, and
-/// also against chip fills (selected colour at 80% opacity composited over bar).
+/// floor against every family's bar background in both light and dark modes.
+/// Chip background contrast is best-effort, following the #0084 charging pattern.
 @MainActor
 @Test func keepAwakeIndicatorClearsTheNonTextFloorOnEveryFamilyBarInLightAndDark() {
-    let chipOpacity = 80
-    let alpha = 1 - Double(chipOpacity) / 100
     for family in AppearanceConfiguration.Family.allCases {
         for dark in [false, true] {
             let appearance = try! #require(NSAppearance(named: dark ? .darkAqua : .aqua))
@@ -35,10 +33,6 @@ private extension NSColor {
                                           appearance: appearance).rgbColor(for: appearance)
             let background = theme.background.rgbColor(for: appearance)
             let barRatio = ContrastAudit.ratio(green, background)
-            #expect(barRatio >= ContrastAudit.nonTextThreshold,
-                    "\(family.rawValue) \(dark ? "dark" : "light") keep-awake green vs bar \(barRatio) is below \(ContrastAudit.nonTextThreshold)")
-
-            // Green should reach bar contrast; chip contrast is best-effort like #0084
             #expect(barRatio >= ContrastAudit.nonTextThreshold,
                     "\(family.rawValue) \(dark ? "dark" : "light") bar: \(barRatio)")
         }
