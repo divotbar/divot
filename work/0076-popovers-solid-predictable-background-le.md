@@ -8,6 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
 updated_at: "2026-10-13T05:50:08Z"
 ---
@@ -38,3 +40,4 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 
 - 2026-10-13T05:50:05Z · created · njachowski@gmail.com
 - 2026-10-13T05:50:08Z · status inbox→ready
+- 2026-10-13T05:50:08Z · cli_override, model_override
