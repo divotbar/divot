@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: active
+status: review
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:43:37Z"
+updated_at: "2026-10-13T17:43:39Z"
 last_handoff_failure_fingerprint: "check|repoos check failed: ◆ Check plan"
 last_handoff_failure_sha: 41f9a14aa56bad842932b2f35cee128cf13c85eb
 review_passes: 3
@@ -67,3 +67,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:28:02Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
 - 2026-10-13T17:43:07Z · watchdog: auto-surfaced stuck task · status active→review · agent crashed or was interrupted mid-turn — task-file handoff failed at check · repoos check failed: ◆ Check plan · next step: the handoff signal may not have been detected — ask the agent to put `::repoos-handoff-ready::` at the start of a line (preferably alone) after checks pass
 - 2026-10-13T17:43:07Z · note: handoff requested (cli)
+- 2026-10-13T17:43:39Z · status active→review
