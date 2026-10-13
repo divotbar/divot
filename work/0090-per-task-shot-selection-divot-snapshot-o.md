@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: active
+status: review
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T18:07:51Z"
+updated_at: "2026-10-13T18:10:31Z"
 review_passes: 7
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -146,3 +146,4 @@ Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot:
 - 2026-10-13T18:07:51Z · needs_input
 - 2026-10-13T18:07:51Z · status review→active
 - 2026-10-13T18:07:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:10:31Z · status active→review
