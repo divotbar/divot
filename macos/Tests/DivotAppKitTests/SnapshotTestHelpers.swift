@@ -89,12 +89,13 @@ enum SnapshotTestHelpers {
         return nil
     }
 
-    /// True when `url` is somewhere git ignores: a `snapshots` or `.build` path,
+    /// True when `url` is somewhere git ignores: a path inside a `.build` directory or ending in `snapshots`,
     /// or the RepoOS shot directory (`REPOOS_SHOT_DIR`, under the gitignored
     /// `work/.attachments/`) when `DIVOT_SNAPSHOT_DIR` points exactly at it.
     static func isIgnoredLocation(_ url: URL) -> Bool {
         let path = url.standardizedFileURL.path
-        if path.contains("snapshots") || path.contains(".build") { return true }
+        let components = url.standardizedFileURL.pathComponents
+        if components.contains(".build") || components.last == "snapshots" { return true }
         guard let shot = ProcessInfo.processInfo.environment["REPOOS_SHOT_DIR"], !shot.isEmpty else {
             return false
         }
@@ -109,7 +110,7 @@ enum SnapshotTestHelpers {
         if let env = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_DIR"] {
             let url = URL(fileURLWithPath: env)
             if !isIgnoredLocation(url) {
-                preconditionFailure("DIVOT_SNAPSHOT_DIR must be under an ignored path (contain 'snapshots' or '.build', or be REPOOS_SHOT_DIR)")
+                preconditionFailure("DIVOT_SNAPSHOT_DIR must be under an ignored path (be inside '.build', end in 'snapshots', or be REPOOS_SHOT_DIR)")
             }
             return url
         }
