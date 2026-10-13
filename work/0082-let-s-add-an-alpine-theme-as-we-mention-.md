@@ -11,7 +11,7 @@ branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
-updated_at: "2026-10-13T09:01:36Z"
+updated_at: "2026-10-13T09:16:29Z"
 ---
 ## Problem
 
@@ -46,6 +46,46 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 
 ![Screenshot-2026-10-13-at-15.52.53](/api/tasks/0082/attachments/screenshot-1.png)
 
+## Shots
+```json
+[
+{
+  "label": "Landing hero bar — Alpine (default)",
+  "target": "website",
+  "route": "/",
+  "highlight": ".desktop-preview .mock-bar"
+},
+{
+  "label": "Bar example — Gruvbox",
+  "target": "website",
+  "route": "/",
+  "highlight": ".try-section .bar-demo",
+  "steps": [
+    {
+      "click": ".preset-buttons button:nth-child(2)"
+    },
+    {
+      "waitMs": 250
+    }
+  ]
+},
+{
+  "label": "Bar example — Dracula",
+  "target": "website",
+  "route": "/",
+  "highlight": ".try-section .bar-demo",
+  "steps": [
+    {
+      "click": ".preset-buttons button:nth-child(3)"
+    },
+    {
+      "waitMs": 250
+    }
+  ]
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T08:56:17Z · created · api
@@ -55,3 +95,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T09:01:26Z · cli_override, model_override
 - 2026-10-13T09:01:35Z · model_override
 - 2026-10-13T09:01:36Z · status ready→active, branch
+- 2026-10-13T09:16:29Z · body: section Shots
