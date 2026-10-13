@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T16:44:45Z"
+review_passes: 3
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
@@ -14,9 +16,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T16:44:45Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -91,3 +91,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:42:27Z · note: shots: skipped — 48 handoff shots already captured for this exact plan (565b6b9) during finalization (#0734)
 - 2026-10-13T16:44:45Z · note: review pass 3: needs some work
 - 2026-10-13T16:44:45Z · needs_input
+
