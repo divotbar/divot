@@ -2,7 +2,7 @@
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T14:26:00Z"
+updated_at: "2026-10-13T14:30:04Z"
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
 ---
 ## Problem
@@ -53,4 +53,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T13:49:17Z · message_queued at 2026-10-13T13:49:17.753Z
 - 2026-10-13T13:49:17Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-13T14:26:00Z · message_delivered: 1 message(s)
-
+- 2026-10-13T14:30:04Z · status active→review
