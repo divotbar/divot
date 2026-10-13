@@ -12,7 +12,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T11:58:15Z"
+updated_at: "2026-10-13T13:29:24Z"
 last_close_out_gate_ms: 59157
 last_close_out_gate_at: "2026-10-13T11:58:12.953Z"
 review_passes: 7
@@ -156,3 +156,4 @@ The palette configuration on battery.100.bolt successfully isolates bolt colouri
 - 2026-10-13T11:56:43Z · needs_input
 - 2026-10-13T11:58:12Z · close-out gate completed in 59s
 - 2026-10-13T11:58:15Z · status review→done, release:success
+- 2026-10-13T13:29:24Z · message_expired: not delivered within timeout
