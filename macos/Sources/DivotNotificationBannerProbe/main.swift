@@ -175,6 +175,7 @@ struct NotificationBannerProbe {
         var previousSnapshots: [WindowSnapshot] = []
         var highestLayers: [HighestLayerWindow] = []
         var finalWindowList: [[String: Any]] = []
+        var isFirstPoll = true
 
         while Date().timeIntervalSince(startTime) < duration {
             let windowList = CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]] ?? []
@@ -186,10 +187,12 @@ struct NotificationBannerProbe {
 
             let divotPanel = findDivotPanelWindow(windowList)
             let divotLayer = divotPanel.map { parseWindowLayerFromDict($0) }
+            let divotBounds = divotPanel.map { parseBoundsFromWindowDict($0) }
 
             let allChangedWindowIDs = Set(changes.new + changes.boundsChanged + changes.layerChanged)
 
-            for windowID in allChangedWindowIDs.sorted() {
+            if !isFirstPoll {
+                for windowID in allChangedWindowIDs.sorted() {
                 if let windowDict = windowList.first(where: { (($0["kCGWindowNumber"] as? NSNumber)?.uint32Value).map { CGWindowID($0) } == windowID }) {
                     let timestamp = Date().formatted(date: .omitted, time: .standard)
                     let owner = windowDict["kCGWindowOwnerName"] as? String ?? "?"
@@ -213,7 +216,16 @@ struct NotificationBannerProbe {
                     print("  AppKit-bounds=(\(Int(appKitBounds.minX)), \(Int(appKitBounds.minY)), \(Int(appKitBounds.width)), \(Int(appKitBounds.height)))")
                     print("  alpha=\(String(format: "%.2f", alpha)) on-screen=\(isOnScreen)")
 
-                    if let divotL = divotLayer {
+                    if let divotL = divotLayer, let divotB = divotBounds {
+                        let divotTypeLabel = classifyWindow(divotPanel!) == .divot ? "Divot panel" : "reference"
+                        if layer > divotL {
+                            print("  ↑ Window layer \(layer) is ABOVE \(divotTypeLabel) layer \(divotL) at CG y=\(Int(divotB.minY))")
+                        } else if layer < divotL {
+                            print("  ↓ Window layer \(layer) is below \(divotTypeLabel) layer \(divotL) at CG y=\(Int(divotB.minY))")
+                        } else {
+                            print("  = Window layer \(layer) is AT \(divotTypeLabel) layer \(divotL) at CG y=\(Int(divotB.minY))")
+                        }
+                    } else if let divotL = divotLayer {
                         if layer > divotL {
                             print("  ↑ Window layer \(layer) is ABOVE Divot panel layer \(divotL)")
                         } else if layer < divotL {
@@ -233,24 +245,32 @@ struct NotificationBannerProbe {
 
                     print("")
                 }
+                }
             }
 
             previousSnapshots = currentSnapshots
+            isFirstPoll = false
             Thread.sleep(forTimeInterval: pollInterval)
         }
 
         print("## Summary")
+        let screenHeight = NSScreen.screens.first?.frame.height ?? 0
         if let divotPanel = findDivotPanelWindow(finalWindowList) {
             let divotL = parseWindowLayerFromDict(divotPanel)
+            let divotB = parseBoundsFromWindowDict(divotPanel)
+            let appKitDivotB = flipBoundsToAppKit(divotB, screenHeight: screenHeight)
             print("Divot panel layer (measured): \(divotL)")
+            print("  CG-bounds: (\(Int(divotB.minX)), \(Int(divotB.minY)), \(Int(divotB.width)), \(Int(divotB.height)))")
+            print("  AppKit-bounds: (\(Int(appKitDivotB.minX)), \(Int(appKitDivotB.minY)), \(Int(appKitDivotB.width)), \(Int(appKitDivotB.height)))")
         } else {
             print("Note: No Divot panel window found in this run")
         }
 
         if highestLayers.isEmpty {
-            print("No windows appeared during watch period")
+            print("\nNo windows with property changes were detected during the watch period")
+            print("(Static windows and initial poll are not printed; see banner or Control Center for reference overlays)")
         } else {
-            print("\nHighest-layer windows observed on-screen:")
+            print("\nHighest-layer windows that changed during the watch period:")
             var seenKeys: [(String, String)] = []
             var count = 0
             for window in highestLayers {

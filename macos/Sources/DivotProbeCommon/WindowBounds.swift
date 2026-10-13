@@ -153,6 +153,9 @@ public func diffWindowSnapshots(previous: [WindowSnapshot], current: [WindowSnap
 
 /// Find the Divot bar panel window(s) in the window list.
 /// Returns the window with bounds at the top edge and owner containing 'Divot'.
+/// Heuristic: Divot panel should have minY < 50 (allowing for typical bar height ~33 points).
+/// Note: On secondary displays or unusual bar placements, this heuristic may miss Divot;
+/// adjust the threshold if needed for your configuration.
 public func findDivotPanelWindow(_ windowList: [[String: Any]]) -> [String: Any]? {
     return windowList.first { window in
         let owner = (window["kCGWindowOwnerName"] as? String ?? "").lowercased()
