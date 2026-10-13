@@ -56,3 +56,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:28:57Z · note: review pass 2: needs some work
 - 2026-10-13T08:28:57Z · status review→active
 - 2026-10-13T08:29:25Z · status active→review
+- 2026-10-13T08:29:25Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
