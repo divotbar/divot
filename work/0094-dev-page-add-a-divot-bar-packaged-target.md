@@ -2,7 +2,7 @@
 id: "0094"
 title: "Dev page: add a 'Divot bar (packaged)' target that rebuilds and runs the real dist/Divot.app"
 type: feature
-status: active
+status: review
 priority: p2
 area: [macos, infra]
 assigned_to: ""
@@ -44,4 +44,4 @@ The Dev page itself cannot drive this branch: RepoOS runs dev targets in the pro
 - 2026-10-13T19:21:01Z · message_queued at 2026-10-13T19:21:01.319Z
 - 2026-10-13T19:21:01Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-13T20:06:12Z · body: section Verification
-- 2026-10-13T20:08:00Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T20:08:00Z · status active→review
