@@ -2,7 +2,7 @@
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
