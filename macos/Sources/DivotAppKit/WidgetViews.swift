@@ -174,9 +174,8 @@ final class BarItemView: NSView {
         return resolved
     }
 
-    /// Draw (or hide) the small state indicator after the text. The color comes
-    /// from the semantic role, so the same contrast-audited value the tests
-    /// check is the one the bar draws.
+    /// Draw (or hide) the small state indicator after the text. For keep-awake,
+    /// adds an outline stroke for contrast on light theme chips.
     private func applyIndicator(_ indicator: WidgetIndicator?) {
         guard let indicator,
               let image = NSImage(systemSymbolName: indicator.symbolName, accessibilityDescription: nil) else {
@@ -187,14 +186,38 @@ final class BarItemView: NSView {
             displayedIndicatorSymbolName = nil
             return
         }
-        indicatorView.image = image
         indicatorRole = indicator.role
         displayedIndicatorSymbolName = indicator.symbolName
-        indicatorView.contentTintColor = indicatorColor(for: indicator.role)
+        let cupColor = indicatorColor(for: indicator.role)
+
+        // For keep-awake cups, add a thin outline for contrast on chips.
+        // Use strong outline: black for light modes, white for dark modes.
+        if indicator.role == .keepAwakeActive {
+            let outlineColor = NSColor(srgbRed: theme.isDark ? 1.0 : 0.0,
+                                       green: theme.isDark ? 1.0 : 0.0,
+                                       blue: theme.isDark ? 1.0 : 0.0,
+                                       alpha: 1)
+            indicatorView.image = Self.cupWithOutline(image: image, fillColor: cupColor, outlineColor: outlineColor)
+            indicatorView.contentTintColor = nil
+        } else {
+            indicatorView.image = image
+            indicatorView.contentTintColor = cupColor
+        }
         indicatorView.isHidden = false
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
         indicatorView.toolTip = nil
+    }
+
+    /// Render a cup symbol with an outline for chip contrast. Uses a palette
+    /// where the first color is the outline and the second is the fill.
+    private static func cupWithOutline(image: NSImage, fillColor: NSColor, outlineColor: NSColor) -> NSImage {
+        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+        // Use palette: outline color first, then fill color (matches cup.and.saucer layer order)
+        let paletteConfig = NSImage.SymbolConfiguration(paletteColors: [outlineColor, fillColor])
+        let configWithPalette = config.applying(paletteConfig)
+        return NSImage(systemSymbolName: "cup.and.saucer.fill", accessibilityDescription: nil)?
+            .withSymbolConfiguration(configWithPalette) ?? image
     }
 
     /// The indicator tint: the contrast-audited fixed color for every family, so the

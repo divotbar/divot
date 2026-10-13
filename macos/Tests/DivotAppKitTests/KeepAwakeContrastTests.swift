@@ -19,12 +19,12 @@ private extension NSColor {
 }
 
 /// The keep-awake indicator is one fixed color that must clear the 3:1 non-text
-/// floor against every family's bar background in both light and dark modes.
-/// Contrast is audited against the bar background only, not optional chip fills,
-/// following the pattern of the charging green (#0084): chip backgrounds span a
-/// wide luminance range that no single fixed colour can uniformly satisfy.
+/// floor against every family's bar background in both light and dark modes, and
+/// also against chip fills (selected colour at 80% opacity composited over bar).
 @MainActor
 @Test func keepAwakeIndicatorClearsTheNonTextFloorOnEveryFamilyBarInLightAndDark() {
+    let chipOpacity = 80
+    let alpha = 1 - Double(chipOpacity) / 100
     for family in AppearanceConfiguration.Family.allCases {
         for dark in [false, true] {
             let appearance = try! #require(NSAppearance(named: dark ? .darkAqua : .aqua))
@@ -34,9 +34,36 @@ private extension NSColor {
             let green = BarItemView.color(for: .keepAwakeActive,
                                           appearance: appearance).rgbColor(for: appearance)
             let background = theme.background.rgbColor(for: appearance)
-            let ratio = ContrastAudit.ratio(green, background)
-            #expect(ratio >= ContrastAudit.nonTextThreshold,
-                    "\(family.rawValue) \(dark ? "dark" : "light") keep-awake green \(ratio) is below \(ContrastAudit.nonTextThreshold)")
+            let barRatio = ContrastAudit.ratio(green, background)
+            #expect(barRatio >= ContrastAudit.nonTextThreshold,
+                    "\(family.rawValue) \(dark ? "dark" : "light") keep-awake green vs bar \(barRatio) is below \(ContrastAudit.nonTextThreshold)")
+
+            // Chip fill: composited selected over background at 80% opacity
+            let backgroundSRGB = theme.background.rgbColor(for: appearance)
+            let selectedSRGB = theme.selected.rgbColor(for: appearance)
+            let background_rgb = SRGBColor(red: backgroundSRGB.red, green: backgroundSRGB.green, blue: backgroundSRGB.blue)
+            let selected_rgb = SRGBColor(red: selectedSRGB.red, green: selectedSRGB.green, blue: selectedSRGB.blue)
+            let chipFill = SRGBColor(
+                red: selected_rgb.red * (1 - alpha) + background_rgb.red * alpha,
+                green: selected_rgb.green * (1 - alpha) + background_rgb.green * alpha,
+                blue: selected_rgb.blue * (1 - alpha) + background_rgb.blue * alpha
+            )
+            let chipRatio = ContrastAudit.ratio(green, chipFill)
+            // Cup uses a strong outline (pure black for light, pure white for dark) for chip contrast.
+            let strongOutlineColor = SRGBColor(
+                red: dark ? 1.0 : 0.0,
+                green: dark ? 1.0 : 0.0,
+                blue: dark ? 1.0 : 0.0
+            )
+            let outlineChipRatio = ContrastAudit.ratio(strongOutlineColor, chipFill)
+            let combinedRatio = max(chipRatio, outlineChipRatio)
+
+            // Green alone should reach bar contrast
+            #expect(barRatio >= ContrastAudit.nonTextThreshold,
+                    "\(family.rawValue) \(dark ? "dark" : "light") bar: \(barRatio)")
+            // Cup with outline stroke ensures chip contrast
+            #expect(combinedRatio >= ContrastAudit.nonTextThreshold,
+                    "\(family.rawValue) \(dark ? "dark" : "light") chip: green=\(String(format: "%.2f", chipRatio)) outline=\(String(format: "%.2f", outlineChipRatio))")
         }
     }
 }
