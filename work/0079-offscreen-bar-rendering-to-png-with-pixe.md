@@ -12,7 +12,7 @@ branch: feat/offscreen-bar-rendering-to-png-with-pixe
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T07:01:36Z"
-updated_at: "2026-10-13T07:42:50Z"
+updated_at: "2026-10-13T07:43:59Z"
 last_check_failure: "repoos check at 2026-10-13T07:42:06.739Z: repoos check failed: ◆ Check plan"
 ---
 ## Problem
@@ -37,3 +37,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:22:38Z · status ready→active, branch
 - 2026-10-13T07:42:50Z · status active→review
 - 2026-10-13T07:42:50Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-13T07:43:59Z · note: review pass 1: needs some work
