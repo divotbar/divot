@@ -11,7 +11,7 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:37:32Z"
+updated_at: "2026-10-13T08:38:02Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -45,6 +45,9 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 [{"target":"Divot bar","label":"Divot bar and popovers (offscreen snapshots)"}]
 ```
 
+## Review pass 4
+I could not open the review report's Automated verification section from this sandbox (no CLI or file path exposes it), so I could not quote it. Acting on the likely causes instead: (1) the branch materially changed a never-commit guard (SnapshotTestHelpers.isIgnoredLocation, plus the repoos.toml shot target), so I added negative-case tests in macos/Tests/DivotAppKitTests/SnapshotDirectoryGuardTests.swift (tracked paths, near-miss names, REPOOS_SHOT_DIR mismatch/empty/outside .attachments are refused; 3 tests pass). (2) Re-ran repoos shot --target "Divot bar" on the final tree. A human should confirm the section's actual list.
+
 ## Activity
 
 - 2026-10-13T08:21:30Z · created · njachowski@gmail.com
@@ -76,3 +79,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:37:31Z · needs_input
 - 2026-10-13T08:37:32Z · status review→active
 - 2026-10-13T08:37:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T08:38:02Z · body: section Review pass 4
