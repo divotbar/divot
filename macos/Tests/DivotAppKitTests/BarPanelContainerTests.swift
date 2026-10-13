@@ -88,7 +88,8 @@ import DivotCore
 /// extension must not apply even though the segments are separated by a gap.
 /// This is the guard against inferring the notch from the segment gap alone.
 @MainActor
-@Test func notchExtensionDoesNotApplyToATopEdgeSeamWithoutAHousing() {
+@Test(.windowless)
+func notchExtensionDoesNotApplyToATopEdgeSeamWithoutAHousing() {
     let screen = CGRect(x: 0, y: 0, width: 1000, height: 800)
     // A positive clearance gives this fallback row a real centre seam.
     let geometry = BarContentPolicy(height: 32, clearance: 10, edgeMargin: 0)
@@ -99,13 +100,18 @@ import DivotCore
     #expect(geometry.left.maxX < geometry.right.minX) // there is a seam ...
     #expect(!geometry.hasNotch)                       // ... but no housing
 
-    let surface = NSPanelBarSurface(id: DisplayBarID(7), on: screen)
+    let presenter = RecordingWindowPresenter()
+    let surface = NSPanelBarSurface(id: DisplayBarID(7), on: screen, presenter: presenter)
     surface.apply(DisplayBarUpdate(id: DisplayBarID(7),
                                    placement: BarPlacement(mode: .topEdge, geometry: geometry),
                                    animated: false,
                                    cancelAnimations: false,
                                    visibility: .hidden),
                   reduceMotion: false)
+
+    // The presenter saw both panels; neither was ordered onto the screen (#0091).
+    #expect(presenter.orderFrontRegardlessCount == 2)
+    #expect(presenter.orderedWindows.allSatisfy { !$0.isVisible })
 
     let frames = try! #require(surface.appliedPanelFrames)
     // No 6pt extension: the panels are exactly the geometry's segments.
@@ -116,7 +122,8 @@ import DivotCore
 /// Below the native bar there is no camera housing alongside the row, so the
 /// extension never applies even though the notched display has one above.
 @MainActor
-@Test func notchExtensionDoesNotApplyBelowNativeBar() {
+@Test(.windowless)
+func notchExtensionDoesNotApplyBelowNativeBar() {
     let screen = CGRect(x: 0, y: 0, width: 1710, height: 1107)
     let notched = ScreenGeometry(
         frame: screen,
@@ -130,13 +137,17 @@ import DivotCore
     #expect(placement.mode == .belowNativeBar(inset: 33))
     #expect(!placement.geometry.hasNotch)
 
-    let surface = NSPanelBarSurface(id: DisplayBarID(8), on: screen)
+    let presenter = RecordingWindowPresenter()
+    let surface = NSPanelBarSurface(id: DisplayBarID(8), on: screen, presenter: presenter)
     surface.apply(DisplayBarUpdate(id: DisplayBarID(8),
                                    placement: placement,
                                    animated: false,
                                    cancelAnimations: false,
                                    visibility: .visible(inset: 33)),
                   reduceMotion: false)
+
+    #expect(presenter.orderFrontRegardlessCount == 2)
+    #expect(presenter.orderedWindows.allSatisfy { !$0.isVisible })
 
     let frames = try! #require(surface.appliedPanelFrames)
     #expect(frames.left == placement.geometry.left)
@@ -148,7 +159,8 @@ import DivotCore
 /// The applied panel frames are asserted directly, so this fails if production
 /// placement ever stops extending.
 @MainActor
-@Test func notchExtensionAppliesCorrectFrameThroughPlacementPath() {
+@Test(.windowless)
+func notchExtensionAppliesCorrectFrameThroughPlacementPath() {
     let screen = CGRect(x: 0, y: 0, width: 1512, height: 982)
     let notched = ScreenGeometry(
         frame: screen,
@@ -160,13 +172,17 @@ import DivotCore
     #expect(placement.mode == .topEdge)
     #expect(placement.geometry.hasNotch)
 
-    let surface = NSPanelBarSurface(id: DisplayBarID(9), on: screen)
+    let presenter = RecordingWindowPresenter()
+    let surface = NSPanelBarSurface(id: DisplayBarID(9), on: screen, presenter: presenter)
     surface.apply(DisplayBarUpdate(id: DisplayBarID(9),
                                    placement: placement,
                                    animated: false,
                                    cancelAnimations: false,
                                    visibility: .hidden),
                   reduceMotion: false)
+
+    #expect(presenter.orderFrontRegardlessCount == 2)
+    #expect(presenter.orderedWindows.allSatisfy { !$0.isVisible })
 
     let frames = try! #require(surface.appliedPanelFrames)
     let g = placement.geometry

@@ -2,7 +2,7 @@
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: review
+status: active
 priority: p0
 area: macos
 assigned_to: ""
@@ -11,17 +11,14 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:47:59Z"
+updated_at: "2026-10-13T17:49:24Z"
+review_passes: 5
+review_rounds: 2
 ---
 ## Problem
-#0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong.
-
-### Root causes identified and fixed:
-1. **Panel sizing**: `render()` never called `host.resize(to:)`, leaving the panel at the initial footer-only size while the stack grew underneath, creating large empty chrome.
-2. **Search keystroke**: `NSSearchField.action` only fires on Return/search-button, not on each keystroke. Switched to `NSControl.textDidChangeNotification` for live results.
-3. **Config distinction**: Empty timezone list was conflated with "never configured". Changed to `[String]?` to distinguish absent (nil → use defaults) from explicit empty.
-4. **Re-render after add/remove**: Timezone updates only called the callback, not `render()` + `host.resize()`, so rows didn't appear/disappear until the next tick.
-5. **Shots rendering**: Test snapshots used a mock layout, not the real BarPopoverHost/panel sizing path.
+#0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
+- Real app: a large mostly blank panel with one line of text ('13/10/2026, 23:16 (UTC+07:00)') and a search field with a loupe icon under it; no zone list, no visible way to add a timezone (typing in the search field gives no usable result), large empty space above the text. The maintainer says it 'doesn't work'.
+- The approved shot shows a different, nicer layout (title 'Local (GMT)', four pre-filled zones with 'Tomorrow'/'Yesterday' labels, remove buttons, 'Add timezone...' with a search field) in a light, oversized rendering with the fixed date 01/01/2026 10:00. So the shots render a different configuration and sizing than the real popover: they pre-load four zones and never show the empty state or the add flow, and they do not go through the real popover host and panel sizing.
 
 ## Desired UX (the maintainer's changes)
 - No date at all. Show the CURRENT TIME and the local UTC offset, for example '23:16  UTC+7' (use the compact offset form: UTC+7, UTC+5:30, UTC-8, UTC+0), with the local city or zone name small beneath. Follow the existing 12/24 hour setting.
@@ -69,6 +66,32 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - The Settings window list behaves the same: removing everything leaves a working Add control.
 - Tests (through the real controller path, as above): remove every default one by one -> empty state rows are correct; add a zone from empty -> persisted and shown; reopen after emptying -> still empty; unset the key -> defaults return. Add an empty-state shot and an 'after adding from empty' shot.
 
+## Shots
+```json
+[
+{
+"label": "Empty state (0 zones): Shows hint \"No other timezones. Add one below.\" with Add row",
+"target": "Divot bar",
+"glob": "*world-clock*zero-timezones*"
+},
+{
+"label": "Default state: Three default zones (San Francisco, London, Singapore)",
+"target": "Divot bar",
+"glob": "*world-clock*two-timezones*"
+},
+{
+"label": "With day labels: Four zones showing Yesterday/Tomorrow when day differs from local",
+"target": "Divot bar",
+"glob": "*world-clock*day-label*"
+},
+{
+"label": "Full list: Four zones with current time and hour offset",
+"target": "Divot bar",
+"glob": "*world-clock*four-timezones*"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
@@ -79,3 +102,41 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T16:29:08Z · cli_override, model_override
 - 2026-10-13T16:29:08Z · status ready→active, branch
 - 2026-10-13T16:47:59Z · status active→review
+- 2026-10-13T16:48:09Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
+- 2026-10-13T16:49:20Z · note: review pass 1: needs some work
+- 2026-10-13T16:49:20Z · status review→active
+- 2026-10-13T16:55:38Z · message_queued at 2026-10-13T16:55:38.559Z
+- 2026-10-13T16:58:21Z · status active→review
+- 2026-10-13T16:58:22Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (ba47c0df) during finalization (#0734)
+- 2026-10-13T17:00:08Z · note: review pass 2: needs some work
+- 2026-10-13T17:00:08Z · message_delivered: 1 message(s)
+- 2026-10-13T17:00:08Z · status review→active
+- 2026-10-13T17:06:13Z · status active→review
+- 2026-10-13T17:06:13Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (3e4e0c11) during finalization (#0734)
+- 2026-10-13T17:07:28Z · note: review pass 3: needs some work
+- 2026-10-13T17:07:28Z · needs_input
+- 2026-10-13T17:10:50Z · needs_input
+- 2026-10-13T17:10:50Z · status review→active
+- 2026-10-13T17:10:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:14:21Z · status active→review
+- 2026-10-13T17:14:21Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (3e4e0c11) during finalization (#0734)
+- 2026-10-13T17:15:52Z · note: review pass 4: needs some work
+- 2026-10-13T17:15:52Z · needs_input
+- 2026-10-13T17:19:36Z · needs_input
+- 2026-10-13T17:19:36Z · status review→active
+- 2026-10-13T17:19:36Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:22:01Z · body: section Shots
+- 2026-10-13T17:22:12Z · body: section Shots
+- 2026-10-13T17:27:41Z · message_queued at 2026-10-13T17:27:41.211Z
+- 2026-10-13T17:27:41Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
+- 2026-10-13T17:44:12Z · status active→review
+- 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:46:22Z · note: review pass 5: needs some work
+- 2026-10-13T17:46:23Z · needs_input
+- 2026-10-13T17:49:23Z · needs_input
+- 2026-10-13T17:49:24Z · status review→active
+- 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:49:24Z · message_delivered: 1 message(s)

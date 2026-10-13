@@ -11,7 +11,9 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T16:29:04Z"
+updated_at: "2026-10-13T17:49:24Z"
+review_passes: 7
+review_rounds: 2
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -40,28 +42,28 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 ```json
 [
 {
-  "label": "Keep-awake cup on Native light theme, chips off",
-  "target": "Divot bar",
-  "route": "/?family=native&mode=light&chipStyle=off",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native light theme, chips off",
+"target": "Divot bar",
+"route": "/?family=native&mode=light&chipStyle=off",
+"highlight": "[data-battery-item]"
 },
 {
-  "label": "Keep-awake cup on Native dark theme, chips off",
-  "target": "Divot bar",
-  "route": "/?family=native&mode=dark&chipStyle=off",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native dark theme, chips off",
+"target": "Divot bar",
+"route": "/?family=native&mode=dark&chipStyle=off",
+"highlight": "[data-battery-item]"
 },
 {
-  "label": "Keep-awake cup on Gruvbox light theme, chips on",
-  "target": "Divot bar",
-  "route": "/?family=gruvbox&mode=light&chipStyle=on",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Gruvbox light theme, chips on",
+"target": "Divot bar",
+"route": "/?family=gruvbox&mode=light&chipStyle=on",
+"highlight": "[data-battery-item]"
 },
 {
-  "label": "Keep-awake cup on Gruvbox dark theme, chips on",
-  "target": "Divot bar",
-  "route": "/?family=gruvbox&mode=dark&chipStyle=on",
-  "highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Gruvbox dark theme, chips on",
+"target": "Divot bar",
+"route": "/?family=gruvbox&mode=dark&chipStyle=on",
+"highlight": "[data-battery-item]"
 }
 ]
 ```
@@ -74,3 +76,43 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:19:52Z · cli_override, model_override
 - 2026-10-13T16:19:53Z · status ready→active, branch
 - 2026-10-13T16:29:04Z · body: section Shots
+- 2026-10-13T16:33:10Z · status active→review
+- 2026-10-13T16:34:27Z · note: review pass 1: needs some work
+- 2026-10-13T16:34:28Z · status review→active
+- 2026-10-13T16:37:23Z · status active→review
+- 2026-10-13T16:37:24Z · note: shots: skipped — 48 handoff shots already captured for this exact plan (d2a29f4) during finalization (#0734)
+- 2026-10-13T16:38:52Z · note: review pass 2: needs some work
+- 2026-10-13T16:38:52Z · status review→active
+- 2026-10-13T16:39:13Z · message_queued at 2026-10-13T16:39:13.282Z
+- 2026-10-13T16:42:26Z · status active→review
+- 2026-10-13T16:42:27Z · note: shots: skipped — 48 handoff shots already captured for this exact plan (565b6b9) during finalization (#0734)
+- 2026-10-13T16:44:45Z · note: review pass 3: needs some work
+- 2026-10-13T16:44:45Z · needs_input
+- 2026-10-13T16:49:30Z · needs_input
+- 2026-10-13T16:49:31Z · status review→active
+- 2026-10-13T16:49:31Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T16:49:31Z · message_delivered: 1 message(s)
+- 2026-10-13T16:52:24Z · status active→review
+- 2026-10-13T16:53:37Z · note: review pass 4: needs some work
+- 2026-10-13T16:53:37Z · needs_input
+- 2026-10-13T16:55:39Z · needs_input
+- 2026-10-13T16:55:39Z · status review→active
+- 2026-10-13T16:55:39Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T16:58:23Z · status active→review
+- 2026-10-13T16:59:45Z · note: review pass 5: needs some work
+- 2026-10-13T17:01:32Z · status review→active
+- 2026-10-13T17:01:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:13:27Z · status active→review
+- 2026-10-13T17:14:35Z · note: review pass 6: needs some work
+- 2026-10-13T17:14:35Z · needs_input
+- 2026-10-13T17:19:35Z · needs_input
+- 2026-10-13T17:19:35Z · status review→active
+- 2026-10-13T17:19:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:43:38Z · status active→review
+- 2026-10-13T17:43:38Z · note: handoff requested (cli)
+- 2026-10-13T17:44:18Z · status active→review
+- 2026-10-13T17:44:18Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:44:19Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:45:16Z · note: review pass 7: needs some work
+- 2026-10-13T17:49:24Z · status review→active
+- 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed

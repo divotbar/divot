@@ -25,8 +25,9 @@ echo "Snapshots will be written to: $SNAPSHOT_DIR"
 echo ""
 
 cd "$REPO_ROOT"
-# Run the suite; the grep shows the snapshot suites and the pass/fail summary
-swift test --package-path macos 2>&1 | grep -E 'Popover snapshots|Bar snapshots|Test.*popover.*renders|passed|failed'
+# Run the suite under the machine-wide swift-test lock (#0091) so parallel agent
+# runs queue; the grep shows the snapshot suites and the pass/fail summary.
+"$REPO_ROOT/scripts/swift-test-lock.sh" 2>&1 | grep -E 'Popover snapshots|Bar snapshots|Test.*popover.*renders|passed|failed'
 
 # Capture the exit code from swift test (not grep)
 exit_code=${PIPESTATUS[0]}

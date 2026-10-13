@@ -61,6 +61,9 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     /// the theme without a rebuild. `appearance` is the only field updated after
     /// construction (via `apply(appearance:)`).
     private var configuration: DivotConfiguration
+    /// The seam that orders the panels front. Tests inject a no-op presenter so
+    /// building a surface never puts bar panels on screen (#0091).
+    private let presenter: any WindowPresenting
     /// Extra panel height below the bar reserved for the optional bottom-shadow
     /// strip; zero when the shadow is off. The panel is enlarged by this much so
     /// the gradient can draw *outside* the flat bar instead of over it (#0025).
@@ -82,9 +85,11 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 appearancePopover: AppearancePopoverController? = nil,
                 calendarPopover: CalendarPopoverController? = nil,
                 worldClockPopover: WorldClockPopoverController? = nil,
-                onWidgetAction: ((WidgetAction) -> Void)? = nil) {
+                onWidgetAction: ((WidgetAction) -> Void)? = nil,
+                presenter: any WindowPresenting = SystemWindowPresenter()) {
         self.id = id
         self.configuration = configuration
+        self.presenter = presenter
         let shadowStrip = configuration.bottomShadow ? Self.bottomShadowHeight : 0
         self.shadowHeight = shadowStrip
         let layout = configuration.barLayout
@@ -127,8 +132,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         rightContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
         leftContent.applyInitialState()
         rightContent.applyInitialState()
-        left.orderFrontRegardless()
-        right.orderFrontRegardless()
+        presenter.orderFrontRegardless(left)
+        presenter.orderFrontRegardless(right)
     }
 
     /// The theme for the current configuration and the live effective
