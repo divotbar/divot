@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+import AppKit
 
 public struct ProbeConfig {
     public let watchMode: Bool
@@ -70,21 +71,35 @@ public enum WindowType {
     case other
 }
 
-/// Determine window type based on owner name (case-insensitive).
-/// Uses only CGWindowListCopyWindowInfo's documented keys (owner name, not bundle ID).
+/// Determine window type based on owner name (case-insensitive, with space normalization)
+/// and bundle ID via PID lookup.
 public func classifyWindow(_ windowDict: [String: Any]) -> WindowType {
     let owner = (windowDict["kCGWindowOwnerName"] as? String ?? "").lowercased()
+    let normalizedOwner = owner.replacingOccurrences(of: " ", with: "")
 
-    if owner.contains("divot") {
+    if normalizedOwner.contains("divot") {
         return .divot
     }
 
-    if owner.contains("notificationcenter") || owner.contains("notification center") {
+    if normalizedOwner.contains("notificationcenter") {
         return .notificationBanner
     }
 
-    if owner.contains("controlcenter") {
+    if normalizedOwner.contains("controlcenter") {
         return .controlCenter
+    }
+
+    if let pid = (windowDict["kCGWindowOwnerPID"] as? NSNumber)?.intValue {
+        if let app = NSRunningApplication(processIdentifier: pid_t(pid)) {
+            if let bundleID = app.bundleIdentifier {
+                if bundleID == "com.apple.notificationcenterui" {
+                    return .notificationBanner
+                }
+                if bundleID == "com.apple.controlcenter" {
+                    return .controlCenter
+                }
+            }
+        }
     }
 
     return .other

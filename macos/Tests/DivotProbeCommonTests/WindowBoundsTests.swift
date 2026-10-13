@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import CoreGraphics
+import AppKit
 import DivotProbeCommon
 
 @Suite("Window bounds parsing")
@@ -182,7 +183,7 @@ struct CoordinateFlipTests {
 
 @Suite("Window classification")
 struct WindowClassificationTests {
-    @Test("Classify NotificationCenter banner by owner name")
+    @Test("Classify NotificationCenter by owner name (no space)")
     func classifyNotificationBannerByOwner() {
         let dict: [String: Any] = [
             "kCGWindowOwnerName": "NotificationCenter"
@@ -190,18 +191,34 @@ struct WindowClassificationTests {
         #expect(classifyWindow(dict) == .notificationBanner)
     }
 
-    @Test("Classify Notification Center with space (case-insensitive)")
+    @Test("Classify Notification Center by owner name (with space)")
     func classifyNotificationCenterWithSpace() {
+        let dict: [String: Any] = [
+            "kCGWindowOwnerName": "Notification Center"
+        ]
+        #expect(classifyWindow(dict) == .notificationBanner)
+    }
+
+    @Test("Classify notification center lowercase with space (case-insensitive)")
+    func classifyNotificationCenterLowercaseWithSpace() {
         let dict: [String: Any] = [
             "kCGWindowOwnerName": "notification center"
         ]
         #expect(classifyWindow(dict) == .notificationBanner)
     }
 
-    @Test("Classify ControlCenter by owner name")
+    @Test("Classify ControlCenter by owner name (no space)")
     func classifyControlCenterByOwner() {
         let dict: [String: Any] = [
             "kCGWindowOwnerName": "ControlCenter"
+        ]
+        #expect(classifyWindow(dict) == .controlCenter)
+    }
+
+    @Test("Classify Control Center by owner name (with space)")
+    func classifyControlCenterWithSpace() {
+        let dict: [String: Any] = [
+            "kCGWindowOwnerName": "Control Center"
         ]
         #expect(classifyWindow(dict) == .controlCenter)
     }
@@ -236,6 +253,35 @@ struct WindowClassificationTests {
             // kCGWindowName is absent
         ]
         #expect(classifyWindow(dict) == .other)
+    }
+
+    @Test("Classify unknown app window (no special flags)")
+    func classifyUnknownWindow() {
+        let dict: [String: Any] = [
+            "kCGWindowOwnerName": "Mail",
+            "kCGWindowOwnerPID": NSNumber(value: 9999)
+        ]
+        #expect(classifyWindow(dict) == .other)
+    }
+
+    @Test("Bundle ID lookup via PID for current process")
+    func classifyByBundleIDViaCurrentProcess() {
+        let currentPID = ProcessInfo.processInfo.processIdentifier
+        let dict: [String: Any] = [
+            "kCGWindowOwnerName": "UnknownApp",
+            "kCGWindowOwnerPID": NSNumber(value: currentPID)
+        ]
+        if let app = NSRunningApplication(processIdentifier: pid_t(currentPID)),
+           let bundleID = app.bundleIdentifier,
+           bundleID == "com.apple.notificationcenterui" {
+            #expect(classifyWindow(dict) == .notificationBanner)
+        } else if let app = NSRunningApplication(processIdentifier: pid_t(currentPID)),
+                  let bundleID = app.bundleIdentifier,
+                  bundleID == "com.apple.controlcenter" {
+            #expect(classifyWindow(dict) == .controlCenter)
+        } else {
+            #expect(classifyWindow(dict) == .other)
+        }
     }
 }
 
