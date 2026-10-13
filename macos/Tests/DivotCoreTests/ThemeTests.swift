@@ -200,3 +200,47 @@ private let floors: [(name: String, floor: Double)] = [
         #expect(resolved.tokens != nil)
     }
 }
+
+// MARK: - Popover swatches
+
+@Test func everyFamilyVariantHasASwatchFromItsOwnPalette() {
+    for family in families {
+        for variant in ThemeVariant.allCases {
+            let swatch = try! #require(ThemeResolver.swatch(family: family, variant: variant),
+                                       "missing \(family.rawValue) \(variant.rawValue) swatch")
+            let tokens = try! #require(ThemeCatalog.palette(family: family, variant: variant)).tokens
+            #expect(swatch.background == tokens.background)
+            #expect(swatch.accent == tokens.accent)
+        }
+    }
+    // Native draws with macOS semantic colours instead of a hex swatch.
+    #expect(ThemeResolver.swatch(family: .native, variant: .dark) == nil)
+    #expect(ThemeResolver.swatch(family: .native, variant: .light) == nil)
+}
+
+@Test func modeResolvesToTheVariantTheBarDraws() {
+    #expect(AppearanceConfiguration.Mode.system.variant(systemDark: true) == .dark)
+    #expect(AppearanceConfiguration.Mode.system.variant(systemDark: false) == .light)
+    // An explicit override ignores the system state.
+    #expect(AppearanceConfiguration.Mode.dark.variant(systemDark: false) == .dark)
+    #expect(AppearanceConfiguration.Mode.light.variant(systemDark: true) == .light)
+}
+
+// MARK: - Popover link
+
+/// The popover link role is the family accent nudged toward the foreground
+/// until it clears AA (4.5) against the background, so a popover footer link is
+/// readable instead of only a non-text indicator. An accent that already clears
+/// the floor is used unchanged.
+@Test func popoverLinkClearsTheTextFloorAndKeepsAClearingAccent() {
+    for family in families {
+        for variant in ThemeVariant.allCases {
+            let tokens = try! #require(ThemeCatalog.palette(family: family, variant: variant)).tokens
+            let ratio = tokens.link.contrastRatio(against: tokens.background)
+            #expect(ratio >= 4.5, "\(family.rawValue) \(variant.rawValue) link = \(ratio)")
+            if tokens.accent.contrastRatio(against: tokens.background) >= 4.5 {
+                #expect(tokens.link == tokens.accent)
+            }
+        }
+    }
+}

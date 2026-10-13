@@ -23,11 +23,20 @@ public struct BarTheme: Equatable {
     public let selectedForeground: NSColor
     public let occupied: NSColor
     public let error: NSColor
+    /// The link/emphasis text role: for a family it is the palette's
+    /// contrast-adjusted `link` (accent nudged toward the foreground until it
+    /// clears AA against the background); for native it is the system accent,
+    /// which already adapts to the popover's appearance.
+    public let link: NSColor
 
     public let material: AppearanceConfiguration.Material
     public let usesSystemColors: Bool
     public let increasedContrast: Bool
     public let reduceTransparency: Bool
+    /// Whether this theme resolves the dark variant, so a popover anchored to a
+    /// themed bar can adopt the same light/dark appearance as the bar it belongs
+    /// to instead of following the app-wide appearance alone.
+    public let isDark: Bool
 
     /// Whether the resolved material would have been opaque, before the flat
     /// chrome (#0025) made every fill solid. Kept so the theme still reports the
@@ -74,10 +83,12 @@ public struct BarTheme: Equatable {
                 selectedForeground: .selectedTextColor,
                 occupied: .controlAccentColor,
                 error: .systemRed,
+                link: .controlAccentColor,
                 material: appearance.material,
                 usesSystemColors: true,
                 increasedContrast: increasedContrast,
-                reduceTransparency: reduceTransparency)
+                reduceTransparency: reduceTransparency,
+                isDark: dark)
         }
         return BarTheme(
             foreground: NSColor(tokens.foreground),
@@ -91,14 +102,46 @@ public struct BarTheme: Equatable {
             selectedForeground: NSColor(tokens.selectedForeground),
             occupied: NSColor(tokens.occupied),
             error: NSColor(tokens.error),
+            link: NSColor(tokens.link),
             material: appearance.material,
             usesSystemColors: false,
             increasedContrast: increasedContrast,
-            reduceTransparency: reduceTransparency)
+            reduceTransparency: reduceTransparency,
+            isDark: dark)
     }
 
     /// The comfortable native default, used before a configuration is applied.
     public static let systemDefault = BarTheme.resolve(.default, dark: false)
+
+    // MARK: - Popovers
+
+    /// The colours a popover anchored to this theme draws. They come from the
+    /// same palette the bar draws, so a popover matches its bar and its label,
+    /// secondary, and link roles clear the same contrast floors the audit
+    /// checks — instead of a fixed blue that can sit nearly invisible on a dark
+    /// popover while the bar is light.
+    public struct PopoverPalette: Equatable {
+        public let background: NSColor
+        public let label: NSColor
+        public let secondary: NSColor
+        public let link: NSColor
+        public let separator: NSColor
+    }
+
+    public var popoverPalette: PopoverPalette {
+        PopoverPalette(background: background,
+                       label: foreground,
+                       secondary: secondary,
+                       link: link,
+                       separator: border)
+    }
+
+    /// The popover's light/dark appearance, so its chrome and system controls
+    /// (the segmented control, slider, checkbox) match the bar's variant even
+    /// when the app-wide appearance differs. `nil` would follow the app.
+    public var popoverAppearance: NSAppearance? {
+        NSAppearance(named: isDark ? .darkAqua : .aqua)
+    }
 }
 
 extension NSColor {

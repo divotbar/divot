@@ -28,9 +28,10 @@ public final class VolumePopoverController {
     }
 
     /// Show the popover below `view` and start following external changes.
-    public func present(relativeTo view: NSView) {
+    public func present(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
         dismiss()
         let controller = VolumePopoverContentController()
+        controller.theme = theme
         controller.onLevelChanged = { [weak self] level in self?.applyLevel(level) }
         controller.onMuteToggled = { [weak self] muted in self?.applyMute(muted) }
         controller.onOpenSoundSettings = { [weak self] in self?.openSoundSettings() }
@@ -43,6 +44,16 @@ public final class VolumePopoverController {
         model.refresh()
         model.startObserving()
         render()
+    }
+
+    /// A click on the volume item. When this item already owns the open popover
+    /// the click closes it; otherwise it opens the popover.
+    public func toggle(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
+        if host.itemClickCloses(relativeTo: view) {
+            dismiss()
+        } else {
+            present(relativeTo: view, theme: theme)
+        }
     }
 
     /// Close the popover and remove the Core Audio listeners.
@@ -113,6 +124,7 @@ final class VolumePopoverContentController: BarPopoverContentController {
 
         percentLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
         percentLabel.alignment = .right
+        percentLabel.textColor = theme.popoverPalette.label
         percentLabel.setContentHuggingPriority(.required, for: .horizontal)
         percentLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         percentLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 36).isActive = true
@@ -128,7 +140,7 @@ final class VolumePopoverContentController: BarPopoverContentController {
         muteButton.setAccessibilityLabel("Mute output")
 
         statusLabel.font = .systemFont(ofSize: 12)
-        statusLabel.textColor = .secondaryLabelColor
+        statusLabel.textColor = theme.popoverPalette.secondary
         statusLabel.maximumNumberOfLines = 0
         statusLabel.isHidden = true
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
