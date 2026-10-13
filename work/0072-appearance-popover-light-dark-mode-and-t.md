@@ -48,3 +48,4 @@ Look at how the Appearance item toggles today and how the Settings window reads 
 - 2026-10-13T02:34:24Z · note: review pass 1: needs some work
 - 2026-10-13T02:34:24Z · status review→active
 - 2026-10-13T02:36:20Z · status active→review
+- 2026-10-13T02:36:20Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
