@@ -11,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T18:36:14Z"
+updated_at: "2026-10-13T18:38:59Z"
 review_passes: 9
 review_rounds: 2
 dev_error_count: 1
@@ -157,3 +157,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:35:22Z · note: handoff requested (ui-review)
 - 2026-10-13T18:36:14Z · status active→review
 - 2026-10-13T18:36:14Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:38:59Z · note: review pass 10: needs some work
