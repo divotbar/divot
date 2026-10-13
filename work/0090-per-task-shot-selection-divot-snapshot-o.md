@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: review
+status: active
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -12,8 +12,8 @@ cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
 updated_at: "2026-10-13T17:05:20Z"
+review_rounds: 2
 review_passes: 2
-review_rounds: 1
 ---
 ## Problem
 RepoOS #0769 landed: a ## Shots entry for a command target can pass an env map and a per-entry glob, so a task can capture only the images it changed, for example:
@@ -51,3 +51,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:04:17Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (1fd8828b) during finalization (#0734)
 - 2026-10-13T17:05:19Z · note: review pass 2: needs some work
 - 2026-10-13T17:05:20Z · message_delivered: 1 message(s)
+- 2026-10-13T17:05:20Z · status review→active
