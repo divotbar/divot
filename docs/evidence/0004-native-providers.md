@@ -27,9 +27,9 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | System readings | `macos/Sources/DivotAppKit/System*Reading.swift` | IOKit power sources, `NWPathMonitor`, Core Audio property listeners, `NSWorkspace` front app. |
 | Bar views | `macos/Sources/DivotAppKit/WidgetViews.swift`, `BarPanels.swift` | Per-item views, per-side content, panels; only changed items re-render. |
 | Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
-| Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout and the anchored `NSPopover` lifecycle reused by the Wi-Fi, volume, and appearance popovers. |
+| Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout, the theme-aware label/secondary/link colours, and the anchored `NSPopover` lifecycle (transient + outside-click/Escape monitors, same-item toggle) reused by the Wi-Fi, volume, and appearance popovers. |
 | Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
-| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | Mode and theme-family radio choices plus a Divot-settings row over the shared configuration store (task 0072). |
+| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a theme-family swatch grid plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
 | App wiring | `macos/Sources/DivotApp/DivotAppDelegate.swift`, `DivotAppWidgetReport.swift` | First-launch defaults, main-actor sink, action handling, `divot --widgets`. |
 
 ## Providers and lifecycle
@@ -186,21 +186,38 @@ Code paths for an output that cannot be changed (recorded, not invented):
 - With no output device at all (`VolumeSnapshot.noOutput`) the popover disables
   both controls and shows "No audio output device."
 
-The popover is anchored to the item and is `.transient`. Whether the slider
+The popover is anchored to the item and is `.transient`, additionally watched by
+a global (other apps and the desktop) and a local mouse-down monitor plus Escape,
+so any click outside it, or Escape, dismisses it; a second click on the same bar
+item toggles it closed. The monitors are installed while it is shown and removed
+the instant it closes — no polling. Its text is painted from the bar's `BarTheme`
+(`BarTheme.popoverPalette`), so its label/secondary/link roles clear the same
+contrast floors the theme audit checks; a family theme paints the popover's own
+background so it matches the bar exactly, the native theme keeps the popover's
+system material, and the popover adopts the bar's light/dark variant either way.
+Whether the slider
 actually moves the real output volume, and whether the item's percentage follows
 on screen, are **not verified here**: that is the maintainer's packaged-app check.
 
-## Appearance popover (task 0072)
+## Appearance popover (tasks 0072/0073)
 
 Clicking the appearance (moon/sun) item now opens the same anchored popover shell
 as the Wi-Fi and volume popovers (`BarPopover.swift` owns the shared layout and
 `.transient` lifecycle; `AppearancePopover.swift` supplies the rows) instead of
-toggling light/dark directly. It contains a **Mode** group (`System`, `Light`,
-`Dark`, matching `appearance.mode`) and a **Theme** group (`Native`, `Gruvbox`,
-`Ayu`, `Dracula`, `Tokyo Night`, matching `appearance.family`) as
-keyboard-accessible radio choices that show the current selection, then a final
-**Open Divot Settings…** row that opens Divot's own settings window, not a System
-Settings pane.
+toggling light/dark directly. Task 0073 restyled it compact and horizontal: it
+contains a **Mode** row as one horizontal `System`/`Light`/`Dark` segmented
+control matching `appearance.mode`, a wrapped grid of theme-family options
+(`Native`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`, matching
+`appearance.family`) where each option shows a small colour swatch taken from
+that family's own palette (`ThemeResolver.swatch`, so a new family needs no
+hand-copied colour) and outlines the current theme, then a final **Open Divot
+Settings…** row that opens Divot's own settings window, not a System Settings
+pane. The shared width floor is lowered for this content so the popover hugs the
+control and grid instead of leaving an empty block beside them; the Wi-Fi and
+volume popovers keep the shared floor. The chosen ring and option labels come from
+the bar's `BarTheme` (a family theme also paints the popover background from it),
+so the popover matches the bar in light and dark and under increased contrast
+instead of a fixed system tint.
 
 Both lists are built from the configuration enums
 (`AppearanceConfiguration.Mode.allCases` and `.Family.allCases`), so a new family
@@ -275,11 +292,24 @@ asserted, by category:
   nothing, a selection while observing is delivered through the observer, an
   external change replays the published configuration and updates the model, a
   change made before observing is picked up by `refresh`, and observing registers
-  once and is removed on close. `AppearancePopoverTests` pins the content rows:
-  every mode and family is offered from the enums, the current selection is
-  checked, a selection forwards its value, every option carries an accessibility
-  label and a selected/not-selected value and refuses no first responder, focus
-  lands on the selected mode, and the settings row reports.
+  once and is removed on close. `AppearancePopoverTests` pins the compact content:
+  the mode segmented control offers System/Light/Dark in order with the current
+  segment selected, every family is offered from the enums with the current one
+  outlined, a theme swatch is drawn from the resolved family palette (and follows
+  the system variant for `system` mode, with native falling back to system
+  colours), the grid wraps to at most three columns, the shared width floor is
+  dropped for this content, a selection forwards its value, every option carries
+  an accessibility label and a selected/not-selected value and refuses no first
+  responder, focus lands on the mode control, and the settings row reports.
+- **Popover theme and dismissal** (tasks 0072/0073, `BarPopoverTests`,
+  `BarThemeTests`): the dismiss decision closes on an outside press or Escape but
+  not on a press on the anchor item (the toggle) or inside the popover; the host
+  installs the dismiss monitors when it presents and removes them the moment it
+  closes, and drops its anchor; a second click on the owning item toggles closed.
+  The popover palette is the bar theme's own background/label/secondary/border
+  plus a contrast-adjusted link (AA against the popover background), the popover
+  adopts the bar's light/dark appearance, and the native theme keeps the system
+  semantic roles.
 
 ## Honest status by claim
 

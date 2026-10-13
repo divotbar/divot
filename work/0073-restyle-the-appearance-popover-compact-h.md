@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T04:50:16Z"
-review_passes: 1
 id: "0073"
 title: "Restyle the Appearance popover: compact, horizontal and easy to scan"
 type: bug
@@ -10,9 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/restyle-the-appearance-popover-compact-h
-cli_override: claude code
-model_override: haiku
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:59:14Z"
+updated_at: "2026-10-13T04:49:31Z"
 ---
 ## Problem
 The Appearance popover from #0072 looks unfinished (maintainer screenshot 2026-10-13). It is wide for its content: the section titles and the radio rows are right-aligned, leaving a large empty block on the left. Mode and Theme are two long vertical lists of plain system radio buttons, the focus ring on 'Dark' looks stray, and nothing shows what a theme looks like.
@@ -41,16 +40,4 @@ Look at the Appearance popover view from #0072 and the Wi-Fi/volume popovers (#0
 - 2026-10-13T02:59:17Z · status inbox→ready
 - 2026-10-13T02:59:18Z · cli_override, model_override
 - 2026-10-13T02:59:19Z · status ready→active, branch
-- 2026-10-13T03:14:41Z · message_queued at 2026-10-13T03:14:41.974Z
-- 2026-10-13T03:14:42Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
-- 2026-10-13T03:53:48Z · message_queued at 2026-10-13T03:53:48.380Z
-- 2026-10-13T04:14:00Z · message_delivered: 2 message(s)
-- 2026-10-13T04:25:24Z · cli_override, model_override
-- 2026-10-13T04:41:08Z · cli_override, model_override
-- 2026-10-13T04:41:30Z · message_queued at 2026-10-13T04:41:30.105Z
-- 2026-10-13T04:46:48Z · cli_override, model_override
-- 2026-10-13T04:46:49Z · message_delivered: 1 message(s)
-- 2026-10-13T04:49:32Z · status active→review
-- 2026-10-13T04:49:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
-- 2026-10-13T04:50:16Z · note: review pass 1: good to go
-
+- 2026-10-13T04:49:31Z · status active→review

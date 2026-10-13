@@ -31,9 +31,10 @@ public final class WifiPopoverController {
     }
 
     /// Show the popover below `view`, then scan once off the main actor.
-    public func present(relativeTo view: NSView) {
+    public func present(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
         dismiss()
         let controller = WifiPopoverContentController()
+        controller.theme = theme
         controller.onOpenWifiSettings = { [weak self] in self?.openWifiSettings() }
         controller.onOpenLocationSettings = { [weak self] in self?.openLocationSettings() }
         controller.onRetry = { [weak self] in self?.refresh() }
@@ -41,6 +42,16 @@ public final class WifiPopoverController {
         host.present(controller, relativeTo: view)
         self.content = controller
         refresh()
+    }
+
+    /// A click on the network item. When this item already owns the open
+    /// popover the click closes it; otherwise it opens the popover.
+    public func toggle(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
+        if host.itemClickCloses(relativeTo: view) {
+            dismiss()
+        } else {
+            present(relativeTo: view, theme: theme)
+        }
     }
 
     /// Close the popover and cancel any in-flight scan.
@@ -130,11 +141,12 @@ final class WifiPopoverContentController: BarPopoverContentController {
     private func row(for network: WifiNetwork) -> NSView {
         let signal = NSImageView()
         signal.image = Self.signalImage(level: network.signalLevel)
-        signal.contentTintColor = .labelColor
+        signal.contentTintColor = theme.popoverPalette.label
         signal.setContentHuggingPriority(.required, for: .horizontal)
 
         let name = NSTextField(labelWithString: network.ssid)
         name.font = network.isCurrent ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13)
+        name.textColor = theme.popoverPalette.label
         name.lineBreakMode = .byTruncatingMiddle
         name.maximumNumberOfLines = 1
         name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -148,14 +160,14 @@ final class WifiPopoverContentController: BarPopoverContentController {
             let check = NSImageView()
             check.image = NSImage(systemSymbolName: "checkmark.circle.fill",
                                   accessibilityDescription: "Connected")
-            check.contentTintColor = .controlAccentColor
+            check.contentTintColor = theme.popoverPalette.link
             check.setContentHuggingPriority(.required, for: .horizontal)
             views.append(check)
         }
         if network.isSecure {
             let lock = NSImageView()
             lock.image = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: "Secure")
-            lock.contentTintColor = .secondaryLabelColor
+            lock.contentTintColor = theme.popoverPalette.secondary
             lock.setContentHuggingPriority(.required, for: .horizontal)
             views.append(lock)
         }

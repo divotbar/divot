@@ -263,6 +263,77 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
     #expect(colorMatches(chip(opacity: 100).layer?.backgroundColor, theme.selected.withAlphaComponent(0.0)))
 }
 
+// MARK: - Popover palette
+
+/// A popover takes its colours and light/dark variant from the bar theme, so it
+/// matches its bar and its text clears the audit — even when the bar's variant
+/// differs from the app-wide appearance that used to drive the popover.
+@MainActor
+@Test func popoverPaletteComesFromTheBarTheme() {
+    let dark = BarTheme.resolve(gruvboxDark, dark: true)
+    #expect(dark.isDark)
+    #expect(dark.popoverAppearance?.name == .darkAqua)
+
+    let palette = dark.popoverPalette
+    #expect(palette.background == dark.background)
+    #expect(palette.label == dark.foreground)
+    #expect(palette.secondary == dark.secondary)
+    #expect(palette.link == dark.link)
+    #expect(palette.separator == dark.border)
+
+    let light = BarTheme.resolve(gruvboxDark, dark: false)
+    #expect(!light.isDark)
+    #expect(light.popoverAppearance?.name == .aqua)
+    #expect(light.popoverPalette.background == light.background)
+}
+
+/// The native theme keeps macOS semantic roles (which adapt to the popover's
+/// own appearance) and the system accent for its link.
+@MainActor
+@Test func nativePopoverPaletteKeepsSystemRoles() {
+    let theme = BarTheme.resolve(.default, dark: true)
+    let palette = theme.popoverPalette
+    #expect(palette.background == .windowBackgroundColor)
+    #expect(palette.label == .labelColor)
+    #expect(palette.secondary == .secondaryLabelColor)
+    #expect(palette.link == .controlAccentColor)
+}
+
+/// The family link role clears the AA text floor against the popover background,
+/// which a raw accent need not: that is what stopped the footer link reading as
+/// nearly invisible.
+@MainActor
+@Test func familyPopoverLinkClearsTheTextFloorAgainstTheBackground() {
+    for family in [AppearanceConfiguration.Family.gruvbox, .ayu, .dracula, .tokyoNight] {
+        for variant in ThemeVariant.allCases {
+            let dark = variant == .dark
+            let theme = BarTheme.resolve(AppearanceConfiguration(family: family), dark: dark)
+            let palette = theme.popoverPalette
+            #expect(colorContrast(palette.link, palette.background) >= 4.5,
+                    "\(family.rawValue) \(variant.rawValue) popover link contrast")
+            #expect(colorContrast(palette.label, palette.background) >= 4.5)
+            #expect(colorContrast(palette.secondary, palette.background) >= 3.0)
+        }
+    }
+}
+
+/// WCAG contrast between two NSColors, so the popover roles are checked with the
+/// same math the theme audit uses.
+private func colorContrast(_ a: NSColor, _ b: NSColor) -> Double {
+    func luminance(_ color: NSColor) -> Double {
+        guard let srgb = color.usingColorSpace(.sRGB) else { return 0 }
+        func channel(_ value: Double) -> Double {
+            value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * channel(srgb.redComponent)
+            + 0.7152 * channel(srgb.greenComponent)
+            + 0.0722 * channel(srgb.blueComponent)
+    }
+    let first = luminance(a)
+    let second = luminance(b)
+    return (max(first, second) + 0.05) / (min(first, second) + 0.05)
+}
+
 
 private func markerColor(of string: NSAttributedString) -> NSColor? {
     guard string.length > 0 else { return nil }

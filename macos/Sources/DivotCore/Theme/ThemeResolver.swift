@@ -39,6 +39,12 @@ public enum ThemeResolver {
         ThemeCatalog.palette(family: family, variant: variant)
     }
 
+    /// The palette sample the appearance popover previews, or `nil` for native.
+    public static func swatch(family: AppearanceConfiguration.Family,
+                              variant: ThemeVariant) -> ThemeSwatch? {
+        ThemeCatalog.swatch(family: family, variant: variant)
+    }
+
     /// Resolve one appearance into tokens.
     ///
     /// Precedence, lowest to highest:
@@ -110,5 +116,18 @@ public enum ThemeResolver {
                              usesSystemColors: false,
                              tokens: tokens,
                              attribution: base.attribution)
+    }
+}
+
+public extension AppearanceConfiguration.Mode {
+    /// The theme variant this mode resolves to for a given system state:
+    /// `system` follows the Mac, `light` and `dark` are explicit. The appearance
+    /// popover uses this to preview the family the bar is actually drawing.
+    func variant(systemDark: Bool) -> ThemeVariant {
+        switch self {
+        case .system: return ThemeResolver.variant(dark: systemDark)
+        case .light: return ThemeVariant.light
+        case .dark: return ThemeVariant.dark
+        }
     }
 }
