@@ -8,8 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/restyle-the-appearance-popover-compact-h
-cli_override: opencode
-model_override: opencode-go/deepseek-v4.1-flash
+cli_override: claude
+model_override: sonnet
 created_at: "2026-10-13T02:59:14Z"
 updated_at: "2026-10-13T04:25:24Z"
 ---
@@ -44,3 +44,4 @@ Look at the Appearance popover view from #0072 and the Wi-Fi/volume popovers (#0
 - 2026-10-13T03:14:42Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-13T03:53:48Z · message_queued at 2026-10-13T03:53:48.380Z
 - 2026-10-13T04:14:00Z · message_delivered: 2 message(s)
+- 2026-10-13T04:25:24Z · cli_override, model_override
