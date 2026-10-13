@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-13T04:50:16Z"
-review_passes: 1
+last_close_out_gate_ms: 81993
+last_close_out_gate_at: "2026-10-13T04:55:29.977Z"
 id: "0073"
 title: "Restyle the Appearance popover: compact, horizontal and easy to scan"
 type: bug
@@ -13,6 +13,8 @@ branch: feat/restyle-the-appearance-popover-compact-h
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T02:59:14Z"
+updated_at: "2026-10-13T04:55:29Z"
+review_passes: 1
 ---
 ## Problem
 The Appearance popover from #0072 looks unfinished (maintainer screenshot 2026-10-13). It is wide for its content: the section titles and the radio rows are right-aligned, leaving a large empty block on the left. Mode and Theme are two long vertical lists of plain system radio buttons, the focus ring on 'Dark' looks stray, and nothing shows what a theme looks like.
@@ -53,4 +55,5 @@ Look at the Appearance popover view from #0072 and the Wi-Fi/volume popovers (#0
 - 2026-10-13T04:49:32Z · status active→review
 - 2026-10-13T04:49:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T04:50:16Z · note: review pass 1: good to go
+- 2026-10-13T04:55:29Z · close-out gate completed in 82s
 
