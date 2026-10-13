@@ -141,7 +141,12 @@ final class BarItemView: NSView {
     func apply(theme: BarTheme) {
         self.theme = theme
         applyColors()
-        if let indicatorRole {
+        if indicatorRole == .keepAwakeActive {
+            // The keep-awake cup bakes its colour and any contrast outline in, so
+            // a theme change rebuilds it rather than re-tinting.
+            indicatorView.image = keepAwakeCupImage()
+            indicatorView.contentTintColor = nil
+        } else if let indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: indicatorRole)
         }
         // The chip fill lives in `updateLayer`, so a theme change must ask for a
@@ -174,8 +179,9 @@ final class BarItemView: NSView {
         return resolved
     }
 
-    /// Draw (or hide) the small state indicator after the text. For keep-awake,
-    /// adds an outline stroke for contrast on light theme chips.
+    /// Draw (or hide) the small state indicator after the text. The keep-awake
+    /// cup is the only role that needs a contrast fallback, so it renders through
+    /// `keepAwakeCupImage()`; every other role is the plain tinted symbol.
     private func applyIndicator(_ indicator: WidgetIndicator?) {
         guard let indicator,
               let image = NSImage(systemSymbolName: indicator.symbolName, accessibilityDescription: nil) else {
@@ -188,15 +194,82 @@ final class BarItemView: NSView {
         }
         indicatorRole = indicator.role
         displayedIndicatorSymbolName = indicator.symbolName
-        let cupColor = indicatorColor(for: indicator.role)
-
-        // Render the indicator in the fixed color.
-        indicatorView.image = image
-        indicatorView.contentTintColor = cupColor
+        if indicator.role == .keepAwakeActive {
+            indicatorView.image = keepAwakeCupImage()
+            indicatorView.contentTintColor = nil
+        } else {
+            indicatorView.image = image
+            indicatorView.contentTintColor = indicatorColor(for: indicator.role)
+        }
         indicatorView.isHidden = false
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
         indicatorView.toolTip = nil
+    }
+
+    /// The keep-awake cup: the fixed green, stroked with a thin high-contrast
+    /// outline when the green cannot clear the 3:1 non-text floor against what
+    /// sits behind it.
+    ///
+    /// The backdrop is the chip fill when the chip style is on (the `selected`
+    /// token composited at the chip's opacity over the bar), otherwise the bar
+    /// background. The fixed green clears every bar background, so chips off draw
+    /// the plain green. The default chip is fully opaque and can hide the green,
+    /// so there the cup is a green fill with the higher-contrast of pure black or
+    /// pure white drawn over it as an outline (#0087). Flat: a real stroke, never
+    /// a blur or drop shadow.
+    private func keepAwakeCupImage() -> NSImage? {
+        let fillColor = indicatorColor(for: .keepAwakeActive)
+        let fill = resolvedSRGB(fillColor)
+        let backdrop = keepAwakeBackdrop()
+        let fillNSColor = NSColor(srgbRed: fill.red, green: fill.green, blue: fill.blue, alpha: 1)
+        guard ContrastAudit.ratio(fill, backdrop) < ContrastAudit.nonTextThreshold else {
+            return Self.paletteSymbol(named: "cup.and.saucer.fill", color: fillNSColor)
+        }
+        let outline = KeepAwakeIndicatorPalette.outline(for: backdrop)
+        let outlineNSColor = NSColor(srgbRed: outline.red, green: outline.green, blue: outline.blue, alpha: 1)
+        guard let fillImage = Self.paletteSymbol(named: "cup.and.saucer.fill", color: fillNSColor),
+              let outlineImage = Self.paletteSymbol(named: "cup.and.saucer", color: outlineNSColor) else {
+            return Self.paletteSymbol(named: "cup.and.saucer.fill", color: fillNSColor)
+        }
+        // Draw the green fill first, then the outline glyph over it, so the
+        // stroke reads as a border around the whole cup rather than being hidden
+        // under the fill.
+        return NSImage(size: fillImage.size, flipped: false) { rect in
+            fillImage.draw(in: rect)
+            outlineImage.draw(in: rect)
+            return true
+        }
+    }
+
+    /// The colour behind the keep-awake cup: the composited chip fill when the
+    /// chip style is on, otherwise the bar background.
+    private func keepAwakeBackdrop() -> SRGBColor {
+        let background = resolvedSRGB(theme.background)
+        guard enablesChipStyle else { return background }
+        let selected = resolvedSRGB(theme.selected)
+        return selected.blended(over: background, alpha: 1 - Double(chipOpacity) / 100)
+    }
+
+    /// Resolve a possibly dynamic colour to a concrete sRGB value against the
+    /// item's current appearance, for the pure colour math in `ContrastAudit`.
+    private func resolvedSRGB(_ color: NSColor) -> SRGBColor {
+        var result = SRGBColor(red: 0, green: 0, blue: 0)
+        effectiveAppearance.performAsCurrentDrawingAppearance {
+            guard let converted = color.usingColorSpace(.sRGB) else { return }
+            result = SRGBColor(red: Double(converted.redComponent),
+                               green: Double(converted.greenComponent),
+                               blue: Double(converted.blueComponent))
+        }
+        return result
+    }
+
+    /// Build a symbol image whose colour is baked in through a palette, so it can
+    /// be composited into the keep-awake cup without relying on a template tint.
+    private static func paletteSymbol(named name: String, color: NSColor) -> NSImage? {
+        let palette = NSImage.SymbolConfiguration(paletteColors: [color])
+        return NSImage(systemSymbolName: name, accessibilityDescription: nil)?
+            .withSymbolConfiguration(palette)
     }
 
     /// The indicator tint: the contrast-audited fixed color for every family, so the
@@ -326,12 +399,16 @@ final class BarItemView: NSView {
         return true
     }
 
-    /// Re-resolve the indicator tint when the effective appearance changes, so
-    /// the light/dark contrast-audited value follows the system.
+    /// Re-resolve the indicator when the effective appearance changes, so the
+    /// light/dark contrast-audited value follows the system. The keep-awake cup
+    /// rebuilds because its colour and contrast outline are baked into the image.
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         applyColors()
-        if let role = indicatorRole {
+        if indicatorRole == .keepAwakeActive {
+            indicatorView.image = keepAwakeCupImage()
+            indicatorView.contentTintColor = nil
+        } else if let role = indicatorRole {
             indicatorView.contentTintColor = indicatorColor(for: role)
         }
     }

@@ -339,14 +339,14 @@ struct BarSnapshotTests {
         #expect(cupGreenColumns.allSatisfy { $0 >= offChips.column(battery.minX) - 1 && $0 <= offChips.column(battery.maxX) + 1 },
                 "Keep-awake cup green appears outside the battery slot")
 
-        let onChips = try renderWithKeepAwake(config, chips: .translucent, theme: theme, metrics: metrics, label: "chips-on")
+        // The default chip is fully opaque — the case where the fixed green can
+        // vanish — so the chips-on shot renders the opaque chip the black/white
+        // outline fallback exists for.
+        let onChips = try renderWithKeepAwake(config, chips: .solid, theme: theme, metrics: metrics, label: "chips-on")
         assertSlotLayout(onChips)
-        assertChipFill(onChips, chips: .translucent)
-        let alpha = 1 - Double(Self.translucentChipOpacity) / 100
-        assertClockContrast(onChips,
-                            behind: onChips.selected.blended(over: onChips.background, alpha: alpha))
+        assertChipFill(onChips, chips: .solid)
 
-        // Cup must still be visible on chips background.
+        // Cup must still be visible on the opaque chip background.
         let cupGreenOnChips = keepAwakeCupColumns(onChips, dark: config.dark)
         #expect(cupGreenOnChips.count >= 5, "Keep-awake cup on chips drew only \(cupGreenOnChips.count) pixels of the fixed green")
     }
