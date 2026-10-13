@@ -3,6 +3,9 @@ id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -56,3 +59,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:15:25Z · status active→review
 - 2026-10-13T17:15:25Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (41f9a14a) during finalization (#0734)
 - 2026-10-13T17:16:41Z · note: review pass 3: needs some work
+- 2026-10-13T17:16:41Z · needs_input
