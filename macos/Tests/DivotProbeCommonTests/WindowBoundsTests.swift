@@ -90,42 +90,52 @@ struct WindowBoundsTests {
     }
 }
 
-@Suite("Window level parsing")
-struct WindowLevelTests {
-    @Test("Parse valid window level")
-    func parseValidLevel() {
+@Suite("Window layer parsing")
+struct WindowLayerTests {
+    @Test("Parse valid window layer")
+    func parseValidLayer() {
         let dict: [String: Any] = [
-            "kCGWindowLevel": NSNumber(value: 23)
+            "kCGWindowLayer": NSNumber(value: 23)
         ]
 
-        let level = parseWindowLevelFromDict(dict)
-        #expect(level == 23)
+        let layer = parseWindowLayerFromDict(dict)
+        #expect(layer == 23)
     }
 
-    @Test("Parse notification banner level")
-    func parseBannerLevel() {
+    @Test("Parse notification banner layer")
+    func parseBannerLayer() {
         let dict: [String: Any] = [
-            "kCGWindowLevel": NSNumber(value: 25)
+            "kCGWindowLayer": NSNumber(value: 25)
         ]
 
-        let level = parseWindowLevelFromDict(dict)
-        #expect(level == 25)
+        let layer = parseWindowLayerFromDict(dict)
+        #expect(layer == 25)
     }
 
-    @Test("Missing level key returns zero")
-    func missingLevelKey() {
+    @Test("Parse negative wallpaper layer")
+    func parseNegativeWallpaperLayer() {
+        let dict: [String: Any] = [
+            "kCGWindowLayer": NSNumber(value: -2147483648)
+        ]
+
+        let layer = parseWindowLayerFromDict(dict)
+        #expect(layer == -2147483648)
+    }
+
+    @Test("Missing layer key returns zero")
+    func missingLayerKey() {
         let dict: [String: Any] = [:]
-        let level = parseWindowLevelFromDict(dict)
-        #expect(level == 0)
+        let layer = parseWindowLayerFromDict(dict)
+        #expect(layer == 0)
     }
 
-    @Test("Invalid level type returns zero")
-    func invalidLevelType() {
+    @Test("Invalid layer type returns zero")
+    func invalidLayerType() {
         let dict: [String: Any] = [
-            "kCGWindowLevel": "not a number"
+            "kCGWindowLayer": "not a number"
         ]
-        let level = parseWindowLevelFromDict(dict)
-        #expect(level == 0)
+        let layer = parseWindowLayerFromDict(dict)
+        #expect(layer == 0)
     }
 }
 

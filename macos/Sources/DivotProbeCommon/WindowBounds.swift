@@ -1,10 +1,41 @@
 import Foundation
 import CoreGraphics
 
-/// Parse window level from CGWindowListCopyWindowInfo dictionary.
-/// The dictionary contains the level as NSNumber.
-public func parseWindowLevelFromDict(_ dict: [String: Any]) -> Int {
-    return (dict["kCGWindowLevel"] as? NSNumber)?.intValue ?? 0
+public struct ProbeConfig {
+    public let watchMode: Bool
+    public let watchDuration: TimeInterval
+
+    public init(watchMode: Bool = false, watchDuration: TimeInterval = 15) {
+        self.watchMode = watchMode
+        self.watchDuration = watchDuration
+    }
+}
+
+/// Parse command-line arguments for the notification banner probe.
+/// Recognizes: --watch [seconds] to enable watch mode with optional duration (default 15 seconds)
+public func parseProbeArguments(_ arguments: [String]) -> ProbeConfig {
+    var watchMode = false
+    var watchDuration: TimeInterval = 15
+
+    if arguments.count > 1 {
+        for i in 1..<arguments.count {
+            if arguments[i] == "--watch" {
+                watchMode = true
+                if i + 1 < arguments.count, let duration = TimeInterval(arguments[i + 1]) {
+                    watchDuration = duration
+                }
+                break
+            }
+        }
+    }
+
+    return ProbeConfig(watchMode: watchMode, watchDuration: watchDuration)
+}
+
+/// Parse window layer from CGWindowListCopyWindowInfo dictionary.
+/// The dictionary contains the layer as NSNumber under kCGWindowLayer.
+public func parseWindowLayerFromDict(_ dict: [String: Any]) -> Int {
+    return (dict["kCGWindowLayer"] as? NSNumber)?.intValue ?? 0
 }
 
 /// Parse CGRect from CGWindowListCopyWindowInfo bounds dictionary.
