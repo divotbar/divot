@@ -3,6 +3,9 @@ id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: [macos, infra]
 assigned_to: ""
@@ -83,3 +86,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:38:27Z · status active→review
 - 2026-10-13T08:38:27Z · note: shots: skipped — 18 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:39:48Z · note: review pass 5: needs some work
+- 2026-10-13T08:39:48Z · needs_input
