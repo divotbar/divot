@@ -115,3 +115,4 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:50:52Z · body: section Shots
 - 2026-10-13T17:51:43Z · body: section Verification
 - 2026-10-13T17:53:37Z · status active→review
+- 2026-10-13T17:53:37Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
