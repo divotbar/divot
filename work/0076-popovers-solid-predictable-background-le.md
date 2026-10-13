@@ -11,7 +11,7 @@ branch: feat/popovers-solid-predictable-background-le
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
-updated_at: "2026-10-13T06:02:16Z"
+updated_at: "2026-10-13T06:02:17Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -54,3 +54,4 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T06:00:28Z · status review→active
 - 2026-10-13T06:01:27Z · message_queued at 2026-10-13T06:01:27.365Z
 - 2026-10-13T06:02:16Z · status active→review
+- 2026-10-13T06:02:17Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
