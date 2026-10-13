@@ -67,14 +67,16 @@ private func pressEvent() -> NSEvent {
 /// When a popover is open and the bar's theme changes, the popover's chrome
 /// and content update without closing.
 @MainActor
-@Test func openPopoverUpdatesOnThemeChange() {
+@Test(.windowless)
+func openPopoverUpdatesOnThemeChange() {
     let families: [AppearanceConfiguration.Family] = [.native, .gruvbox]
     for initialFamily in families {
         for changeToFamily in families where changeToFamily != initialFamily {
             let initialTheme = BarTheme.resolve(AppearanceConfiguration(family: initialFamily, mode: .light), dark: false)
             let changedTheme = BarTheme.resolve(AppearanceConfiguration(family: changeToFamily, mode: .dark), dark: true)
 
-            let host = BarPopoverHost(monitors: StubPopoverMonitor())
+            let presenter = RecordingWindowPresenter()
+            let host = BarPopoverHost(monitors: StubPopoverMonitor(), presenter: presenter)
             let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
                                         styleMask: .borderless, backing: .buffered, defer: false)
             let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
@@ -83,6 +85,10 @@ private func pressEvent() -> NSEvent {
             let content = VolumePopoverContentController()
             content.theme = initialTheme
             host.present(content, relativeTo: anchor)
+
+            // The presenter saw the request; nothing was ordered onto the screen.
+            #expect(presenter.makeKeyAndOrderFrontCount == 1)
+            #expect(host.panel?.isVisible != true)
 
             // Verify initial state
             guard let chrome = host.panel?.contentView as? PopoverChromeView else {
@@ -183,7 +189,8 @@ private func pressEvent() -> NSEvent {
 /// All text colours clear WCAG AA (4.5:1) contrast. Appearance rows start at the
 /// same leading inset.
 @MainActor
-@Test func realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme() {
+@Test(.windowless)
+func realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme() {
     func walk(_ view: NSView, _ visit: (NSView) -> Void) {
         visit(view)
         view.subviews.forEach { walk($0, visit) }
@@ -209,7 +216,8 @@ private func pressEvent() -> NSEvent {
     for family in families {
         for dark in [false, true] {
             let theme = BarTheme.resolve(AppearanceConfiguration(family: family, mode: dark ? .dark : .light), dark: dark)
-            let host = BarPopoverHost(monitors: StubPopoverMonitor())
+            let presenter = RecordingWindowPresenter()
+            let host = BarPopoverHost(monitors: StubPopoverMonitor(), presenter: presenter)
             let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
                                         styleMask: .borderless, backing: .buffered, defer: false)
             let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
@@ -218,6 +226,10 @@ private func pressEvent() -> NSEvent {
             content.theme = theme
             host.present(content, relativeTo: anchor)
             defer { host.dismiss() }
+
+            // The presenter saw the request; the panel was never ordered front.
+            #expect(presenter.makeKeyAndOrderFrontCount == 1)
+            #expect(host.panel?.isVisible != true)
 
             guard let panel = host.window, let root = panel.contentView as? PopoverChromeView else {
                 #expect(Bool(false), "popover panel should exist")

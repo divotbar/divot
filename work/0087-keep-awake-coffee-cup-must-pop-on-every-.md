@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-13T16:44:45Z"
-review_passes: 3
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: active
 priority: p2
 area: macos
 assigned_to: ""
@@ -16,6 +11,8 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
+updated_at: "2026-10-13T17:49:24Z"
+review_passes: 7
 review_rounds: 2
 ---
 ## Problem
@@ -91,4 +88,31 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:42:27Z · note: shots: skipped — 48 handoff shots already captured for this exact plan (565b6b9) during finalization (#0734)
 - 2026-10-13T16:44:45Z · note: review pass 3: needs some work
 - 2026-10-13T16:44:45Z · needs_input
-
+- 2026-10-13T16:49:30Z · needs_input
+- 2026-10-13T16:49:31Z · status review→active
+- 2026-10-13T16:49:31Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T16:49:31Z · message_delivered: 1 message(s)
+- 2026-10-13T16:52:24Z · status active→review
+- 2026-10-13T16:53:37Z · note: review pass 4: needs some work
+- 2026-10-13T16:53:37Z · needs_input
+- 2026-10-13T16:55:39Z · needs_input
+- 2026-10-13T16:55:39Z · status review→active
+- 2026-10-13T16:55:39Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T16:58:23Z · status active→review
+- 2026-10-13T16:59:45Z · note: review pass 5: needs some work
+- 2026-10-13T17:01:32Z · status review→active
+- 2026-10-13T17:01:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:13:27Z · status active→review
+- 2026-10-13T17:14:35Z · note: review pass 6: needs some work
+- 2026-10-13T17:14:35Z · needs_input
+- 2026-10-13T17:19:35Z · needs_input
+- 2026-10-13T17:19:35Z · status review→active
+- 2026-10-13T17:19:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:43:38Z · status active→review
+- 2026-10-13T17:43:38Z · note: handoff requested (cli)
+- 2026-10-13T17:44:18Z · status active→review
+- 2026-10-13T17:44:18Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:44:19Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:45:16Z · note: review pass 7: needs some work
+- 2026-10-13T17:49:24Z · status review→active
+- 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed

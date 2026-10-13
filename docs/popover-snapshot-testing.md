@@ -29,7 +29,7 @@ Use the provided script:
 scripts/snapshots.sh
 ```
 
-This runs the test suite and prints the snapshot output directory. The tests run as part of `swift test --package-path macos` and report clearly if they cannot render (e.g., on headless systems).
+This runs the test suite and prints the snapshot output directory. The tests run as part of `swift test --package-path macos` and report clearly if they cannot render (e.g., on headless systems). The script runs the suite through `scripts/swift-test-lock.sh`, which serializes Swift test runs across worktrees (#0091); snapshots render views offscreen, so a windowless test run still produces them.
 
 ### Snapshot token filtering
 
