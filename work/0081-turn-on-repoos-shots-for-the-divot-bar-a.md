@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T08:34:33Z"
+review_passes: 4
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
@@ -14,8 +16,6 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:34:33Z"
-review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -76,3 +76,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:32:53Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:34:33Z · note: review pass 4: needs some work
 - 2026-10-13T08:34:33Z · needs_input
+
