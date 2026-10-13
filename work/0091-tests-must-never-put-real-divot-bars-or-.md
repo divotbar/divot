@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/tests-must-never-put-real-divot-bars-or-
 created_at: "2026-10-13T16:33:40Z"
-updated_at: "2026-10-13T16:50:45Z"
+updated_at: "2026-10-13T16:58:38Z"
 ---
 ## Problem
 Maintainer report 2026-10-13: 'a lot of test instances of Divot running, bars all over my screen'. Process check at 23:35: only ONE real Divot app (dist/Divot.app, the maintainer's own, running for 6 hours); the rest are short-lived swiftpm-testing-helper processes started by the engineer agents' swift test runs (three engineers were running builds and tests at once). Those tests create REAL AppKit windows: BarPopoverTests.swift calls host.present(content, relativeTo: anchor) (lines ~85 and ~219), which goes through BarPopoverHost.present -> panel.makeKeyAndOrderFront(nil) (BarPopover.swift ~472); DisplayCoordinatorWidgetTests drive DisplayCoordinator / BarPanels, which order real panels to the front (BarPanels.swift orderFrontRegardless ~130). So every swift test run flashes bars and popovers over the maintainer's desktop, steals focus, and with several runs in parallel the screen fills with them.
@@ -34,3 +34,4 @@ Do not kill processes by name or pattern. Related: #0078/#0079 offscreen snapsho
 - 2026-10-13T16:33:40Z · created · njachowski@gmail.com
 - 2026-10-13T16:50:44Z · status inbox→ready
 - 2026-10-13T16:50:45Z · status ready→active, branch
+- 2026-10-13T16:58:38Z · message_queued at 2026-10-13T16:58:38.135Z
