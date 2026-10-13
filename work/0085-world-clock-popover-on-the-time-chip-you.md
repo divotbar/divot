@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T15:52:19Z"
+updated_at: "2026-10-13T15:52:24Z"
 review_passes: 5
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
@@ -67,7 +67,7 @@ Every image shows the same structure: the local header, left-aligned rows, a rem
 
 What the offscreen shots do **not** prove: they render the content view over the solid palette fill, not the real popover window. They cannot show outside-click/Escape dismissal, the anchor arrow, keyboard focus, VoiceOver, or the live tick refresh; those are covered by unit tests (`WorldClockPopoverContentTests`, `WorldClockPopoverContrastTests`) and still need the maintainer's eye on the packaged app.
 
-`.repoos/ui-verification/0085.json` is produced only for web captures (RepoOS #0765); native command targets collect their PNGs from `REPOOS_SHOT_DIR`, so no `ui-verification` JSON exists for this task and that is expected. Note: `repoos update --shots` currently validates against preview targets only and rejects the command target `Divot Bar`, so the fenced `## Shots` list was written through the validated `--section` path instead.
+`.repoos/ui-verification/0085.json` is produced only for web captures (RepoOS #0765); native command targets collect their PNGs from `REPOOS_SHOT_DIR`, so no `ui-verification` JSON exists for this task and that is expected. Note: `repoos update --shots` currently validates against preview targets only and rejects the command target `Divot bar`, so the fenced `## Shots` list was written through the validated `--section` path instead.
 
 
 ## Activity
@@ -125,3 +125,4 @@ What the offscreen shots do **not** prove: they render the content view over the
 - 2026-10-13T15:44:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T15:50:36Z · body: section Shots
 - 2026-10-13T15:52:19Z · body: section Shot evidence
+- 2026-10-13T15:52:24Z · body: section Shot evidence
