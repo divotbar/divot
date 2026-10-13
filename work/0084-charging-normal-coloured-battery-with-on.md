@@ -2,7 +2,7 @@
 id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
-status: review
+status: active
 priority: p1
 area: macos
 assigned_to: ""
@@ -127,3 +127,5 @@ The palette configuration on battery.100.bolt successfully isolates bolt colouri
 - 2026-10-13T10:41:00Z · note: review pass 5: needs some work
 - 2026-10-13T10:41:00Z · needs_input
 - 2026-10-13T10:44:00Z · needs_input
+- 2026-10-13T10:44:00Z · status review→active
+- 2026-10-13T10:44:00Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
