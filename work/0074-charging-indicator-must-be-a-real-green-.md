@@ -11,7 +11,7 @@ branch: feat/charging-indicator-must-be-a-real-green-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T04:49:50Z"
+updated_at: "2026-10-13T04:50:01Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -33,7 +33,7 @@ review_passes: 1
 Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarTheme. Keep the #0057 icon sizing.
 
 ## Approach
-- **Colour:** `DivotCore.ChargingIndicatorPalette.greenHex` (#248E3C) is one fixed green constant, never the theme accent (#0058 had used the accent, so Dracula and Tokyo Night showed a purple/blue bolt). A single value is deliberate: Apple's bright system green fails a light bar and a light-green dark variant fails a dark one, but #248E3C clears the 3:1 non-text floor against all four families' light and dark bar backgrounds. Measured in `PerformanceHarness.contrastChecks` (charging/background) and `DivotAppKitTests/ChargingIndicatorContrastTests.swift`.
+- **Colour:** `ChargingIndicatorPalette.greenHex` (#248E3C) is one fixed green constant, never the theme accent. #0058 had used the accent, so Dracula and Tokyo Night showed a purple/blue bolt. A single value is deliberate: Apple's bright system green fails a light bar and a light-green dark variant fails a dark one, but #248E3C clears the 3:1 non-text floor against all four families' light and dark bar backgrounds. Measured in `PerformanceHarness.contrastChecks` (charging/background) and `DivotAppKitTests/ChargingIndicatorContrastTests.swift`.
 
 - **Whole-icon tint (the chosen approach):** while charging the view tints the whole battery symbol and the bolt green, not just the bolt. A small bolt over the battery outline is not reliably legible and is lost against the optional chip fill, so the larger whole-symbol mark is what makes charging unmistakable, as the maintainer asked. The percentage label keeps the foreground colour; not charging draws no green and no bolt.
 
@@ -56,3 +56,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:48:53Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T04:49:50Z · note: review pass 1: needs some work
 - 2026-10-13T04:49:50Z · status review→active
+- 2026-10-13T04:50:01Z · body: section Approach
