@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:00:11Z"
+updated_at: "2026-10-13T17:01:33Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -46,3 +46,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T16:59:26Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T17:00:11Z · note: review pass 1: needs some work
 - 2026-10-13T17:00:11Z · status review→active
+- 2026-10-13T17:01:33Z · message_queued at 2026-10-13T17:01:33.611Z
