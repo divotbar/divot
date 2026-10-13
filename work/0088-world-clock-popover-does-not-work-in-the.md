@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:29:07Z"
+updated_at: "2026-10-13T16:29:08Z"
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -69,3 +71,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T16:25:38Z · body: section Default timezones
 - 2026-10-13T16:25:59Z · body: section Empty list must stay fully functional
 - 2026-10-13T16:29:07Z · status inbox→ready
+- 2026-10-13T16:29:08Z · cli_override, model_override
