@@ -9,9 +9,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
-model_override: sonnet
+model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T09:12:21Z"
+updated_at: "2026-10-13T09:12:22Z"
 ---
 ## Problem
 #0074 made the charging indicator unmistakable by tinting the WHOLE battery symbol green while charging (its Approach chose the whole-icon fallback; #0058 and #0074 both started from 'only the bolt green'). Maintainer screenshot 2026-10-13 16:04: the whole battery is green. The maintainer does not want that: the battery should stay the normal icon colour (the bar's regular label colour, black on light themes) and ONLY the charging bolt should be green, so it is clear what it is.
@@ -38,3 +38,4 @@ Look at the badge/tint code in WidgetViews.swift, ChargingIndicatorPalette, Widg
 - 2026-10-13T09:05:24Z · status inbox→ready
 - 2026-10-13T09:05:25Z · cli_override, model_override
 - 2026-10-13T09:05:25Z · status ready→active, branch
+- 2026-10-13T09:12:22Z · model_override
