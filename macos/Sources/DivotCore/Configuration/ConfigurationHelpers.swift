@@ -357,7 +357,7 @@ public struct ThemeCommand {
       divot theme show [--json]
       divot theme set <family> [--mode system|dark|light] [--json]
 
-    families: native | gruvbox | ayu | dracula | tokyo-night
+    families: native | alpine | gruvbox | ayu | dracula | tokyo-night
     modes: system | dark | light (the mode is kept unless --mode is given)
     exit codes: 0 ok · 1 invalid family/mode or file · 2 usage error
     """

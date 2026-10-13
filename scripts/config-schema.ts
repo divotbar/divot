@@ -28,7 +28,7 @@ function flags(value: Record<string, unknown>, keys: string[], path: string) {
   for (const key of keys) if (key in value) boolean(value[key], `${path}.${key}`)
 }
 
-const FAMILIES = ['native', 'gruvbox', 'ayu', 'dracula', 'tokyo-night']
+const FAMILIES = ['native', 'alpine', 'gruvbox', 'ayu', 'dracula', 'tokyo-night']
 const ITEMS = ['workspaces', 'front-app', 'battery', 'network', 'volume', 'clock', 'date', 'time']
 // Semantic color roles a custom palette may override, merged over the chosen
 // family and variant. `accent` also exists at the appearance root; when both

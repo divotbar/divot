@@ -8,7 +8,7 @@ import Testing
 /// physical VoiceOver/display checks a test cannot make live in
 /// `docs/accessibility-physical-checks.md`.
 
-private let shippedFamilies: [AppearanceConfiguration.Family] = [.gruvbox, .ayu, .dracula, .tokyoNight]
+private let shippedFamilies: [AppearanceConfiguration.Family] = [.alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
 
 @Test func defaultWorkloadCoversEveryRequiredWidget() {
     let required: Set<BarItemID> = [.network, .volume, .frontApp, .time, .battery]

@@ -8,7 +8,7 @@ Divot is MIT licensed and in its foundation stage. The source repository current
 - Native status providers — frontmost app, battery, date/time, network, and volume — are delivered and unit-tested.
 - Workspace adapters (AeroSpace and yabai) with integration fixtures (delivered; both need physical validation).
 - Versioned configuration, settings, and launch at login (delivered).
-- Gruvbox, Ayu, Dracula, and Tokyo Night theme families.
+- Alpine, Gruvbox, Ayu, Dracula, and Tokyo Night theme families.
 - Accessibility and physical-device QA.
 - Performance measurement harness.
 

@@ -12,7 +12,7 @@
 
 ## First native release
 
-AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, date/time, network, and volume) → AeroSpace and yabai workspaces → versioned configuration and settings → native default plus four theme families → accessibility/device QA → measured performance → signed and notarized release. The status providers, both workspace adapters (fixture-tested), the versioned configuration and settings, the date/time split and the Appearance bar item, the four theme families, and a local ad-hoc-signed preview package are implemented; physical validation, accessibility/device QA, performance evidence, and the signed/notarized public release remain planned.
+AppKit panel shell with persistent top/below placement → native providers (workspaces, frontmost app, battery, date/time, network, and volume) → AeroSpace and yabai workspaces → versioned configuration and settings → native default plus Alpine and four curated theme families → accessibility/device QA → measured performance → signed and notarized release. The status providers, both workspace adapters (fixture-tested), the versioned configuration and settings, the date/time split and the Appearance bar item, the Alpine and curated theme families, and a local ad-hoc-signed preview package are implemented; physical validation, accessibility/device QA, performance evidence, and the signed/notarized public release remain planned.
 
 There is no promised release date. Each step has its own acceptance criteria and review. A downloadable build appears only after the release gates pass.
 

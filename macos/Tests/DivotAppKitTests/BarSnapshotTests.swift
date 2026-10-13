@@ -35,7 +35,7 @@ struct BarSnapshotTests {
     }
 
     nonisolated static let configs: [Config] = {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         return families.flatMap { family in
             [false, true].flatMap { dark in
                 [CGFloat(14), CGFloat(16)].map { Config(family: family, dark: dark, textSize: $0) }

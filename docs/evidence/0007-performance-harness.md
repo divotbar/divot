@@ -25,7 +25,7 @@ Protocol: [Performance](../performance.md). Physical checklist:
 `divot --bench` runs on the current build and prints only what it observed. It
 covers the deterministic in-process part of the protocol: the native default
 workload (network, volume, front-app, clock with weekday/date, battery), both
-appearance modes, all four theme families × light/dark with the contrast audit,
+appearance modes, all five curated theme families × light/dark with the contrast audit,
 workspace bursts through the pure feed state machine, subscription teardown and
 stale-emission rejection for provider cancellation, rapid native-menu-bar
 reveal/hide placement, the default action mapping, and the view-level
@@ -45,8 +45,8 @@ checks it cannot make.
 `swift test --package-path macos` covers:
 
 - **Harness coverage**: every `PerformanceScenario` is exercised, every
-  measurement is finite and non-negative, and the contrast audit returns 56
-  checks (four families × two variants × seven roles, the seventh being the
+  measurement is finite and non-negative, and the contrast audit returns 70
+  checks (five families × two variants × seven roles, the seventh being the
   fixed charging green added in #0074) that all clear their floors.
 - **No invented evidence**: the auto-detected environment leaves every
   human-supplied field `nil`, and the human-check list names helper, compositor,
