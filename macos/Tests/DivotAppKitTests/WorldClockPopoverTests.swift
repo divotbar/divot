@@ -177,14 +177,17 @@ struct WorldClockPopoverRealFlowTests {
         table.selectRowIndexes([0], byExtendingSelection: false)
         table.sendAction(table.doubleAction, to: table.target)
 
-        // Verify the timezone was added and persisted
+        // Verify the timezone was added to the callback and search closed
         guard let reported = reportedTimezones, reported.count == 1 else {
             Issue.record("expected one timezone to be reported after selection")
             return
         }
+        #expect(reported[0] == "America/Los_Angeles",
+                "selected timezone should match Los Angeles identifier")
 
-        // The first Los Angeles match should be America/Los_Angeles
-        #expect(reported[0] == "America/Los_Angeles")
+        // Verify the search cleared and rows rebuilt: search field should be empty
+        #expect(search.stringValue == "",
+                "search field should clear after selecting a timezone")
     }
 }
 

@@ -14,9 +14,14 @@ created_at: "2026-10-13T16:20:27Z"
 updated_at: "2026-10-13T16:47:59Z"
 ---
 ## Problem
-#0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
-- Real app: a large mostly blank panel with one line of text ('13/10/2026, 23:16 (UTC+07:00)') and a search field with a loupe icon under it; no zone list, no visible way to add a timezone (typing in the search field gives no usable result), large empty space above the text. The maintainer says it 'doesn't work'.
-- The approved shot shows a different, nicer layout (title 'Local (GMT)', four pre-filled zones with 'Tomorrow'/'Yesterday' labels, remove buttons, 'Add timezone...' with a search field) in a light, oversized rendering with the fixed date 01/01/2026 10:00. So the shots render a different configuration and sizing than the real popover: they pre-load four zones and never show the empty state or the add flow, and they do not go through the real popover host and panel sizing.
+#0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong.
+
+### Root causes identified and fixed:
+1. **Panel sizing**: `render()` never called `host.resize(to:)`, leaving the panel at the initial footer-only size while the stack grew underneath, creating large empty chrome.
+2. **Search keystroke**: `NSSearchField.action` only fires on Return/search-button, not on each keystroke. Switched to `NSControl.textDidChangeNotification` for live results.
+3. **Config distinction**: Empty timezone list was conflated with "never configured". Changed to `[String]?` to distinguish absent (nil → use defaults) from explicit empty.
+4. **Re-render after add/remove**: Timezone updates only called the callback, not `render()` + `host.resize()`, so rows didn't appear/disappear until the next tick.
+5. **Shots rendering**: Test snapshots used a mock layout, not the real BarPopoverHost/panel sizing path.
 
 ## Desired UX (the maintainer's changes)
 - No date at all. Show the CURRENT TIME and the local UTC offset, for example '23:16  UTC+7' (use the compact offset form: UTC+7, UTC+5:30, UTC-8, UTC+0), with the local city or zone name small beneath. Follow the existing 12/24 hour setting.
