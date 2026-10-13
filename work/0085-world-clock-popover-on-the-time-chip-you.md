@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T13:29:11Z"
+updated_at: "2026-10-13T13:29:21Z"
 ---
 ## Problem
 Clicking the time chip only opens a System Settings pane. The date chip now opens a useful calendar (#0077); the time chip needs something equally useful. The maintainer lives in Jakarta and often needs the time in California (and others).
@@ -33,7 +33,9 @@ Clicking the time chip only opens a System Settings pane. The date chip now open
 - The maintainer verifies by eye on the packaged app; do not claim visual sign-off.
 
 ## Screenshots
-See attached: the bar as it looks today (time chip at 20:26).
+Maintainer screenshot 2026-10-13 20:26: the current bar with the time chip (20:26), date chip and the bolt-only green charging battery. The time chip is the click target for this task.
+
+![Bar with time chip](/api/tasks/0085/attachments/screenshot-1.png)
 
 ## Notes for AI
 Reuse the shared popover component and the time-format helpers; follow the patterns of #0070-#0077 and #0083. Do not use sunrise/sunset or any location API. The time-converter scrubber and day/night marking are a separate follow-up task.
@@ -41,3 +43,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 ## Activity
 
 - 2026-10-13T13:29:11Z · created · njachowski@gmail.com
+- 2026-10-13T13:29:21Z · body: section Screenshots
