@@ -2,7 +2,7 @@
 id: "0075"
 title: "Investigate: macOS notification banners sit under the Divot bar"
 type: bug
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T05:46:55Z"
+updated_at: "2026-10-13T05:54:51Z"
 ---
 ## Problem
 Maintainer screenshot 2026-10-13: a Chrome/Google Calendar notification banner appears at the top right with its top edge tucked under the Divot bar (its title row is partly covered). The native menu bar is hidden, and macOS places banners just below the menu bar area, which Divot now occupies.
@@ -41,3 +41,4 @@ Related decisions: bar placement is the top edge when the native menu bar is hid
 - 2026-10-13T05:46:53Z · status inbox→ready
 - 2026-10-13T05:46:54Z · cli_override, model_override
 - 2026-10-13T05:46:55Z · status ready→active, branch
+- 2026-10-13T05:54:51Z · status active→review
