@@ -2,7 +2,7 @@
 id: "0071"
 title: "Volume popover: output volume slider with mute and an Open Sound Settings row"
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: needs-human-step
 priority: p2
@@ -57,4 +57,4 @@ Whether the slider actually moves the real output on the packaged app, and wheth
 - 2026-10-13T02:01:14Z · needs_input
 - 2026-10-13T02:10:02Z · body: section Implementation notes
 - 2026-10-13T02:14:44Z · needs_input
-- 2026-10-13T02:15:03Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T02:15:03Z · status active→review
