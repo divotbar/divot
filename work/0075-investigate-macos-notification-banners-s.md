@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-13T08:19:36Z"
-review_passes: 10
+last_close_out_gate_ms: 53131
+last_close_out_gate_at: "2026-10-13T08:41:12.387Z"
 id: "0075"
 title: "Investigate: macOS notification banners sit under the Divot bar"
 type: bug
@@ -17,6 +17,8 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
+updated_at: "2026-10-13T08:41:12Z"
+review_passes: 10
 close_out_repair_count: 1
 review_rounds: 2
 ---
@@ -198,4 +200,5 @@ Until these measurements are provided, feasibility of a safe public fix cannot b
 - 2026-10-13T08:18:27Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T08:19:36Z · note: review pass 10: needs some work
 - 2026-10-13T08:19:36Z · needs_input
+- 2026-10-13T08:41:12Z · close-out gate completed in 53s
 
