@@ -100,7 +100,7 @@ public final class AppearancePopoverController {
 }
 
 /// The popover's content: a header, one horizontal System/Light/Dark segmented
-/// control, a wrapped grid of theme swatches, and the settings row.
+/// control, a vertical list of theme swatches, and the settings row.
 ///
 /// Every choice is built from the configuration enums
 /// (`AppearanceConfiguration.Mode.allCases`, `.Family.allCases`) so a new family
@@ -137,9 +137,9 @@ final class AppearancePopoverContentController: BarPopoverContentController {
         configure()
     }
 
-    /// At most three columns, so five families wrap into two compact rows.
+    /// One theme per row for a vertical list.
     static func themeGridColumns(for count: Int) -> Int {
-        max(1, min(3, count))
+        1
     }
 
     /// Paint the swatch options from the theme too: the name in the theme's
@@ -185,8 +185,7 @@ final class AppearancePopoverContentController: BarPopoverContentController {
         modeControl.setContentHuggingPriority(.required, for: .horizontal)
     }
 
-    /// Build one swatch option per family, chunked into rows of at most three so
-    /// the grid wraps instead of stretching the popover wide.
+    /// Build one swatch option per family, each on its own row for a vertical list.
     private func themeGridRows(_ families: [AppearanceConfiguration.Family]) -> [NSView] {
         let columns = Self.themeGridColumns(for: families.count)
         var rows: [NSView] = []

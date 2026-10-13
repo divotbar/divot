@@ -29,7 +29,7 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
 | Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout, the theme-aware label/secondary/link colours, and the anchored `NSPopover` lifecycle (transient + outside-click/Escape monitors, same-item toggle) reused by the Wi-Fi, volume, and appearance popovers. |
 | Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
-| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a theme-family swatch grid plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
+| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a vertical list of theme-family options plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
 | App wiring | `macos/Sources/DivotApp/DivotAppDelegate.swift`, `DivotAppWidgetReport.swift` | First-launch defaults, main-actor sink, action handling, `divot --widgets`. |
 
 ## Providers and lifecycle
@@ -206,11 +206,11 @@ as the Wi-Fi and volume popovers (`BarPopover.swift` owns the shared layout and
 `.transient` lifecycle; `AppearancePopover.swift` supplies the rows) instead of
 toggling light/dark directly. Task 0073 restyled it compact and horizontal: it
 contains a **Mode** row as one horizontal `System`/`Light`/`Dark` segmented
-control matching `appearance.mode`, a wrapped grid of theme-family options
+control matching `appearance.mode`, a vertical list of theme-family options
 (`Native`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`, matching
-`appearance.family`) where each option shows a small colour swatch taken from
+`appearance.family`) where each row shows a small colour swatch taken from
 that family's own palette (`ThemeResolver.swatch`, so a new family needs no
-hand-copied colour) and outlines the current theme, then a final **Open Divot
+hand-copied colour) and the family name, with the current theme clearly marked, then a final **Open Divot
 Settings…** row that opens Divot's own settings window, not a System Settings
 pane. The shared width floor is lowered for this content so the popover hugs the
 control and grid instead of leaving an empty block beside them; the Wi-Fi and

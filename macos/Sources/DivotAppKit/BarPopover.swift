@@ -117,6 +117,7 @@ class BarPopoverContentController: NSViewController {
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.textColor = theme.popoverPalette.label
         label.identifier = Self.headerIdentifier
+        label.alignment = .left
         return label
     }
 
@@ -137,6 +138,7 @@ class BarPopoverContentController: NSViewController {
         label.textColor = theme.popoverPalette.secondary
         label.identifier = Self.secondaryIdentifier
         label.maximumNumberOfLines = 0
+        label.alignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         label.widthAnchor.constraint(lessThanOrEqualToConstant: 248).isActive = true
         return label
