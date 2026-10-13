@@ -91,3 +91,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:49:30Z · needs_input
 - 2026-10-13T16:49:31Z · status review→active
 - 2026-10-13T16:49:31Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T16:49:31Z · message_delivered: 1 message(s)
