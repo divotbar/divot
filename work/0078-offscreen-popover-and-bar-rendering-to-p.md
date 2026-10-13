@@ -39,3 +39,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T06:25:25Z · cli_override, model_override
 - 2026-10-13T06:25:25Z · status ready→active, branch
 - 2026-10-13T06:35:26Z · status active→review
+- 2026-10-13T06:35:26Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
