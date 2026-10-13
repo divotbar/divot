@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:22:37Z"
+updated_at: "2026-10-13T09:22:44Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -165,3 +165,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T09:20:58Z · body: section Build and verification
 - 2026-10-13T09:21:01Z · body: section Shots
 - 2026-10-13T09:22:37Z · status active→review
+- 2026-10-13T09:22:44Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (fa84252) during finalization (#0734)
