@@ -1,6 +1,4 @@
 ---
-last_handoff_failure_fingerprint: "check|repoos check failed: site — (pass) validate > rejects out-of-range chip opacity [0.03ms]"
-last_handoff_failure_sha: c81c50a4f059cdec535d46d64fc9de354fe07fc8
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
@@ -13,7 +11,9 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T14:53:54Z"
+updated_at: "2026-10-13T14:55:13Z"
+last_handoff_failure_fingerprint: "check|repoos check failed: site — (pass) validate > rejects out-of-range chip opacity [0.03ms]"
+last_handoff_failure_sha: c81c50a4f059cdec535d46d64fc9de354fe07fc8
 review_passes: 4
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
