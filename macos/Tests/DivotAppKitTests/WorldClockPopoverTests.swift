@@ -146,9 +146,9 @@ struct WorldClockPopoverRealFlowTests {
             return
         }
 
-        // Simulate typing into the search field by setting its value and triggering the action
+        // Simulate typing into the search field by setting its value and posting the notification
         search.stringValue = "los"
-        search.sendAction(search.action, to: search.target)
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
 
         // Find the results table to verify results appeared
         var tableView: NSTableView?

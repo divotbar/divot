@@ -52,18 +52,17 @@ public final class WorldClockPopoverController {
                        timeFormat: config.widgets.time.timeFormat,
                        showSeconds: config.widgets.time.seconds,
                        customPattern: config.widgets.time.customPattern)
+        host.resize(to: content.preferredSize)
     }
 
     private func timezoneListFromConfiguration(_ config: DivotConfiguration) -> [String] {
-        let configuredList = config.widgets.time.timezones
-
-        if configuredList.isEmpty {
-            let defaults = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
-            let localZone = TimeZone.current.identifier
-            return defaults.filter { $0 != localZone }
+        if let configuredList = config.widgets.time.timezones {
+            return configuredList
         }
 
-        return configuredList
+        let defaults = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
+        let localZone = TimeZone.current.identifier
+        return defaults.filter { $0 != localZone }
     }
 
     /// Hide the popover and clear the controller reference.
@@ -139,19 +138,14 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
 
         let localOffset = localTimeZone.secondsFromGMT(for: date)
         let localOffsetStr = formatCompactOffset(localOffset)
-        let localTime = NSTextField(labelWithString: formatTime(now, timeZone: localTimeZone, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern))
+        let timeAndOffsetText = "\(formatTime(now, timeZone: localTimeZone, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern))  UTC\(localOffsetStr)"
+        let localTime = NSTextField(labelWithString: timeAndOffsetText)
         localTime.font = .systemFont(ofSize: 14, weight: .semibold)
         localTime.textColor = theme.popoverPalette.label
         localTime.identifier = Self.headerIdentifier
         stack.addArrangedSubview(localTime)
 
-        let localOffsetLabel = NSTextField(labelWithString: "UTC\(localOffsetStr)")
-        localOffsetLabel.font = .systemFont(ofSize: 11)
-        localOffsetLabel.textColor = theme.popoverPalette.secondary
-        localOffsetLabel.identifier = Self.secondaryIdentifier
-        stack.addArrangedSubview(localOffsetLabel)
-
-        let localCityLabel = NSTextField(labelWithString: localTimeZone.abbreviation() ?? localTimeZone.identifier)
+        let localCityLabel = NSTextField(labelWithString: friendlyCityName(localTimeZone.identifier))
         localCityLabel.font = .systemFont(ofSize: 10)
         localCityLabel.textColor = theme.popoverPalette.secondary
         localCityLabel.identifier = Self.secondaryIdentifier
@@ -226,11 +220,16 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         search.placeholderString = "Search (e.g., Tokyo)"
         search.font = .systemFont(ofSize: 11)
         search.translatesAutoresizingMaskIntoConstraints = false
-        search.target = self
-        search.action = #selector(searchTextDidChange(_:))
         search.setAccessibilityLabel("Add timezone")
         self.searchField = search
         styleSearchField()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(searchTextDidChange(_:)),
+            name: NSControl.textDidChangeNotification,
+            object: search
+        )
 
         let resultsController = TimezoneSearchResultsController(
             onSelect: { [weak self] timezone in
@@ -278,10 +277,11 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         onUpdateTimezones?(updated)
     }
 
-    @objc private func searchTextDidChange(_ sender: NSSearchField) {
-        guard let resultsController = resultsController else { return }
-        let query = sender.stringValue
-        resultsController.updateResults(for: query)
+    @objc private func searchTextDidChange(_ notification: Notification) {
+        guard let resultsController = resultsController,
+              let searchField = searchField else { return }
+        let query = searchField.stringValue
+        resultsController.updateResults(for: query, excluding: currentTimezones)
         resultsController.view.isHidden = query.isEmpty
     }
 
@@ -306,6 +306,11 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         } else {
             return String(format: "%@%d:%02d", sign, hours, minutes)
         }
+    }
+
+    private func friendlyCityName(_ tzIdentifier: String) -> String {
+        let parts = tzIdentifier.components(separatedBy: "/")
+        return (parts.last ?? tzIdentifier).replacingOccurrences(of: "_", with: " ")
     }
 
     private func formatTime(_ date: Date, timeZone: TimeZone, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
@@ -375,15 +380,18 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         tableView.doubleAction = #selector(tableViewDoubleClicked(_:))
     }
 
-    func updateResults(for query: String) {
+    func updateResults(for query: String, excluding: [String] = []) {
         if query.isEmpty {
             results = []
         } else {
             let lowercasedQuery = query.lowercased()
+            let excludingSet = Set(excluding)
             let allIds = TimeZone.knownTimeZoneIdentifiers
             var matches: [(identifier: String, displayName: String)] = []
 
             for id in allIds {
+                guard !excludingSet.contains(id) else { continue }
+
                 let parts = id.components(separatedBy: "/")
                 let displayName = (parts.last ?? id).replacingOccurrences(of: "_", with: " ")
                 let matchesId = id.lowercased().contains(lowercasedQuery)
@@ -449,8 +457,9 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
             let selectedRow = tableView.selectedRow
             if selectedRow >= 0, selectedRow < results.count {
                 onSelect(results[selectedRow].identifier)
+                return nil
             }
-            return nil
+            return event
         default:
             return event
         }

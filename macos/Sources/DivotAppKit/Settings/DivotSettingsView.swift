@@ -298,18 +298,19 @@ public struct DivotSettingsView: View {
                     Text("World Clock Timezones")
                         .font(.headline)
 
-                    if model.configuration.widgets.time.timezones.isEmpty {
+                    let timezones = model.configuration.widgets.time.timezones ?? []
+                    if timezones.isEmpty {
                         Text("No timezones added. Click the time chip to add timezones.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(model.configuration.widgets.time.timezones, id: \.self) { tz in
+                        ForEach(timezones, id: \.self) { tz in
                             HStack {
                                 Text(tz.components(separatedBy: "/").last ?? tz)
                                     .font(.caption)
                                 Spacer()
                                 Button(action: {
-                                    var updated = model.configuration.widgets.time.timezones
+                                    var updated = timezones
                                     if let index = updated.firstIndex(of: tz) {
                                         updated.remove(at: index)
                                         model.updateWorldClockTimezones(updated)
