@@ -132,8 +132,14 @@ function options(id: string, value: unknown) {
       flags(value, ['weekday'], path)
       return
     case 'time':
-      shape(value, [], ['seconds'], path)
+      shape(value, [], ['seconds', 'timezones'], path)
       flags(value, ['seconds'], path)
+      if ('timezones' in value) {
+        if (!Array.isArray(value.timezones)) throw new Error(`${path}.timezones: expected array`)
+        for (const tz of value.timezones) {
+          if (typeof tz !== 'string') throw new Error(`${path}.timezones: expected array of strings`)
+        }
+      }
       return
     default:
       shape(value, [], [], path)
