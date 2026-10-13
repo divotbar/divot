@@ -43,6 +43,16 @@ final class WorldClockTests: XCTestCase {
                        ["Asia/Tokyo"])
     }
 
+    func testFriendlyNameMappingAndFallback() {
+        // The same mapping the popover, its search results and the Settings list
+        // use, so the defaults are named by city everywhere.
+        XCTAssertEqual(WorldClock.friendlyName(for: "America/Los_Angeles"), "San Francisco")
+        XCTAssertEqual(WorldClock.friendlyName(for: "Europe/London"), "London")
+        XCTAssertEqual(WorldClock.friendlyName(for: "Asia/Singapore"), "Singapore")
+        XCTAssertEqual(WorldClock.friendlyName(for: "America/New_York"), "New York")
+        XCTAssertEqual(WorldClock.friendlyName(for: "Asia/Kolkata"), "Kolkata")
+    }
+
     func testInvalidTimezones() {
         let timezones = ["America/Los_Angeles", "Invalid/Timezone", "Asia/Tokyo"]
         let entries = WorldClock.entries(for: timezones)

@@ -402,6 +402,12 @@ struct PopoverSnapshotTests {
         makeWorldClockController(timezones: WorldClock.resolvedTimezones(configured: nil))
     }
 
+    /// One zone: a user list with a single entry, distinct from both the empty
+    /// state and the three first-run defaults.
+    private func makeWorldClockOneZoneController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        makeWorldClockController(timezones: ["Asia/Tokyo"])
+    }
+
     /// The add flow: the empty state with `los` typed into the real search field
     /// and the results list visible. The text is set and the control-text-did-change
     /// notification posted exactly as the live popover receives it.
@@ -631,6 +637,22 @@ struct PopoverSnapshotTests {
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "world-clock-popover-\(familyName)-\(variantName)-default-defaults"
                 try testPopover(name: name, maker: { self.makeWorldClockDefaultsController(fontSize: $0) },
+                               appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("World clock popover — one zone, all themes × light/dark")
+    func worldClockPopoverOneZone() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-one-zone"
+                try testPopover(name: name, maker: { self.makeWorldClockOneZoneController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }

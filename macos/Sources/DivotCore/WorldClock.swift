@@ -47,6 +47,21 @@ public enum WorldClock {
         return configured
     }
 
+    /// The friendly name to show for a zone: the well-known zones are named by
+    /// city (San Francisco for `America/Los_Angeles`), and every other identifier
+    /// falls back to its last path segment with underscores as spaces. Kept in one
+    /// place so the popover, its search results and the Settings list cannot drift.
+    public static func friendlyName(for identifier: String) -> String {
+        let friendlyNames: [String: String] = [
+            "America/Los_Angeles": "San Francisco",
+            "Europe/London": "London",
+            "Asia/Singapore": "Singapore"
+        ]
+        if let name = friendlyNames[identifier] { return name }
+        return (identifier.components(separatedBy: "/").last ?? identifier)
+            .replacingOccurrences(of: "_", with: " ")
+    }
+
     /// Compute world clock entries for the given timezones.
     ///
     /// - Parameters:
@@ -71,14 +86,7 @@ public enum WorldClock {
                 continue
             }
 
-            let friendlyNames: [String: String] = [
-                "America/Los_Angeles": "San Francisco",
-                "Europe/London": "London",
-                "Asia/Singapore": "Singapore"
-            ]
-            let displayName = friendlyNames[tzString]
-                ?? ((tzString.components(separatedBy: "/").last ?? tzString)
-                    .replacingOccurrences(of: "_", with: " "))
+            let displayName = friendlyName(for: tzString)
             let offsetSeconds = tz.secondsFromGMT(for: referenceDate)
             let localOffsetSeconds = localTimeZone.secondsFromGMT(for: referenceDate)
             let diffSeconds = offsetSeconds - localOffsetSeconds

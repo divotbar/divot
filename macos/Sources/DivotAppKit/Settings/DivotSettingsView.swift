@@ -308,7 +308,7 @@ public struct DivotSettingsView: View {
                     } else {
                         ForEach(timezones, id: \.self) { tz in
                             HStack {
-                                Text(tz.components(separatedBy: "/").last ?? tz)
+                                Text(WorldClock.friendlyName(for: tz))
                                     .font(.caption)
                                 Spacer()
                                 Button(action: {

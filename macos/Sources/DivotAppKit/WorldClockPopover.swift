@@ -50,6 +50,81 @@ private final class TimezoneResultsTableView: NSTableView {
     }
 }
 
+/// The scrollable list of the user's zone rows. It fits its content up to
+/// `maximumVisibleRows` and scrolls beyond that, so a long list cannot grow the
+/// panel without bound (the Add row and the settings link stay on screen).
+@MainActor
+private final class TimezoneZoneListView: NSView {
+    /// The most rows to show before the list scrolls.
+    static let maximumVisibleRows = 8
+    private static let rowSpacing: CGFloat = 6
+
+    private let scrollView = NSScrollView()
+    private let rows = PopoverRowStack()
+    private var heightConstraint: NSLayoutConstraint?
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        translatesAutoresizingMaskIntoConstraints = false
+
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        // Draw nothing of its own; the popover's solid fill shows through, and no
+        // vibrancy material is introduced (#0083).
+        scrollView.drawsBackground = false
+        scrollView.contentView.drawsBackground = false
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+
+        rows.orientation = .vertical
+        rows.alignment = .leading
+        rows.spacing = Self.rowSpacing
+        rows.translatesAutoresizingMaskIntoConstraints = false
+
+        scrollView.documentView = rows
+        addSubview(scrollView)
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            rows.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
+            rows.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor),
+            rows.topAnchor.constraint(equalTo: scrollView.contentView.topAnchor)
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("created in code") }
+
+    /// Replace the rows and resize to fit up to `maximumVisibleRows`, scrolling
+    /// when there are more.
+    func setRows(_ newRows: [NSView]) {
+        for view in rows.arrangedSubviews {
+            rows.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+        for view in newRows {
+            rows.addArrangedSubview(view)
+        }
+        rows.layoutSubtreeIfNeeded()
+
+        let spacing = Self.rowSpacing
+        let heights = newRows.map { $0.fittingSize.height }
+        let total = heights.reduce(0, +) + spacing * CGFloat(max(0, newRows.count - 1))
+        let visibleCount = min(newRows.count, Self.maximumVisibleRows)
+        let visible = heights.prefix(visibleCount).reduce(0, +)
+            + spacing * CGFloat(max(0, visibleCount - 1))
+        setHeight(min(total, visible))
+    }
+
+    private func setHeight(_ height: CGFloat) {
+        heightConstraint?.isActive = false
+        let constraint = heightAnchor.constraint(equalToConstant: max(1, height))
+        constraint.isActive = true
+        heightConstraint = constraint
+    }
+}
+
 /// A popover anchored to the bar's time item that shows world clock entries for added timezones.
 @MainActor
 public final class WorldClockPopoverController {
@@ -57,17 +132,35 @@ public final class WorldClockPopoverController {
     private let getConfiguration: @MainActor () -> DivotConfiguration
     private let updateTimezones: @MainActor ([String]) -> Void
 
-    private let host = BarPopoverHost()
+    private let host: BarPopoverHost
     private var content: WorldClockPopoverContentController?
 
     public init(openDateTimeSettings: @escaping @MainActor () -> Void,
                getConfiguration: @escaping @MainActor () -> DivotConfiguration,
                updateTimezones: @escaping @MainActor ([String]) -> Void) {
+        self.host = BarPopoverHost()
         self.openDateTimeSettings = openDateTimeSettings
         self.getConfiguration = getConfiguration
         self.updateTimezones = updateTimezones
         host.onClose = { [weak self] in self?.handleClosed() }
     }
+
+    /// Test seam: inject the host so a test can drive the real
+    /// present → render → rebuild path with a windowless presenter (#0091).
+    init(testingHost host: BarPopoverHost,
+         openDateTimeSettings: @escaping @MainActor () -> Void,
+         getConfiguration: @escaping @MainActor () -> DivotConfiguration,
+         updateTimezones: @escaping @MainActor ([String]) -> Void) {
+        self.host = host
+        self.openDateTimeSettings = openDateTimeSettings
+        self.getConfiguration = getConfiguration
+        self.updateTimezones = updateTimezones
+        host.onClose = { [weak self] in self?.handleClosed() }
+    }
+
+    /// The live content controller while presented, for tests that assert on the
+    /// rows the real present → render path built.
+    var contentForTesting: WorldClockPopoverContentController? { content }
 
     /// Show the popover below `view` with the current time and added timezones.
     public func present(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
@@ -105,7 +198,10 @@ public final class WorldClockPopoverController {
         host.resize(to: content.preferredSize)
     }
 
-    private func timezoneListFromConfiguration(_ config: DivotConfiguration) -> [String] {
+    /// Resolve the stored list into the zones to show. Internal so the
+    /// absent-vs-empty and local-duplicate rules are unit-tested through the
+    /// controller's own path.
+    func timezoneListFromConfiguration(_ config: DivotConfiguration) -> [String] {
         WorldClock.resolvedTimezones(configured: config.widgets.time.timezones)
     }
 
@@ -150,6 +246,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     private var searchField: NSSearchField?
     private var resultsController: TimezoneSearchResultsController?
     private var searchObserver: NSObjectProtocol?
+    private let zoneList = TimezoneZoneListView()
 
     /// The always-last row: a separator and the Date & Time settings link. Built
     /// by every render because `clearRows()` removes the previous one.
@@ -182,7 +279,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         localTime.identifier = Self.headerIdentifier
         stack.addArrangedSubview(localTime)
 
-        let localCityLabel = NSTextField(labelWithString: friendlyCityName(localTimeZone.identifier))
+        let localCityLabel = NSTextField(labelWithString: WorldClock.friendlyName(for: localTimeZone.identifier))
         localCityLabel.font = .systemFont(ofSize: 10)
         localCityLabel.textColor = theme.popoverPalette.secondary
         localCityLabel.identifier = Self.secondaryIdentifier
@@ -190,51 +287,10 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
 
         if !entries.isEmpty {
             stack.addArrangedSubview(separator())
-        }
-
-        for entry in entries {
-            let label = NSTextField(labelWithString: entry.displayName)
-            label.font = .systemFont(ofSize: 12)
-            label.textColor = theme.popoverPalette.label
-            label.identifier = Self.headerIdentifier
-            label.translatesAutoresizingMaskIntoConstraints = false
-
-            let timeText = formatTime(entry.date, timeZone: TimeZone(identifier: entry.timezone)!, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern)
-            let offsetText = WorldClock.formatHourOffset(entry.hourOffset)
-            let dayText = entry.dayLabel.map { " \($0)" } ?? ""
-
-            let info = NSTextField(labelWithString: "\(timeText) (\(offsetText))\(dayText)")
-            info.font = .systemFont(ofSize: 11)
-            info.textColor = theme.popoverPalette.secondary
-            info.identifier = Self.secondaryIdentifier
-            info.translatesAutoresizingMaskIntoConstraints = false
-
-            let removeButton = NSButton()
-            removeButton.setButtonType(.momentaryPushIn)
-            removeButton.image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: "Remove \(entry.displayName)")
-            removeButton.bezelStyle = .circular
-            removeButton.font = .systemFont(ofSize: 11)
-            removeButton.translatesAutoresizingMaskIntoConstraints = false
-            removeButton.identifier = NSUserInterfaceItemIdentifier(entry.timezone)
-            removeButton.target = self
-            removeButton.action = #selector(removeTimezone(_:))
-            removeButton.setAccessibilityLabel("Remove \(entry.displayName)")
-            removeButton.toolTip = "Remove \(entry.displayName)"
-
-            let textStack = NSStackView(views: [label, info])
-            textStack.orientation = .vertical
-            textStack.spacing = 2
-            textStack.alignment = .leading
-            textStack.translatesAutoresizingMaskIntoConstraints = false
-
-            let rowStack = NSStackView(views: [textStack, removeButton])
-            rowStack.orientation = .horizontal
-            rowStack.spacing = 8
-            rowStack.alignment = .centerY
-            rowStack.translatesAutoresizingMaskIntoConstraints = false
-            rowStack.distribution = .fill
-
-            stack.addArrangedSubview(rowStack)
+            zoneList.setRows(entries.map {
+                zoneRow(for: $0, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern)
+            })
+            stack.addArrangedSubview(zoneList)
         }
 
         if entries.isEmpty {
@@ -273,7 +329,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             object: search,
             queue: .main
         ) { [weak self] _ in
-            self?.updateSearchResults()
+            MainActor.assumeIsolated { self?.updateSearchResults() }
         }
 
         let resultsController = TimezoneSearchResultsController(
@@ -281,10 +337,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
                 self?.addTimezone(timezone)
             },
             theme: theme,
-            currentTimezones: timezones,
-            friendlyCityName: { [weak self] tzId in
-                self?.friendlyCityName(tzId) ?? ""
-            }
+            currentTimezones: timezones
         )
         self.resultsController = resultsController
 
@@ -333,11 +386,9 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
               let searchField = searchField else { return }
         let query = searchField.stringValue
         resultsController.updateResults(for: query, excluding: currentTimezones)
-        resultsController.view.isHidden = query.isEmpty
-    }
-
-    @objc private func searchTextDidChange(_ notification: Notification) {
-        updateSearchResults()
+        // Hide the list when there is nothing to show, so an unmatched query
+        // does not leave a blank gap under the field.
+        resultsController.view.isHidden = resultsController.results.isEmpty
     }
 
     private func clearSearch() {
@@ -368,15 +419,53 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         }
     }
 
-    private func friendlyCityName(_ tzIdentifier: String) -> String {
-        let mapping: [String: String] = [
-            "America/Los_Angeles": "San Francisco"
-        ]
-        if let friendlyName = mapping[tzIdentifier] {
-            return friendlyName
-        }
-        let parts = tzIdentifier.components(separatedBy: "/")
-        return (parts.last ?? tzIdentifier).replacingOccurrences(of: "_", with: " ")
+    /// One left-aligned zone row: the zone name over its time, offset and day
+    /// label, with a small remove control at the trailing edge.
+    private func zoneRow(for entry: WorldClockEntry,
+                         timeFormat: TimeConfiguration.Format,
+                         showSeconds: Bool,
+                         customPattern: String?) -> NSView {
+        let label = NSTextField(labelWithString: entry.displayName)
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = theme.popoverPalette.label
+        label.identifier = Self.headerIdentifier
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        let timeText = formatTime(entry.date, timeZone: TimeZone(identifier: entry.timezone)!, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern)
+        let offsetText = WorldClock.formatHourOffset(entry.hourOffset)
+        let dayText = entry.dayLabel.map { " \($0)" } ?? ""
+
+        let info = NSTextField(labelWithString: "\(timeText) (\(offsetText))\(dayText)")
+        info.font = .systemFont(ofSize: 11)
+        info.textColor = theme.popoverPalette.secondary
+        info.identifier = Self.secondaryIdentifier
+        info.translatesAutoresizingMaskIntoConstraints = false
+
+        let removeButton = NSButton()
+        removeButton.setButtonType(.momentaryPushIn)
+        removeButton.image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: "Remove \(entry.displayName)")
+        removeButton.bezelStyle = .circular
+        removeButton.font = .systemFont(ofSize: 11)
+        removeButton.translatesAutoresizingMaskIntoConstraints = false
+        removeButton.identifier = NSUserInterfaceItemIdentifier(entry.timezone)
+        removeButton.target = self
+        removeButton.action = #selector(removeTimezone(_:))
+        removeButton.setAccessibilityLabel("Remove \(entry.displayName)")
+        removeButton.toolTip = "Remove \(entry.displayName)"
+
+        let textStack = NSStackView(views: [label, info])
+        textStack.orientation = .vertical
+        textStack.spacing = 2
+        textStack.alignment = .leading
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+
+        let rowStack = NSStackView(views: [textStack, removeButton])
+        rowStack.orientation = .horizontal
+        rowStack.spacing = 8
+        rowStack.alignment = .centerY
+        rowStack.translatesAutoresizingMaskIntoConstraints = false
+        rowStack.distribution = .fill
+        return rowStack
     }
 
     private func formatTime(_ date: Date, timeZone: TimeZone, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
@@ -416,17 +505,15 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
     private(set) var results: [(identifier: String, displayName: String)] = []
     private var theme: BarTheme
     private let currentTimezones: [String]
-    private let friendlyCityName: (String) -> String
     /// The scroll view's height, driven by the row count so the visible results
     /// list has a real height under Auto Layout (a plain frame change is ignored
     /// once the view is an arranged subview).
     private var heightConstraint: NSLayoutConstraint?
 
-    init(onSelect: @escaping (String) -> Void, theme: BarTheme, currentTimezones: [String], friendlyCityName: @escaping (String) -> String = { _ in "" }) {
+    init(onSelect: @escaping (String) -> Void, theme: BarTheme, currentTimezones: [String]) {
         self.onSelect = onSelect
         self.theme = theme
         self.currentTimezones = currentTimezones
-        self.friendlyCityName = friendlyCityName
 
         tableView = TimezoneResultsTableView(frame: NSRect(x: 0, y: 0, width: 272, height: 6 * 22))
         tableView.headerView = nil
@@ -466,34 +553,52 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         }
     }
 
+    /// The most matches shown at once. The list scrolls beyond this.
+    static let maximumResults = 6
+
     func updateResults(for query: String, excluding: [String] = []) {
-        if query.isEmpty {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmed.isEmpty else {
             results = []
-        } else {
-            let lowercasedQuery = query.lowercased()
-            let excludingSet = Set(excluding)
-            let allIds = TimeZone.knownTimeZoneIdentifiers
-            var matches: [(identifier: String, displayName: String)] = []
-
-            for id in allIds {
-                guard !excludingSet.contains(id) else { continue }
-
-                let parts = id.components(separatedBy: "/")
-                let displayName = (parts.last ?? id).replacingOccurrences(of: "_", with: " ")
-                let matchesId = id.lowercased().contains(lowercasedQuery)
-                let matchesDisplay = displayName.lowercased().contains(lowercasedQuery)
-
-                if matchesId || matchesDisplay {
-                    matches.append((identifier: id, displayName: displayName))
-                }
-
-                if matches.count >= 6 {
-                    break
-                }
-            }
-
-            results = matches
+            tableView.reloadData()
+            heightConstraint?.constant = 22
+            return
         }
+
+        let lowercasedQuery = trimmed.lowercased()
+        let excludingSet = Set(excluding)
+
+        // Rank the matches so a city-name match comes before an identifier-only
+        // match, and a name that starts with the query comes first of all. The
+        // first `maximumResults` are therefore the most useful, not merely the
+        // alphabetically first identifiers.
+        var ranked: [(identifier: String, displayName: String, score: Int)] = []
+        for id in TimeZone.knownTimeZoneIdentifiers where !excludingSet.contains(id) {
+            let displayName = WorldClock.friendlyName(for: id)
+            let lowercasedName = displayName.lowercased()
+            let matchesName = lowercasedName.contains(lowercasedQuery)
+            let matchesId = id.lowercased().contains(lowercasedQuery)
+            guard matchesName || matchesId else { continue }
+
+            let score: Int
+            if lowercasedName == lowercasedQuery {
+                score = 0
+            } else if lowercasedName.hasPrefix(lowercasedQuery) {
+                score = 1
+            } else if matchesName {
+                score = 2
+            } else {
+                score = 3
+            }
+            ranked.append((identifier: id, displayName: displayName, score: score))
+        }
+
+        ranked.sort {
+            if $0.score != $1.score { return $0.score < $1.score }
+            return $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+        }
+        results = ranked.prefix(Self.maximumResults).map { ($0.identifier, $0.displayName) }
 
         tableView.reloadData()
 
@@ -525,7 +630,7 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         guard row >= 0, row < results.count else { return nil }
 
         let result = results[row]
-        let displayText = friendlyCityName(result.identifier)
+        let displayText = result.displayName
 
         let cell = NSTableCellView()
         let textField = NSTextField(labelWithString: displayText)
