@@ -66,10 +66,10 @@ check:
 web-check:
     bun run check
 
-# Run the Swift core tests.
+# Run the Swift core tests (one run at a time per machine; see #0091).
 [group('quality')]
 macos-test:
-    swift test --package-path macos
+    scripts/swift-test-lock.sh
 
 # Build the optimized Release app and run the performance harness.
 [group('quality')]
