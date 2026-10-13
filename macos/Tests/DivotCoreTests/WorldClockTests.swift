@@ -25,6 +25,24 @@ final class WorldClockTests: XCTestCase {
         XCTAssertEqual(entries[2].displayName, "Singapore")
     }
 
+    func testResolvedTimezonesUsesDefaultsWhenAbsent() {
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: nil, localTimeZone: jakarta),
+                       ["America/Los_Angeles", "Europe/London", "Asia/Singapore"])
+    }
+
+    func testResolvedTimezonesDropsTheLocalDefault() {
+        // The header already shows the local zone, so it is not repeated as a row.
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: nil, localTimeZone: TimeZone(identifier: "Asia/Singapore")!),
+                       ["America/Los_Angeles", "Europe/London"])
+    }
+
+    func testResolvedTimezonesKeepsAnExplicitListVerbatim() {
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: [], localTimeZone: jakarta), [],
+                       "an explicitly emptied list stays empty")
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: ["Asia/Tokyo"], localTimeZone: jakarta),
+                       ["Asia/Tokyo"])
+    }
+
     func testInvalidTimezones() {
         let timezones = ["America/Los_Angeles", "Invalid/Timezone", "Asia/Tokyo"]
         let entries = WorldClock.entries(for: timezones)

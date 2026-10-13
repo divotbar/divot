@@ -377,29 +377,49 @@ struct PopoverSnapshotTests {
         return controller
     }
 
-    private func makeWorldClockController(timezoneCount: Int, fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+    /// A world clock controller rendered for the given stored list, through the
+    /// real content controller (no separate snapshot layout).
+    private func makeWorldClockController(timezones: [String], fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
         let controller = WorldClockPopoverContentController()
         _ = controller.view
-
-        let timezones: [String]
-        switch timezoneCount {
-        case 0:
-            timezones = []
-        case 1:
-            timezones = ["America/Los_Angeles"]
-        case 2:
-            timezones = ["America/Los_Angeles", "Asia/Tokyo"]
-        case 4:
-            timezones = ["America/Los_Angeles", "Asia/Tokyo", "Europe/London", "Asia/Calcutta"]
-        default:
-            timezones = []
-        }
-
         controller.render(timezones: timezones,
-                         timeFormat: .ampm,
-                         showSeconds: false,
-                         customPattern: nil)
+                          timeFormat: .ampm,
+                          showSeconds: false,
+                          customPattern: nil)
         return controller
+    }
+
+    /// The empty state: the user removed every zone (`[]`, not absent), so the
+    /// hint and the Add row show and no defaults reappear.
+    private func makeWorldClockEmptyController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        makeWorldClockController(timezones: WorldClock.resolvedTimezones(configured: []))
+    }
+
+    /// The first-run state: the config key is absent, so the three defaults show.
+    /// Resolved through `WorldClock.resolvedTimezones`, the same path production
+    /// and the Settings list use, so the shot cannot show a state the app cannot.
+    private func makeWorldClockDefaultsController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        makeWorldClockController(timezones: WorldClock.resolvedTimezones(configured: nil))
+    }
+
+    /// The add flow: the empty state with `los` typed into the real search field
+    /// and the results list visible. The text is set and the control-text-did-change
+    /// notification posted exactly as the live popover receives it.
+    private func makeWorldClockAddFlowController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = makeWorldClockController(timezones: WorldClock.resolvedTimezones(configured: []))
+        if let search = firstSearchField(in: controller.view) {
+            search.stringValue = "los"
+            NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        }
+        return controller
+    }
+
+    private func firstSearchField(in view: NSView) -> NSSearchField? {
+        if let field = view as? NSSearchField { return field }
+        for subview in view.subviews {
+            if let found = firstSearchField(in: subview) { return found }
+        }
+        return nil
     }
 
     /// A world clock controller rendered at a fixed instant and local zone so a
@@ -584,8 +604,8 @@ struct PopoverSnapshotTests {
         }
     }
 
-    @Test("World clock popover — zero timezones, all themes × light/dark")
-    func worldClockPopoverZeroTimezones() throws {
+    @Test("World clock popover — empty state, all themes × light/dark")
+    func worldClockPopoverEmptyState() throws {
         let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
@@ -594,14 +614,14 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "world-clock-popover-\(familyName)-\(variantName)-default-zero-timezones"
-                try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 0, fontSize: $0) },
+                try testPopover(name: name, maker: { self.makeWorldClockEmptyController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }
 
-    @Test("World clock popover — two timezones, all themes × light/dark")
-    func worldClockPopoverTwoTimezones() throws {
+    @Test("World clock popover — three default zones, all themes × light/dark")
+    func worldClockPopoverDefaults() throws {
         let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
@@ -609,30 +629,14 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-two-timezones"
-                try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 2, fontSize: $0) },
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-defaults"
+                try testPopover(name: name, maker: { self.makeWorldClockDefaultsController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }
 
-    @Test("World clock popover — four timezones, all themes × light/dark")
-    func worldClockPopoverFourTimezones() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
-        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
-
-        for family in families {
-            for (variantName, isDark) in variants {
-                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
-                let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-four-timezones"
-                try testPopover(name: name, maker: { self.makeWorldClockController(timezoneCount: 4, fontSize: $0) },
-                               appearance: appearance, isDark: isDark, fontSize: 12)
-            }
-        }
-    }
-
-    @Test("World clock popover — day label (Yesterday/Tomorrow), all themes × light/dark")
+    @Test("World clock popover — four zones with day labels, all themes × light/dark")
     func worldClockPopoverDayLabel() throws {
         let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
@@ -643,6 +647,22 @@ struct PopoverSnapshotTests {
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "world-clock-popover-\(familyName)-\(variantName)-default-day-label"
                 try testPopover(name: name, maker: { self.makeWorldClockDayLabelController(fontSize: $0) },
+                               appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("World clock popover — add flow (typed 'los'), all themes × light/dark")
+    func worldClockPopoverAddFlow() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "world-clock-popover-\(familyName)-\(variantName)-default-add-flow"
+                try testPopover(name: name, maker: { self.makeWorldClockAddFlowController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }

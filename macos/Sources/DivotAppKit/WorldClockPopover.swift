@@ -15,6 +15,22 @@ private final class SearchFieldWithEscape: NSSearchField {
     }
 }
 
+/// A results row whose cell is flush with the leading edge. AppKit's default
+/// full-width row insets its cell by 6pt, which would misalign the results with
+/// the rest of the popover's rows.
+@MainActor
+private final class TimezoneResultRowView: NSTableRowView {
+    override func layout() {
+        super.layout()
+        for subview in subviews {
+            var frame = subview.frame
+            frame.origin.x = 0
+            frame.size.width = bounds.width
+            subview.frame = frame
+        }
+    }
+}
+
 /// NSTableView subclass that handles Return/arrow keys for results navigation
 @MainActor
 private final class TimezoneResultsTableView: NSTableView {
@@ -90,13 +106,7 @@ public final class WorldClockPopoverController {
     }
 
     private func timezoneListFromConfiguration(_ config: DivotConfiguration) -> [String] {
-        if let configuredList = config.widgets.time.timezones {
-            return configuredList
-        }
-
-        let defaults = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
-        let localZone = TimeZone.current.identifier
-        return defaults.filter { $0 != localZone }
+        WorldClock.resolvedTimezones(configured: config.widgets.time.timezones)
     }
 
     /// Hide the popover and clear the controller reference.
@@ -141,20 +151,12 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     private var resultsController: TimezoneSearchResultsController?
     private var searchObserver: NSObjectProtocol?
 
-    override func loadView() {
-        super.loadView()
-
-        let settingsButton = NSButton()
-        settingsButton.setButtonType(.momentaryPushIn)
-        settingsButton.title = "Open Date & Time Settings..."
-        settingsButton.font = .systemFont(ofSize: 12)
-        settingsButton.identifier = Self.linkIdentifier
-        settingsButton.bezelStyle = .recessed
-        settingsButton.target = self
-        settingsButton.action = #selector(openDateTimeSettings)
-
+    /// The always-last row: a separator and the Date & Time settings link. Built
+    /// by every render because `clearRows()` removes the previous one.
+    private func addSettingsRow() {
         stack.addArrangedSubview(separator())
-        stack.addArrangedSubview(settingsButton)
+        stack.addArrangedSubview(linkButton("Open Date & Time Settings...",
+                                            action: #selector(openDateTimeSettings)))
     }
 
     func render(timezones: [String],
@@ -295,6 +297,8 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
 
         resultsController.view.isHidden = true
         stack.addArrangedSubview(resultsController.view)
+
+        addSettingsRow()
     }
 
     /// Recolour the search field's text and placeholder from the theme, so the
@@ -303,6 +307,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     override func restyle(_ theme: BarTheme) {
         super.restyle(theme)
         styleSearchField()
+        resultsController?.restyle(theme)
     }
 
     private func styleSearchField() {
@@ -412,6 +417,10 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
     private var theme: BarTheme
     private let currentTimezones: [String]
     private let friendlyCityName: (String) -> String
+    /// The scroll view's height, driven by the row count so the visible results
+    /// list has a real height under Auto Layout (a plain frame change is ignored
+    /// once the view is an arranged subview).
+    private var heightConstraint: NSLayoutConstraint?
 
     init(onSelect: @escaping (String) -> Void, theme: BarTheme, currentTimezones: [String], friendlyCityName: @escaping (String) -> String = { _ in "" }) {
         self.onSelect = onSelect
@@ -422,18 +431,29 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         tableView = TimezoneResultsTableView(frame: NSRect(x: 0, y: 0, width: 272, height: 6 * 22))
         tableView.headerView = nil
         tableView.selectionHighlightStyle = .regular
+        // `.fullWidth` (the default is `.automatic`, which becomes the inset style
+        // on macOS 11+) keeps the result rows flush with the leading inset.
+        tableView.style = .fullWidth
         tableView.backgroundColor = theme.popoverPalette.background
         tableView.gridStyleMask = []
+        // One column that fills the scroll view: without this the 272pt column
+        // is wider than the ~248pt content area and scrolls sideways.
+        tableView.columnAutoresizingStyle = .lastColumnOnlyAutoresizingStyle
 
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("timezone"))
         column.width = 272
         tableView.addTableColumn(column)
+        tableView.intercellSpacing = NSSize(width: 0, height: 2)
 
         view = NSScrollView(frame: NSRect(x: 0, y: 0, width: 272, height: 132))
         view.documentView = tableView
         view.hasVerticalScroller = true
+        view.hasHorizontalScroller = false
         view.autohidesScrollers = true
         view.translatesAutoresizingMaskIntoConstraints = false
+        let height = view.heightAnchor.constraint(equalToConstant: 22)
+        height.isActive = true
+        heightConstraint = height
 
         super.init()
 
@@ -478,13 +498,25 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         tableView.reloadData()
 
         let idealHeight = min(CGFloat(results.count) * 22, 132)
-        view.frame.size.height = max(22, idealHeight)
+        heightConstraint?.constant = max(22, idealHeight)
+    }
+
+    /// Recolour the list after the bar theme changes while the popover is open,
+    /// so the rows do not keep the colours they were first built with.
+    func restyle(_ theme: BarTheme) {
+        self.theme = theme
+        tableView.backgroundColor = theme.popoverPalette.background
+        tableView.reloadData()
     }
 
     // MARK: - NSTableViewDataSource
 
     func numberOfRows(in tableView: NSTableView) -> Int {
         return results.count
+    }
+
+    func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
+        TimezoneResultRowView()
     }
 
     // MARK: - NSTableViewDelegate
@@ -504,7 +536,7 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
 
         textField.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 4),
+            textField.leadingAnchor.constraint(equalTo: cell.leadingAnchor),
             textField.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -4),
             textField.topAnchor.constraint(equalTo: cell.topAnchor),
             textField.bottomAnchor.constraint(equalTo: cell.bottomAnchor)

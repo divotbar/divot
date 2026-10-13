@@ -298,11 +298,8 @@ public struct DivotSettingsView: View {
                     Text("World Clock Timezones")
                         .font(.headline)
 
-                    let timezones = model.configuration.widgets.time.timezones ?? {
-                        let defaults = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
-                        let localZone = TimeZone.current.identifier
-                        return defaults.filter { $0 != localZone }
-                    }()
+                    let timezones = WorldClock.resolvedTimezones(
+                        configured: model.configuration.widgets.time.timezones)
 
                     if timezones.isEmpty {
                         Text("No timezones added. Click the time chip to add timezones.")

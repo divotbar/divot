@@ -93,7 +93,7 @@ struct WorldClockPopoverContentTests {
 }
 
 @MainActor
-@Suite("World clock popover with ConfigurationStore")
+@Suite("World clock popover with ConfigurationStore", .windowless)
 struct WorldClockPopoverConfigurationStoreTests {
     @Test func addsAndPersistsATimezoneFromSearchResults() throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -104,7 +104,8 @@ struct WorldClockPopoverConfigurationStoreTests {
         let store = ConfigurationStore(configURL: configURL, fileManager: .default)
 
         let monitor = StubPopoverMonitor()
-        let host = BarPopoverHost(monitors: monitor)
+        let presenter = RecordingWindowPresenter()
+        let host = BarPopoverHost(monitors: monitor, presenter: presenter)
         let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
                                    styleMask: .borderless, backing: .buffered, defer: false)
         let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
@@ -228,8 +229,32 @@ struct WorldClockPopoverConfigurationStoreTests {
 }
 
 @MainActor
-@Suite("World clock popover real flow")
+@Suite("World clock popover real flow", .windowless)
 struct WorldClockPopoverRealFlowTests {
+    /// The remove buttons, matched by the timezone identifier they carry, so a
+    /// rebuilt row can be identified without trusting a row index.
+    private func removeButtons(in view: NSView) -> [NSButton] {
+        var result: [NSButton] = []
+        func walk(_ v: NSView) {
+            if let button = v as? NSButton,
+               let identifier = button.identifier?.rawValue,
+               TimeZone.knownTimeZoneIdentifiers.contains(identifier) {
+                result.append(button)
+            }
+            v.subviews.forEach(walk)
+        }
+        walk(view)
+        return result
+    }
+
+    private func firstSearchField(in view: NSView) -> NSSearchField? {
+        if let field = view as? NSSearchField { return field }
+        for subview in view.subviews {
+            if let found = firstSearchField(in: subview) { return found }
+        }
+        return nil
+    }
+
     @Test func compactOffsetFormatting() {
         let controller = WorldClockPopoverContentController()
         _ = controller.view
@@ -243,9 +268,11 @@ struct WorldClockPopoverRealFlowTests {
     }
 
     @Test func searchingForATimezoneAndSelectingItAddsTheZoneAndPersistsIt() {
-        // Instantiate the real controller path with BarPopoverHost
+        // Instantiate the real controller path with BarPopoverHost. The recording
+        // presenter keeps the run windowless (#0091).
         let monitor = StubPopoverMonitor()
-        let host = BarPopoverHost(monitors: monitor)
+        let presenter = RecordingWindowPresenter()
+        let host = BarPopoverHost(monitors: monitor, presenter: presenter)
 
         let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
                                    styleMask: .borderless, backing: .buffered, defer: false)
@@ -256,27 +283,21 @@ struct WorldClockPopoverRealFlowTests {
         controller.theme = .systemDefault
 
         var reportedTimezones: [String]?
-        controller.onUpdateTimezones = { reported in
+        // Mirror the live outer controller: persist the new list, then re-render
+        // so the rows rebuild (the second render).
+        controller.onUpdateTimezones = { [weak controller] reported in
             reportedTimezones = reported
+            controller?.render(timezones: reported, timeFormat: .twentyFourHour, showSeconds: false)
         }
 
         host.present(controller, relativeTo: anchor)
         defer { host.dismiss() }
+        #expect(presenter.wouldPresent, "the host asks the presenter to show the panel")
 
         // Render initial empty state
         controller.render(timezones: [], timeFormat: .twentyFourHour, showSeconds: false)
 
-        // Find the search field
-        var searchField: NSSearchField?
-        func walk(_ view: NSView) {
-            if let field = view as? NSSearchField {
-                searchField = field
-            }
-            view.subviews.forEach(walk)
-        }
-        walk(controller.view)
-
-        guard let search = searchField else {
+        guard let search = firstSearchField(in: controller.view) else {
             Issue.record("expected a search field in the popover")
             return
         }
@@ -348,9 +369,26 @@ struct WorldClockPopoverRealFlowTests {
         #expect(reported[0] == "America/Los_Angeles",
                 "selected timezone should match Los Angeles identifier")
 
-        // Verify the search cleared and rows rebuilt: search field should be empty
-        #expect(search.stringValue == "",
-                "search field should clear after selecting a timezone")
+        // The add rebuilt the rows (second render): exactly one zone row, carrying
+        // the added identifier, showing the added zone's city name.
+        let rows = removeButtons(in: controller.view)
+        #expect(rows.count == 1, "the rebuilt list shows exactly the added zone")
+        #expect(rows.first?.identifier?.rawValue == "America/Los_Angeles",
+                "the rebuilt row carries the added identifier")
+
+        var foundAddedCity = false
+        func walkForAddedCity(_ view: NSView) {
+            if let field = view as? NSTextField, field.stringValue == "San Francisco" {
+                foundAddedCity = true
+            }
+            view.subviews.forEach(walkForAddedCity)
+        }
+        walkForAddedCity(controller.view)
+        #expect(foundAddedCity, "the rebuilt row shows the added zone's city name")
+
+        // The rebuilt popover carries a fresh, empty search field.
+        #expect(firstSearchField(in: controller.view)?.stringValue == "",
+                "the rebuilt search field should be clear after adding")
     }
 }
 

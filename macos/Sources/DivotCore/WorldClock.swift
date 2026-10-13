@@ -28,6 +28,25 @@ public struct WorldClockEntry: Equatable, Sendable {
 
 /// Pure logic for computing world clock entries from a timezone list.
 public enum WorldClock {
+    /// The zones a first-time user sees before they have configured a list, in
+    /// display order (San Francisco, London, Singapore).
+    public static let defaultTimezones = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
+
+    /// Resolve the stored timezone list into the zones to show.
+    ///
+    /// An absent list (`nil`) means the user has never configured one, so the
+    /// defaults are used — minus the local zone, which the header already shows.
+    /// Any stored array (including an empty one) is returned as-is, so an
+    /// explicitly emptied list stays empty and the defaults never come back on
+    /// their own.
+    public static func resolvedTimezones(configured: [String]?,
+                                         localTimeZone: TimeZone = .current) -> [String] {
+        guard let configured else {
+            return defaultTimezones.filter { $0 != localTimeZone.identifier }
+        }
+        return configured
+    }
+
     /// Compute world clock entries for the given timezones.
     ///
     /// - Parameters:
