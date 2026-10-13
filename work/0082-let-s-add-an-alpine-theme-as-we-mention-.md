@@ -2,14 +2,14 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: web
 assigned_to: ai
 created_by: api
 branch: ""
 created_at: "2026-10-13T08:56:17Z"
-updated_at: "2026-10-13T08:56:37Z"
+updated_at: "2026-10-13T09:01:16Z"
 ---
 ## Problem
 
@@ -49,3 +49,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T08:56:17Z · created · api
 - 2026-10-13T08:56:18Z · screenshots
 - 2026-10-13T08:56:37Z · status draft→inbox, title, area, assigned_to, body
+- 2026-10-13T09:01:16Z · status inbox→ready
