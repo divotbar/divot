@@ -151,3 +151,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T18:00:32Z · status active→review
 - 2026-10-13T18:00:32Z · note: handoff requested (cli)
 - 2026-10-13T18:00:59Z · status active→review
+- 2026-10-13T18:00:59Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
