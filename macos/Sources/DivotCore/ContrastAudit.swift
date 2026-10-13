@@ -32,6 +32,17 @@ public struct SRGBColor: Equatable, Sendable {
         }
         return 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
     }
+
+    /// This colour composited over `other` at `alpha` (clamped to 0...1), in the
+    /// same non-premultiplied sRGB space the theme fills use. A bar chip draws
+    /// the `selected` token at a partial alpha over the background, so the audit
+    /// can measure the exact composited fill the chip shows.
+    public func blended(over other: SRGBColor, alpha: Double) -> SRGBColor {
+        let a = min(max(alpha, 0), 1)
+        return SRGBColor(red: red * a + other.red * (1 - a),
+                         green: green * a + other.green * (1 - a),
+                         blue: blue * a + other.blue * (1 - a))
+    }
 }
 
 /// The WCAG 2.1 contrast helpers the audit uses.
@@ -55,18 +66,45 @@ public enum ContrastAudit {
 
 /// The keep-awake "on" indicator colors, one per appearance variant.
 ///
-/// These are the new text/icon colors the contrast audit covers. They are a
-/// semantic role rather than a hard-coded `NSColor` so the theme milestone
-/// (0011) can map the same role onto each shipped family; until then the native
-/// default is the only shipped theme, and the audit checks both of its variants
-/// against the native bar surface.
+/// The cup must read as a distinct keep-awake mark on every family (Native,
+/// Gruvbox, Ayu, Dracula, Tokyo Night, Alpine) in light and dark. It uses a
+/// fixed green pair, never the theme accent: `activeLightHex` on a light bar and
+/// `activeDarkHex` on a dark one, each clearing the 3:1 non-text floor against
+/// every family's bar background.
+///
+/// The fixed green alone cannot clear 3:1 against a chip fill. The default chip
+/// is fully opaque and reuses the family's `selected` colour, whose luminance
+/// ranges from a near-white pale accent to a saturated blue, so the green either
+/// disappears into a mid-tone chip or fails against a bright one. Where the
+/// green falls short the cup is stroked with an outline in the higher-contrast
+/// of pure black or pure white (`outline(for:)`), which clears the floor against
+/// every composited chip. The outline is the only fallback: a flat stroke, never
+/// a blur or drop shadow.
 public enum KeepAwakeIndicatorPalette {
+    /// The keep-awake green for light mode: works against light bars.
     public static let activeLightHex = "#0B6B3A"
+    /// The keep-awake green for dark mode: works against dark bars.
     public static let activeDarkHex = "#7BD88F"
+
+    /// The two fixed outline colours, one of which is the fallback stroke.
+    public static let blackOutlineHex = "#000000"
+    public static let whiteOutlineHex = "#FFFFFF"
 
     /// The active indicator hex for the given appearance variant.
     public static func activeHex(dark: Bool) -> String {
         dark ? activeDarkHex : activeLightHex
+    }
+
+    /// The outline colour that contrasts most with `backdrop` — the composited
+    /// chip fill the cup sits on, or the bar background when chips are off. Pure
+    /// black or pure white, so the stroke clears the floor wherever the green
+    /// cannot.
+    public static func outline(for backdrop: SRGBColor) -> SRGBColor {
+        guard let black = SRGBColor(hex: blackOutlineHex),
+              let white = SRGBColor(hex: whiteOutlineHex) else {
+            return SRGBColor(red: 0, green: 0, blue: 0)
+        }
+        return ContrastAudit.ratio(black, backdrop) >= ContrastAudit.ratio(white, backdrop) ? black : white
     }
 }
 

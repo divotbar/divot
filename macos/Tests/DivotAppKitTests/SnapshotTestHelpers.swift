@@ -183,7 +183,8 @@ enum SnapshotTestHelpers {
     /// Whether `name` belongs in this run's output. The full matrix is written
     /// unless `DIVOT_SNAPSHOT_SET=shots`, which keeps a small representative set
     /// for RepoOS evidence: native light and dark at the default text size, the
-    /// bar with chips off and chips on (translucent), Gruvbox popovers (non-bar)
+    /// bar with chips off and chips on (translucent), the keep-awake battery for
+    /// Native and Gruvbox with chips on and off, Gruvbox popovers (non-bar)
     /// light and dark, and each popover. Assertions run for every name either way.
     /// `DIVOT_SNAPSHOT_ONLY` filters by tokens if set.
     static func wantsPNG(named name: String) -> Bool {
@@ -191,7 +192,13 @@ enum SnapshotTestHelpers {
         guard matchesSnapshotFilter(named: name) else { return false }
 
         guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
-        // Native or (Gruvbox non-bar only), light and dark, at the default size.
+        // Keep-awake renders: Native and Gruvbox only, light and dark, default size, chips on and off
+        if name.hasPrefix("keep-awake-") {
+            return (name.contains("-native-") || name.contains("-gruvbox-")) &&
+                   name.contains("-default") &&
+                   (name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on"))
+        }
+        // Native or Gruvbox non-bar, light and dark, at the default size
         guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
               name.contains("-default") else { return false }
         if !name.hasPrefix("bar-") { return true }
