@@ -44,11 +44,11 @@ enum DivotAppWidgetReport {
             let size = NativeStatusSymbol.image(symbolName: symbol, metrics: metrics)?.size ?? .zero
             print("statusSymbol.\(id.rawValue)=\(symbol) \(Int(size.width))x\(Int(size.height))pt")
         }
-        // The charging bolt is a separate badge tinted with the theme accent;
+        // The charging mark draws in one fixed green, never the theme accent;
         // print the resolved colour so a packaged-app run records the green the
-        // bar will draw (#0058).
-        if let rgb = BarTheme.systemDefault.accent.usingColorSpace(.sRGB) {
-            print(String(format: "theme.accent=#%02X%02X%02X",
+        // bar will draw (#0074).
+        if let rgb = NSColor(ChargingIndicatorPalette.green).usingColorSpace(.sRGB) {
+            print(String(format: "charging.green=#%02X%02X%02X",
                          Int((rgb.redComponent * 255).rounded()),
                          Int((rgb.greenComponent * 255).rounded()),
                          Int((rgb.blueComponent * 255).rounded())))

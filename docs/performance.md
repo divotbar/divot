@@ -110,7 +110,8 @@ and hardware the harness cannot reach.
 - every widget presentation — default, loading, and every honest unavailable
   state — carries a non-empty accessible label;
 - every family variant clears the per-role contrast floors (AA 4.5:1 for text,
-  3:1 for state/icons, 2.5:1 for the accent/chrome role);
+  3:1 for state/icons, 2.5:1 for the accent/chrome role), including the fixed
+  charging green against every family's bar in light and dark;
 - an error is never signalled by color alone: it also carries a distinct glyph
   and an announced reason;
 - interactive items expose a button role, a label, and help; non-interactive

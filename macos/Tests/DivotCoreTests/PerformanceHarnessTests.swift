@@ -29,11 +29,23 @@ import Testing
 
 @Test func harnessContrastAuditClearsEveryFloorForAllFourFamilies() {
     let report = PerformanceHarness.run()
-    // 4 families × 2 variants × 6 audited roles.
-    #expect(report.contrast.count == 4 * 2 * 6)
+    // 4 families × 2 variants × 7 audited roles.
+    #expect(report.contrast.count == 4 * 2 * 7)
     for check in report.contrast {
         #expect(check.clearsFloor,
                 "\(check.family) \(check.variant) \(check.role) = \(check.ratio) < \(check.floor)")
+    }
+}
+
+/// The charging green is one fixed constant, so the audit must carry the same
+/// value for every family and both variants and clear the non-text floor (#0074).
+@Test func harnessAuditsTheFixedChargingGreenOnEveryFamilyAndVariant() {
+    let report = PerformanceHarness.run()
+    let charging = report.contrast.filter { $0.role == "charging/background" }
+    #expect(charging.count == 4 * 2)
+    for check in charging {
+        #expect(check.clearsFloor,
+                "\(check.family) \(check.variant) charging = \(check.ratio) < \(check.floor)")
     }
 }
 

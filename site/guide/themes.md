@@ -6,7 +6,7 @@ The visual direction is alpine: lake blue, pine green, and warm paper. The actua
 
 Alongside the comfortable native default, Divot ships four curated hacker families: **Gruvbox**, **Ayu**, **Dracula**, and **Tokyo Night**. Family and appearance are separate settings, so switching between System, Light, and Dark keeps the chosen family.
 
-The native family follows macOS semantic colors and the system accent, so it keeps vibrancy and accessibility behavior. The four families resolve to semantic color tokens — foreground, background, accent, selected, occupied, and error — and repaint the bar's background, border, item text and icons, the charging bolt, selected/occupied/disabled workspace states, and error text. Color alone never identifies a selected workspace: focus is also the control's selected state and an accessibility value, and occupancy has a shape marker.
+The native family follows macOS semantic colors and the system accent, so it keeps vibrancy and accessibility behavior. The four families resolve to semantic color tokens — foreground, background, accent, selected, occupied, and error — and repaint the bar's background, border, item text and icons, selected/occupied/disabled workspace states, and error text. The charging mark is the exception: it is one fixed green on every family, never the theme accent, so charging is unmistakable even when a family's accent is purple or blue. Color alone never identifies a selected workspace: focus is also the control's selected state and an accessibility value, and occupancy has a shape marker.
 
 Every family ships a light and a dark variant, pinned to its upstream palette with source and license recorded per variant:
 
@@ -21,7 +21,7 @@ Alucard is Dracula's official light variant, and Tokyo Night Light is the upstre
 
 ## Contrast
 
-Each variant is tested against a per-role contrast floor: body text clears WCAG AA (4.5:1) on the background and surface, the selected label clears AA on its state, error and occupancy and the accent clear the 3:1 non-text floor, and disabled text stays visible. The fixtures live in the `DivotCore` theme tests. Physical readability on a real display still needs human QA.
+Each variant is tested against a per-role contrast floor: body text clears WCAG AA (4.5:1) on the background and surface, the selected label clears AA on its state, error and occupancy and the accent clear the 3:1 non-text floor, and the fixed charging green clears 3:1 against every family's background in both light and dark. Disabled text stays visible. The fixtures live in the `DivotCore` theme tests. Physical readability on a real display still needs human QA.
 
 ## Appearance
 
