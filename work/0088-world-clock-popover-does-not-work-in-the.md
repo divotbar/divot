@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:43:10Z"
+updated_at: "2026-10-13T18:43:20Z"
 review_passes: 7
 review_rounds: 2
 dev_error_count: 1
@@ -71,24 +71,24 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ```json
 [
 {
-"label": "Empty state (0 zones): Shows hint \"No other timezones. Add one below.\" with Add row",
-"target": "Divot bar",
-"glob": "*world-clock*zero-timezones*"
+  "label": "Empty state (0 zones): header + 'No other timezones. Add one below.', Add row and settings link",
+  "target": "Divot bar",
+  "glob": "*world-clock*zero-timezones*"
 },
 {
-"label": "Default state: Three default zones (San Francisco, London, Singapore)",
-"target": "Divot bar",
-"glob": "*world-clock*two-timezones*"
+  "label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
+  "target": "Divot bar",
+  "glob": "*world-clock*defaults*"
 },
 {
-"label": "With day labels: Four zones showing Yesterday/Tomorrow when day differs from local",
-"target": "Divot bar",
-"glob": "*world-clock*day-label*"
+  "label": "Four zones with Yesterday/Tomorrow day labels across the date line",
+  "target": "Divot bar",
+  "glob": "*world-clock*day-label*"
 },
 {
-"label": "Full list: Four zones with current time and hour offset",
-"target": "Divot bar",
-"glob": "*world-clock*four-timezones*"
+  "label": "Add flow: 'los' typed, results list visible (San Francisco)",
+  "target": "Divot bar",
+  "glob": "*world-clock*add-flow*"
 }
 ]
 ```
@@ -172,3 +172,4 @@ Reproduced and fixed through the real controller path (`WorldClockPopoverControl
 - 2026-10-13T18:16:17Z · agent exited with an error (opencode) · error: Transport
 - 2026-10-13T18:21:33Z · needs_input
 - 2026-10-13T18:43:10Z · body: section Root cause
+- 2026-10-13T18:43:20Z · body: section Shots
