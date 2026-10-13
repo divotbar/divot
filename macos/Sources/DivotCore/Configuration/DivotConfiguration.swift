@@ -325,12 +325,15 @@ public struct TimeConfiguration: Equatable, Sendable {
     public var timeFormat: Format
     /// Custom time pattern for Format.custom; only meaningful when timeFormat is .custom.
     public var customPattern: String?
+    /// User's added world timezones (IANA identifiers).
+    public var timezones: [String]
 
-    public init(seconds: Bool = false, timeFormat: Format = .ampm, customPattern: String? = nil) {
+    public init(seconds: Bool = false, timeFormat: Format = .ampm, customPattern: String? = nil, timezones: [String] = []) {
         self.seconds = seconds
         self.timeFormat = timeFormat
         // Only keep customPattern if timeFormat is custom
         self.customPattern = timeFormat == .custom ? customPattern : nil
+        self.timezones = timezones
     }
 
     public static let `default` = TimeConfiguration()

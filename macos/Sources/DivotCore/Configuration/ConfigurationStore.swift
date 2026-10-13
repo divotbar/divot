@@ -365,6 +365,7 @@ private extension TimeConfiguration {
         if seconds != defaults.seconds { object["seconds"] = seconds }
         if timeFormat != defaults.timeFormat { object["timeFormat"] = timeFormat.rawValue }
         if customPattern != defaults.customPattern { object["customPattern"] = customPattern }
+        if !timezones.isEmpty { object["timezones"] = timezones }
         return object
     }
 }

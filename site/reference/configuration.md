@@ -187,7 +187,7 @@ Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `dat
 "right": ["battery", "time", "network", "volume"]
 ```
 
-Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The `date` item shows the current date; clicking it opens a calendar popover with a month grid, back/forward navigation, a Today button, and a row to open Date & Time settings. The `appearance` item shows the current light/dark mode; clicking it opens the appearance popover described above (mode and theme family through the same store as the Settings window, and a row that opens Divot's own settings window). It changes Divot's own rendering only, never the macOS system appearance. The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
+Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The `date` item shows the current date; clicking it opens a calendar popover with a month grid, back/forward navigation, a Today button, and a row to open Date & Time settings. The `time` item shows the current time; clicking it opens a world clock popover with the local time and date (with the timezone name and UTC offset), followed by any added timezones from `widgets.time.timezones`, each with the time, hour offset from local (e.g., "2 h ahead", "30 min behind"), and a day label (Yesterday/Tomorrow) only when the day differs from local. Timezones are stored as an ordered array of IANA identifiers (e.g., `America/Los_Angeles`, `Asia/Tokyo`); duplicates are removed and an identifier that is not a known zone is ignored when the popover renders rather than breaking the config, while `divot config set` rejects an unknown identifier with an error. The popover's last row opens Date & Time settings. The `appearance` item shows the current light/dark mode; clicking it opens the appearance popover described above (mode and theme family through the same store as the Settings window, and a row that opens Divot's own settings window). It changes Divot's own rendering only, never the macOS system appearance. The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
 
 ## Widget options
 
@@ -209,6 +209,7 @@ Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `
 | `time` | `seconds` | Boolean | Show seconds (default `false`) |
 | `time` | `timeFormat` | `24-hour`, `AM/PM`, `custom` | Time format (default `AM/PM`) |
 | `time` | `customPattern` | String | Custom time pattern, used when `timeFormat` is `custom` |
+| `time` | `timezones` | Array of strings | User's added timezones (IANA identifiers, e.g., `America/Los_Angeles`); default empty |
 | `network` | `showWifiName` | Boolean | Show the connected Wi-Fi network name (default `false`; asks for Location permission) |
 | `volume` | `showVolumePercent` | Boolean | Show the volume percentage (default `true`) |
 | `volume` | `showVolumeMuted` | Boolean | Show the muted indicator (default `true`) |

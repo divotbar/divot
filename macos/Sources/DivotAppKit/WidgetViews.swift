@@ -389,6 +389,10 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// with navigation and its last row opens the Date & Time pane. `nil` in
     /// tests, where the item keeps its original settings-pane action.
     private let calendarPopover: CalendarPopoverController?
+    /// The shared world clock popover. When present, the time item opens it to
+    /// show added timezones with their current times and offsets from local time.
+    /// `nil` in tests, where the item keeps its original action.
+    private let worldClockPopover: WorldClockPopoverController?
 
     init(side: BarSide,
          items: [BarItemID],
@@ -407,6 +411,7 @@ final class BarContentView: NSView, BarContentLifecycle {
          volumePopover: VolumePopoverController? = nil,
          appearancePopover: AppearancePopoverController? = nil,
          calendarPopover: CalendarPopoverController? = nil,
+         worldClockPopover: WorldClockPopoverController? = nil,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
@@ -417,6 +422,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         self.volumePopover = volumePopover
         self.appearancePopover = appearancePopover
         self.calendarPopover = calendarPopover
+        self.worldClockPopover = worldClockPopover
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -469,10 +475,15 @@ final class BarContentView: NSView, BarContentLifecycle {
                 }
                 // The date item opens the calendar popover when one is
                 // configured; the popover's last row reaches the Date & Time pane.
-                // Only the date item opens the popover; time keeps its original
-                // settings-pane action.
                 if id == .date, case .openSettings(.dateTime) = action, let view, let calendarPopover = self.calendarPopover {
                     calendarPopover.toggle(relativeTo: view, theme: self.theme)
+                    return
+                }
+                // The time item opens the world clock popover when one is
+                // configured; the popover shows added timezones with their times
+                // and offsets from local time.
+                if id == .time, case .openSettings(.dateTime) = action, let view, let worldClockPopover = self.worldClockPopover {
+                    worldClockPopover.toggle(relativeTo: view, theme: self.theme)
                     return
                 }
                 self.onActivate?(action)
@@ -498,6 +509,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         volumePopover?.updateTheme(theme)
         appearancePopover?.updateTheme(theme)
         calendarPopover?.updateTheme(theme)
+        worldClockPopover?.updateTheme(theme)
         needsDisplay = true
     }
 
@@ -519,6 +531,12 @@ final class BarContentView: NSView, BarContentLifecycle {
                 view.update(WidgetPresenter.present(id: id, state: nil, options: presentationOptions),
                             action: WidgetActions.defaultAction(for: id))
             }
+        }
+        // The time item's own tick (the `TimeProvider` boundary emission) also
+        // refreshes the world clock popover while it is open, so the panel runs
+        // no timer of its own. Only the side that owns the time item reacts.
+        if itemViews[.time] != nil, changes.contains(where: { $0.id == .time }) {
+            worldClockPopover?.refreshIfShown()
         }
         needsLayout = true
     }

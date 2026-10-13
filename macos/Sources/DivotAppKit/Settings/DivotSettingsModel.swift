@@ -322,6 +322,12 @@ public final class DivotSettingsModel {
         update { $0.widgets.time.customPattern = pattern }
     }
 
+    /// Replace the ordered world clock timezone list. Identifiers are validated
+    /// by the configuration schema before they are persisted.
+    public func updateWorldClockTimezones(_ timezones: [String]) {
+        update { $0.widgets.time.timezones = timezones }
+    }
+
     // MARK: Keep awake
 
     /// Turn the "remember across launches" policy on or off. Enabling captures
