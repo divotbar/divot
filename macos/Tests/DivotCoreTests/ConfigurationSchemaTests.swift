@@ -40,7 +40,7 @@ private func maximalConfiguration() -> DivotConfiguration {
                                                    customPattern: "HH:mm:ss", timezones: ["America/Los_Angeles"])
     configuration.widgets.network = NetworkConfiguration(showWifiName: true)
     configuration.widgets.volume = VolumeConfiguration(showVolumePercent: false, showVolumeMuted: false)
-    configuration.keepAwake = KeepAwakeConfiguration(remember: true, isActive: true)
+    configuration.keepAwake = KeepAwakeConfiguration(remember: true, isActive: true, showToast: false)
     configuration.menuBar = MenuBarConfiguration(trustAccessibilityProbe: true,
                                                  moveBelowOnCursorReveal: false,
                                                  alwaysBelow: true)

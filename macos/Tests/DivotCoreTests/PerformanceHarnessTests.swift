@@ -29,8 +29,8 @@ import Testing
 
 @Test func harnessContrastAuditClearsEveryFloorForEveryCuratedFamily() {
     let report = PerformanceHarness.run()
-    // 5 curated families × 2 variants × 7 audited roles.
-    #expect(report.contrast.count == 5 * 2 * 7)
+    // 5 curated families × 2 variants × 9 audited roles.
+    #expect(report.contrast.count == 5 * 2 * 9)
     for check in report.contrast {
         #expect(check.clearsFloor,
                 "\(check.family) \(check.variant) \(check.role) = \(check.ratio) < \(check.floor)")

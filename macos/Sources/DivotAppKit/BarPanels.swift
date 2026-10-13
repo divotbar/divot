@@ -356,3 +356,12 @@ final class BarPanelContainer: NSView {
         }
     }
 }
+
+/// Extension for keep-awake toast support.
+extension NSPanelBarSurface {
+    /// Finds and returns the battery item view if it exists on either this
+    /// surface's left or right panel, so the toast can be positioned relative to it.
+    func batteryItemView() -> NSView? {
+        leftContent.itemViewForID(.battery) ?? rightContent.itemViewForID(.battery)
+    }
+}

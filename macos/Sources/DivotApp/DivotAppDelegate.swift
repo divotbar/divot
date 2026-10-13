@@ -27,6 +27,12 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the keep-awake power assertion for the whole app lifetime; the
     /// battery item toggles it and quit releases it.
     private var keepAwake: KeepAwakeController?
+    /// Owns the keep-awake toast state and timer; the battery item toggle shows
+    /// it and it auto-dismisses after a duration.
+    private var keepAwakeToastController: KeepAwakeToastController?
+    /// Presents the keep-awake toast panel, positioned below the battery item.
+    private var keepAwakeToastHost: KeepAwakeToastHost?
+    private var keepAwakeToastSubscription: (any ProviderSubscription)?
     /// Reads and toggles the app appearance; reused across all clicks so only
     /// one subscription is held.
     private var appearanceReading: SystemAppearanceReading?
@@ -74,6 +80,14 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
 
         let keepAwake = KeepAwakeController(creator: IOKitPowerAssertionCreator())
         self.keepAwake = keepAwake
+
+        let keepAwakeToastController = KeepAwakeToastController()
+        self.keepAwakeToastController = keepAwakeToastController
+        let keepAwakeToastHost = KeepAwakeToastHost()
+        self.keepAwakeToastHost = keepAwakeToastHost
+        keepAwakeToastSubscription = keepAwakeToastController.observe { [weak self] toast in
+            Task { @MainActor in self?.applyKeepAwakeToast(toast) }
+        }
 
         let appearanceReading = SystemAppearanceReading()
         self.appearanceReading = appearanceReading
@@ -257,12 +271,36 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Present or dismiss the keep-awake toast from controller state.
+    private func applyKeepAwakeToast(_ toast: KeepAwakeToastState?) {
+        guard let keepAwakeToastHost else { return }
+        if let toast {
+            guard configurationController?.configuration.keepAwake.showToast ?? true else { return }
+            guard let batteryView = coordinator?.findBatteryItemView() else { return }
+            let configuration = configurationController?.configuration ?? .default
+            let dark = batteryView.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            let theme = BarTheme.resolve(configuration.appearance, dark: dark)
+            keepAwakeToastHost.present(toast, relativeTo: batteryView, theme: theme)
+            NSAccessibility.post(element: NSApp,
+                                   notification: .announcementRequested,
+                                   userInfo: [.announcement: toast.mainText])
+        } else {
+            keepAwakeToastHost.dismiss(animated: true)
+        }
+    }
+
     /// The battery item's click. Toggling is immediate; persisting the new state
     /// only happens when the user opted in to remembering it.
     private func toggleKeepAwake() {
         guard let keepAwake else { return }
         let newValue = !keepAwake.isActive
         keepAwake.setActive(newValue)
+
+        let configuration = configurationController?.configuration ?? .default
+        if configuration.keepAwake.showToast {
+            keepAwakeToastController?.showToast(isActive: newValue)
+        }
+
         guard configurationController?.configuration.keepAwake.remember == true else { return }
         configurationController?.update { $0.keepAwake.isActive = newValue }
     }
@@ -404,6 +442,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         coordinator?.stop()
         // Never leave a power assertion behind after the process exits.
         keepAwake?.releaseAll()
+        keepAwakeToastController?.releaseAll()
+        keepAwakeToastHost?.releaseAll()
     }
 
     /// Explicit, minimal click behavior — Divot never mirrors another app's menu

@@ -404,7 +404,8 @@ public struct DivotSettingsView: View {
     private var keepAwakeSection: some View {
         Section("Keep awake") {
             Toggle("Remember keep-awake across launches", isOn: rememberKeepAwakeBinding)
-            Text("Click the battery item to keep the Mac awake. When this is off (the default), keep-awake always starts off after a relaunch.")
+            Toggle("Show keep-awake message", isOn: binding(\.keepAwake.showToast))
+            Text("Click the battery item to keep the Mac awake. When this is off (the default), keep-awake always starts off after a relaunch. The keep-awake message is Divot's own transient panel below the battery item; it is not a Notification Center alert and is not suppressed by Focus or Do Not Disturb.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

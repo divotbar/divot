@@ -182,6 +182,18 @@ public final class DisplayCoordinator {
         for surface in surfaces.values { surface.apply(widgetChanges: changes) }
     }
 
+    /// Find the battery item view on any surface so the keep-awake toast can be
+    /// positioned relative to it. Returns the first battery item found across all
+    /// surfaces, or nil if none exists.
+    public func findBatteryItemView() -> NSView? {
+        for surface in surfaces.values {
+            if let surface = surface as? NSPanelBarSurface, let view = surface.batteryItemView() {
+                return view
+            }
+        }
+        return nil
+    }
+
     private var reduceMotion: Bool {
         NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }

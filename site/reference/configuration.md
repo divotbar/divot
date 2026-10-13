@@ -153,8 +153,9 @@ Clicking the battery item toggles a Caffeine-style keep-awake assertion (public 
 | --- | --- | --- | --- |
 | `remember` | Boolean | `false` | Persist the on/off state across launches |
 | `isActive` | Boolean | `false` | The remembered state; only meaningful when `remember` is `true` |
+| `showToast` | Boolean | `true` | Show the keep-awake message when caffeine is toggled |
 
-With no `keepAwake` object (or `remember: false`), keep-awake always starts off at launch. `isActive` is written only while `remember` is on.
+With no `keepAwake` object (or `remember: false`), keep-awake always starts off at launch. `isActive` is written only while `remember` is on. Restoring remembered keep-awake at launch does not show the message; only a live battery click does. The message is a Divot-owned transient panel below the battery item, not a Notification Center alert, so Focus and Do Not Disturb do not suppress it.
 
 ```json
 "keepAwake": { "remember": true, "isActive": true }

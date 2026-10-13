@@ -346,6 +346,7 @@ public enum PerformanceHarness {
     static func contrastChecks(family: AppearanceConfiguration.Family,
                                variant: ThemeVariant,
                                tokens: ThemeTokens) -> [PerformanceContrastCheck] {
+        let dark = variant == .dark
         let pairs: [(String, ThemeColor, ThemeColor, Double)] = [
             ("foreground/background", tokens.foreground, tokens.background, textFloor),
             ("foreground/surface", tokens.foreground, tokens.surface, textFloor),
@@ -356,6 +357,8 @@ public enum PerformanceHarness {
             // audit checks the same value against every family's bar background
             // (#0074).
             ("charging/background", ChargingIndicatorPalette.green, tokens.background, nonTextFloor),
+            ("keepAwakeToastActive/background", KeepAwakeToastPalette.active(dark: dark), tokens.background, textFloor),
+            ("keepAwakeToastInactive/background", KeepAwakeToastPalette.inactive(dark: dark), tokens.background, textFloor),
             ("accent/background", tokens.accent, tokens.background, accentFloor)
         ]
         return pairs.map { role, foreground, background, floor in

@@ -166,7 +166,7 @@ enum SnapshotTestHelpers {
 
             // If this is the first snapshot and no matches found yet, print summary
             if !filterMatchFound && !filterSummaryPrinted && !tokens.isEmpty {
-                let knownTokens = ["bar", "volume", "wifi", "appearance", "calendar", "worldclock", "charging", "battery"]
+                let knownTokens = ["bar", "volume", "wifi", "appearance", "calendar", "worldclock", "charging", "battery", "caffeine-toast"]
                 let unknownTokens = tokens.filter { !knownTokens.contains($0) }
                 if !unknownTokens.isEmpty {
                     let tokenList = unknownTokens.joined(separator: ", ")
@@ -191,6 +191,9 @@ enum SnapshotTestHelpers {
         guard matchesSnapshotFilter(named: name) else { return false }
 
         guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
+        if name.contains("caffeine-toast") {
+            return (name.contains("-native-") || name.contains("-gruvbox-")) && name.contains("-default")
+        }
         // Native or (Gruvbox non-bar only), light and dark, at the default size.
         guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
               name.contains("-default") else { return false }

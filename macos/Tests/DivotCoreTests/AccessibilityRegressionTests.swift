@@ -44,8 +44,8 @@ private let shippedFamilies: [AppearanceConfiguration.Family] = [.alpine, .gruvb
             let tokens = try! #require(ThemeCatalog.palette(family: family, variant: variant),
                                        "missing \(family.rawValue) \(variant.rawValue)").tokens
             let checks = PerformanceHarness.contrastChecks(family: family, variant: variant, tokens: tokens)
-            // Six token roles plus the fixed charging green (#0074).
-            #expect(checks.count == 7)
+            // Six token roles plus charging green and keep-awake toast accents (#0074, #0093).
+            #expect(checks.count == 9)
             for check in checks {
                 #expect(check.clearsFloor,
                         "\(check.family) \(check.variant) \(check.role) = \(check.ratio) < \(check.floor)")

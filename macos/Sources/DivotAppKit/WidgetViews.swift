@@ -630,6 +630,11 @@ final class BarContentView: NSView, BarContentLifecycle {
         needsDisplay = true
         onEffectiveAppearanceChange?()
     }
+
+    /// Get the item view for a specific item ID, if it exists.
+    func itemViewForID(_ id: BarItemID) -> NSView? {
+        itemViews[id]
+    }
 }
 
 extension NSColor {
