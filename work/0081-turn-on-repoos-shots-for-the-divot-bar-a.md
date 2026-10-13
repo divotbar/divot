@@ -70,3 +70,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:31:43Z · body: section Shots
 - 2026-10-13T08:32:06Z · body: section Evidence
 - 2026-10-13T08:32:53Z · status active→review
+- 2026-10-13T08:32:53Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
