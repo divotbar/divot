@@ -1,20 +1,21 @@
 ---
-last_close_out_gate_ms: 61291
-last_close_out_gate_at: "2026-10-13T07:08:28.778Z"
 id: "0077"
 title: "Calendar popover: month view with back/forward and today highlighted, opened from the date chip"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
 depends_on: ["0076"]
+merged_commit: 4e3cba92c9cf58d2af48948e357a69c869c63714
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/calendar-popover-month-view-with-back-fo
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:58:05Z"
-updated_at: "2026-10-13T07:08:28Z"
+updated_at: "2026-10-13T07:08:31Z"
+last_close_out_gate_ms: 61291
+last_close_out_gate_at: "2026-10-13T07:08:28.778Z"
 review_passes: 5
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T06:32:07.289Z: repoos check failed: native-core — 􁁛 Test networkPresentationWithoutNameShowsOnlyIcon() passed after 0.041 seconds."
@@ -77,4 +78,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 - 2026-10-13T07:01:40Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T07:06:10Z · note: review pass 5: good to go
 - 2026-10-13T07:08:28Z · close-out gate completed in 61s
-
+- 2026-10-13T07:08:31Z · status review→done, release:success
