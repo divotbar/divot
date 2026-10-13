@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T15:43:40Z"
+review_passes: 5
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
@@ -14,8 +16,6 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T15:43:40Z"
-review_passes: 4
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
 ---
@@ -98,3 +98,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T15:41:46Z · status active→review
 - 2026-10-13T15:43:39Z · note: review pass 5: needs some work
 - 2026-10-13T15:43:40Z · needs_input
+
