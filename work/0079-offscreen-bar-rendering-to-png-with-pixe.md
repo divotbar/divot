@@ -56,3 +56,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:55:53Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T07:55:54Z · message_delivered: 1 message(s)
 - 2026-10-13T08:01:32Z · status active→review
+- 2026-10-13T08:01:32Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
