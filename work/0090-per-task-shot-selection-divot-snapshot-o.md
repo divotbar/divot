@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
@@ -52,3 +53,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:05:19Z · note: review pass 2: needs some work
 - 2026-10-13T17:05:20Z · message_delivered: 1 message(s)
 - 2026-10-13T17:05:20Z · status review→active
+
