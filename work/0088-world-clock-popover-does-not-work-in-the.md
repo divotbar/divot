@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-13T19:15:49Z"
-review_passes: 8
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: active
 priority: p0
 area: macos
 assigned_to: ""
@@ -16,6 +11,8 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
+updated_at: "2026-10-13T19:17:06Z"
+review_passes: 8
 review_rounds: 2
 dev_error_count: 1
 ---
@@ -241,4 +238,5 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-13T19:12:43Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T19:15:48Z · note: review pass 8: needs some work
 - 2026-10-13T19:15:49Z · needs_input
-
+- 2026-10-13T19:17:06Z · status review→active, needs_input
+- 2026-10-13T19:17:06Z · note: close-out repair: merge-conflict
