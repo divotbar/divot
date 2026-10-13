@@ -1,9 +1,16 @@
 #!/bin/bash
 # Render popover and bar snapshots and print the output directory.
 #
+# Usage: scripts/snapshots.sh [--only token[,token,...]]
+#
 # This script runs the test suite (PopoverSnapshotTests and BarSnapshotTests) and captures PNG renders
 # of popovers and the right-hand bar in all supported themes and light/dark variants. Snapshots
 # are written to a gitignored directory for manual review.
+#
+# Options:
+#   --only <tokens>   Filter snapshots by comma-separated tokens (e.g., --only worldclock or --only wifi,volume).
+#                     Only snapshots whose names contain one of the tokens are rendered. Unknown tokens
+#                     produce a visible note and no snapshots.
 #
 # On macOS with a display, snapshots are rendered using offscreen AppKit
 # bitmap caching. On headless systems (CI), tests skip gracefully with a
@@ -20,7 +27,27 @@ SNAPSHOT_DIR="${DIVOT_SNAPSHOT_DIR:-$REPO_ROOT/macos/.build/snapshots}"
 
 export DIVOT_SNAPSHOT_DIR="$SNAPSHOT_DIR"
 
-echo "Running popover snapshot tests..."
+# Parse --only flag
+DIVOT_SNAPSHOT_ONLY=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --only)
+            DIVOT_SNAPSHOT_ONLY="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+if [ -n "$DIVOT_SNAPSHOT_ONLY" ]; then
+    export DIVOT_SNAPSHOT_ONLY="$DIVOT_SNAPSHOT_ONLY"
+    echo "Running popover snapshot tests with filter: $DIVOT_SNAPSHOT_ONLY"
+else
+    echo "Running popover snapshot tests..."
+fi
 echo "Snapshots will be written to: $SNAPSHOT_DIR"
 echo ""
 

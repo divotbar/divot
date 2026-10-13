@@ -271,7 +271,7 @@ struct BarSnapshotTests {
 
     @Test("Right bar layout, inset, chip fill, contrast and charging green", arguments: configs)
     func rightBar(config: Config) throws {
-        let off = try render(config, chips: .off, charging: true, label: "chips-off")
+        let off = try render(config, chips: .off, charging: true, label: "chips-off-charging")
         assertSlotLayout(off)
         assertInkMatchesSlots(off)
         assertChipFill(off, chips: .off)
@@ -294,19 +294,19 @@ struct BarSnapshotTests {
         }
         #expect(bodyPixels >= 40, "Charging battery body drew only \(bodyPixels) pixels of the normal label colour")
 
-        let translucent = try render(config, chips: .translucent, charging: true, label: "chips-on")
+        let translucent = try render(config, chips: .translucent, charging: true, label: "chips-on-charging")
         assertSlotLayout(translucent)
         assertChipFill(translucent, chips: .translucent)
         let alpha = 1 - Double(Self.translucentChipOpacity) / 100
         assertClockContrast(translucent,
                             behind: translucent.selected.blended(over: translucent.background, alpha: alpha))
 
-        let solid = try render(config, chips: .solid, charging: true, label: "chips-solid")
+        let solid = try render(config, chips: .solid, charging: true, label: "chips-solid-charging")
         assertSlotLayout(solid)
         assertChipFill(solid, chips: .solid)
         assertMeasuredChipRuns(solid)
 
-        let idle = try render(config, chips: .off, charging: false, label: "not-charging")
+        let idle = try render(config, chips: .off, charging: false, label: "battery")
         #expect(chargingGreenColumns(idle).isEmpty, "Charging green drawn while not charging")
         var batteryInked = false
         for x in idle.column(idle.frames[0].minX)..<idle.column(idle.frames[0].maxX) {

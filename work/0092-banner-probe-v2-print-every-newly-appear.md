@@ -11,7 +11,12 @@ branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
-updated_at: "2026-10-13T17:43:38Z"
+updated_at: "2026-10-13T18:36:01Z"
+handoff_signal_retry_count: 1
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-13T18:20:01.774Z: repoos check failed: ◆ Check plan"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 #0089 fixed the layer key but main's divot-notification-banner-probe --watch (DivotNotificationBannerProbe/main.swift, watchForNotificationWindows) still only reports windows whose owner name contains the exact, case-sensitive text 'NotificationCenter'. The maintainer ran it twice (2026-10-13 23:28 and 23:53) with real system overlays on screen (the Control Center panel was opened during the second run) and it printed only 'No NotificationCenter windows observed'. It also prints 'Divot panel layer for comparison: 23', computed from NSWindow.Level.mainMenu.rawValue - 1, not measured from Divot's real panel. The maintainer's Mac currently has Do Not Disturb on, so test notifications never appear; the Control Center panel is the reliable reference overlay.
@@ -40,3 +45,10 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T17:19:23Z · status ready→active, branch
 - 2026-10-13T17:33:30Z · message_queued at 2026-10-13T17:33:30.802Z
 - 2026-10-13T17:33:30Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
+- 2026-10-13T18:07:52Z · message_delivered: 1 message(s)
+- 2026-10-13T18:11:09Z · status active→review
+- 2026-10-13T18:11:18Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
+- 2026-10-13T18:11:50Z · note: review pass 1: needs some work
+- 2026-10-13T18:11:50Z · status review→active
+- 2026-10-13T18:20:31Z · message_queued at 2026-10-13T18:20:31.043Z
+- 2026-10-13T18:36:01Z · message_delivered: 1 message(s)

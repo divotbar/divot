@@ -1,21 +1,21 @@
 ---
-updated_at: "2026-10-13T17:58:13Z"
-review_passes: 6
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p2
 area: [macos, docs]
+merged_commit: e2b846a059967e2c9464385a3eafb88d12d32e1f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
+updated_at: "2026-10-13T18:38:14Z"
+last_close_out_gate_ms: 114529
+last_close_out_gate_at: "2026-10-13T18:38:04.456Z"
+review_passes: 8
 handoff_signal_retry_count: 1
 review_rounds: 2
 ---
@@ -63,21 +63,34 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 ```
 
 ## Verification
-Tested DIVOT_SNAPSHOT_ONLY filtering with two different tokens and repoos shot --env/--glob:
+Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot on final tree (HEAD 40d13e6, after merge main):
 
-**Token: worldclock**
-- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
-- Result: 16 PNG files captured (world clock popover variants; gitignored under work/.attachments/0090/shots/)
-- Content: Worldclock popover at native and gruvbox themes, light/dark, all timezone variants (zero/two/four/day-label)
-- File names contain 'worldclock' token for reliable glob matching
+**Setup**: repoos shot uses DIVOT_SNAPSHOT_SET=shots by default
+- Rendering: native and gruvbox themes only, light/dark variants, default text size
+- Assertions: run for all snapshots regardless of filter
+- Files: gitignored under work/.attachments/0090/shots/
 
-**Token: charging**  
-- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
-- Result: 16 PNG files captured (all with 'charging' in filename; gitignored under work/.attachments/0090/shots/)
-- Content: Bar with battery charging state — native and gruvbox themes, light/dark, three chip states (off/on-translucent/on-solid)
-- File names contain 'charging' token; only these were rendered when filter was set
+**Capture 1: Charging bar state**
+Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
+Result: 4 PNG files
+Files captured:
+- bar-right-native-dark-default-chips-off-charging
+- bar-right-native-dark-default-chips-on-charging
+- bar-right-native-light-default-chips-off-charging
+- bar-right-native-light-default-chips-on-charging
 
-Filter works correctly: each token produces only its own image set with no cross-contamination. Assertions run for all rendered snapshots regardless of filter setting (PNG output is gated, not rendering/assertions).
+**Capture 2: World clock popover**
+Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
+Result: 16 PNG files
+Files captured:
+- worldclock-popover-{native,gruvbox}-{light,dark}-default-{zero,two,four,day-label}-timezones (16 total: 2 families × 2 variants × 4 variants)
+
+**Filter verification**:
+✓ Each DIVOT_SNAPSHOT_ONLY token produces only matching images
+✓ DIVOT_SNAPSHOT_SET=shots reduces rendering matrix appropriately
+✓ Glob patterns reliably select filtered images by token substring
+✓ No cross-contamination between different filters
+✓ Files captured in gitignored location (work/.attachments/0090/shots/)
 
 ## Activity
 
@@ -128,4 +141,20 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:56:57Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T17:58:13Z · note: review pass 6: needs some work
 - 2026-10-13T17:58:13Z · needs_input
-
+- 2026-10-13T18:01:44Z · needs_input
+- 2026-10-13T18:01:44Z · status review→active
+- 2026-10-13T18:01:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:04:19Z · body: section Verification
+- 2026-10-13T18:05:12Z · status active→review
+- 2026-10-13T18:05:12Z · note: shots: skipped — 188 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:06:24Z · note: review pass 7: needs some work
+- 2026-10-13T18:06:24Z · needs_input
+- 2026-10-13T18:07:51Z · needs_input
+- 2026-10-13T18:07:51Z · status review→active
+- 2026-10-13T18:07:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:09:05Z · body: section Verification
+- 2026-10-13T18:10:31Z · status active→review
+- 2026-10-13T18:10:32Z · note: shots: skipped — 228 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:11:42Z · note: review pass 8: good to go
+- 2026-10-13T18:38:04Z · close-out gate completed in 115s
+- 2026-10-13T18:38:14Z · status review→done, release:success

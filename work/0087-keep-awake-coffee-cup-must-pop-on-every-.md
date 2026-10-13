@@ -11,9 +11,10 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T18:00:30Z"
-review_passes: 8
+updated_at: "2026-10-13T18:36:14Z"
+review_passes: 9
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -143,3 +144,16 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:00:29Z · status active→review
 - 2026-10-13T18:00:29Z · cli_override, model_override
 - 2026-10-13T18:00:30Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:01:43Z · note: review pass 9: needs some work
+- 2026-10-13T18:01:44Z · needs_input
+- 2026-10-13T18:07:49Z · needs_input
+- 2026-10-13T18:07:50Z · status review→active
+- 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:16:08Z · agent exited with an error (opencode) · error: Transport
+- 2026-10-13T18:16:10Z · status active→review
+- 2026-10-13T18:16:52Z · note: handoff requested (cli)
+- 2026-10-13T18:17:28Z · handoff failed · task-file handoff failed at validate · handoff worktree does not match the registered task worktree
+- 2026-10-13T18:21:23Z · needs_input
+- 2026-10-13T18:35:22Z · note: handoff requested (ui-review)
+- 2026-10-13T18:36:14Z · status active→review
+- 2026-10-13T18:36:14Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
