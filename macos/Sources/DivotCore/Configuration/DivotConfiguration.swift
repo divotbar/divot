@@ -5,12 +5,14 @@ import Foundation
 /// The appearance half of the configuration.
 ///
 /// `family` and `mode` are deliberately independent: changing the System/Light/
-/// Dark variant keeps the chosen family. The four families resolve to semantic
-/// tokens in `DivotCore.ThemeResolver` (see `ThemePalette`); `palette` overrides
+/// Dark variant keeps the chosen family. `alpine` is Divot's own family and the
+/// four curated hacker families resolve to semantic tokens in
+/// `DivotCore.ThemeResolver` (see `ThemePalette`); `palette` overrides
 /// individual semantic tokens over the selected family and variant.
 public struct AppearanceConfiguration: Equatable, Sendable {
     public enum Family: String, CaseIterable, Codable, Sendable {
         case native
+        case alpine
         case gruvbox
         case ayu
         case dracula
@@ -19,6 +21,7 @@ public struct AppearanceConfiguration: Equatable, Sendable {
         public var displayName: String {
             switch self {
             case .native: return "Native"
+            case .alpine: return "Alpine"
             case .gruvbox: return "Gruvbox"
             case .ayu: return "Ayu"
             case .dracula: return "Dracula"

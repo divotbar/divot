@@ -3,11 +3,11 @@ import DivotCore
 
 /// The AppKit-facing theme: the resolved semantic roles as `NSColor`s plus the
 /// material decision, so the bar views draw one path for the native default and
-/// the four families.
+/// the curated families.
 ///
 /// The native family uses macOS semantic colors (`labelColor`,
 /// `windowBackgroundColor`, `selectedContentBackgroundColor`, …) so it keeps
-/// appearance and accessibility behavior. The four families use the resolved
+/// appearance and accessibility behavior. The curated families use the resolved
 /// hex tokens. Both honor increased contrast and reduced transparency. The bar
 /// chrome itself is flat (#0025): the fill is the solid `background` token.
 @MainActor

@@ -52,8 +52,8 @@ diagnostics, and animation/hitch traces. The protocol covers, at minimum:
 | Scenario | What to capture |
 | --- | --- |
 | Native default workload | Idle CPU, memory, update latency, main-thread work for network/volume/front-app/time (and optional date)/battery |
-| Both appearance modes | Light and dark, on the native family and the four families |
-| All four theme families | Gruvbox, Ayu, Dracula, and Tokyo Night, each light/dark, plus material variants |
+| Both appearance modes | Light and dark, on the native family and the curated families |
+| Every curated theme family | Alpine, Gruvbox, Ayu, Dracula, and Tokyo Night, each light/dark, plus material variants |
 | Workspace bursts | Rapid switches and a snapshot burst; coalescing and no growing queue |
 | Native-menu-bar reveal/hide | Repeated reveal/hide with the bar behind material; helper and compositor cost |
 | Provider cancellation | Stop/reconfigure under load; no leaked observers, timers, or subprocesses |
@@ -87,7 +87,7 @@ The harness covers the deterministic, in-process part of the matrix:
 - **default workload** — presentation of network, volume, front-app, date/time,
   and battery;
 - **appearance modes** — resolving every family under light and dark;
-- **theme families** — resolving and contrast-auditing all four families ×
+- **theme families** — resolving and contrast-auditing every curated family ×
   light/dark;
 - **workspace bursts** — 256 snapshots through the pure feed state machine;
 - **provider cancellation** — subscription teardown and stale-emission rejection;

@@ -359,7 +359,7 @@ struct PopoverSnapshotTests {
 
     @Test("Volume popover — all themes × light/dark × default size")
     func volumePopoverMatrix() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
         for family in families {
@@ -374,7 +374,7 @@ struct PopoverSnapshotTests {
 
     @Test("Wi-Fi popover — all themes × light/dark × default size")
     func wifiPopoverMatrix() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
         for family in families {
@@ -389,7 +389,7 @@ struct PopoverSnapshotTests {
 
     @Test("Appearance popover — all themes × light/dark × default size")
     func appearancePopoverMatrix() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
         for family in families {
@@ -404,7 +404,7 @@ struct PopoverSnapshotTests {
 
     @Test("Volume popover — all themes × light/dark × larger text (16pt)")
     func volumePopoverLargerText() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
         for family in families {
@@ -419,7 +419,7 @@ struct PopoverSnapshotTests {
 
     @Test("Wi-Fi popover — all themes × light/dark × larger text (16pt)")
     func wifiPopoverLargerText() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
         for family in families {
@@ -434,7 +434,7 @@ struct PopoverSnapshotTests {
 
     @Test("Appearance popover — all themes × light/dark × larger text (16pt)")
     func appearancePopoverLargerText() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
         let variants: [(String, Bool)] = [("light", false), ("dark", true)]
 
         for family in families {

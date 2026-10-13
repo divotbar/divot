@@ -142,7 +142,7 @@ public enum PerformanceScenario: String, CaseIterable, Codable, Sendable {
     case defaultWorkload
     /// Resolving every family under both appearance modes.
     case appearanceModes
-    /// Resolving and contrast-auditing all four families × light/dark.
+    /// Resolving and contrast-auditing every curated family × light/dark.
     case themeFamilies
     /// A burst of workspace snapshots through the pure feed state machine.
     case workspaceBurst
@@ -160,7 +160,7 @@ public enum PerformanceScenario: String, CaseIterable, Codable, Sendable {
         case .appearanceModes:
             return "resolve every family under light and dark"
         case .themeFamilies:
-            return "resolve and contrast-audit all four families × light/dark"
+            return "resolve and contrast-audit every curated family × light/dark"
         case .workspaceBurst:
             return "256 workspace snapshots through the pure feed state machine"
         case .providerCancellation:
@@ -307,7 +307,7 @@ public enum PerformanceHarness {
                                                       contrast: [PerformanceContrastCheck]) {
         var measurements: [PerformanceMeasurement] = []
         var contrast: [PerformanceContrastCheck] = []
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
 
         for family in families {
             for dark in [false, true] {

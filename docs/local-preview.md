@@ -120,8 +120,9 @@ use pattern kills (`pkill`/`killall`).
   mode; clicking it opens an appearance popover that sets Divot's own mode
   (System/Light/Dark) and theme family and opens Divot's own settings window
   (never the macOS system appearance).
-- **Themes:** the native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night
-  families, each with light and dark variants, selectable from Settings or the
+- **Themes:** the native default, the Alpine family, and the Gruvbox, Ayu,
+  Dracula, and Tokyo Night families, each with light and dark variants,
+  selectable from Settings or the
   configuration file (`appearance.family`, `appearance.mode`). Custom
   `appearance.palette` overrides and custom left/right item groups are available
   through the same versioned configuration; see

@@ -27,10 +27,10 @@ import Testing
     }
 }
 
-@Test func harnessContrastAuditClearsEveryFloorForAllFourFamilies() {
+@Test func harnessContrastAuditClearsEveryFloorForEveryCuratedFamily() {
     let report = PerformanceHarness.run()
-    // 4 families × 2 variants × 7 audited roles.
-    #expect(report.contrast.count == 4 * 2 * 7)
+    // 5 curated families × 2 variants × 7 audited roles.
+    #expect(report.contrast.count == 5 * 2 * 7)
     for check in report.contrast {
         #expect(check.clearsFloor,
                 "\(check.family) \(check.variant) \(check.role) = \(check.ratio) < \(check.floor)")
@@ -42,7 +42,7 @@ import Testing
 @Test func harnessAuditsTheFixedChargingGreenOnEveryFamilyAndVariant() {
     let report = PerformanceHarness.run()
     let charging = report.contrast.filter { $0.role == "charging/background" }
-    #expect(charging.count == 4 * 2)
+    #expect(charging.count == 5 * 2)
     for check in charging {
         #expect(check.clearsFloor,
                 "\(check.family) \(check.variant) charging = \(check.ratio) < \(check.floor)")

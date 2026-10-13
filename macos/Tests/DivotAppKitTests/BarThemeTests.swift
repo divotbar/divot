@@ -304,7 +304,7 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
 /// nearly invisible.
 @MainActor
 @Test func familyPopoverLinkClearsTheTextFloorAgainstTheBackground() {
-    for family in [AppearanceConfiguration.Family.gruvbox, .ayu, .dracula, .tokyoNight] {
+    for family in [AppearanceConfiguration.Family.alpine, .gruvbox, .ayu, .dracula, .tokyoNight] {
         for variant in ThemeVariant.allCases {
             let dark = variant == .dark
             let theme = BarTheme.resolve(AppearanceConfiguration(family: family), dark: dark)

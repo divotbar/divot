@@ -149,13 +149,17 @@ public struct ThemeSwatch: Equatable, Sendable {
 
 // MARK: - Catalog
 
-/// The four curated hacker families, each with an upstream-sourced light and
-/// dark variant. Colors are pinned from the upstream palettes named in each
-/// `ThemeAttribution`; the only Divot-side tuning is noted per variant.
+/// The curated theme families: Divot's own Alpine family plus the four curated
+/// hacker families, each with a light and dark variant. Hacker-family colors are
+/// pinned from the upstream palettes named in each `ThemeAttribution`; the only
+/// Divot-side tuning is noted per variant. Alpine is authored by Divot from the
+/// project's own visual direction, so it names the project as its source.
 public enum ThemeCatalog {
     public static func palette(family: AppearanceConfiguration.Family,
                                variant: ThemeVariant) -> ThemePalette? {
         switch (family, variant) {
+        case (.alpine, .dark): return alpineDark
+        case (.alpine, .light): return alpineLight
         case (.gruvbox, .dark): return gruvboxDark
         case (.gruvbox, .light): return gruvboxLight
         case (.ayu, .dark): return ayuDark
@@ -177,6 +181,49 @@ public enum ThemeCatalog {
         return ThemeSwatch(background: tokens.background,
                            accent: tokens.accent)
     }
+
+    // MARK: Alpine — Divot's own family
+
+    /// Alpine is Divot's own family, drawn from the project's visual direction:
+    /// lake blue, pine green, and warm paper. It has no upstream palette; Divot
+    /// authors both variants, so the attribution names the project itself.
+    private static let alpine = (source: "Divot",
+                                 url: "https://divotbar.app",
+                                 license: "MIT")
+
+    private static let alpineDark = ThemePalette(
+        family: .alpine,
+        variant: .dark,
+        tokens: ThemeTokens(foreground: hex("#E8EFEB"),
+                            background: hex("#16272B"),
+                            surface: hex("#1E343A"),
+                            border: hex("#33525A"),
+                            accent: hex("#7EC8E3"),
+                            selected: hex("#47809E"),
+                            occupied: hex("#A3C46A"),
+                            error: hex("#E8795E")),
+        attribution: ThemeAttribution(familyName: "Alpine",
+                                      variantName: "Alpine Dark",
+                                      source: alpine.source,
+                                      url: alpine.url,
+                                      license: alpine.license))
+
+    private static let alpineLight = ThemePalette(
+        family: .alpine,
+        variant: .light,
+        tokens: ThemeTokens(foreground: hex("#22333A"),
+                            background: hex("#F4F1E8"),
+                            surface: hex("#EAE5D9"),
+                            border: hex("#D3CCBB"),
+                            accent: hex("#2C6E8E"),
+                            selected: hex("#356C8C"),
+                            occupied: hex("#3F6B4F"),
+                            error: hex("#A83A2C")),
+        attribution: ThemeAttribution(familyName: "Alpine",
+                                      variantName: "Alpine Light",
+                                      source: alpine.source,
+                                      url: alpine.url,
+                                      license: alpine.license))
 
     // MARK: Gruvbox — morhetz/gruvbox, MIT
 
