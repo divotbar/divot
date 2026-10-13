@@ -2,7 +2,7 @@
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:21:01Z"
+updated_at: "2026-10-13T09:22:37Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -164,3 +164,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T09:20:51Z · body: section Limits of offscreen shots
 - 2026-10-13T09:20:58Z · body: section Build and verification
 - 2026-10-13T09:21:01Z · body: section Shots
+- 2026-10-13T09:22:37Z · status active→review
