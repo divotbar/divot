@@ -11,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T16:33:10Z"
+updated_at: "2026-10-13T16:34:27Z"
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -75,3 +75,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:19:53Z · status ready→active, branch
 - 2026-10-13T16:29:04Z · body: section Shots
 - 2026-10-13T16:33:10Z · status active→review
+- 2026-10-13T16:34:27Z · note: review pass 1: needs some work
