@@ -2,7 +2,7 @@
 id: "0077"
 title: "Calendar popover: month view with back/forward and today highlighted, opened from the date chip"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 depends_on: ["0076"]
@@ -57,4 +57,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 - 2026-10-13T06:41:19Z · note: review pass 2: needs some work
 - 2026-10-13T06:41:19Z · message_delivered: 1 message(s)
 - 2026-10-13T06:41:19Z · status review→active
-- 2026-10-13T06:43:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:43:52Z · status active→review
