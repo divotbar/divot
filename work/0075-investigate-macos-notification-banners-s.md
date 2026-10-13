@@ -2,7 +2,7 @@
 id: "0075"
 title: "Investigate: macOS notification banners sit under the Divot bar"
 type: bug
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T06:11:10Z"
+updated_at: "2026-10-13T06:11:11Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -98,3 +98,5 @@ Window-level analysis shows notification banners use a level at or above 25 (abo
 - 2026-10-13T06:01:40Z · note: review pass 3: needs some work
 - 2026-10-13T06:01:40Z · needs_input
 - 2026-10-13T06:11:10Z · needs_input
+- 2026-10-13T06:11:11Z · status review→active
+- 2026-10-13T06:11:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
