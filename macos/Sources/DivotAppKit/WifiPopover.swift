@@ -65,6 +65,17 @@ public final class WifiPopoverController {
     /// Whether the popover is currently shown. Exposed for tests and callers.
     public var isShown: Bool { host.isShown }
 
+    /// Update the shown popover's theme without closing it.
+    /// Used when the bar's theme changes while the popover is open.
+    public func updateTheme(_ theme: BarTheme) {
+        if host.isShown {
+            host.restyle(theme: theme)
+        }
+        if let content {
+            content.theme = theme
+        }
+    }
+
     /// The popover closed for any reason; stop the scan and the rows.
     private func handleClosed() {
         scanTask?.cancel()
@@ -97,14 +108,23 @@ final class WifiPopoverContentController: BarPopoverContentController {
     var onOpenLocationSettings: (() -> Void)?
     var onRetry: (() -> Void)?
 
+    private var lastState: WifiScanState = .scanning
+
     override func loadView() {
         super.loadView()
         render(.scanning)
     }
 
+    /// Rows bake their colours in when built, so a theme change rebuilds them.
+    override func restyle(_ theme: BarTheme) {
+        super.restyle(theme)
+        render(lastState)
+    }
+
     /// Rebuild the body for a new scan state. The header and settings row are
     /// always present; only the body swaps.
     func render(_ state: WifiScanState) {
+        lastState = state
         clearRows()
         stack.addArrangedSubview(header("Wi-Fi"))
         switch state {
