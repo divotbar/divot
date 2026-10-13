@@ -192,9 +192,10 @@ so any click outside it, or Escape, dismisses it; a second click on the same bar
 item toggles it closed. The monitors are installed while it is shown and removed
 the instant it closes — no polling. Its text is painted from the bar's `BarTheme`
 (`BarTheme.popoverPalette`), so its label/secondary/link roles clear the same
-contrast floors the theme audit checks; a family theme paints the popover's own
-background so it matches the bar exactly, the native theme keeps the popover's
-system material, and the popover adopts the bar's light/dark variant either way.
+contrast floors the theme audit checks; all themes paint the popover's own solid,
+opaque background from the theme palette so it matches the bar exactly and renders
+predictably regardless of what is behind it, and the popover adopts the bar's light/dark
+variant either way.
 Whether the slider
 actually moves the real output volume, and whether the item's percentage follows
 on screen, are **not verified here**: that is the maintainer's packaged-app check.
@@ -214,10 +215,9 @@ hand-copied colour) and the family name, with the current theme clearly marked, 
 Settings…** row that opens Divot's own settings window, not a System Settings
 pane. The shared width floor is lowered for this content so the popover hugs the
 control and list instead of leaving an empty block beside them; the Wi-Fi and
-volume popovers keep the shared floor. All popover content (title, labels, rows, links) is left-aligned. For curated families, the popover has a solid, opaque background from the theme's palette, a thin separator-colored border, and rounded corners; for the native family, the popover uses the system appearance. The chosen ring and option labels come from
-the bar's `BarTheme` (a family theme also paints the popover background from it),
-so the popover matches the bar in light and dark and under increased contrast
-instead of a fixed system tint.
+volume popovers keep the shared floor. All popover content (title, labels, rows, links) is left-aligned. All themes paint the popover with a solid, opaque background from the theme palette and a thin border (rounded corners for curated families), so the popover renders predictably regardless of what is behind it. The chosen ring and option labels come from
+the bar's `BarTheme`,
+so the popover matches the bar in light and dark and under increased contrast.
 
 Both lists are built from the configuration enums
 (`AppearanceConfiguration.Mode.allCases` and `.Family.allCases`), so a new family
