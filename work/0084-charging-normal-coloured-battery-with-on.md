@@ -3,9 +3,6 @@ id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-failed
-needs_input_detail: the cursor agent timed out after 900s
 priority: p1
 area: macos
 assigned_to: ""
@@ -14,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T09:41:06Z"
+updated_at: "2026-10-13T10:25:28Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -91,3 +88,4 @@ The palette approach successfully isolates the bolt: green spans less than the i
 - 2026-10-13T09:23:30Z · note: shots: skipped — the declared shot list produced no captures: shot #1: the resolved targets (website, Divot bar) do not include "default"; shot #2: the resolved targets (website, Divot bar) do not include "default"; website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T09:41:06Z · note: review pass 2: failed — no usable report
 - 2026-10-13T09:41:06Z · needs_input
+- 2026-10-13T10:25:28Z · needs_input
