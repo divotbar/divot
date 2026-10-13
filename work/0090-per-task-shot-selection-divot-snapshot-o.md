@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T18:01:44Z"
+updated_at: "2026-10-13T18:04:19Z"
 review_passes: 6
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -60,21 +60,31 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 ```
 
 ## Verification
-Tested DIVOT_SNAPSHOT_ONLY filtering with two different tokens and repoos shot --env/--glob:
+Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot:
 
-**Token: worldclock**
+**Setup**: DIVOT_SNAPSHOT_SET=shots (used by repoos shot by default)
+- Rendering: native and gruvbox themes only, light/dark variants, default text size
+- Assertions: run for all snapshots regardless of filter
+
+**Test 1: DIVOT_SNAPSHOT_ONLY=worldclock with glob '*worldclock*.png'**
 - Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
-- Result: 16 PNG files captured (world clock popover variants; gitignored under work/.attachments/0090/shots/)
-- Content: Worldclock popover at native and gruvbox themes, light/dark, all timezone variants (zero/two/four/day-label)
-- File names contain 'worldclock' token for reliable glob matching
+- Result: 16 PNG files captured
+- Content: World clock popover (native and gruvbox, light/dark, all variants: zero/two/four timezones + day-label)
+- Files: divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-{zero,two,four,day-label}-N.png
+- Gitignored: Yes (under work/.attachments/0090/shots/)
 
-**Token: charging**  
+**Test 2: DIVOT_SNAPSHOT_ONLY=charging with glob '*charging*.png'**
 - Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
-- Result: 16 PNG files captured (all with 'charging' in filename; gitignored under work/.attachments/0090/shots/)
-- Content: Bar with battery charging state — native and gruvbox themes, light/dark, three chip states (off/on-translucent/on-solid)
-- File names contain 'charging' token; only these were rendered when filter was set
+- Result: 4 PNG files captured
+- Content: Bar with battery charging state (native light/dark only, default size, chips-off and chips-on states)
+- Files: divot-bar-bar-right-native-{light,dark}-default-chips-{off,on}-charging-N.png
+- Gitignored: Yes (under work/.attachments/0090/shots/)
 
-Filter works correctly: each token produces only its own image set with no cross-contamination. Assertions run for all rendered snapshots regardless of filter setting (PNG output is gated, not rendering/assertions).
+**Filter behavior verified**:
+- Each DIVOT_SNAPSHOT_ONLY token produces only its matching images
+- DIVOT_SNAPSHOT_SET=shots reduces matrix (no large/gruvbox-only for non-bar, no chips-solid for bar)
+- Glob patterns reliably select filtered images by token in filename
+- No cross-contamination between filters
 
 ## Activity
 
@@ -128,3 +138,4 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T18:01:44Z · needs_input
 - 2026-10-13T18:01:44Z · status review→active
 - 2026-10-13T18:01:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:04:19Z · body: section Verification
