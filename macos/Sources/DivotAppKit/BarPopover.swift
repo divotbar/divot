@@ -496,6 +496,14 @@ final class BarPopoverHost: NSObject {
         layoutPanel(size: size)
     }
 
+    /// Update the shown popover's theme without closing it.
+    func restyle(theme: BarTheme) {
+        guard let panel, let chrome, let content else { return }
+        content.apply(theme: theme)
+        chrome.palette = theme.popoverPalette
+        panel.appearance = theme.popoverAppearance
+    }
+
     func dismiss() {
         stopDismissMonitors()
         guard let panel else { return }

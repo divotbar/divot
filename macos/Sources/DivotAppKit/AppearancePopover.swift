@@ -70,6 +70,17 @@ public final class AppearancePopoverController {
     /// Whether the popover is currently shown. Exposed for tests and callers.
     public var isShown: Bool { host.isShown }
 
+    /// Update the shown popover's theme without closing it.
+    /// Used when the bar's theme changes while the popover is open.
+    public func updateTheme(_ theme: BarTheme) {
+        if host.isShown {
+            host.restyle(theme: theme)
+        }
+        if let content {
+            content.theme = theme
+        }
+    }
+
     /// The popover closed for any reason; drop the observer and the rows.
     private func handleClosed() {
         model.stopObserving()

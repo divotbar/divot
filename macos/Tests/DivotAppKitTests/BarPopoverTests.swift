@@ -142,6 +142,23 @@ private func pressEvent() -> NSEvent {
         visit(view)
         view.subviews.forEach { walk($0, visit) }
     }
+    func contrastRatio(_ fg: NSColor, _ bg: NSColor) -> Double {
+        func luminance(_ color: NSColor) -> Double {
+            let rgb = color.withAlphaComponent(1)
+            func linearize(_ channel: Double) -> Double {
+                return channel <= 0.03928 ? channel / 12.92 : pow((channel + 0.055) / 1.055, 2.4)
+            }
+            let r = linearize(rgb.redComponent)
+            let g = linearize(rgb.greenComponent)
+            let b = linearize(rgb.blueComponent)
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b
+        }
+        let l1 = luminance(fg)
+        let l2 = luminance(bg)
+        let lighter = max(l1, l2)
+        let darker = min(l1, l2)
+        return (lighter + 0.05) / (darker + 0.05)
+    }
     let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
     for family in families {
         for dark in [false, true] {
@@ -160,16 +177,32 @@ private func pressEvent() -> NSEvent {
                 #expect(Bool(false), "popover panel should exist")
                 continue
             }
+            // Panel setup: non-opaque for rounded corners, but chrome and content are solid
+            #expect(panel.isOpaque == false, "panel should be non-opaque for rounded corner cutout")
+            #expect(panel.backgroundColor == NSColor.clear, "panel background should be clear for transparency")
+
             var materials = 0
             walk(root) { if $0 is NSVisualEffectView { materials += 1 } }
-            #expect(materials == 0)
-            #expect(root.palette.background.alphaComponent == 1)
+            #expect(materials == 0, "no vibrancy material in \(family)")
+
+            #expect(root.palette.background.alphaComponent == 1, "chrome palette background alpha is 1")
             #expect(root.palette.background == theme.popoverPalette.background.withAlphaComponent(1))
+
             if let fill = content.view.layer?.backgroundColor {
-                #expect(NSColor(cgColor: fill)?.alphaComponent == 1)
+                #expect(NSColor(cgColor: fill)?.alphaComponent == 1, "content fill alpha is 1")
             } else {
                 #expect(Bool(false), "content has a solid layer fill")
             }
+
+            // Verify contrast: label, secondary, and link colours clear AA (4.5:1)
+            let palette = theme.popoverPalette
+            let labelContrast = contrastRatio(palette.label, palette.background)
+            let secondaryContrast = contrastRatio(palette.secondary, palette.background)
+            let linkContrast = contrastRatio(palette.link, palette.background)
+            #expect(labelContrast >= 4.5, "\(family) label contrast is \(labelContrast)")
+            #expect(secondaryContrast >= 4.5, "\(family) secondary contrast is \(secondaryContrast)")
+            #expect(linkContrast >= 4.5, "\(family) link contrast is \(linkContrast)")
+
             content.view.layoutSubtreeIfNeeded()
             for button in content.familyButtons.values {
                 let x = button.convert(button.bounds, to: content.view).minX
