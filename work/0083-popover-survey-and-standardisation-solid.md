@@ -13,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:45:47Z"
+updated_at: "2026-10-13T10:45:52Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -198,3 +198,4 @@ The 22 PNG captures for Divot popovers are produced by the `repoos shot --target
 - 2026-10-13T10:43:59Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T10:44:11Z · body: section Shot evidence
 - 2026-10-13T10:45:47Z · status active→review
+- 2026-10-13T10:45:52Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (349075f) during finalization (#0734)
