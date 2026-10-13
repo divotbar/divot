@@ -2,12 +2,12 @@
 id: "0074"
 title: "Charging indicator must be a real green, independent of theme"
 type: bug
-status: ready
+status: active
 priority: p1
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/charging-indicator-must-be-a-real-green-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T03:53:48Z"
@@ -35,3 +35,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T03:53:48Z · created · njachowski@gmail.com
 - 2026-10-13T03:53:51Z · status inbox→ready
 - 2026-10-13T03:53:52Z · cli_override, model_override
+- 2026-10-13T03:53:52Z · status ready→active, branch
