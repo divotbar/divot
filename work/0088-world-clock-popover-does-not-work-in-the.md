@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:20:35Z"
+updated_at: "2026-10-13T16:25:38Z"
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -43,7 +43,17 @@ Maintainer screenshots 2026-10-13. 1) The REAL packaged app at 23:16 (UTC+7): th
 ## Notes for AI
 WORK IN SMALL STAGES and commit after each; do not hand off until the real-flow test and the new shots exist and swift build, swift test --package-path macos and bun run check all pass. Never hand off while swift build fails. Files: WorldClockPopover.swift, WorldClock.swift, BarPopover.swift, the snapshot helpers. Do not commit images.
 
+## Default timezones
+Added by the maintainer 2026-10-13: the list must not start empty, so a first-time user sees something that makes sense.
+
+- Default zones when the user has never configured the list: San Francisco (America/Los_Angeles), London (Europe/London) and Singapore (Asia/Singapore), in that order. Display the friendly city names San Francisco, London, Singapore (the identifier for San Francisco is America/Los_Angeles; show 'San Francisco').
+- Distinguish 'never configured' from 'explicitly emptied': if widgets.time.timezones is ABSENT from the config, use the three defaults; once the user adds or removes any zone the list is written to the config exactly as shown, and an explicitly empty list stays empty (the empty state with the hint and Add row). Do not silently re-add defaults after the user removed them.
+- If one of the default zones is the user's own local zone, do not show it twice: the local zone is already in the header, so skip it.
+- The config schema default, the config CLI schema (divot config schema), the Settings window list, docs/configuration.md, site/reference/configuration.md and the widgets guide must state the three defaults and the absent-vs-empty rule; the unit tests cover: absent -> three defaults, present and empty -> empty, user removes one default -> remaining two persist, local zone equals a default -> no duplicate row.
+- Shots: the 'four zones' and 'empty state' shots from the acceptance criteria stay; add a shot of the default first-run state (three defaults, Singapore showing as the user's own zone when the local zone is Singapore, if you can render with an injected local zone).
+
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
 - 2026-10-13T16:20:35Z · body: section Screenshots
+- 2026-10-13T16:25:38Z · body: section Default timezones
