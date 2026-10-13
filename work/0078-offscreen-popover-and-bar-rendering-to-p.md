@@ -1,20 +1,21 @@
 ---
-last_close_out_gate_ms: 175469
-last_close_out_gate_at: "2026-10-13T07:22:24.129Z"
 id: "0078"
 title: Offscreen popover and bar rendering to PNG with pixel assertions (gitignored output)
 type: chore
-status: review
+status: done
 priority: p2
 area: macos
 depends_on: ["0076"]
+merged_commit: 5ec452048580be8bdad3f31027af22c3dc1c50e6
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/offscreen-popover-and-bar-rendering-to-p
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T06:23:20Z"
-updated_at: "2026-10-13T07:22:24Z"
+updated_at: "2026-10-13T07:22:31Z"
+last_close_out_gate_ms: 175469
+last_close_out_gate_at: "2026-10-13T07:22:24.129Z"
 review_passes: 6
 review_rounds: 2
 ---
@@ -76,4 +77,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T07:15:42Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-13T07:17:39Z · note: review pass 6: good to go
 - 2026-10-13T07:22:24Z · close-out gate completed in 175s
-
+- 2026-10-13T07:22:31Z · status review→done, release:success
