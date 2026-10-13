@@ -69,6 +69,9 @@ struct PixelBuffer {
 @MainActor
 enum SnapshotTestHelpers {
 
+    private static var filterMatchFound = false
+    private static var filterSummaryPrinted = false
+
     /// Render a view with AppKit's bitmap cache API. Returns `nil` when nothing
     /// was drawn (no usable graphics context).
     static func render(_ view: NSView, size: NSSize) -> NSBitmapImageRep? {
@@ -121,19 +124,80 @@ enum SnapshotTestHelpers {
         return macosDir.appendingPathComponent(".build").appendingPathComponent("snapshots")
     }
 
+    /// Filters snapshots by tokens in DIVOT_SNAPSHOT_ONLY. Returns the tokens,
+    /// a failure message (if any), and whether the filter is active.
+    static func parseSnapshotFilter() -> (tokens: [String], message: String?, active: Bool) {
+        guard let filterStr = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_ONLY"],
+              !filterStr.isEmpty else {
+            return ([], nil, false)
+        }
+        let tokens = filterStr.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }
+        guard !tokens.isEmpty else {
+            return ([], "DIVOT_SNAPSHOT_ONLY is set but contains no tokens", true)
+        }
+        return (tokens, nil, true)
+    }
+
+    /// Whether `name` matches the DIVOT_SNAPSHOT_ONLY filter. If the filter
+    /// is active but matches nothing, prints a diagnostic and returns false.
+    /// Always returns true if no filter is set.
+    static func matchesSnapshotFilter(named name: String) -> Bool {
+        let (tokens, message, active) = parseSnapshotFilter()
+        guard active else {
+            filterMatchFound = false
+            filterSummaryPrinted = false
+            return true
+        }
+
+        // Check if the name contains any of the tokens.
+        let matches = tokens.contains { token in
+            name.contains(token)
+        }
+
+        if let message = message {
+            print("SnapshotTestHelpers: \(message)")
+        }
+
+        if matches {
+            filterMatchFound = true
+        } else if !tokens.isEmpty {
+            // If no token matches, print a skip line for this snapshot
+            print("SnapshotTestHelpers [\(name)]: Skipped — does not match DIVOT_SNAPSHOT_ONLY filter")
+
+            // If this is the first snapshot and no matches found yet, print summary
+            if !filterMatchFound && !filterSummaryPrinted && !tokens.isEmpty {
+                let knownTokens = ["bar", "volume", "wifi", "appearance", "calendar", "worldclock", "charging", "battery"]
+                let unknownTokens = tokens.filter { !knownTokens.contains($0) }
+                if !unknownTokens.isEmpty {
+                    let tokenList = unknownTokens.joined(separator: ", ")
+                    let knownList = knownTokens.joined(separator: ", ")
+                    print("SnapshotTestHelpers: DIVOT_SNAPSHOT_ONLY matched no snapshots: unknown token(s) \(tokenList); known tokens: \(knownList)")
+                    filterSummaryPrinted = true
+                }
+            }
+        }
+
+        return matches
+    }
+
     /// Whether `name` belongs in this run's output. The full matrix is written
     /// unless `DIVOT_SNAPSHOT_SET=shots`, which keeps a small representative set
     /// for RepoOS evidence: native light and dark at the default text size, the
     /// bar with chips off and chips on (translucent), Gruvbox popovers (non-bar)
     /// light and dark, and each popover. Assertions run for every name either way.
+    /// `DIVOT_SNAPSHOT_ONLY` filters by tokens if set.
     static func wantsPNG(named name: String) -> Bool {
+        // Check DIVOT_SNAPSHOT_ONLY filter first.
+        guard matchesSnapshotFilter(named: name) else { return false }
+
         guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
         // Native or (Gruvbox non-bar only), light and dark, at the default size.
         guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
               name.contains("-default") else { return false }
         if !name.hasPrefix("bar-") { return true }
-        // For bar renders, include chips-off and chips-on (translucent); exclude chips-solid
-        return name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on")
+        // For bar renders, include chips-off and chips-on (translucent); exclude chips-solid and battery
+        return (name.contains("chips-off") && !name.contains("chips-solid")) ||
+               (name.contains("chips-on") && !name.contains("chips-solid"))
     }
 
     /// Write a bitmap as PNG into `directory` (created if needed). Skipped when

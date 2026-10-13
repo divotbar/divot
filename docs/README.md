@@ -21,6 +21,6 @@ Read in this order:
 17. [Local preview evidence](evidence/0014-local-preview.md): what the packaging smoke test observed, and what it does not prove.
 18. [Cursor-reveal slide evidence](evidence/0023-cursor-reveal-menu-bar-slide.md): automated checks for task 0023, and what still needs a screen capture.
 19. [Notification banner overlap evidence](evidence/0075-notification-banner-overlap.md): why notification banners overlap the bar when auto-hide is on, and whether a fix is possible.
-20. [Popover and bar snapshot testing](popover-snapshot-testing.md): offscreen rendering of the popovers and the right-hand bar group for visual review and pixel assertions; local evidence only, no golden images; also the `Divot bar` RepoOS shot target.
+20. [Popover and bar snapshot testing](popover-snapshot-testing.md): offscreen rendering of the popovers and the right-hand bar group for visual review and pixel assertions; local evidence only, no golden images; also the `Divot bar` RepoOS shot target and how to declare per-task filtered snapshots using `DIVOT_SNAPSHOT_ONLY`.
 
 `docs/` is engineering context. `site/` is public documentation and marketing. Keep implementation status consistent across both. The app is not shipping yet.

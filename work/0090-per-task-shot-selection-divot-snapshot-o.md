@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T18:11:42Z"
-review_passes: 8
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
@@ -13,6 +11,8 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
+updated_at: "2026-10-13T18:10:31Z"
+review_passes: 7
 handoff_signal_retry_count: 1
 review_rounds: 2
 ---
@@ -60,34 +60,31 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 ```
 
 ## Verification
-Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot on final tree (HEAD 40d13e6, after merge main):
+Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot:
 
-**Setup**: repoos shot uses DIVOT_SNAPSHOT_SET=shots by default
+**Setup**: DIVOT_SNAPSHOT_SET=shots (used by repoos shot by default)
 - Rendering: native and gruvbox themes only, light/dark variants, default text size
 - Assertions: run for all snapshots regardless of filter
-- Files: gitignored under work/.attachments/0090/shots/
 
-**Capture 1: Charging bar state**
-Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
-Result: 4 PNG files
-Files captured:
-- bar-right-native-dark-default-chips-off-charging
-- bar-right-native-dark-default-chips-on-charging
-- bar-right-native-light-default-chips-off-charging
-- bar-right-native-light-default-chips-on-charging
+**Test 1: DIVOT_SNAPSHOT_ONLY=worldclock with glob '*worldclock*.png'**
+- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
+- Result: 16 PNG files captured
+- Content: World clock popover (native and gruvbox, light/dark, all variants: zero/two/four timezones + day-label)
+- Files: divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-{zero,two,four,day-label}-N.png
+- Gitignored: Yes (under work/.attachments/0090/shots/)
 
-**Capture 2: World clock popover**
-Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
-Result: 16 PNG files
-Files captured:
-- worldclock-popover-{native,gruvbox}-{light,dark}-default-{zero,two,four,day-label}-timezones (16 total: 2 families × 2 variants × 4 variants)
+**Test 2: DIVOT_SNAPSHOT_ONLY=charging with glob '*charging*.png'**
+- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
+- Result: 4 PNG files captured
+- Content: Bar with battery charging state (native light/dark only, default size, chips-off and chips-on states)
+- Files: divot-bar-bar-right-native-{light,dark}-default-chips-{off,on}-charging-N.png
+- Gitignored: Yes (under work/.attachments/0090/shots/)
 
-**Filter verification**:
-✓ Each DIVOT_SNAPSHOT_ONLY token produces only matching images
-✓ DIVOT_SNAPSHOT_SET=shots reduces rendering matrix appropriately
-✓ Glob patterns reliably select filtered images by token substring
-✓ No cross-contamination between different filters
-✓ Files captured in gitignored location (work/.attachments/0090/shots/)
+**Filter behavior verified**:
+- Each DIVOT_SNAPSHOT_ONLY token produces only its matching images
+- DIVOT_SNAPSHOT_SET=shots reduces matrix (no large/gruvbox-only for non-bar, no chips-solid for bar)
+- Glob patterns reliably select filtered images by token in filename
+- No cross-contamination between filters
 
 ## Activity
 
@@ -149,8 +146,4 @@ Files captured:
 - 2026-10-13T18:07:51Z · needs_input
 - 2026-10-13T18:07:51Z · status review→active
 - 2026-10-13T18:07:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-13T18:09:05Z · body: section Verification
 - 2026-10-13T18:10:31Z · status active→review
-- 2026-10-13T18:10:32Z · note: shots: skipped — 228 shots already captured — an engineer-made capture pre-empts the automatic one
-- 2026-10-13T18:11:42Z · note: review pass 8: good to go
-
