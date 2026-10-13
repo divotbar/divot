@@ -89,3 +89,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:48:45Z · status review→active
 - 2026-10-13T08:48:45Z · note: close-out repair: merge-conflict
 - 2026-10-13T08:49:38Z · status active→review
+- 2026-10-13T08:49:38Z · note: shots: skipped — 18 shots already captured — an engineer-made capture pre-empts the automatic one
