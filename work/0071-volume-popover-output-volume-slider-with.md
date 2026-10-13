@@ -12,7 +12,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T02:01:04Z"
-updated_at: "2026-10-13T02:01:09Z"
+updated_at: "2026-10-13T02:01:10Z"
 ---
 ## Problem
 Clicking the volume item only opens a System Settings pane. The maintainer wants a popup/dropdown with a slider to change the volume, like the new Wi-Fi popover (#0070).
@@ -31,10 +31,11 @@ Clicking the volume item only opens a System Settings pane. The maintainer wants
 - Record in the task what the code path does for an output with no settable volume; do not invent behaviour.
 
 ## Notes for AI
-Look at how the volume provider reads volume today and how #0070 built its popover and fake-backed tests. Out of scope: input devices, per-app volume, output device switching (possible follow-up).
+Look at how the volume provider reads volume today and how #0070 built its popover and fake-backed tests. Out of scope: input devices, per-app volume, output switching. Whether the slider moves the real volume is checked by the maintainer afterwards on the packaged app; do not claim that was verified.
 
 ## Activity
 
 - 2026-10-13T02:01:04Z · created · njachowski@gmail.com
 - 2026-10-13T02:01:04Z · needs_input
 - 2026-10-13T02:01:09Z · body: section Acceptance criteria
+- 2026-10-13T02:01:10Z · body: section Notes for AI
