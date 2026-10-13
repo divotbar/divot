@@ -13,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:28:22Z"
+updated_at: "2026-10-13T10:29:26Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -175,3 +175,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:25:28Z · message_expired: not delivered within timeout
 - 2026-10-13T10:28:22Z · note: review pass 3: needs some work
 - 2026-10-13T10:28:22Z · status review→active
+- 2026-10-13T10:29:26Z · message_queued at 2026-10-13T10:29:26.522Z
