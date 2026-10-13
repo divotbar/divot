@@ -11,7 +11,7 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:29:25Z"
+updated_at: "2026-10-13T08:30:21Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -57,3 +57,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:28:57Z · status review→active
 - 2026-10-13T08:29:25Z · status active→review
 - 2026-10-13T08:29:25Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T08:30:21Z · note: review pass 3: needs some work
