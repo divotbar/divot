@@ -1,8 +1,9 @@
 ---
+close_out_repair_count: 1
 id: "0075"
 title: "Investigate: macOS notification banners sit under the Divot bar"
 type: bug
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,8 +12,8 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T06:27:00Z"
-review_passes: 5
+updated_at: "2026-10-13T07:47:13Z"
+review_passes: 8
 review_rounds: 2
 ---
 ## Problem
@@ -160,3 +161,23 @@ Until these measurements are provided, feasibility of a safe public fix cannot b
 - 2026-10-13T06:25:52Z · body: section Acceptance criteria
 - 2026-10-13T06:25:58Z · body: section Summary
 - 2026-10-13T06:27:00Z · status active→review
+- 2026-10-13T06:27:01Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:28:00Z · note: review pass 6: needs some work
+- 2026-10-13T06:28:00Z · needs_input
+- 2026-10-13T06:31:32Z · needs_input
+- 2026-10-13T06:31:32Z · status review→active
+- 2026-10-13T06:31:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T06:34:51Z · status active→review
+- 2026-10-13T06:34:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:35:57Z · note: review pass 7: needs some work
+- 2026-10-13T06:35:57Z · needs_input
+- 2026-10-13T06:37:34Z · needs_input
+- 2026-10-13T06:37:34Z · status review→active
+- 2026-10-13T06:37:34Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T06:40:40Z · status active→review
+- 2026-10-13T06:40:40Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:41:46Z · note: review pass 8: needs some work
+- 2026-10-13T06:41:46Z · needs_input
+- 2026-10-13T07:47:13Z · status review→active, needs_input
+- 2026-10-13T07:47:13Z · note: close-out repair: merge-conflict
+

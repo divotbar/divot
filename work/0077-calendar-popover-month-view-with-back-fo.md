@@ -2,17 +2,23 @@
 id: "0077"
 title: "Calendar popover: month view with back/forward and today highlighted, opened from the date chip"
 type: feature
-status: active
+status: done
 priority: p2
 area: macos
 depends_on: ["0076"]
+merged_commit: 4e3cba92c9cf58d2af48948e357a69c869c63714
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/calendar-popover-month-view-with-back-fo
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:58:05Z"
-updated_at: "2026-10-13T06:25:23Z"
+updated_at: "2026-10-13T07:08:31Z"
+last_close_out_gate_ms: 61291
+last_close_out_gate_at: "2026-10-13T07:08:28.778Z"
+review_passes: 5
+review_rounds: 2
+last_check_failure: "repoos check at 2026-10-13T06:32:07.289Z: repoos check failed: native-core — 􁁛 Test networkPresentationWithoutNameShowsOnlyIcon() passed after 0.041 seconds."
 ---
 ## Problem
 Clicking the date item currently only opens a System Settings pane. The maintainer wants a calendar popup, as in the macOS menu bar clock, to glance at other days and months.
@@ -44,3 +50,32 @@ Start after #0076 lands so the shared popover component and its styling are stab
 - 2026-10-13T06:25:22Z · status inbox→ready
 - 2026-10-13T06:25:23Z · cli_override, model_override
 - 2026-10-13T06:25:23Z · status ready→active, branch
+- 2026-10-13T06:35:13Z · status active→review
+- 2026-10-13T06:35:14Z · note: shots: skipped — the diff (7 changed paths) touches no [[preview.paths]] globs — no UI change to capture
+- 2026-10-13T06:36:22Z · note: review pass 1: needs some work
+- 2026-10-13T06:36:22Z · status review→active
+- 2026-10-13T06:37:35Z · message_queued at 2026-10-13T06:37:35.115Z
+- 2026-10-13T06:39:35Z · status active→review
+- 2026-10-13T06:39:35Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:41:19Z · note: review pass 2: needs some work
+- 2026-10-13T06:41:19Z · message_delivered: 1 message(s)
+- 2026-10-13T06:41:19Z · status review→active
+- 2026-10-13T06:43:52Z · status active→review
+- 2026-10-13T06:43:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:45:26Z · note: review pass 3: needs some work
+- 2026-10-13T06:45:26Z · needs_input
+- 2026-10-13T06:49:30Z · needs_input
+- 2026-10-13T06:49:30Z · status review→active
+- 2026-10-13T06:49:30Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T06:50:56Z · status active→review
+- 2026-10-13T06:50:56Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T06:53:02Z · note: review pass 4: needs some work
+- 2026-10-13T06:53:02Z · needs_input
+- 2026-10-13T06:55:35Z · needs_input
+- 2026-10-13T06:55:35Z · status review→active
+- 2026-10-13T06:55:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T07:01:40Z · status active→review
+- 2026-10-13T07:01:40Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T07:06:10Z · note: review pass 5: good to go
+- 2026-10-13T07:08:28Z · close-out gate completed in 61s
+- 2026-10-13T07:08:31Z · status review→done, release:success
