@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T08:28:57Z"
+review_passes: 2
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
@@ -11,9 +13,7 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:28:57Z"
 review_rounds: 1
-review_passes: 1
 ---
 ## Problem
 RepoOS #0761 landed command-based shot targets ([[shot.targets]]: a command renders image files into REPOOS_SHOT_DIR, RepoOS collects them as the task's shots, gitignored under work/.attachments). Divot only has a web preview target, so every native task still reports 'shots: skipped'. Divot already renders popovers and the bar offscreen to PNG (#0078, #0079, scripts/snapshots.sh, DIVOT_SNAPSHOT_DIR).
@@ -54,3 +54,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:27:50Z · status active→review
 - 2026-10-13T08:27:50Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:28:57Z · note: review pass 2: needs some work
+
