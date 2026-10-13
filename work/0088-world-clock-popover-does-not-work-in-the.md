@@ -2,7 +2,7 @@
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:00:31Z"
+updated_at: "2026-10-13T18:00:32Z"
 review_passes: 6
 review_rounds: 2
 ---
@@ -148,3 +148,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:58:43Z · status review→active
 - 2026-10-13T17:58:43Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:00:31Z · cli_override, model_override
+- 2026-10-13T18:00:32Z · status active→review
