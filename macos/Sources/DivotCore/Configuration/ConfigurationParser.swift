@@ -306,7 +306,7 @@ public enum ConfigurationParser {
     }
 
     private static func timeOptions(_ value: Any?, path: String) throws -> TimeConfiguration {
-        let object = try shape(value, required: [], optional: ["seconds", "timeFormat", "customPattern"], path: path)
+        let object = try shape(value, required: [], optional: ["seconds", "timeFormat", "customPattern", "timezones"], path: path)
         var configuration = TimeConfiguration.default
         if let raw = object["seconds"] { configuration.seconds = try boolean(raw, path: "\(path).seconds") }
         if let raw = object["timeFormat"] {
@@ -317,6 +317,21 @@ public enum ConfigurationParser {
                 throw ConfigurationError(path: "\(path).customPattern", message: "expected string")
             }
             configuration.customPattern = string.isEmpty ? nil : string
+        }
+        if let raw = object["timezones"] {
+            guard let array = raw as? [Any] else {
+                throw ConfigurationError(path: "\(path).timezones", message: "expected array of strings")
+            }
+            var timezones: [String] = []
+            for (index, element) in array.enumerated() {
+                guard let string = element as? String else {
+                    throw ConfigurationError(path: "\(path).timezones[\(index)]", message: "expected string")
+                }
+                if !string.isEmpty {
+                    timezones.append(string)
+                }
+            }
+            configuration.timezones = timezones
         }
         return configuration
     }
