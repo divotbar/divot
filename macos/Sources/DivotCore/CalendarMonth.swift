@@ -93,7 +93,6 @@ public struct CalendarMonthLayout: Equatable, Sendable {
 
         if leadingDays > 0 {
             let prevMonth = month.previous()
-            let prevMonthStart = month.startDate(calendar: calendar)
             let prevMonthEnd = calendar.range(of: .day, in: .month, for: prevMonth.startDate(calendar: calendar))?.count ?? 28
             let prevMonthStartDay = prevMonthEnd - leadingDays + 1
             for i in prevMonthStartDay...prevMonthEnd {
@@ -109,10 +108,12 @@ public struct CalendarMonthLayout: Equatable, Sendable {
 
         let totalCells = leadingDays + daysInMonth
         let trailingDays = (7 - (totalCells % 7)) % 7
-        for day in 1...trailingDays {
+        if trailingDays > 0 {
             let nextMonth = month.next()
-            let date = calendar.date(bySetting: .day, value: day, of: nextMonth.startDate(calendar: calendar))!
-            days.append(CalendarDay(day: day, isCurrentMonth: false, date: date))
+            for day in 1...trailingDays {
+                let date = calendar.date(bySetting: .day, value: day, of: nextMonth.startDate(calendar: calendar))!
+                days.append(CalendarDay(day: day, isCurrentMonth: false, date: date))
+            }
         }
 
         let weeks = stride(from: 0, to: days.count, by: 7).map { i in
