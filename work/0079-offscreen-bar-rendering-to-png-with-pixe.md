@@ -2,7 +2,7 @@
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
 type: chore
-status: inbox
+status: ready
 priority: p3
 area: macos
 depends_on: ["0078"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T07:01:36Z"
-updated_at: "2026-10-13T07:01:36Z"
+updated_at: "2026-10-13T07:22:36Z"
 ---
 ## Problem
 #0078 renders the popovers offscreen. The bar itself (workspaces, front app and right-side chips) has no offscreen render, so bar layout, spacing, chip style and the charging colour have no visual evidence.
@@ -29,3 +29,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 ## Activity
 
 - 2026-10-13T07:01:36Z · created · njachowski@gmail.com
+- 2026-10-13T07:22:36Z · status inbox→ready
