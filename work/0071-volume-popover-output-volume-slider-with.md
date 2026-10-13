@@ -2,7 +2,7 @@
 id: "0071"
 title: "Volume popover: output volume slider with mute and an Open Sound Settings row"
 type: feature
-status: ready
+status: active
 needs_input: true
 needs_input_reason: needs-human-step
 needs_input_detail: "Acceptance criteria mention a real device, physical hardware, accounts, credentials, or third-party registration — split that verification into a separate human-only task. (matched: device verification)"
@@ -10,7 +10,7 @@ priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/volume-popover-output-volume-slider-with
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:04Z"
@@ -43,3 +43,4 @@ Look at how the volume provider reads volume today and how #0070 built its popov
 - 2026-10-13T02:01:10Z · body: section Notes for AI
 - 2026-10-13T02:01:13Z · status inbox→ready
 - 2026-10-13T02:01:13Z · cli_override, model_override
+- 2026-10-13T02:01:13Z · status ready→active, branch
