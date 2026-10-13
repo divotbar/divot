@@ -123,3 +123,4 @@ The palette configuration on battery.100.bolt successfully isolates bolt colouri
 - 2026-10-13T10:38:36Z · body: section Shots
 - 2026-10-13T10:38:43Z · body: section Visual verification
 - 2026-10-13T10:39:09Z · status active→review
+- 2026-10-13T10:39:09Z · note: shots: skipped — 8 handoff shots already captured for this exact plan (9ff4e35) during finalization (#0734)
