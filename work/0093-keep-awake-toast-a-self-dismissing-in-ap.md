@@ -2,7 +2,7 @@
 id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: the agent process exited with an error — open the task to see the full output
@@ -14,7 +14,7 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T19:24:35Z"
+updated_at: "2026-10-13T19:24:36Z"
 review_rounds: 1
 review_passes: 1
 dev_error_count: 1
@@ -94,3 +94,5 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:24:00Z · message_queued at 2026-10-13T19:24:00.904Z
 - 2026-10-13T19:24:00Z · status review→active
 - 2026-10-13T19:24:35Z · note: handoff requested (ui-review)
+- 2026-10-13T19:24:36Z · status active→review
+- 2026-10-13T19:24:36Z · note: review without checks by human
