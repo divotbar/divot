@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-13T17:13:50Z"
-review_passes: 1
+last_close_out_gate_ms: 87214
+last_close_out_gate_at: "2026-10-13T17:17:17.683Z"
 id: "0091"
 title: Tests must never put real Divot bars or popovers on the maintainer's screen
 type: bug
@@ -11,6 +11,8 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/tests-must-never-put-real-divot-bars-or-
 created_at: "2026-10-13T16:33:40Z"
+updated_at: "2026-10-13T17:17:17Z"
+review_passes: 1
 ---
 ## Problem
 Maintainer report 2026-10-13: 'a lot of test instances of Divot running, bars all over my screen'. Process check at 23:35: only ONE real Divot app (dist/Divot.app, the maintainer's own, running for 6 hours); the rest are short-lived swiftpm-testing-helper processes started by the engineer agents' swift test runs (three engineers were running builds and tests at once). Those tests create REAL AppKit windows: BarPopoverTests.swift calls host.present(content, relativeTo: anchor) (lines ~85 and ~219), which goes through BarPopoverHost.present -> panel.makeKeyAndOrderFront(nil) (BarPopover.swift ~472); DisplayCoordinatorWidgetTests drive DisplayCoordinator / BarPanels, which order real panels to the front (BarPanels.swift orderFrontRegardless ~130). So every swift test run flashes bars and popovers over the maintainer's desktop, steals focus, and with several runs in parallel the screen fills with them.
@@ -53,4 +55,5 @@ Verification: `scripts/swift-test-lock.sh` (full suite, 787 tests) passes. `Wind
 - 2026-10-13T17:12:11Z · status active→review
 - 2026-10-13T17:12:29Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T17:13:50Z · note: review pass 1: good to go
+- 2026-10-13T17:17:17Z · close-out gate completed in 87s
 
