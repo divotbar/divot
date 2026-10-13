@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T18:59:20Z"
-review_passes: 5
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
@@ -13,9 +11,7 @@ branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
-last_check_failure: "repoos check at 2026-10-13T18:41:26.243Z: repoos check failed: native-core — 􁁛 Suite \"Windowless presentation\" passed after 10.578 seconds."
-review_rounds: 2
-handoff_signal_retry_count: 1
+updated_at: "2026-10-13T18:11:09Z"
 ---
 ## Problem
 #0089 fixed the layer key but main's divot-notification-banner-probe --watch (DivotNotificationBannerProbe/main.swift, watchForNotificationWindows) still only reports windows whose owner name contains the exact, case-sensitive text 'NotificationCenter'. The maintainer ran it twice (2026-10-13 23:28 and 23:53) with real system overlays on screen (the Control Center panel was opened during the second run) and it printed only 'No NotificationCenter windows observed'. It also prints 'Divot panel layer for comparison: 23', computed from NSWindow.Level.mainMenu.rawValue - 1, not measured from Divot's real panel. The maintainer's Mac currently has Do Not Disturb on, so test notifications never appear; the Control Center panel is the reliable reference overlay.
@@ -42,36 +38,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T17:19:22Z · status inbox→ready
 - 2026-10-13T17:19:22Z · cli_override, model_override
 - 2026-10-13T17:19:23Z · status ready→active, branch
-- 2026-10-13T17:33:30Z · message_queued at 2026-10-13T17:33:30.802Z
-- 2026-10-13T17:33:30Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
-- 2026-10-13T18:07:52Z · message_delivered: 1 message(s)
 - 2026-10-13T18:11:09Z · status active→review
-- 2026-10-13T18:11:18Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
-- 2026-10-13T18:11:50Z · note: review pass 1: needs some work
-- 2026-10-13T18:11:50Z · status review→active
-- 2026-10-13T18:20:31Z · message_queued at 2026-10-13T18:20:31.043Z
-- 2026-10-13T18:36:01Z · message_delivered: 1 message(s)
-- 2026-10-13T18:39:14Z · status active→review
-- 2026-10-13T18:39:26Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
-- 2026-10-13T18:40:08Z · note: review pass 2: needs some work
-- 2026-10-13T18:40:08Z · message_queued at 2026-10-13T18:40:08.933Z
-- 2026-10-13T18:40:09Z · status review→active
-- 2026-10-13T18:41:26Z · message_delivered: 1 message(s)
-- 2026-10-13T18:44:32Z · status active→review
-- 2026-10-13T18:44:32Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (4c1b5492) during finalization (#0734)
-- 2026-10-13T18:45:22Z · note: review pass 3: needs some work
-- 2026-10-13T18:45:22Z · needs_input
-- 2026-10-13T18:49:54Z · needs_input
-- 2026-10-13T18:49:54Z · status review→active
-- 2026-10-13T18:49:54Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-13T18:52:10Z · status active→review
-- 2026-10-13T18:52:10Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (4c1b5492) during finalization (#0734)
-- 2026-10-13T18:53:07Z · note: review pass 4: needs some work
-- 2026-10-13T18:53:07Z · needs_input
-- 2026-10-13T18:55:35Z · needs_input
-- 2026-10-13T18:55:36Z · status review→active
-- 2026-10-13T18:55:36Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-13T18:57:39Z · status active→review
-- 2026-10-13T18:57:40Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (0b78e5d0) during finalization (#0734)
-- 2026-10-13T18:59:20Z · note: review pass 5: good to go
-
