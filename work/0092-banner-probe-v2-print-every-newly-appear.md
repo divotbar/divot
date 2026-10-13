@@ -8,6 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
 updated_at: "2026-10-13T17:19:22Z"
 ---
@@ -34,3 +36,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 
 - 2026-10-13T16:56:56Z · created · njachowski@gmail.com
 - 2026-10-13T17:19:22Z · status inbox→ready
+- 2026-10-13T17:19:22Z · cli_override, model_override
