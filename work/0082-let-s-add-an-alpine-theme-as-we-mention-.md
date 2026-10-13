@@ -2,7 +2,7 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: review
+status: active
 priority: p2
 area: web
 assigned_to: ai
@@ -11,7 +11,10 @@ branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
-updated_at: "2026-10-13T09:20:12Z"
+updated_at: "2026-10-13T10:37:44Z"
+review_passes: 3
+review_rounds: 2
+last_check_failure: "repoos check at 2026-10-13T09:41:07.861Z: repoos check failed: ◆ Check plan"
 ---
 ## Problem
 
@@ -46,6 +49,15 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 
 ![Screenshot-2026-10-13-at-15.52.53](/api/tasks/0082/attachments/screenshot-1.png)
 
+## Shots
+```json
+[
+{"target":"website","route":"/","label":"Landing hero bar — Alpine (default)","highlight":".desktop-preview .mock-bar"},
+{"target":"website","route":"/","label":"Bar example — Gruvbox","highlight":".try-section .bar-demo","steps":[{"click":".preset-buttons button:nth-child(2)"},{"waitMs":250}]},
+{"target":"website","route":"/","label":"Bar example — Dracula","highlight":".try-section .bar-demo","steps":[{"click":".preset-buttons button:nth-child(3)"},{"waitMs":250}]}
+]
+```
+
 ## Activity
 
 - 2026-10-13T08:56:17Z · created · api
@@ -55,4 +67,22 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T09:01:26Z · cli_override, model_override
 - 2026-10-13T09:01:35Z · model_override
 - 2026-10-13T09:01:36Z · status ready→active, branch
+- 2026-10-13T09:16:29Z · body: section Shots
+- 2026-10-13T09:19:05Z · body: section Shots
 - 2026-10-13T09:20:12Z · status active→review
+- 2026-10-13T09:22:30Z · note: review pass 1: needs some work
+- 2026-10-13T09:22:30Z · status review→active
+- 2026-10-13T10:03:11Z · message_queued at 2026-10-13T10:03:11.315Z
+- 2026-10-13T10:03:11Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
+- 2026-10-13T10:24:00Z · status active→review
+- 2026-10-13T10:24:00Z · note: shots: skipped — 3 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T10:27:06Z · note: review pass 2: needs some work
+- 2026-10-13T10:27:06Z · message_delivered: 1 message(s)
+- 2026-10-13T10:27:06Z · status review→active
+- 2026-10-13T10:28:40Z · status active→review
+- 2026-10-13T10:28:40Z · note: shots: skipped — 6 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T10:32:20Z · note: review pass 3: needs some work
+- 2026-10-13T10:32:20Z · needs_input
+- 2026-10-13T10:37:44Z · needs_input
+- 2026-10-13T10:37:44Z · status review→active
+- 2026-10-13T10:37:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
