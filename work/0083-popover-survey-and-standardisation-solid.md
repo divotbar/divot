@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T10:42:00Z"
+review_passes: 4
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
@@ -16,8 +18,6 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:42:00Z"
-review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -191,3 +191,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T10:40:11Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (68a2e1c) during finalization (#0734)
 - 2026-10-13T10:42:00Z · note: review pass 5: needs some work
 - 2026-10-13T10:42:00Z · needs_input
+
