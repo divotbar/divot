@@ -2,7 +2,7 @@
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -13,7 +13,7 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:44:11Z"
+updated_at: "2026-10-13T10:45:47Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -197,3 +197,4 @@ The 22 PNG captures for Divot popovers are produced by the `repoos shot --target
 - 2026-10-13T10:43:59Z · status review→active
 - 2026-10-13T10:43:59Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T10:44:11Z · body: section Shot evidence
+- 2026-10-13T10:45:47Z · status active→review
