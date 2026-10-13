@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 50649
-last_close_out_gate_at: "2026-10-13T16:46:41.610Z"
 id: "0089"
 title: "Fix the banner probe: window level is read from a key that does not exist, so every level prints 0"
 type: bug
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 6965339100b3a9de9609132823fcc12c07fbf97e
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/fix-the-banner-probe-window-level-is-rea
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:29:02Z"
-updated_at: "2026-10-13T16:46:41Z"
+updated_at: "2026-10-13T16:46:46Z"
+last_close_out_gate_ms: 50649
+last_close_out_gate_at: "2026-10-13T16:46:41.610Z"
 review_passes: 1
 ---
 ## Problem
@@ -45,4 +46,4 @@ Related: #0075, #0080. Evidence of the bug: all windows in the maintainer's outp
 - 2026-10-13T16:38:51Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T16:39:27Z · note: review pass 1: good to go
 - 2026-10-13T16:46:41Z · close-out gate completed in 51s
-
+- 2026-10-13T16:46:46Z · status review→done, release:success
