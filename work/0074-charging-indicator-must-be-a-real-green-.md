@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T04:53:41Z"
+review_passes: 3
 id: "0074"
 title: "Charging indicator must be a real green, independent of theme"
 type: bug
@@ -14,9 +16,7 @@ branch: feat/charging-indicator-must-be-a-real-green-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T04:53:41Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 #0058 drew the charging bolt in 'the theme's accent set'. On themes whose accent is not green (maintainer screenshot 2026-10-13, Dracula: the bolt is purple/blue) charging is not obvious. The maintainer wants it unmistakable.
@@ -68,3 +68,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:52:38Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T04:53:41Z · note: review pass 3: needs some work
 - 2026-10-13T04:53:41Z · needs_input
+
