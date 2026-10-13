@@ -157,60 +157,113 @@ struct NotificationBannerProbe {
         }
     }
 
+    struct HighestLayerWindow: Hashable {
+        let owner: String
+        let name: String
+        let layer: Int
+    }
+
     static func watchForNotificationWindows(duration: TimeInterval) {
         print("# divot notification-banner probe --watch")
         let version = ProcessInfo.processInfo.operatingSystemVersion
         print("os=\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)")
-        print("Watching for NotificationCenter windows for \(Int(duration)) seconds...")
-
-        let divotPanelLevel = Int(NSWindow.Level.mainMenu.rawValue) - 1
-        print("Divot panel layer for comparison: \(divotPanelLevel)")
+        print("Watching all windows for \(Int(duration)) seconds, polling twice per second...")
         print("")
 
         let startTime = Date()
         let pollInterval: TimeInterval = 0.5
-        var lastNotificationCount = 0
+        var previousSnapshots: [WindowSnapshot] = []
+        var highestLayers: [HighestLayerWindow] = []
+        var finalWindowList: [[String: Any]] = []
 
         while Date().timeIntervalSince(startTime) < duration {
             let windowList = CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]] ?? []
             let screenHeight = NSScreen.screens.first?.frame.height ?? 0
+            finalWindowList = windowList
 
-            let notificationWindows = windowList.filter { window in
-                let owner = window["kCGWindowOwnerName"] as? String ?? ""
-                return owner.contains("NotificationCenter")
-            }
+            let currentSnapshots = windowList.compactMap { WindowSnapshot.from($0) }
+            let changes = diffWindowSnapshots(previous: previousSnapshots, current: currentSnapshots)
 
-            if !notificationWindows.isEmpty && notificationWindows.count != lastNotificationCount {
-                let timestamp = Date().formatted(date: .omitted, time: .standard)
-                print("[\(timestamp)] Found \(notificationWindows.count) NotificationCenter window(s):")
+            let divotPanel = findDivotPanelWindow(windowList)
+            let divotLayer = divotPanel.map { parseWindowLayerFromDict($0) }
 
-                let sorted = notificationWindows.sorted { a, b in
-                    let layerA = parseWindowLayerFromDict(a)
-                    let layerB = parseWindowLayerFromDict(b)
-                    return layerA > layerB
-                }
+            let allChangedWindowIDs = Set(changes.new + changes.boundsChanged + changes.layerChanged)
 
-                for window in sorted {
-                    let layer = parseWindowLayerFromDict(window)
-                    let name = window["kCGWindowName"] as? String ?? "(no name)"
-                    let cgBounds = parseBoundsFromWindowDict(window)
+            for windowID in allChangedWindowIDs.sorted() {
+                if let windowDict = windowList.first(where: { (($0["kCGWindowNumber"] as? NSNumber)?.uint32Value).map { CGWindowID($0) } == windowID }) {
+                    let timestamp = Date().formatted(date: .omitted, time: .standard)
+                    let owner = windowDict["kCGWindowOwnerName"] as? String ?? "?"
+                    let pid = (windowDict["kCGWindowOwnerPID"] as? NSNumber)?.intValue ?? 0
+                    let name = windowDict["kCGWindowName"] as? String ?? "(no name)"
+                    let layer = parseWindowLayerFromDict(windowDict)
+                    let cgBounds = parseBoundsFromWindowDict(windowDict)
                     let appKitBounds = flipBoundsToAppKit(cgBounds, screenHeight: screenHeight)
-                    let y = Int(appKitBounds.minY)
-                    let height = Int(appKitBounds.height)
-                    print("  layer=\(layer) (Divot is at \(divotPanelLevel)) name=\(name) frame=(appKit y=\(y), h=\(height))")
-                }
-                print("")
+                    let alpha = (windowDict["kCGWindowAlpha"] as? NSNumber)?.floatValue ?? 1.0
+                    let isOnScreen = (windowDict["kCGWindowIsOnscreen"] as? NSNumber)?.boolValue ?? false
 
-                lastNotificationCount = notificationWindows.count
+                    let windowType = classifyWindow(windowDict)
+                    let typeLabel = windowType == .notificationBanner ? " [NotificationCenter banner]" :
+                                    windowType == .controlCenter ? " [ControlCenter]" :
+                                    windowType == .divot ? " [Divot panel]" : ""
+
+                    print("[\(timestamp)] window-\(windowID)\(typeLabel)")
+                    print("  owner=\(owner) pid=\(pid)")
+                    print("  name=\(name)")
+                    print("  layer=\(layer) CG-bounds=(\(Int(cgBounds.minX)), \(Int(cgBounds.minY)), \(Int(cgBounds.width)), \(Int(cgBounds.height)))")
+                    print("  AppKit-bounds=(\(Int(appKitBounds.minX)), \(Int(appKitBounds.minY)), \(Int(appKitBounds.width)), \(Int(appKitBounds.height)))")
+                    print("  alpha=\(String(format: "%.2f", alpha)) on-screen=\(isOnScreen)")
+
+                    if let divotL = divotLayer {
+                        if layer > divotL {
+                            print("  ↑ Window layer \(layer) is ABOVE Divot panel layer \(divotL)")
+                        } else if layer < divotL {
+                            print("  ↓ Window layer \(layer) is below Divot panel layer \(divotL)")
+                        } else {
+                            print("  = Window layer \(layer) is AT Divot panel layer \(divotL)")
+                        }
+                    }
+
+                    if isOnScreen && layer > 0 {
+                        highestLayers.append(HighestLayerWindow(owner: owner, name: name, layer: layer))
+                        highestLayers.sort { $0.layer > $1.layer }
+                        if highestLayers.count > 10 {
+                            highestLayers.removeLast()
+                        }
+                    }
+
+                    print("")
+                }
             }
 
+            previousSnapshots = currentSnapshots
             Thread.sleep(forTimeInterval: pollInterval)
         }
 
-        if lastNotificationCount == 0 {
-            print("No NotificationCenter windows observed during watch period")
+        print("## Summary")
+        if let divotPanel = findDivotPanelWindow(finalWindowList) {
+            let divotL = parseWindowLayerFromDict(divotPanel)
+            print("Divot panel layer (measured): \(divotL)")
         } else {
-            print("Watch period ended")
+            print("Note: No Divot panel window found in this run")
+        }
+
+        if highestLayers.isEmpty {
+            print("No windows appeared during watch period")
+        } else {
+            print("\nHighest-layer windows observed on-screen:")
+            var seenKeys: [(String, String)] = []
+            var count = 0
+            for window in highestLayers {
+                let key = (window.owner, window.name)
+                if !seenKeys.contains(where: { $0 == key }) {
+                    count += 1
+                    print("  \(count). \(window.owner) · \(window.name) (layer \(window.layer))")
+                    seenKeys.append(key)
+                    if count >= 5 {
+                        break
+                    }
+                }
+            }
         }
     }
 }
