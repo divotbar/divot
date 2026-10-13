@@ -10,7 +10,13 @@ position themselves below the Divot bar (banner title row partly covered).
 
 **Probe 2026-10-13:** Built and ran `divot-notification-banner-probe` (queries
 `CGWindowListCopyWindowInfo` for all windows, filters for NotificationCenter owner and
-high window levels). **Result: no notification windows found.**
+window levels). The probe:
+- Parses window levels via NSNumber/intValue to avoid silent zero values
+- Parses bounds from X/Y/Width/Height dictionary entries as NSNumber doubles
+- Converts CoreGraphics coordinates (top-left origin) to AppKit coordinates (bottom-left origin) using primary screen height
+- Labels all output as AppKit coordinates for clarity
+
+**Result: no notification windows found in this environment.**
 
 **Trigger attempts 2026-10-13:** Attempted to create a live test notification:
 - `osascript -e 'display notification "Divot probe" with title "Divot probe"'` — process
@@ -26,8 +32,9 @@ windows were never queryable.
 limitations (notifications not displayed or not enumerated by `CGWindowListCopyWindowInfo`).
 
 **Next step:** A human on macOS with notifications enabled must run the probe while a real
-notification is visible (e.g., Calendar notification triggered by an event), and paste the
-banner's `kCGWindowLevel` and `kCGWindowBounds` values into this document.
+notification is visible (e.g., Calendar notification triggered by an event). The probe will
+output the banner's `kCGWindowLevel` (via parseWindowLevelFromDict) and bounds in AppKit
+coordinates (via flipBoundsToAppKit). Paste those values into this document.
 
 ## What was observed
 

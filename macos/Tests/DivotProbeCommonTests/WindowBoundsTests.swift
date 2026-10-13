@@ -89,3 +89,83 @@ struct WindowBoundsTests {
         #expect(bounds.height == 76.0)
     }
 }
+
+@Suite("Window level parsing")
+struct WindowLevelTests {
+    @Test("Parse valid window level")
+    func parseValidLevel() {
+        let dict: [String: Any] = [
+            "kCGWindowLevel": NSNumber(value: 23)
+        ]
+
+        let level = parseWindowLevelFromDict(dict)
+        #expect(level == 23)
+    }
+
+    @Test("Parse notification banner level")
+    func parseBannerLevel() {
+        let dict: [String: Any] = [
+            "kCGWindowLevel": NSNumber(value: 25)
+        ]
+
+        let level = parseWindowLevelFromDict(dict)
+        #expect(level == 25)
+    }
+
+    @Test("Missing level key returns zero")
+    func missingLevelKey() {
+        let dict: [String: Any] = [:]
+        let level = parseWindowLevelFromDict(dict)
+        #expect(level == 0)
+    }
+
+    @Test("Invalid level type returns zero")
+    func invalidLevelType() {
+        let dict: [String: Any] = [
+            "kCGWindowLevel": "not a number"
+        ]
+        let level = parseWindowLevelFromDict(dict)
+        #expect(level == 0)
+    }
+}
+
+@Suite("Coordinate system conversion")
+struct CoordinateFlipTests {
+    @Test("Flip banner at top of screen to AppKit coordinates")
+    func flipTopBanner() {
+        let cgBounds = CGRect(x: 1356, y: 0, width: 354, height: 76)
+        let screenHeight: CGFloat = 1107
+
+        let appKitBounds = flipBoundsToAppKit(cgBounds, screenHeight: screenHeight)
+
+        #expect(appKitBounds.minX == 1356)
+        #expect(appKitBounds.minY == 1031)  // 1107 - 76 = 1031
+        #expect(appKitBounds.width == 354)
+        #expect(appKitBounds.height == 76)
+    }
+
+    @Test("Flip window in middle of screen")
+    func flipMiddleWindow() {
+        let cgBounds = CGRect(x: 100, y: 200, width: 300, height: 400)
+        let screenHeight: CGFloat = 1000
+
+        let appKitBounds = flipBoundsToAppKit(cgBounds, screenHeight: screenHeight)
+
+        #expect(appKitBounds.minX == 100)
+        #expect(appKitBounds.minY == 400)  // 1000 - (200 + 400) = 400
+        #expect(appKitBounds.width == 300)
+        #expect(appKitBounds.height == 400)
+    }
+
+    @Test("Flip zero bounds")
+    func flipZeroBounds() {
+        let cgBounds = CGRect.zero
+        let screenHeight: CGFloat = 1107
+
+        let appKitBounds = flipBoundsToAppKit(cgBounds, screenHeight: screenHeight)
+
+        #expect(appKitBounds.minY == 1107)
+        #expect(appKitBounds.width == 0)
+        #expect(appKitBounds.height == 0)
+    }
+}

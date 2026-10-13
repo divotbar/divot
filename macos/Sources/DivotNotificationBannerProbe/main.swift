@@ -47,9 +47,10 @@ struct NotificationBannerProbe {
         print("\n## All Windows")
 
         let windowList = CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]] ?? []
+        let screenHeight = NSScreen.screens.first?.frame.height ?? 0
 
         let interesting = windowList.filter { window in
-            let level = window["kCGWindowLevel"] as? Int ?? 0
+            let level = parseWindowLevelFromDict(window)
             let owner = window["kCGWindowOwnerName"] as? String ?? ""
 
             return owner.contains("NotificationCenter") ||
@@ -61,21 +62,22 @@ struct NotificationBannerProbe {
         }
 
         let sorted = interesting.sorted { a, b in
-            let levelA = a["kCGWindowLevel"] as? Int ?? 0
-            let levelB = b["kCGWindowLevel"] as? Int ?? 0
+            let levelA = parseWindowLevelFromDict(a)
+            let levelB = parseWindowLevelFromDict(b)
             return levelA > levelB
         }
 
         print("Interesting windows (sorted by level, highest first):")
         for window in sorted {
-            let level = window["kCGWindowLevel"] as? Int ?? 0
+            let level = parseWindowLevelFromDict(window)
             let owner = window["kCGWindowOwnerName"] as? String ?? "?"
             let name = window["kCGWindowName"] as? String ?? "(no name)"
-            let bounds = parseBoundsFromWindowDict(window)
-            let y = Int(bounds.minY)
-            let height = Int(bounds.height)
+            let cgBounds = parseBoundsFromWindowDict(window)
+            let appKitBounds = flipBoundsToAppKit(cgBounds, screenHeight: screenHeight)
+            let y = Int(appKitBounds.minY)
+            let height = Int(appKitBounds.height)
 
-            print("  level=\(level) owner=\(owner) name=\(name) frame=(y=\(y), h=\(height))")
+            print("  level=\(level) owner=\(owner) name=\(name) frame=(appKit y=\(y), h=\(height))")
         }
     }
 
@@ -83,6 +85,7 @@ struct NotificationBannerProbe {
         print("\n## Findings")
 
         let windowList = CGWindowListCopyWindowInfo([.optionAll], kCGNullWindowID) as? [[String: Any]] ?? []
+        let screenHeight = NSScreen.screens.first?.frame.height ?? 0
 
         let notificationWindows = windowList.filter { window in
             let owner = window["kCGWindowOwnerName"] as? String ?? ""
@@ -100,13 +103,14 @@ struct NotificationBannerProbe {
             var minLevel = Int.max
             var maxLevel = Int.min
             for window in notificationWindows {
-                let level = window["kCGWindowLevel"] as? Int ?? 0
+                let level = parseWindowLevelFromDict(window)
                 minLevel = min(minLevel, level)
                 maxLevel = max(maxLevel, level)
 
-                let bounds = parseBoundsFromWindowDict(window)
+                let cgBounds = parseBoundsFromWindowDict(window)
+                let appKitBounds = flipBoundsToAppKit(cgBounds, screenHeight: screenHeight)
                 let name = window["kCGWindowName"] as? String ?? "(no name)"
-                print("  level=\(level) name=\(name) frame=(\(Int(bounds.minX)), \(Int(bounds.minY)), \(Int(bounds.width)), \(Int(bounds.height)))")
+                print("  level=\(level) name=\(name) frame (AppKit coords)=(\(Int(appKitBounds.minX)), \(Int(appKitBounds.minY)), \(Int(appKitBounds.width)), \(Int(appKitBounds.height)))")
             }
 
             print("\nBanner window level range: \(minLevel)...\(maxLevel)")
