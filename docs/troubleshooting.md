@@ -30,7 +30,8 @@ The probe also measures and displays Divot's real panel layer in real time, maki
 **Workarounds:**
 
 1. **Disable menu bar auto-hide:** In System Settings → Dock & Menu Bar, turn off auto-hide.
-   Banners reposition below the visible menu bar, avoiding overlap.
+   Banners are expected to reposition below the visible menu bar, avoiding overlap.
+   (Not yet verified with a live notification and measured layers.)
 
 2. **Use cursor-reveal (Settings → Move below the menu bar when it appears):**
    When you move your pointer to the top, Divot temporarily slides below a revealed menu bar.

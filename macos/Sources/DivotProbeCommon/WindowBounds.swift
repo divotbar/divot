@@ -70,21 +70,20 @@ public enum WindowType {
     case other
 }
 
-/// Determine window type based on owner name and bundle ID (case-insensitive).
+/// Determine window type based on owner name (case-insensitive).
+/// Uses only CGWindowListCopyWindowInfo's documented keys (owner name, not bundle ID).
 public func classifyWindow(_ windowDict: [String: Any]) -> WindowType {
     let owner = (windowDict["kCGWindowOwnerName"] as? String ?? "").lowercased()
-    let bundleID = (windowDict["kCGWindowOwnerBundleIdentifier"] as? String ?? "").lowercased()
 
     if owner.contains("divot") {
         return .divot
     }
 
-    if owner.contains("notificationcenter") || owner.contains("notification center") ||
-       bundleID == "com.apple.notificationcenterui" {
+    if owner.contains("notificationcenter") || owner.contains("notification center") {
         return .notificationBanner
     }
 
-    if owner.contains("controlcenter") || bundleID == "com.apple.controlcenter" {
+    if owner.contains("controlcenter") {
         return .controlCenter
     }
 

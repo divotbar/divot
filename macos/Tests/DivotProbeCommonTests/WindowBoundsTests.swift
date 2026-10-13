@@ -198,28 +198,10 @@ struct WindowClassificationTests {
         #expect(classifyWindow(dict) == .notificationBanner)
     }
 
-    @Test("Classify NotificationCenter by bundle ID")
-    func classifyNotificationBannerByBundleID() {
-        let dict: [String: Any] = [
-            "kCGWindowOwnerName": "SomeOtherApp",
-            "kCGWindowOwnerBundleIdentifier": "com.apple.notificationcenterui"
-        ]
-        #expect(classifyWindow(dict) == .notificationBanner)
-    }
-
     @Test("Classify ControlCenter by owner name")
     func classifyControlCenterByOwner() {
         let dict: [String: Any] = [
             "kCGWindowOwnerName": "ControlCenter"
-        ]
-        #expect(classifyWindow(dict) == .controlCenter)
-    }
-
-    @Test("Classify ControlCenter by bundle ID")
-    func classifyControlCenterByBundleID() {
-        let dict: [String: Any] = [
-            "kCGWindowOwnerName": "SystemUI",
-            "kCGWindowOwnerBundleIdentifier": "com.apple.controlcenter"
         ]
         #expect(classifyWindow(dict) == .controlCenter)
     }
@@ -243,6 +225,16 @@ struct WindowClassificationTests {
     @Test("Classify window without owner name")
     func classifyWindowNoName() {
         let dict: [String: Any] = [:]
+        #expect(classifyWindow(dict) == .other)
+    }
+
+    @Test("Classify window with missing kCGWindowName")
+    func classifyWindowMissingWindowName() {
+        let dict: [String: Any] = [
+            "kCGWindowOwnerName": "Safari",
+            "kCGWindowLayer": NSNumber(value: 20)
+            // kCGWindowName is absent
+        ]
         #expect(classifyWindow(dict) == .other)
     }
 }
