@@ -132,7 +132,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         }
 
         if entries.isEmpty {
-            let noTimezones = NSTextField(labelWithString: "Click the time to add timezones")
+            let noTimezones = NSTextField(labelWithString: "No additional timezones added")
             noTimezones.font = .systemFont(ofSize: 11)
             noTimezones.textColor = theme.popoverPalette.secondary
             noTimezones.identifier = Self.secondaryIdentifier

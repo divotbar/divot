@@ -48,19 +48,18 @@ final class WorldClockTests: XCTestCase {
     }
 
     func testHalfHourOffset() {
-        // Test with a timezone that has a half-hour offset. Using New Zealand as an example,
-        // though most half-hour zones depend on DST. For simplicity, we test the offset calculation.
+        // Test with real timezones that have half-hour offsets (e.g., India, Sri Lanka).
+        // India Standard Time is UTC+5:30 year-round.
         let testDate = Date(timeIntervalSince1970: 0)
-        let utcTz = TimeZone(secondsFromGMT: 0)!
-        let halfHourTz = TimeZone(secondsFromGMT: 19800)! // +5:30
-        let entries = [
-            WorldClockEntry(timezone: "Test/HalfHour", displayName: "Half Hour",
-                           date: testDate, offsetSeconds: 19800, dayLabel: nil, hourOffset: 5.5)
-        ]
+        let localTz = TimeZone(secondsFromGMT: 0)! // UTC
+        let entries = WorldClock.entries(for: ["Asia/Calcutta"], at: testDate, localTimeZone: localTz)
+
         guard let entry = entries.first else {
-            XCTFail("Expected one entry")
+            XCTFail("Expected one entry for Asia/Calcutta")
             return
         }
-        XCTAssertEqual(entry.hourOffset, 5.5)
+
+        XCTAssertEqual(entry.timezone, "Asia/Calcutta")
+        XCTAssertEqual(entry.hourOffset, 5.5, accuracy: 0.01)
     }
 }
