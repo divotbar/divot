@@ -80,6 +80,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 wifiPopover: WifiPopoverController? = nil,
                 volumePopover: VolumePopoverController? = nil,
                 appearancePopover: AppearancePopoverController? = nil,
+                calendarPopover: CalendarPopoverController? = nil,
                 onWidgetAction: ((WidgetAction) -> Void)? = nil) {
         self.id = id
         self.configuration = configuration
@@ -103,6 +104,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           wifiPopover: wifiPopover,
                                           volumePopover: volumePopover,
                                           appearancePopover: appearancePopover,
+                                          calendarPopover: calendarPopover,
                                           onActivate: onWidgetAction)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
@@ -114,6 +116,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                            wifiPopover: wifiPopover,
                                            volumePopover: volumePopover,
                                            appearancePopover: appearancePopover,
+                                           calendarPopover: calendarPopover,
                                            onActivate: onWidgetAction)
         self.left = Self.makePanel(on: screen, content: leftContent, shadowHeight: shadowStrip)
         self.right = Self.makePanel(on: screen, content: rightContent, shadowHeight: shadowStrip)

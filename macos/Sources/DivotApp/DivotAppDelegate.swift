@@ -41,6 +41,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// shared by every display's bar so only one popover is open, and it holds
     /// the published-configuration observer only while it is shown.
     private var appearancePopover: AppearancePopoverController?
+    /// Owns the calendar popover anchored to the date item. One instance is
+    /// shared by every display's bar so only one popover is open.
+    private var calendarPopover: CalendarPopoverController?
     /// The one quit path. Both the status item menu and the app's main menu
     /// target it, and the Settings window reaches it through the same instance,
     /// so every quit control ends the process the same way. The keep-awake
@@ -107,6 +110,14 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             openDivotSettings: { [weak self] in self?.openSettings() })
         self.appearancePopover = appearancePopover
 
+        // The calendar popover is created once and shares the same look as the
+        // Wi-Fi and volume popovers. The date item opens it instead of jumping
+        // to System Settings; it shows a month grid with navigation and its last
+        // row opens the Date & Time pane.
+        let calendarPopover = CalendarPopoverController(
+            openDateTimeSettings: { [weak self] in self?.perform(.openSettings(.dateTime)) })
+        self.calendarPopover = calendarPopover
+
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
         let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
@@ -122,6 +133,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             wifiPopover: wifiPopover,
                                             volumePopover: volumePopover,
                                             appearancePopover: appearancePopover,
+                                            calendarPopover: calendarPopover,
                                             onWidgetAction: { action in
                 self?.perform(action)
             })
