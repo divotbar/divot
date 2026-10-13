@@ -1,0 +1,75 @@
+---
+id: "0090"
+title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
+type: chore
+status: active
+priority: p2
+area: [macos, docs]
+assigned_to: ""
+created_by: njachowski@gmail.com
+branch: feat/per-task-shot-selection-divot-snapshot-o
+cli_override: claude code
+model_override: haiku
+created_at: "2026-10-13T16:31:06Z"
+updated_at: "2026-10-13T17:49:25Z"
+review_passes: 4
+handoff_signal_retry_count: 1
+review_rounds: 2
+---
+## Problem
+RepoOS #0769 landed: a ## Shots entry for a command target can pass an env map and a per-entry glob, so a task can capture only the images it changed, for example:
+[ {"target": "Divot bar", "label": "World clock popover", "env": {"DIVOT_SNAPSHOT_ONLY": "worldclock"}, "glob": "*worldclock*.png"} ]
+Divot's 'Divot bar' shot target (#0081) still renders the whole fixed reduced set (about 27 PNGs) for every task, and nothing honours a DIVOT_SNAPSHOT_ONLY variable, so the new filtering has nothing to act on.
+
+## Desired UX
+- The snapshot tests accept DIVOT_SNAPSHOT_ONLY=<token>[,<token>...]: only views whose snapshot name contains one of the tokens are rendered and written (tokens used by the file naming: bar, wifi, volume, appearance, calendar, worldclock, battery, charging, keepawake, ...). Unset keeps today's behaviour (the reduced set under DIVOT_SNAPSHOT_SET=shots, the full matrix for scripts/snapshots.sh). Unknown tokens produce a visible note and an empty set, not a silent full run.
+- File names are stable and start with the token, so a per-entry glob like *worldclock*.png reliably selects them; document the naming convention.
+- Assertions still run for the selected views; selecting nothing never reports success silently.
+- scripts/snapshots.sh accepts a --only token list that sets the variable.
+
+## Acceptance criteria
+- Implement the filter in SnapshotTestHelpers (shared by the popover and bar snapshot tests); unit tests for token matching, multiple tokens, unknown token note, and unset behaviour.
+- Add the missing tokens to existing snapshot names where needed (for example worldclock, keepawake, charging) without changing the full-matrix output set.
+- Update docs/popover-snapshot-testing.md and docs/README.md with the ## Shots recipe: how a task declares per-entry env and glob (copy the example above), the token list, and the 'repoos shot --target "Divot bar" --env DIVOT_SNAPSHOT_ONLY=worldclock --glob "*worldclock*.png"' ad hoc form. Add one line to AGENTS.md (Divot conventions): UI tasks declare ## Shots entries that name only the images they change.
+- VERIFY: run repoos shot with the filter for two different tokens and confirm each captures only its own images, not tracked (gitignored); describe what you saw in the task. If the installed repoos CLI does not yet support --env/--glob, say so in the task.
+- swift test --package-path macos and repoos check --changed main pass.
+
+## Notes for AI
+Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-entry env/glob) in ~/code/nick/repoos. Do not commit images.
+
+## Activity
+
+- 2026-10-13T16:31:06Z · created · njachowski@gmail.com
+- 2026-10-13T16:49:23Z · status inbox→ready
+- 2026-10-13T16:49:24Z · cli_override, model_override
+- 2026-10-13T16:49:24Z · status ready→active, branch
+- 2026-10-13T16:59:05Z · status active→review
+- 2026-10-13T16:59:26Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
+- 2026-10-13T17:00:11Z · note: review pass 1: needs some work
+- 2026-10-13T17:00:11Z · status review→active
+- 2026-10-13T17:01:33Z · message_queued at 2026-10-13T17:01:33.611Z
+- 2026-10-13T17:04:16Z · status active→review
+- 2026-10-13T17:04:17Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (1fd8828b) during finalization (#0734)
+- 2026-10-13T17:05:19Z · note: review pass 2: needs some work
+- 2026-10-13T17:05:20Z · message_delivered: 1 message(s)
+- 2026-10-13T17:05:20Z · status review→active
+- 2026-10-13T17:15:25Z · status active→review
+- 2026-10-13T17:15:25Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (41f9a14a) during finalization (#0734)
+- 2026-10-13T17:16:41Z · note: review pass 3: needs some work
+- 2026-10-13T17:16:41Z · needs_input
+- 2026-10-13T17:19:37Z · needs_input
+- 2026-10-13T17:19:37Z · status review→active
+- 2026-10-13T17:19:37Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:22:03Z · status active→review
+- 2026-10-13T17:22:03Z · note: handoff requested (cli)
+- 2026-10-13T17:28:02Z · handoff failed · task-file handoff failed at check · repoos check failed: ◆ Check plan
+- 2026-10-13T17:43:07Z · watchdog: auto-surfaced stuck task · status active→review · agent crashed or was interrupted mid-turn — task-file handoff failed at check · repoos check failed: ◆ Check plan · next step: the handoff signal may not have been detected — ask the agent to put `::repoos-handoff-ready::` at the start of a line (preferably alone) after checks pass
+- 2026-10-13T17:43:07Z · note: handoff requested (cli)
+- 2026-10-13T17:43:39Z · status active→review
+- 2026-10-13T17:43:39Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:43:39Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:45:01Z · note: review pass 4: needs some work
+- 2026-10-13T17:45:01Z · needs_input
+- 2026-10-13T17:49:25Z · needs_input
+- 2026-10-13T17:49:25Z · status review→active
+- 2026-10-13T17:49:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed

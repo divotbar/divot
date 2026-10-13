@@ -162,4 +162,6 @@ message points at this section form.
 
 Start at `docs/README.md`. macOS 26+ / Apple silicon; Swift 6.2+, AppKit for the persistent bar, optional SwiftUI for settings. No native runtime dependencies, WebKit bar, private APIs, or permanent render loop. Main actor owns UI; providers collect off-main and update only changed widgets.
 
+Tests must be windowless: never order a Divot bar, popover, or panel front in a test — inject the no-op `WindowPresenting` presenter and assert the would-present call (see `docs/infrastructure.md`).
+
 Website: Vue 3/VitePress, static output, Bun tooling. Run `bun run check` and `swift test --package-path macos`. Use the existing local Lake Tahoe photo with its credited CC BY-SA 3.0 license; code/docs are MIT. No invented release links, benchmarks, or app availability. Public copy must distinguish planned behavior from implemented code. Keep the Tahoe editorial direction: warm paper, alpine blue/pine, restrained typography; avoid generic card grids and decorative animation.

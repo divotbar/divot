@@ -420,9 +420,14 @@ final class BarPopoverHost: NSObject {
     /// own toggle rather than an outside click.
     private weak var anchor: NSView?
     private let monitors: any PopoverEventMonitoring
+    /// The seam that actually shows the panel. Tests inject a no-op presenter so
+    /// presenting never puts the popover on screen (#0091).
+    private let presenter: any WindowPresenting
 
-    init(monitors: any PopoverEventMonitoring = PopoverEventMonitor()) {
+    init(monitors: any PopoverEventMonitoring = PopoverEventMonitor(),
+         presenter: any WindowPresenting = SystemWindowPresenter()) {
         self.monitors = monitors
+        self.presenter = presenter
         super.init()
     }
 
@@ -469,7 +474,7 @@ final class BarPopoverHost: NSObject {
         self.content = content
         self.anchor = view
         layoutPanel(size: content.preferredSize)
-        panel.makeKeyAndOrderFront(nil)
+        presenter.makeKeyAndOrderFront(panel)
         startDismissMonitors()
     }
 
