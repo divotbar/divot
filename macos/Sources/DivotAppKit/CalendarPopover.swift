@@ -16,6 +16,7 @@ public final class CalendarPopoverController {
     private let host = BarPopoverHost()
     private var content: CalendarPopoverContentController?
     private var currentMonth: CalendarMonth = .today()
+    private var dayChangeObserver: NSObjectProtocol?
 
     public init(openDateTimeSettings: @escaping @MainActor () -> Void) {
         self.openDateTimeSettings = openDateTimeSettings
@@ -38,6 +39,15 @@ public final class CalendarPopoverController {
         host.present(controller, relativeTo: view)
         self.content = controller
         render()
+
+        let observer = NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.NSCalendarDayChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.render()
+        }
+        dayChangeObserver = observer
     }
 
     /// A click on the date item. When this item already owns the open popover
@@ -52,6 +62,10 @@ public final class CalendarPopoverController {
 
     /// Close the popover.
     public func dismiss() {
+        if let observer = dayChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        dayChangeObserver = nil
         host.dismiss()
         content = nil
     }
@@ -61,6 +75,10 @@ public final class CalendarPopoverController {
 
     /// The popover closed for any reason.
     private func handleClosed() {
+        if let observer = dayChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        dayChangeObserver = nil
         content = nil
     }
 
@@ -117,7 +135,7 @@ final class CalendarPopoverContentController: BarPopoverContentController {
         todayButton.isBordered = false
         todayButton.bezelStyle = .inline
         todayButton.font = .systemFont(ofSize: 12)
-        todayButton.setAccessibilityLabel("Jump to today")
+        todayButton.setAccessibilityLabel("Today")
         todayButton.target = self
         todayButton.action = #selector(todayTapped)
 
@@ -192,6 +210,13 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                 button.translatesAutoresizingMaskIntoConstraints = false
 
                 let isToday = isToday(calDay.date)
+                let dayFormatter = DateFormatter()
+                dayFormatter.locale = .current
+                dayFormatter.dateStyle = .long
+                let dayLabel = dayFormatter.string(from: calDay.date)
+                let accessibilityLabel = isToday ? "\(dayLabel), today" : dayLabel
+                button.setAccessibilityLabel(accessibilityLabel)
+
                 if isToday {
                     button.contentTintColor = theme.accent
                     button.bezelColor = theme.accent

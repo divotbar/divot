@@ -503,7 +503,9 @@ final class BarContentView: NSView, BarContentLifecycle {
                 }
                 // The date item opens the calendar popover when one is
                 // configured; the popover's last row reaches the Date & Time pane.
-                if case .openSettings(.dateTime) = action, let view, let calendarPopover = self.calendarPopover {
+                // Only the date item opens the popover; time keeps its original
+                // settings-pane action.
+                if id == .date, case .openSettings(.dateTime) = action, let view, let calendarPopover = self.calendarPopover {
                     calendarPopover.toggle(relativeTo: view, theme: self.theme)
                     return
                 }

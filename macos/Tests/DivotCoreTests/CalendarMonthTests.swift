@@ -73,6 +73,20 @@ struct CalendarMonthLayoutTests {
         }
     }
 
+    @Test func weekdayNamesWithMondayStart() {
+        let calendar = makeCalendar(firstWeekday: 2)
+        let layout = CalendarMonthLayout.`for`(CalendarMonth(year: 2024, month: 1), calendar: calendar)
+
+        #expect(layout.weekdayNames.count == 7)
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        let allSymbols = formatter.shortWeekdaySymbols ?? []
+
+        if allSymbols.count >= 2 {
+            #expect(layout.weekdayNames.first == allSymbols[1], "Should start with Monday")
+        }
+    }
+
     @Test func leadingDaysAreDimmed() {
         let calendar = makeCalendar(firstWeekday: 1)
         let layout = CalendarMonthLayout.`for`(CalendarMonth(year: 2024, month: 1), calendar: calendar)
