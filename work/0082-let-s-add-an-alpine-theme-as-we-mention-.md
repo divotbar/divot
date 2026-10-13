@@ -11,7 +11,7 @@ branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
-updated_at: "2026-10-13T10:37:44Z"
+updated_at: "2026-10-13T10:40:34Z"
 review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T09:41:07.861Z: repoos check failed: ◆ Check plan"
@@ -86,3 +86,11 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T10:37:44Z · needs_input
 - 2026-10-13T10:37:44Z · status review→active
 - 2026-10-13T10:37:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T10:40:34Z · note: Shots re-captured on the final merged tree (HEAD 481ebd5) after merging main and committing, so nothing is committed after the capture.
+
+Landing / Alpine examples (website target, route /):
+- 'Landing hero bar — Alpine (default)': the hero bar over the Lake Tahoe photo drawn with Alpine's dark tokens (background #16272B, text #E8EFEB, focused chip #47809E, accent #7CE3D8-ish lake blue). Left group: Divot mark, workspace chips 01-04 with one focused, and the front-app item; right group in the shipped default order: battery %, time, Wi-Fi, volume %. This reflects the real current bar layout (front-app on the left; battery, time, network, volume on the right) rather than the old app/wifi/battery/date/time arrangement.
+- 'Bar example — Gruvbox': the playground bar recoloured with Gruvbox dark tokens (bar #282828, text #EBDBB2, focused chip #83A598, accent #FABD2F) with the Gruvbox preset button selected.
+- 'Bar example — Dracula': the same bar recoloured with Dracula dark tokens (bar #282A36, text #F8F8F2, focused chip #6272A4, accent #BD93F9) with the Dracula preset button selected.
+
+The three preset buttons now read Alpine / Gruvbox / Dracula, matching the theme families the app ships. The PNGs are stored under the task shots folder; the reviewer can inspect them there. (The native Divot bar target is captured separately below.)
