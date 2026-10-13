@@ -4,21 +4,20 @@ The visual direction is alpine: lake blue, pine green, and warm paper. The actua
 
 ## Theme families
 
-Alongside the comfortable native default, Divot ships its own **Alpine** family and four curated hacker families: **Gruvbox**, **Ayu**, **Dracula**, and **Tokyo Night**. Family and appearance are separate settings, so switching between System, Light, and Dark keeps the chosen family.
+Alongside the comfortable native default, Divot ships four curated hacker families: **Gruvbox**, **Ayu**, **Dracula**, and **Tokyo Night**. Family and appearance are separate settings, so switching between System, Light, and Dark keeps the chosen family.
 
-The native family follows macOS semantic colors and the system accent, so it keeps vibrancy and accessibility behavior. Alpine and the curated families resolve to semantic color tokens — foreground, background, accent, selected, occupied, and error — and repaint the bar's background, border, item text and icons, selected/occupied/disabled workspace states, and error text. The charging mark is the exception: it is one fixed green on every family, never the theme accent, so charging is unmistakable even when a family's accent is purple or blue. Color alone never identifies a selected workspace: focus is also the control's selected state and an accessibility value, and occupancy has a shape marker.
+The native family follows macOS semantic colors and the system accent, so it keeps vibrancy and accessibility behavior. The four families resolve to semantic color tokens — foreground, background, accent, selected, occupied, and error — and repaint the bar's background, border, item text and icons, selected/occupied/disabled workspace states, and error text. The charging bolt is the exception: it draws in one fixed green on every family, never the theme accent, so charging is unmistakable even when a family's accent is purple or blue. The battery outline and fill keep the normal label colour. Color alone never identifies a selected workspace: focus is also the control's selected state and an accessibility value, and occupancy has a shape marker.
 
-Every family ships a light and a dark variant. The curated families are pinned to their upstream palette with source and license recorded per variant; Alpine is Divot's own family in the project's lake-blue, pine, and warm-paper direction:
+Every family ships a light and a dark variant, pinned to its upstream palette with source and license recorded per variant:
 
 | Family | Dark | Light | Upstream | License |
 | --- | --- | --- | --- | --- |
-| Alpine | Alpine Dark | Alpine Light | Divot | MIT |
 | Gruvbox | Gruvbox Dark (medium) | Gruvbox Light (medium) | [morhetz/gruvbox](https://github.com/morhetz/gruvbox) | MIT |
 | Ayu | Ayu Dark | Ayu Light | [ayu-theme/ayu-colors](https://github.com/ayu-theme/ayu-colors) | MIT |
 | Dracula | Dracula | Alucard | [dracula/dracula-theme](https://github.com/dracula/dracula-theme) | MIT |
 | Tokyo Night | Tokyo Night | Tokyo Night Light | [enkia/tokyo-night-vscode-theme](https://github.com/enkia/tokyo-night-vscode-theme) | MIT |
 
-Alucard is Dracula's official light variant, and Tokyo Night Light is the upstream light variant of the same theme, so no curated family relies on an invented palette. Ayu Light is official too; Divot darkens its accent, occupied, and error roles so a focused or occupied state stays legible over a wallpaper, and the app labels that tuning rather than calling the tuned colors stock. Alpine is authored by Divot itself, so both of its variants are official project colors rather than an upstream derivation.
+Alucard is Dracula's official light variant, and Tokyo Night Light is the upstream light variant of the same theme, so no family relies on an invented palette. Ayu Light is official too; Divot darkens its accent, occupied, and error roles so a focused or occupied state stays legible over a wallpaper, and the app labels that tuning rather than calling the tuned colors stock.
 
 ## Contrast
 
@@ -48,7 +47,7 @@ The parser, store, and theme resolver validate, persist, and apply this shape. C
 
 ## Materials
 
-`native` requests a platform material (a vibrancy blur behind the bar); `opaque` uses a solid themed background. Reduce Transparency and Increase Contrast force an opaque background and a stronger border even if a configuration requests material. The native family uses macOS semantic colors; Alpine and the curated families use their resolved tokens.
+`native` requests a platform material (a vibrancy blur behind the bar); `opaque` uses a solid themed background. Reduce Transparency and Increase Contrast force an opaque background and a stronger border even if a configuration requests material. The native family uses macOS semantic colors; the four families use their resolved tokens.
 
 ## Focus preset
 
@@ -67,7 +66,7 @@ The parser, store, and theme resolver validate, persist, and apply this shape. C
 
 <BarPreview />
 
-These browser presets show the Alpine, Gruvbox, and Dracula families on a bar laid out like the real one. They are a simplified illustration of the visual direction, not exported native themes, and the static preview time/battery are sample data.
+These browser presets communicate the visual direction. They are not exported native themes, and the static preview time/battery are sample data.
 
 ## Share a theme
 

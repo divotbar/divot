@@ -44,9 +44,9 @@ enum DivotAppWidgetReport {
             let size = NativeStatusSymbol.image(symbolName: symbol, metrics: metrics)?.size ?? .zero
             print("statusSymbol.\(id.rawValue)=\(symbol) \(Int(size.width))x\(Int(size.height))pt")
         }
-        // The charging mark draws in one fixed green, never the theme accent;
+        // The charging bolt draws in one fixed green, never the theme accent;
         // print the resolved colour so a packaged-app run records the green the
-        // bar will draw (#0074).
+        // bar will draw (#0074, #0084).
         if let rgb = NSColor(ChargingIndicatorPalette.green).usingColorSpace(.sRGB) {
             print(String(format: "charging.green=#%02X%02X%02X",
                          Int((rgb.redComponent * 255).rounded()),
@@ -63,9 +63,6 @@ enum DivotAppWidgetReport {
             let presentation = WidgetPresenter.present(id: id, state: state)
             let text = presentation.text.isEmpty ? "(icon \(presentation.symbolName ?? "-"))" : presentation.text
             print("\(id.rawValue): \(text) · \(presentation.accessibilityLabel)")
-            if let badge = presentation.badge {
-                print("\(id.rawValue).badge=\(badge.symbolName) role=\(badge.role.rawValue)")
-            }
         }
     }
 }
