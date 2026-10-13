@@ -16,6 +16,7 @@ public enum ConfigurationValue: Equatable, Sendable {
     case string(String)
     case hex(String)
     case items([BarItemID])
+    case stringArray([String])
 
     /// The JSON representation (NSNull for `.null`), for `schema --json`,
     /// `show --json`, and `get --json`.
@@ -28,6 +29,7 @@ public enum ConfigurationValue: Equatable, Sendable {
         case .string(let value): return value
         case .hex(let value): return value
         case .items(let value): return value.map(\.rawValue)
+        case .stringArray(let value): return value
         }
     }
 
@@ -42,6 +44,7 @@ public enum ConfigurationValue: Equatable, Sendable {
                 ? String(Int(value)) : String(value)
         case .string(let value), .hex(let value): return value
         case .items(let value): return value.map(\.rawValue).joined(separator: ",")
+        case .stringArray(let value): return value.joined(separator: ",")
         }
     }
 }
@@ -57,6 +60,7 @@ public enum ConfigurationSettingType: String, Sendable {
     case hex
     case options
     case items
+    case stringArray = "string-array"
 }
 
 // MARK: - Setting
@@ -223,6 +227,8 @@ public enum ConfigurationSchema {
                 default: .ampm, \.widgets.time.timeFormat),
         optionalText("widgets.time.customPattern", "Custom time format pattern for timeFormat=custom.",
                      \.widgets.time.customPattern),
+        timezoneArray("widgets.time.timezones", "User's added world timezones (IANA identifiers).",
+                      \.widgets.time.timezones),
         boolean("widgets.network.showWifiName", "Show the connected Wi-Fi network name (asks for Location permission).",
                 default: false, \.widgets.network.showWifiName),
         boolean("widgets.volume.showVolumePercent", "Show the volume percentage.",
@@ -338,6 +344,11 @@ public enum ConfigurationSchema {
                 throw ConfigurationError(path: setting.key, message: "expected unique items")
             }
             return .items(items)
+        case .stringArray:
+            let parts = raw.split(separator: ",")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+            return .stringArray(Array(parts))
         }
     }
 
@@ -501,6 +512,39 @@ public enum ConfigurationSchema {
                 default:
                     throw ConfigurationError(path: key, message: "expected string or unset")
                 }
+            })
+    }
+
+    private static func stringArray(_ key: String, _ summary: String,
+                                   default value: [String],
+                                   _ keyPath: WritableKeyPath<DivotConfiguration, [String]>) -> ConfigurationSetting {
+        ConfigurationSetting(
+            key: key, type: .stringArray, defaultValue: .stringArray(value), summary: summary,
+            read: { .stringArray($0[keyPath: keyPath]) },
+            write: { configuration, newValue in
+                guard case .stringArray(let array) = newValue else {
+                    throw ConfigurationError(path: key, message: "expected string array")
+                }
+                configuration[keyPath: keyPath] = array
+            })
+    }
+
+    private static func timezoneArray(_ key: String, _ summary: String,
+                                      _ keyPath: WritableKeyPath<DivotConfiguration, [String]>) -> ConfigurationSetting {
+        let knownTimezones = Set(TimeZone.knownTimeZoneIdentifiers)
+        return ConfigurationSetting(
+            key: key, type: .stringArray, defaultValue: .stringArray([]), summary: summary,
+            read: { .stringArray($0[keyPath: keyPath]) },
+            write: { configuration, newValue in
+                guard case .stringArray(let array) = newValue else {
+                    throw ConfigurationError(path: key, message: "expected string array")
+                }
+                for timezone in array {
+                    if !knownTimezones.contains(timezone) {
+                        throw ConfigurationError(path: key, message: "unknown timezone: \(timezone)")
+                    }
+                }
+                configuration[keyPath: keyPath] = array
             })
     }
 

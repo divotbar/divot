@@ -37,7 +37,7 @@ private func maximalConfiguration() -> DivotConfiguration {
     configuration.widgets.date = DateConfiguration(weekday: false, year: true, dayFirst: true,
                                                    separator: "-", customPattern: "yyyy-MM-dd")
     configuration.widgets.time = TimeConfiguration(seconds: true, timeFormat: .custom,
-                                                   customPattern: "HH:mm:ss")
+                                                   customPattern: "HH:mm:ss", timezones: ["America/Los_Angeles"])
     configuration.widgets.network = NetworkConfiguration(showWifiName: true)
     configuration.widgets.volume = VolumeConfiguration(showVolumePercent: false, showVolumeMuted: false)
     configuration.keepAwake = KeepAwakeConfiguration(remember: true, isActive: true)

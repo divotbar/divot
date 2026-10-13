@@ -44,6 +44,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Owns the calendar popover anchored to the date item. One instance is
     /// shared by every display's bar so only one popover is open.
     private var calendarPopover: CalendarPopoverController?
+    /// Owns the world clock popover anchored to the time item. One instance is
+    /// shared by every display's bar so only one popover is open.
+    private var worldClockPopover: WorldClockPopoverController?
     /// The one quit path. Both the status item menu and the app's main menu
     /// target it, and the Settings window reaches it through the same instance,
     /// so every quit control ends the process the same way. The keep-awake
@@ -118,6 +121,17 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             openDateTimeSettings: { [weak self] in self?.perform(.openSettings(.dateTime)) })
         self.calendarPopover = calendarPopover
 
+        // The world clock popover is created once and shares the same look as the
+        // other popovers. The time item opens it to show added timezones with
+        // their current times and offsets from local time.
+        let worldClockPopover = WorldClockPopoverController(
+            openDateTimeSettings: { [weak self] in self?.perform(.openSettings(.dateTime)) },
+            getConfiguration: { [weak controller] in controller?.configuration ?? .default },
+            updateTimezones: { [weak controller] timezones in
+                controller?.update { $0.widgets.time.timezones = timezones }
+            })
+        self.worldClockPopover = worldClockPopover
+
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
         let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
@@ -134,6 +148,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             volumePopover: volumePopover,
                                             appearancePopover: appearancePopover,
                                             calendarPopover: calendarPopover,
+                                            worldClockPopover: worldClockPopover,
                                             onWidgetAction: { action in
                 self?.perform(action)
             })
