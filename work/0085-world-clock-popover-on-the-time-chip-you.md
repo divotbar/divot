@@ -3,6 +3,9 @@ id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 assigned_to: ""
@@ -77,3 +80,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T14:44:29Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (14b941e) during finalization (#0734)
 - 2026-10-13T14:44:29Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (14b941e) during finalization (#0734)
 - 2026-10-13T14:46:46Z · note: review pass 4: needs some work
+- 2026-10-13T14:46:46Z · needs_input
