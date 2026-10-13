@@ -11,7 +11,7 @@ branch: feat/fix-the-banner-probe-window-level-is-rea
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:29:02Z"
-updated_at: "2026-10-13T16:29:13Z"
+updated_at: "2026-10-13T16:30:26Z"
 ---
 ## Problem
 The maintainer ran divot-notification-banner-probe on 2026-10-13 (macOS 26.5.2, one display, safeArea.top 33). Every window printed level=0, including Divot, Finder, the Dock and the Dock's Wallpaper window, which is impossible (the wallpaper layer is a large negative number, Dock and menu bar layers are positive). Cause: macos/Sources/DivotProbeCommon/WindowBounds.swift parseWindowLevelFromDict reads dict["kCGWindowLevel"], but CGWindowListCopyWindowInfo dictionaries carry the window layer under kCGWindowLayer (as in DivotSpacesProbe: info[kCGWindowLayer as String]); the other key does not exist, so the NSNumber cast always falls back to 0. The measurement task #0080 depends on this probe, so its output is currently useless.
@@ -37,3 +37,4 @@ Related: #0075, #0080. Evidence of the bug: all windows in the maintainer's outp
 - 2026-10-13T16:29:10Z · status inbox→ready
 - 2026-10-13T16:29:11Z · cli_override, model_override
 - 2026-10-13T16:29:13Z · status ready→active, branch
+- 2026-10-13T16:30:26Z · message_queued at 2026-10-13T16:30:26.733Z
