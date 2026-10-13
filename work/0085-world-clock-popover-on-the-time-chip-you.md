@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T14:46:47Z"
+review_passes: 4
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
@@ -14,8 +16,6 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T14:46:46Z"
-review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
 ---
@@ -81,3 +81,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T14:44:29Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (14b941e) during finalization (#0734)
 - 2026-10-13T14:46:46Z · note: review pass 4: needs some work
 - 2026-10-13T14:46:46Z · needs_input
+
