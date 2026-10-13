@@ -122,3 +122,4 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:55:35Z · status review→active
 - 2026-10-13T17:55:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:56:57Z · status active→review
+- 2026-10-13T17:56:57Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
