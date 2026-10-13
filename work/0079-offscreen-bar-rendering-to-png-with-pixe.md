@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T08:04:36Z"
-review_passes: 4
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
 type: chore
@@ -12,10 +10,9 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/offscreen-bar-rendering-to-png-with-pixe
 cli_override: claude code
-model_override: sonnet
+model_override: haiku
 created_at: "2026-10-13T07:01:36Z"
-review_rounds: 2
-last_check_failure: "repoos check at 2026-10-13T07:42:06.739Z: repoos check failed: ◆ Check plan"
+updated_at: "2026-10-13T07:42:50Z"
 ---
 ## Problem
 #0078 renders the popovers offscreen. The bar itself (workspaces, front app and right-side chips) has no offscreen render, so bar layout, spacing, chip style and the charging colour have no visual evidence.
@@ -38,24 +35,3 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:22:37Z · cli_override, model_override
 - 2026-10-13T07:22:38Z · status ready→active, branch
 - 2026-10-13T07:42:50Z · status active→review
-- 2026-10-13T07:42:50Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-13T07:43:59Z · note: review pass 1: needs some work
-- 2026-10-13T07:44:00Z · status review→active
-- 2026-10-13T07:47:13Z · status active→review
-- 2026-10-13T07:47:13Z · note: shots: skipped — the diff (3 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-13T07:48:20Z · note: review pass 2: needs some work
-- 2026-10-13T07:48:20Z · status review→active
-- 2026-10-13T07:49:26Z · message_queued at 2026-10-13T07:49:26.837Z
-- 2026-10-13T07:51:31Z · status active→review
-- 2026-10-13T07:51:31Z · note: shots: skipped — the diff (4 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-13T07:52:44Z · note: review pass 3: needs some work
-- 2026-10-13T07:52:45Z · needs_input
-- 2026-10-13T07:55:32Z · model_override
-- 2026-10-13T07:55:53Z · needs_input
-- 2026-10-13T07:55:53Z · status review→active
-- 2026-10-13T07:55:53Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
-- 2026-10-13T07:55:54Z · message_delivered: 1 message(s)
-- 2026-10-13T08:01:32Z · status active→review
-- 2026-10-13T08:01:32Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
-- 2026-10-13T08:04:36Z · note: review pass 4: good to go
-
