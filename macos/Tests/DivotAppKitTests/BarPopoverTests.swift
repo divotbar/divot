@@ -131,3 +131,50 @@ private func pressEvent() -> NSEvent {
         }
     }
 }
+
+/// Runtime check on the real popover window (no offscreen rendering): the host
+/// shows Divot's own panel, whose whole view hierarchy contains no
+/// NSVisualEffectView, whose chrome fill and content fill are alpha 1, and
+/// whose Appearance theme rows all start at the same leading inset.
+@MainActor
+@Test func realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme() {
+    func walk(_ view: NSView, _ visit: (NSView) -> Void) {
+        visit(view)
+        view.subviews.forEach { walk($0, visit) }
+    }
+    let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+    for family in families {
+        for dark in [false, true] {
+            let theme = BarTheme.resolve(AppearanceConfiguration(family: family, mode: dark ? .dark : .light), dark: dark)
+            let host = BarPopoverHost(monitors: StubPopoverMonitor())
+            let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
+                                        styleMask: .borderless, backing: .buffered, defer: false)
+            let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
+            anchorWindow.contentView?.addSubview(anchor)
+            let content = AppearancePopoverContentController()
+            content.theme = theme
+            host.present(content, relativeTo: anchor)
+            defer { host.dismiss() }
+
+            guard let panel = host.window, let root = panel.contentView as? PopoverChromeView else {
+                #expect(Bool(false), "popover panel should exist")
+                continue
+            }
+            var materials = 0
+            walk(root) { if $0 is NSVisualEffectView { materials += 1 } }
+            #expect(materials == 0)
+            #expect(root.palette.background.alphaComponent == 1)
+            #expect(root.palette.background == theme.popoverPalette.background.withAlphaComponent(1))
+            if let fill = content.view.layer?.backgroundColor {
+                #expect(NSColor(cgColor: fill)?.alphaComponent == 1)
+            } else {
+                #expect(Bool(false), "content has a solid layer fill")
+            }
+            content.view.layoutSubtreeIfNeeded()
+            for button in content.familyButtons.values {
+                let x = button.convert(button.bounds, to: content.view).minX
+                #expect(x <= 13, "theme row \(family) starts at the leading inset (x=\(x))")
+            }
+        }
+    }
+}

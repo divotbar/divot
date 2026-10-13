@@ -178,8 +178,7 @@ struct AppearancePopoverContentTests {
             .first { $0.title == "Open Divot Settings…" }
         #expect(settingsButton?.contentTintColor == theme.popoverPalette.link)
         for button in controller.familyButtons.values {
-            #expect(button.highlightColor == theme.popoverPalette.link)
-            #expect(button.contentTintColor == theme.popoverPalette.label)
+            #expect(button.palette == theme.popoverPalette)
         }
         // The content background is the bar's own background token.
         let background = controller.view.layer?.backgroundColor

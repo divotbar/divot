@@ -97,14 +97,23 @@ final class WifiPopoverContentController: BarPopoverContentController {
     var onOpenLocationSettings: (() -> Void)?
     var onRetry: (() -> Void)?
 
+    private var lastState: WifiScanState = .scanning
+
     override func loadView() {
         super.loadView()
         render(.scanning)
     }
 
+    /// Rows bake their colours in when built, so a theme change rebuilds them.
+    override func restyle(_ theme: BarTheme) {
+        super.restyle(theme)
+        render(lastState)
+    }
+
     /// Rebuild the body for a new scan state. The header and settings row are
     /// always present; only the body swaps.
     func render(_ state: WifiScanState) {
+        lastState = state
         clearRows()
         stack.addArrangedSubview(header("Wi-Fi"))
         switch state {

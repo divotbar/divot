@@ -287,16 +287,43 @@ private func themedWorkspaceSnapshot() -> WorkspaceSnapshot {
     #expect(light.popoverPalette.background == light.background)
 }
 
-/// The native theme keeps macOS semantic roles (which adapt to the popover's
-/// own appearance) and the system accent for its link.
+/// The native popover palette is concrete and opaque (no dynamic or translucent
+/// system colours), so it is solid and predictable in light and dark.
 @MainActor
-@Test func nativePopoverPaletteKeepsSystemRoles() {
-    let theme = BarTheme.resolve(.default, dark: true)
-    let palette = theme.popoverPalette
-    #expect(palette.background == .windowBackgroundColor)
-    #expect(palette.label == .labelColor)
-    #expect(palette.secondary == .secondaryLabelColor)
-    #expect(palette.link == .controlAccentColor)
+@Test func nativePopoverPaletteIsConcreteAndOpaque() {
+    for dark in [false, true] {
+        let palette = BarTheme.resolve(.default, dark: dark).popoverPalette
+        for color in [palette.background, palette.label, palette.secondary, palette.link,
+                      palette.separator, palette.selected, palette.selectedForeground] {
+            #expect(color.alphaComponent == 1)
+        }
+    }
+}
+
+/// Every popover text role clears AA against the solid popover background, and
+/// the selected style clears AA on its own fill, for every family and variant.
+@MainActor
+@Test func popoverPaletteRolesClearContrastForEveryFamilyAndVariant() {
+    let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+    func srgb(_ c: NSColor) -> SRGBColor {
+        let c = c.usingColorSpace(.sRGB)!
+        return SRGBColor(red: Double(c.redComponent), green: Double(c.greenComponent), blue: Double(c.blueComponent))
+    }
+    for family in families {
+        for dark in [false, true] {
+            let appearance = AppearanceConfiguration(family: family, mode: dark ? .dark : .light)
+            let p = BarTheme.resolve(appearance, dark: dark).popoverPalette
+            let bg = srgb(p.background)
+            for (name, color) in [("label", p.label), ("secondary", p.secondary), ("link", p.link)] {
+                let ratio = ContrastAudit.ratio(srgb(color), bg)
+                #expect(ratio >= ContrastAudit.textThreshold, "\(name) \(ratio) for \(family) dark=\(dark)")
+            }
+            let sel = ContrastAudit.ratio(srgb(p.selectedForeground), srgb(p.selected))
+            #expect(sel >= ContrastAudit.textThreshold, "selected \(sel) for \(family) dark=\(dark)")
+            let fill = ContrastAudit.ratio(srgb(p.selected), bg)
+            #expect(fill >= 1.5, "selected fill is distinguishable from background")
+        }
+    }
 }
 
 /// The family link role clears the AA text floor against the popover background,

@@ -61,6 +61,7 @@ public struct ThemeTokens: Equatable, Sendable {
         self.occupied = occupied
         self.error = error
         self.secondary = foreground.mixed(with: background, amount: 0.30)
+            .adjustedForText(against: background, minimum: 4.5, toward: foreground)
         self.disabled = foreground.mixed(with: background, amount: 0.50)
         self.selectedForeground = ThemeTokens.bestLabel(on: selected,
                                                         candidates: [foreground, background, .white, .black])

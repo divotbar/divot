@@ -127,7 +127,9 @@ enum SnapshotTestHelpers {
     /// bar with chips off, and each popover. Assertions run for every name either way.
     static func wantsPNG(named name: String) -> Bool {
         guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
-        guard name.contains("-native-"), name.contains("-default") else { return false }
+        // Two themes (native and Gruvbox), light and dark, at the default size.
+        guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
+              name.contains("-default") else { return false }
         return !name.hasPrefix("bar-") || name.hasSuffix("-chips-off")
     }
 
