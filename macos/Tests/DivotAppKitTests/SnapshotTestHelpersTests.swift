@@ -173,4 +173,24 @@ struct SnapshotTestHelpersTests {
         // Filter doesn't match
         #expect(!SnapshotTestHelpers.wantsPNG(named: "volume-popover-native-light-default"))
     }
+
+    @Test("matchesSnapshotFilter rejects unknown tokens and produces empty set")
+    @MainActor
+    func unknownTokensProduceEmptySet() {
+        let originalEnv = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_ONLY"]
+        defer {
+            if let value = originalEnv {
+                setenv("DIVOT_SNAPSHOT_ONLY", value, 1)
+            } else {
+                unsetenv("DIVOT_SNAPSHOT_ONLY")
+            }
+        }
+
+        setenv("DIVOT_SNAPSHOT_ONLY", "nosuchtoken", 1)
+
+        // Unknown token matches nothing
+        #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "worldclock-popover-native-light-default"))
+        #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "volume-popover-native-light-default"))
+        #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "bar-right-native-light-default-chips-off"))
+    }
 }

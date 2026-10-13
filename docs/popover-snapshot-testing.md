@@ -48,7 +48,7 @@ Tokens match any substring in the snapshot filename. Known tokens:
 - `calendar`: calendar popover
 - `worldclock`: world clock popover (all timezone variants)
 
-Unknown tokens produce a diagnostic message and zero snapshots. Assertions still run for all snapshots, filtered or not.
+Unknown tokens produce a diagnostic message and produce zero PNG files. Assertions still run against all rendered snapshots (filtered or not) — only the PNG output decision is controlled by the filter.
 
 ## Pixel assertions
 
