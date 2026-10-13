@@ -1,21 +1,20 @@
 ---
-last_close_out_gate_ms: 61132
-last_close_out_gate_at: "2026-10-13T02:19:01.915Z"
 id: "0071"
 title: "Volume popover: output volume slider with mute and an Open Sound Settings row"
 type: feature
-status: review
-needs_input: true
-needs_input_reason: needs-human-step
+status: done
 priority: p2
 area: macos
+merged_commit: bef162ad2c62494c1facc0ba8f29feaca5ceb5bf
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/volume-popover-output-volume-slider-with
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:04Z"
-updated_at: "2026-10-13T02:19:01Z"
+updated_at: "2026-10-13T02:19:04Z"
+last_close_out_gate_ms: 61132
+last_close_out_gate_at: "2026-10-13T02:19:01.915Z"
 review_passes: 1
 ---
 ## Problem
@@ -64,4 +63,4 @@ Whether the slider actually moves the real output on the packaged app, and wheth
 - 2026-10-13T02:15:04Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T02:15:49Z · note: review pass 1: good to go
 - 2026-10-13T02:19:01Z · close-out gate completed in 61s
-
+- 2026-10-13T02:19:04Z · status review→done, release:success
