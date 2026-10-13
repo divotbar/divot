@@ -28,11 +28,16 @@ appearance mode, theme family, and whether Accessibility permission was granted.
 - [ ] Activating an interactive item with `VO-Space` performs the same action as
       a click: battery toggles keep-awake, the appearance item toggles Divot's
       own light/dark rendering, the network item opens the read-only Wi-Fi
-      popover (whose last row opens the Wi-Fi pane), volume/date/time items open
-      the matching System Settings pane, front-app activates the running app.
+      popover (whose last row opens the Wi-Fi pane), the volume item opens the
+      output-volume popover (whose last row opens the Sound pane), date/time items
+      open the matching System Settings pane, front-app activates the running app.
 - [ ] A network row in the Wi-Fi popover is announced with its name, secure/open
       state, signal bars, and the connected mark rather than as an unlabeled
       group.
+- [ ] The volume popover's slider is announced with an "Output volume" label and
+      its current percentage, is adjustable with the arrow keys, and its mute
+      checkbox announces its state; an output with no settable volume has the
+      slider disabled and its short note is announced.
 - [ ] The keep-awake state is announced, and turning it on/off updates the
       announcement without a relaunch.
 - [ ] An unavailable widget (permission denied, failed, no manager) is announced

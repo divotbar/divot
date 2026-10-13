@@ -215,17 +215,25 @@ public struct VolumeSnapshot: Equatable, Sendable {
     /// Normalized 0...1 output level.
     public let level: Double
     public let isMuted: Bool
+    /// Whether the output exposes a *settable* volume control.
+    ///
+    /// Some outputs (certain HDMI/DisplayPort devices) expose no writable volume
+    /// control. The bar item still shows a value (the device plays at its own
+    /// fixed scale), but the volume popover must not offer a slider that cannot
+    /// move anything, so it disables the control and says why instead.
+    public let isSettable: Bool
 
     public init(hasOutputDevice: Bool, outputDeviceName: String? = nil,
-                level: Double, isMuted: Bool = false) {
+                level: Double, isMuted: Bool = false, isSettable: Bool = true) {
         self.hasOutputDevice = hasOutputDevice
         self.outputDeviceName = outputDeviceName
         self.level = max(0, min(1, level))
         self.isMuted = isMuted
+        self.isSettable = isSettable
     }
 
     /// No output device (e.g. everything unplugged).
-    public static let noOutput = VolumeSnapshot(hasOutputDevice: false, level: 0)
+    public static let noOutput = VolumeSnapshot(hasOutputDevice: false, level: 0, isSettable: false)
 }
 
 /// A local instant for the clock.

@@ -7,14 +7,15 @@ import DivotCore
 /// It owns one `WifiScanModel` and scans only when it is presented, never on a
 /// timer. Closing the popover cancels an in-flight scan. The list is read-only
 /// by design: there is no join, no password field, and no network configuration.
-/// The last row opens the matching System Settings pane.
+/// The last row opens the matching System Settings pane. The popover look and
+/// lifecycle come from the shared `BarPopoverHost`.
 @MainActor
 public final class WifiPopoverController {
     private let model: WifiScanModel
     private let openWifiSettings: @MainActor () -> Void
     private let openLocationSettings: @MainActor () -> Void
 
-    private var popover: NSPopover?
+    private let host = BarPopoverHost()
     private var content: WifiPopoverContentController?
     private var scanTask: Task<Void, Never>?
 
@@ -24,6 +25,9 @@ public final class WifiPopoverController {
         self.model = WifiScanModel(scanner: scanner)
         self.openWifiSettings = openWifiSettings
         self.openLocationSettings = openLocationSettings
+        // A `.transient` popover closes on a click outside or Escape without
+        // calling `dismiss()`; cancel an in-flight scan on any close.
+        host.onClose = { [weak self] in self?.handleClosed() }
     }
 
     /// Show the popover below `view`, then scan once off the main actor.
@@ -34,14 +38,7 @@ public final class WifiPopoverController {
         controller.onOpenLocationSettings = { [weak self] in self?.openLocationSettings() }
         controller.onRetry = { [weak self] in self?.refresh() }
 
-        let popover = NSPopover()
-        popover.behavior = .transient
-        popover.animates = true
-        popover.contentViewController = controller
-        popover.contentSize = controller.preferredSize
-        popover.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
-
-        self.popover = popover
+        host.present(controller, relativeTo: view)
         self.content = controller
         refresh()
     }
@@ -50,13 +47,19 @@ public final class WifiPopoverController {
     public func dismiss() {
         scanTask?.cancel()
         scanTask = nil
-        popover?.performClose(nil)
-        popover = nil
+        host.dismiss()
         content = nil
     }
 
     /// Whether the popover is currently shown. Exposed for tests and callers.
-    public var isShown: Bool { popover?.isShown ?? false }
+    public var isShown: Bool { host.isShown }
+
+    /// The popover closed for any reason; stop the scan and the rows.
+    private func handleClosed() {
+        scanTask?.cancel()
+        scanTask = nil
+        content = nil
+    }
 
     private func refresh() {
         scanTask?.cancel()
@@ -70,53 +73,29 @@ public final class WifiPopoverController {
     }
 
     private func render(_ state: WifiScanState) {
-        guard let content, let popover else { return }
+        guard let content else { return }
         content.render(state)
-        popover.contentSize = content.preferredSize
+        host.resize(to: content.preferredSize)
     }
 }
 
 /// The popover's content: a header, a scannable body, and the settings row.
 @MainActor
-final class WifiPopoverContentController: NSViewController {
+final class WifiPopoverContentController: BarPopoverContentController {
     var onOpenWifiSettings: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
     var onRetry: (() -> Void)?
 
-    private let stack = NSStackView()
-
-    /// The size the popover should occupy for the currently rendered state.
-    var preferredSize: NSSize {
-        view.layoutSubtreeIfNeeded()
-        let fitting = view.fittingSize
-        return NSSize(width: max(272, fitting.width), height: max(1, fitting.height))
-    }
-
     override func loadView() {
-        let root = NSView()
-        stack.orientation = .vertical
-        stack.alignment = .width
-        stack.spacing = 6
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        root.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: root.topAnchor, constant: 12),
-            stack.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -12),
-            stack.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 12),
-            stack.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -12)
-        ])
-        self.view = root
+        super.loadView()
         render(.scanning)
     }
 
     /// Rebuild the body for a new scan state. The header and settings row are
     /// always present; only the body swaps.
     func render(_ state: WifiScanState) {
-        for subview in stack.arrangedSubviews {
-            stack.removeArrangedSubview(subview)
-            subview.removeFromSuperview()
-        }
-        stack.addArrangedSubview(header())
+        clearRows()
+        stack.addArrangedSubview(header("Wi-Fi"))
         switch state {
         case .idle, .scanning:
             stack.addArrangedSubview(message("Scanning for networks…"))
@@ -146,38 +125,6 @@ final class WifiPopoverContentController: NSViewController {
     }
 
     // MARK: - Rows
-
-    private func header() -> NSView {
-        let label = NSTextField(labelWithString: "Wi-Fi")
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
-        return label
-    }
-
-    private func message(_ text: String) -> NSView {
-        let label = NSTextField(wrappingLabelWithString: text)
-        label.font = .systemFont(ofSize: 12)
-        label.textColor = .secondaryLabelColor
-        label.maximumNumberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.widthAnchor.constraint(lessThanOrEqualToConstant: 248).isActive = true
-        return label
-    }
-
-    private func separator() -> NSView {
-        let line = NSBox()
-        line.boxType = .separator
-        return line
-    }
-
-    private func linkButton(_ title: String, action: Selector) -> NSView {
-        let button = NSButton(title: title, target: self, action: action)
-        button.isBordered = false
-        button.bezelStyle = .inline
-        button.alignment = .left
-        button.font = .systemFont(ofSize: 12)
-        button.contentTintColor = .controlAccentColor
-        return button
-    }
 
     /// One network row: signal, name, a spacer, then the lock and current marks.
     private func row(for network: WifiNetwork) -> NSView {
