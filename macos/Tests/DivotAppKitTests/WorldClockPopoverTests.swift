@@ -93,6 +93,141 @@ struct WorldClockPopoverContentTests {
 }
 
 @MainActor
+@Suite("World clock popover with ConfigurationStore")
+struct WorldClockPopoverConfigurationStoreTests {
+    @Test func addsAndPersistsATimezoneFromSearchResults() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let configURL = tempDir.appendingPathComponent("config.json")
+        let store = ConfigurationStore(configURL: configURL, fileManager: .default)
+
+        let monitor = StubPopoverMonitor()
+        let host = BarPopoverHost(monitors: monitor)
+        let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
+                                   styleMask: .borderless, backing: .buffered, defer: false)
+        let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
+        anchorWindow.contentView?.addSubview(anchor)
+
+        let contentController = WorldClockPopoverContentController()
+        contentController.theme = .systemDefault
+        contentController.onUpdateTimezones = { timezones in
+            var config = store.current
+            config.widgets.time.timezones = timezones
+            try? store.save(config)
+        }
+
+        host.present(contentController, relativeTo: anchor)
+        defer { host.dismiss() }
+
+        contentController.render(timezones: [], timeFormat: .twentyFourHour, showSeconds: false)
+
+        var searchField: NSSearchField?
+        func walk(_ view: NSView) {
+            if let field = view as? NSSearchField {
+                searchField = field
+            }
+            view.subviews.forEach(walk)
+        }
+        walk(contentController.view)
+
+        guard let search = searchField else {
+            Issue.record("expected a search field")
+            return
+        }
+
+        search.stringValue = "los"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+
+        var tableView: NSTableView?
+        func walkForScrollView(_ view: NSView) {
+            if let scroll = view as? NSScrollView, let doc = scroll.documentView as? NSTableView {
+                tableView = doc
+            }
+            view.subviews.forEach(walkForScrollView)
+        }
+        walkForScrollView(contentController.view)
+
+        guard let table = tableView, table.numberOfRows > 0 else {
+            Issue.record("expected search results")
+            return
+        }
+
+        var losAngelesRowIndex: Int?
+        for rowIndex in 0..<table.numberOfRows {
+            guard let rowView = table.rowView(atRow: rowIndex, makeIfNecessary: true) else {
+                continue
+            }
+            var foundSanFrancisco = false
+            func walkRow(_ view: NSView) {
+                if let textField = view as? NSTextField, textField.stringValue.contains("San Francisco") {
+                    foundSanFrancisco = true
+                }
+                view.subviews.forEach(walkRow)
+            }
+            walkRow(rowView)
+            if foundSanFrancisco {
+                losAngelesRowIndex = rowIndex
+                break
+            }
+        }
+
+        guard let rowIndex = losAngelesRowIndex else {
+            Issue.record("expected San Francisco in results")
+            return
+        }
+
+        table.selectRowIndexes([rowIndex], byExtendingSelection: false)
+        table.sendAction(table.doubleAction, to: table.target)
+
+        #expect(store.current.widgets.time.timezones == ["America/Los_Angeles"],
+                "timezone should be persisted to store")
+    }
+
+    @Test func defaultsAppearWhenConfigIsAbsent() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let configURL = tempDir.appendingPathComponent("config.json")
+        let store = ConfigurationStore(configURL: configURL, fileManager: .default)
+
+        let controller = WorldClockPopoverContentController()
+        controller.theme = .systemDefault
+
+        let entries = WorldClock.entries(for: ["America/Los_Angeles", "Europe/London", "Asia/Singapore"],
+                                        at: Date(),
+                                        localTimeZone: .current,
+                                        calendar: .current)
+
+        #expect(entries.count == 3)
+        #expect(entries[0].displayName == "San Francisco")
+        #expect(entries[1].displayName == "London")
+        #expect(entries[2].displayName == "Singapore")
+    }
+
+    @Test func explicitEmptyListPersistsAcrossReload() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let configURL = tempDir.appendingPathComponent("config.json")
+        var store = ConfigurationStore(configURL: configURL, fileManager: .default)
+
+        var config = store.current
+        config.widgets.time.timezones = []
+        try store.save(config)
+
+        let store2 = ConfigurationStore(configURL: configURL, fileManager: .default)
+        store2.load()
+
+        #expect(store2.current.widgets.time.timezones == [],
+                "explicit empty list should persist")
+    }
+}
+
+@MainActor
 @Suite("World clock popover real flow")
 struct WorldClockPopoverRealFlowTests {
     @Test func compactOffsetFormatting() {
