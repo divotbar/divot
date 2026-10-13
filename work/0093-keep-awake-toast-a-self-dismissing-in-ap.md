@@ -14,7 +14,7 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T19:22:31Z"
+updated_at: "2026-10-13T19:24:00Z"
 dev_error_count: 1
 ---
 ## Problem
@@ -46,7 +46,7 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 "label": "Caffeine on toast (Native light)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
 },
 "glob": "*caffeine-toast-native-light-on*.png"
 },
@@ -54,7 +54,7 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 "label": "Caffeine off toast (Native light)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
 },
 "glob": "*caffeine-toast-native-light-off*.png"
 },
@@ -62,7 +62,7 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 "label": "Caffeine on toast (Gruvbox dark)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
 },
 "glob": "*caffeine-toast-gruvbox-dark-on*.png"
 },
@@ -70,7 +70,7 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 "label": "Caffeine off toast (Gruvbox dark)",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
 },
 "glob": "*caffeine-toast-gruvbox-dark-off*.png"
 }
@@ -88,3 +88,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:10:46Z · model_override
 - 2026-10-13T19:19:50Z · body: section Shots
 - 2026-10-13T19:22:31Z · status active→review
+- 2026-10-13T19:24:00Z · note: review pass 1: needs some work
