@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-13T06:53:02Z"
-review_passes: 4
 id: "0077"
 title: "Calendar popover: month view with back/forward and today highlighted, opened from the date chip"
 type: feature
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 depends_on: ["0076"]
@@ -17,6 +12,8 @@ branch: feat/calendar-popover-month-view-with-back-fo
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:58:05Z"
+updated_at: "2026-10-13T06:55:35Z"
+review_passes: 4
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T06:32:07.289Z: repoos check failed: native-core — 􁁛 Test networkPresentationWithoutNameShowsOnlyIcon() passed after 0.041 seconds."
 ---
@@ -71,4 +68,4 @@ Start after #0076 lands so the shared popover component and its styling are stab
 - 2026-10-13T06:50:56Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
 - 2026-10-13T06:53:02Z · note: review pass 4: needs some work
 - 2026-10-13T06:53:02Z · needs_input
-
+- 2026-10-13T06:55:35Z · needs_input
