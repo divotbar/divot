@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:20:45Z"
+updated_at: "2026-10-13T09:20:51Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -115,6 +115,14 @@ All popovers now follow a unified standard:
 
 **Today date highlight**: Clear filled background colour with white text, not just a border or faint tint.
 
+## Limits of offscreen shots
+Shots capture the content view with PopoverChromeView (border, rounded corners, arrow). They do NOT show:
+- Window-level chrome (system frame, shadow) — captured only in the packaged app
+- Whether translucency bleeds through (requires real window rendering) — validated in packaged app
+- Real arrow geometry and shadow rendering — validated in packaged app
+
+**Packaged app verification is required** to confirm the window chrome is solid and no vibrancy material bleeds through.
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -135,3 +143,4 @@ All popovers now follow a unified standard:
 - 2026-10-13T09:19:34Z · message_queued at 2026-10-13T09:19:34.485Z
 - 2026-10-13T09:19:52Z · body: section Survey
 - 2026-10-13T09:20:45Z · body: section Shot-by-shot notes
+- 2026-10-13T09:20:51Z · body: section Limits of offscreen shots
