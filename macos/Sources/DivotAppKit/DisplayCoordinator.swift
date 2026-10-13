@@ -60,12 +60,29 @@ public final class DisplayCoordinator {
     public func apply(configuration newValue: DivotConfiguration) {
         guard newValue != configuration else { return }
         let barChanged = !configuration.rendersSameBar(as: newValue)
+        // An appearance-only change (family or mode) repaints the existing
+        // panels in place rather than rebuilding them. A rebuild closes the
+        // panels, which would tear down an appearance popover anchored to an
+        // item mid-selection; the theme is the only thing that changed, so a
+        // restyle is both cheaper and correct. Anything else that changes the
+        // bar still rebuilds.
+        var withoutAppearanceChange = newValue
+        withoutAppearanceChange.appearance = configuration.appearance
+        let appearanceOnly = barChanged && configuration.rendersSameBar(as: withoutAppearanceChange)
         let detectionChanged = configuration.menuBar != newValue.menuBar
         configuration = newValue
         core.contentPolicy = newValue.layout.contentPolicy
         syncObservationInputs()
         guard isRunning else { return }
-        if barChanged {
+        if appearanceOnly {
+            for surface in surfaces.values { surface.apply(appearance: newValue.appearance) }
+            if detectionChanged {
+                // A simultaneous menu-bar detection change still needs the
+                // retained placement re-emitted, exactly as the branch below.
+                core.reset()
+                refresh()
+            }
+        } else if barChanged {
             for surface in surfaces.values { surface.close() }
             surfaces.removeAll()
             // Recreated panels start at their initial 1x1 frame, and an

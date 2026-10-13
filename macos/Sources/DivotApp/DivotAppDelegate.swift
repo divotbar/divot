@@ -37,6 +37,10 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// is shared by every display's bar so only one popover is open, and it
     /// holds the Core Audio listeners only while it is shown.
     private var volumePopover: VolumePopoverController?
+    /// Owns the appearance popover anchored to the moon/sun item. One instance is
+    /// shared by every display's bar so only one popover is open, and it holds
+    /// the published-configuration observer only while it is shown.
+    private var appearancePopover: AppearancePopoverController?
     /// The one quit path. Both the status item menu and the app's main menu
     /// target it, and the Settings window reaches it through the same instance,
     /// so every quit control ends the process the same way. The keep-awake
@@ -93,6 +97,16 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
             openSoundSettings: { [weak self] in self?.perform(.openSettings(.sound)) })
         self.volumePopover = volumePopover
 
+        // The appearance popover is created once and shares the same look as the
+        // Wi-Fi and volume popovers. The moon/sun item now opens it instead of
+        // toggling light/dark directly; it writes the mode and theme family
+        // through the same configuration store as the Settings window, and its
+        // last row opens Divot's own settings window.
+        let appearancePopover = AppearancePopoverController(
+            settings: controller,
+            openDivotSettings: { [weak self] in self?.openSettings() })
+        self.appearancePopover = appearancePopover
+
         let adapter = MenuBarObservationAdapter(provider: NSScreenGeometryProvider(),
                                                 probe: AXSystemMenuBarProbe())
         let coordinator = DisplayCoordinator(adapter: adapter, configuration: initial) { [weak self, weak workspaceFeed] id, screen, configuration in
@@ -107,6 +121,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             displayScreensID: screensID,
                                             wifiPopover: wifiPopover,
                                             volumePopover: volumePopover,
+                                            appearancePopover: appearancePopover,
                                             onWidgetAction: { action in
                 self?.perform(action)
             })

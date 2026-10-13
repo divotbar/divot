@@ -9,10 +9,12 @@ import DivotCore
 private final class RecordingSurface: BarDisplaySurface {
     private(set) var changes: [WidgetChange] = []
     private(set) var updates: [DisplayBarUpdate] = []
+    private(set) var appearances: [AppearanceConfiguration] = []
     private(set) var didClose = false
 
     func apply(_ update: DisplayBarUpdate, reduceMotion: Bool) { updates.append(update) }
     func apply(widgetChanges: [WidgetChange]) { changes.append(contentsOf: widgetChanges) }
+    func apply(appearance: AppearanceConfiguration) { appearances.append(appearance) }
     func close() { didClose = true }
 }
 
@@ -239,6 +241,41 @@ private func flatReading() -> ScreenGeometryReading {
     #expect(created.count == 2)
     // The recreated panel must receive a frame, not stay at 1x1.
     #expect(created[1].updates.first?.placement != nil)
+
+    coordinator.stop()
+}
+
+@MainActor
+@Test func appearanceOnlyChangeRestylesSurfacesWithoutRebuilding() {
+    // Changing only the theme family or mode must repaint the existing panels
+    // in place: rebuilding them would close the panels an open appearance
+    // popover is anchored to (task 0072).
+    let adapter = MenuBarObservationAdapter(provider: ScreenStub(readings: [notchedReading()]),
+                                            probe: ProvisionalProbeStub())
+    var created: [RecordingSurface] = []
+    let coordinator = DisplayCoordinator(adapter: adapter) { _, _, _ in
+        let surface = RecordingSurface()
+        created.append(surface)
+        return surface
+    }
+    coordinator.start()
+    #expect(created.count == 1)
+
+    var updated = DivotConfiguration.default
+    updated.appearance.family = .gruvbox
+    updated.appearance.mode = .dark
+    coordinator.apply(configuration: updated)
+
+    // No rebuild: the same surface is reused and asked to repaint.
+    #expect(created.count == 1)
+    #expect(!created[0].didClose)
+    #expect(created[0].appearances.last?.family == .gruvbox)
+    #expect(created[0].appearances.last?.mode == .dark)
+
+    // A change that also alters the bar still rebuilds.
+    updated.chipStyle = true
+    coordinator.apply(configuration: updated)
+    #expect(created.count == 2)
 
     coordinator.stop()
 }
