@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T18:38:59Z"
-review_passes: 10
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
@@ -16,6 +14,8 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
+updated_at: "2026-10-13T18:39:32Z"
+review_passes: 10
 review_rounds: 2
 dev_error_count: 1
 ---
@@ -46,44 +46,68 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 ```json
 [
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Native light theme, no chips",
-"glob": "keep-awake-native-light-default-chips-off.png"
+  "label": "Keep-awake cup on Native light theme, no chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-native-light-default-chips-off*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Native light theme, with chips",
-"glob": "keep-awake-native-light-default-chips-on.png"
+  "label": "Keep-awake cup on Native light theme, with chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-native-light-default-chips-on*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Native dark theme, no chips",
-"glob": "keep-awake-native-dark-default-chips-off.png"
+  "label": "Keep-awake cup on Native dark theme, no chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-native-dark-default-chips-off*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Native dark theme, with chips",
-"glob": "keep-awake-native-dark-default-chips-on.png"
+  "label": "Keep-awake cup on Native dark theme, with chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-native-dark-default-chips-on*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Gruvbox light theme, no chips",
-"glob": "keep-awake-gruvbox-light-default-chips-off.png"
+  "label": "Keep-awake cup on Gruvbox light theme, no chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-gruvbox-light-default-chips-off*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Gruvbox light theme, with chips",
-"glob": "keep-awake-gruvbox-light-default-chips-on.png"
+  "label": "Keep-awake cup on Gruvbox light theme, with chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-gruvbox-light-default-chips-on*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Gruvbox dark theme, no chips",
-"glob": "keep-awake-gruvbox-dark-default-chips-off.png"
+  "label": "Keep-awake cup on Gruvbox dark theme, no chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-gruvbox-dark-default-chips-off*.png"
 },
 {
-"target": "Divot bar",
-"label": "Keep-awake cup on Gruvbox dark theme, with chips",
-"glob": "keep-awake-gruvbox-dark-default-chips-on.png"
+  "label": "Keep-awake cup on Gruvbox dark theme, with chips",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "keep-awake"
+  },
+  "glob": "*keep-awake-gruvbox-dark-default-chips-on*.png"
 }
 ]
 ```
@@ -162,4 +186,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:36:14Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T18:38:59Z · note: review pass 10: needs some work
 - 2026-10-13T18:38:59Z · needs_input
-
+- 2026-10-13T18:39:32Z · body: section Shots
