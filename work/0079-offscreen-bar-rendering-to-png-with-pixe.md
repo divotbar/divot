@@ -2,7 +2,7 @@
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
 type: chore
-status: active
+status: review
 priority: p3
 area: macos
 depends_on: ["0078"]
@@ -12,7 +12,7 @@ branch: feat/offscreen-bar-rendering-to-png-with-pixe
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T07:01:36Z"
-updated_at: "2026-10-13T07:55:54Z"
+updated_at: "2026-10-13T08:01:32Z"
 review_passes: 3
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T07:42:06.739Z: repoos check failed: ◆ Check plan"
@@ -55,3 +55,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T07:55:53Z · status review→active
 - 2026-10-13T07:55:53Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T07:55:54Z · message_delivered: 1 message(s)
+- 2026-10-13T08:01:32Z · status active→review
