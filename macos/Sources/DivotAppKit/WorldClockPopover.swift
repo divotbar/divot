@@ -15,6 +15,25 @@ private final class SearchFieldWithEscape: NSSearchField {
     }
 }
 
+/// NSTableView subclass that handles Return/arrow keys for results navigation
+@MainActor
+private final class TimezoneResultsTableView: NSTableView {
+    var onReturnKey: (() -> Void)?
+
+    override func keyDown(with event: NSEvent) {
+        switch event.keyCode {
+        case 36: // Return key
+            onReturnKey?()
+        case 125: // Down arrow
+            selectRowIndexes(NSIndexSet(index: min(selectedRow + 1, numberOfRows - 1)) as IndexSet, byExtendingSelection: false)
+        case 126: // Up arrow
+            selectRowIndexes(NSIndexSet(index: max(selectedRow - 1, 0)) as IndexSet, byExtendingSelection: false)
+        default:
+            super.keyDown(with: event)
+        }
+    }
+}
+
 /// A popover anchored to the bar's time item that shows world clock entries for added timezones.
 @MainActor
 public final class WorldClockPopoverController {
@@ -260,7 +279,10 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
                 self?.addTimezone(timezone)
             },
             theme: theme,
-            currentTimezones: timezones
+            currentTimezones: timezones,
+            friendlyCityName: { [weak self] tzId in
+                self?.friendlyCityName(tzId) ?? ""
+            }
         )
         self.resultsController = resultsController
 
@@ -384,18 +406,20 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
 @MainActor
 private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NSTableViewDelegate {
     let view: NSScrollView
-    private let tableView: NSTableView
+    private let tableView: TimezoneResultsTableView
     private let onSelect: (String) -> Void
     private(set) var results: [(identifier: String, displayName: String)] = []
     private var theme: BarTheme
     private let currentTimezones: [String]
+    private let friendlyCityName: (String) -> String
 
-    init(onSelect: @escaping (String) -> Void, theme: BarTheme, currentTimezones: [String]) {
+    init(onSelect: @escaping (String) -> Void, theme: BarTheme, currentTimezones: [String], friendlyCityName: @escaping (String) -> String = { _ in "" }) {
         self.onSelect = onSelect
         self.theme = theme
         self.currentTimezones = currentTimezones
+        self.friendlyCityName = friendlyCityName
 
-        tableView = NSTableView(frame: NSRect(x: 0, y: 0, width: 272, height: 6 * 22))
+        tableView = TimezoneResultsTableView(frame: NSRect(x: 0, y: 0, width: 272, height: 6 * 22))
         tableView.headerView = nil
         tableView.selectionHighlightStyle = .regular
         tableView.backgroundColor = theme.popoverPalette.background
@@ -417,6 +441,9 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         tableView.delegate = self
         tableView.target = self
         tableView.doubleAction = #selector(tableViewDoubleClicked(_:))
+        tableView.onReturnKey = { [weak self] in
+            self?.selectCurrentRow()
+        }
     }
 
     func updateResults(for query: String, excluding: [String] = []) {
@@ -465,11 +492,14 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         guard row >= 0, row < results.count else { return nil }
 
+        let result = results[row]
+        let displayText = friendlyCityName(result.identifier)
+
         let cell = NSTableCellView()
-        let textField = NSTextField(labelWithString: results[row].displayName)
+        let textField = NSTextField(labelWithString: displayText)
         textField.font = .systemFont(ofSize: 11)
         textField.textColor = theme.popoverPalette.label
-        textField.setAccessibilityLabel(results[row].displayName)
+        textField.setAccessibilityLabel(displayText)
         cell.addSubview(textField)
 
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -480,7 +510,7 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
             textField.bottomAnchor.constraint(equalTo: cell.bottomAnchor)
         ])
 
-        cell.setAccessibilityLabel(results[row].displayName)
+        cell.setAccessibilityLabel(displayText)
         cell.setAccessibilityRole(.button)
 
         return cell
@@ -490,28 +520,18 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         return 22
     }
 
-    func tableView(_ tableView: NSTableView, keyDown event: NSEvent) -> NSEvent? {
-        switch event.keyCode {
-        case 36: // Return key
-            let selectedRow = tableView.selectedRow
-            if selectedRow >= 0, selectedRow < results.count {
-                onSelect(results[selectedRow].identifier)
-                return nil
-            }
-            return event
-        default:
-            return event
-        }
-    }
-
     @objc private func tableViewDoubleClicked(_ sender: NSTableView) {
-        let selectedRow = tableView.selectedRow
-        guard selectedRow >= 0, selectedRow < results.count else { return }
-        onSelect(results[selectedRow].identifier)
+        selectCurrentRow()
     }
 
     func tableView(_ tableView: NSTableView, didClick tableColumn: NSTableColumn, row: Int) {
         guard row >= 0, row < results.count else { return }
         onSelect(results[row].identifier)
+    }
+
+    private func selectCurrentRow() {
+        let selectedRow = tableView.selectedRow
+        guard selectedRow >= 0, selectedRow < results.count else { return }
+        onSelect(results[selectedRow].identifier)
     }
 }
