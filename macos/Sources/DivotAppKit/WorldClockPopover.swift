@@ -31,7 +31,8 @@ public final class WorldClockPopoverController {
 
         controller.render(timezones: config.widgets.time.timezones,
                          timeFormat: config.widgets.time.timeFormat,
-                         showSeconds: config.widgets.time.seconds)
+                         showSeconds: config.widgets.time.seconds,
+                         customPattern: config.widgets.time.customPattern)
     }
 
     /// Hide the popover and clear the controller reference.
@@ -79,7 +80,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         stack.addArrangedSubview(settingsButton)
     }
 
-    func render(timezones: [String], timeFormat: TimeConfiguration.Format, showSeconds: Bool) {
+    func render(timezones: [String], timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) {
         clearRows()
 
         let now = Date()
@@ -91,7 +92,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         localLabel.identifier = Self.headerIdentifier
         stack.addArrangedSubview(localLabel)
 
-        let localTime = NSTextField(labelWithString: formatLocalTime(now, timeFormat: timeFormat, showSeconds: showSeconds))
+        let localTime = NSTextField(labelWithString: formatLocalTime(now, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern))
         localTime.font = .systemFont(ofSize: 12)
         localTime.textColor = theme.popoverPalette.secondary
         localTime.identifier = Self.secondaryIdentifier
@@ -111,7 +112,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             label.identifier = Self.headerIdentifier
             label.translatesAutoresizingMaskIntoConstraints = false
 
-            let timeText = formatTime(entry.date, timeZone: TimeZone(identifier: entry.timezone)!, timeFormat: timeFormat, showSeconds: showSeconds)
+            let timeText = formatTime(entry.date, timeZone: TimeZone(identifier: entry.timezone)!, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern)
             let offsetText = WorldClock.formatHourOffset(entry.hourOffset)
             let dayText = entry.dayLabel.map { " \($0)" } ?? ""
 
@@ -140,48 +141,57 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         }
     }
 
-    private func formatLocalTime(_ date: Date, timeFormat: TimeConfiguration.Format, showSeconds: Bool) -> String {
+    private func formatLocalTime(_ date: Date, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
         let formatter = DateFormatter()
         formatter.locale = .current
         formatter.timeZone = .current
 
-        let template: String
-        switch timeFormat {
-        case .twentyFourHour:
-            template = showSeconds ? "HHmms" : "HHmm"
-        case .ampm:
-            template = showSeconds ? "jmms" : "jmm"
-        case .custom:
-            template = showSeconds ? "jmms" : "jmm"
+        let dateTimeStr: String
+        if timeFormat == .custom, let customPattern = customPattern, !customPattern.isEmpty {
+            formatter.dateFormat = customPattern
+            dateTimeStr = formatter.string(from: date)
+        } else {
+            let template: String
+            switch timeFormat {
+            case .twentyFourHour:
+                template = showSeconds ? "yMdHHmms" : "yMdHHmm"
+            case .ampm:
+                template = showSeconds ? "yMdjmms" : "yMdjmm"
+            case .custom:
+                template = showSeconds ? "yMdHHmms" : "yMdHHmm"
+            }
+            formatter.setLocalizedDateFormatFromTemplate(template)
+            dateTimeStr = formatter.string(from: date)
         }
 
-        formatter.setLocalizedDateFormatFromTemplate(template)
-        let timeStr = formatter.string(from: date)
+        let offset = TimeZone.current.secondsFromGMT(for: date)
+        let hours = offset / 3600
+        let minutes = abs(offset % 3600) / 60
+        let offsetStr = String(format: "%+03d:%02d", hours, minutes)
 
-        let tzFormatter = DateFormatter()
-        tzFormatter.locale = .current
-        tzFormatter.setLocalizedDateFormatFromTemplate("zzz")
-        let tzStr = tzFormatter.string(from: date)
-
-        return "\(timeStr) UTC\(tzStr)"
+        return "\(dateTimeStr) (UTC\(offsetStr))"
     }
 
-    private func formatTime(_ date: Date, timeZone: TimeZone, timeFormat: TimeConfiguration.Format, showSeconds: Bool) -> String {
+    private func formatTime(_ date: Date, timeZone: TimeZone, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
         let formatter = DateFormatter()
         formatter.locale = .current
         formatter.timeZone = timeZone
 
-        let template: String
-        switch timeFormat {
-        case .twentyFourHour:
-            template = showSeconds ? "HHmms" : "HHmm"
-        case .ampm:
-            template = showSeconds ? "jmms" : "jmm"
-        case .custom:
-            template = showSeconds ? "jmms" : "jmm"
+        if timeFormat == .custom, let customPattern = customPattern, !customPattern.isEmpty {
+            formatter.dateFormat = customPattern
+        } else {
+            let template: String
+            switch timeFormat {
+            case .twentyFourHour:
+                template = showSeconds ? "HHmms" : "HHmm"
+            case .ampm:
+                template = showSeconds ? "jmms" : "jmm"
+            case .custom:
+                template = showSeconds ? "HHmms" : "HHmm"
+            }
+            formatter.setLocalizedDateFormatFromTemplate(template)
         }
 
-        formatter.setLocalizedDateFormatFromTemplate(template)
         return formatter.string(from: date)
     }
 

@@ -41,9 +41,10 @@ public enum WorldClock {
                                localTimeZone: TimeZone = .current,
                                calendar: Calendar = .current) -> [WorldClockEntry] {
         let allTimeZones = Set(TimeZone.knownTimeZoneIdentifiers)
+        let uniqueTimezones = Array(NSOrderedSet(array: timezones)) as? [String] ?? timezones
 
         var entries: [WorldClockEntry] = []
-        for tzString in timezones {
+        for tzString in uniqueTimezones {
             guard allTimeZones.contains(tzString) else {
                 continue
             }
@@ -59,27 +60,20 @@ public enum WorldClock {
 
             var localCalendar = calendar
             localCalendar.timeZone = localTimeZone
-            let localDay = localCalendar.component(.day, from: referenceDate)
-            let localMonth = localCalendar.component(.month, from: referenceDate)
-            let localYear = localCalendar.component(.year, from: referenceDate)
+            let localStartOfDay = localCalendar.startOfDay(for: referenceDate)
 
             var tzCalendar = calendar
             tzCalendar.timeZone = tz
-            let tzDay = tzCalendar.component(.day, from: referenceDate)
-            let tzMonth = tzCalendar.component(.month, from: referenceDate)
-            let tzYear = tzCalendar.component(.year, from: referenceDate)
+            let tzStartOfDay = tzCalendar.startOfDay(for: referenceDate)
 
             let dayLabel: String?
-            if tzYear == localYear && tzMonth == localMonth {
-                if tzDay == localDay {
-                    dayLabel = nil
-                } else if tzDay == localDay + 1 {
-                    dayLabel = "Tomorrow"
-                } else if tzDay == localDay - 1 {
-                    dayLabel = "Yesterday"
-                } else {
-                    dayLabel = nil
-                }
+            let dayDifference = localCalendar.dateComponents([.day], from: localStartOfDay, to: tzStartOfDay).day ?? 0
+            if dayDifference == 0 {
+                dayLabel = nil
+            } else if dayDifference == 1 {
+                dayLabel = "Tomorrow"
+            } else if dayDifference == -1 {
+                dayLabel = "Yesterday"
             } else {
                 dayLabel = nil
             }
