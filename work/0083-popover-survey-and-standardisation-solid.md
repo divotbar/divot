@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:20:51Z"
+updated_at: "2026-10-13T09:20:58Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -123,6 +123,19 @@ Shots capture the content view with PopoverChromeView (border, rounded corners, 
 
 **Packaged app verification is required** to confirm the window chrome is solid and no vibrancy material bleeds through.
 
+## Build and verification
+The implementation commit is **f192570** (feat(0083): implement Popover survey and standardisation: solid, left-aligned, readable, verified with shots). The packaged app .zip at `dist/Divot-0.1.0-preview.1-cdf523382a1b.zip` was built from commit **cdf5233** (docs(0083): update task), which includes f192570.
+
+To rebuild and test in the packaged app: `scripts/package-app.sh` (re-signs, archives to `dist/`). Reopen the app to verify:
+- No wallpaper bleed-through or gradient in any popover background
+- All content (theme list rows, Wi-Fi links, calendar footer) left-aligned
+- Text readable against solid popover background in all themes and light/dark variants
+- Today's date shows a clear filled highlight in the calendar
+
+Runtime assertions in tests verify:
+- `realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme()` (BarThemeTests.swift): Appearance popover window has no NSVisualEffectView, is opaque, and background alpha is 1 for every theme family
+- `PopoverSnapshotTests`: Offscreen content render assertions for left alignment, contrast, and today's highlight across all popovers and themes
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -144,3 +157,4 @@ Shots capture the content view with PopoverChromeView (border, rounded corners, 
 - 2026-10-13T09:19:52Z · body: section Survey
 - 2026-10-13T09:20:45Z · body: section Shot-by-shot notes
 - 2026-10-13T09:20:51Z · body: section Limits of offscreen shots
+- 2026-10-13T09:20:58Z · body: section Build and verification
