@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:19:34Z"
+updated_at: "2026-10-13T09:19:52Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -79,6 +79,31 @@ Disabling the material on NSPopover would mean poking at private frame views; in
 ### Packaged app
 HEAD at time of work was the commit shown by `git log -1` on this branch. The maintainer's screenshots may be from a build older than #0076: rebuild with scripts/package-app.sh and reopen. I did not build or run the packaged app; visual sign-off on the packaged app is the maintainer's.
 
+## Survey
+Divot has five core popovers, all sharing the BarPopoverContentController base and BarPopoverPanel custom chrome:
+
+1. **Volume popover** (VolumePopover.swift): Output volume slider, mute toggle, and Settings link. Appears on volume bar item click.
+2. **Wi-Fi popover** (WifiPopover.swift): List of nearby networks with signal/lock, connected state, and Settings link. Appears on network item click. Also has Wi-Fi permission prompt state (read-only message + Settings link).
+3. **Appearance popover** (AppearancePopover.swift): System/Light/Dark mode segmented control, theme family list with colour swatches, and Settings link. Appears on appearance item click.
+4. **Calendar popover** (CalendarPopover.swift): Month grid with navigation, Today button, and Date & Time Settings link. Appears on date item click.
+5. **Settings window** (not a popover, but uses PopoverRowStack for layout consistency).
+
+### Implementation standard (now in place)
+
+All popovers now follow a unified standard:
+- **Chrome**: Custom BarPopoverPanel (borderless NSPanel) with PopoverChromeView drawing solid fill, 1px border, 8px rounded corners, and arrow (no NSPopover system material).
+- **Background**: Solid, fully opaque (alpha 1) from `theme.popoverPalette.background`. Native theme uses fixed hex (#2B2B2B dark, #F4F4F4 light); family themes use audited palette.
+- **Content layout**: BarPopoverContentController with 12px leading/trailing/top/bottom insets, left-aligned stack (`.alignment = .leading`).
+- **Text colours**: From `popoverPalette`: label (foreground), secondary, link (with contrast audit), separator (border), selected/selectedForeground.
+- **Appearance**: Popover inherits bar's light/dark variant via `popoverAppearance`, not app-wide.
+
+### Inconsistencies found and fixed
+
+1. **Translucency**: NSPopover's frame view drew vibrant material; replaced with custom borderless panel ✓
+2. **Alignment**: Before, Appearance list was staggered (Gruvbox/Ayu/Dracula rows indented differently). Fixed by PopoverRowStack `.alignment = .leading` ✓
+3. **Contrast**: Wi-Fi message was grey-on-grey. Fixed by using `popoverPalette.label` instead of hardcoded secondary ✓
+4. **Today highlight**: Calendar didn't show filled highlight. Fixed: today's cell now uses `selected` colour with `selectedForeground` text ✓
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -97,3 +122,4 @@ HEAD at time of work was the commit shown by `git log -1` on this branch. The ma
 - 2026-10-13T09:16:17Z · note: review pass 1: needs some work
 - 2026-10-13T09:16:18Z · status review→active
 - 2026-10-13T09:19:34Z · message_queued at 2026-10-13T09:19:34.485Z
+- 2026-10-13T09:19:52Z · body: section Survey
