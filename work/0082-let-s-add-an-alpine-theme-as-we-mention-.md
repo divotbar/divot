@@ -80,3 +80,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T10:27:06Z · message_delivered: 1 message(s)
 - 2026-10-13T10:27:06Z · status review→active
 - 2026-10-13T10:28:40Z · status active→review
+- 2026-10-13T10:28:40Z · note: shots: skipped — 6 shots already captured — an engineer-made capture pre-empts the automatic one
