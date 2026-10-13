@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T06:11:11Z"
+updated_at: "2026-10-13T06:12:20Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -39,6 +39,38 @@ Related decisions: bar placement is the top edge when the native menu bar is hid
 
 ## Findings
 See [evidence/0075-notification-banner-overlap.md](../evidence/0075-notification-banner-overlap.md) for the detailed investigation.
+
+## What was found
+
+Divot's configuration is confirmed:
+- Window level: 23 (mainMenu - 1)
+- Collection behavior: [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+- ignoresMouseEvents: defaults to false
+
+Menu bar height: 33 points on this notched display.
+
+## What was NOT found (measurement required)
+
+**Notification banner window levels** — no banners were visible during the investigation. Attempted to trigger notifications locally but notifications are blocked in this environment.
+
+**Overlap mechanism** — reported visually by the maintainer (banner title partly covered) but not confirmed with window-level measurements or bounds data.
+
+**Z-order (which draws on top)** — unknown without measured window levels.
+
+**Whether overlap resolves when menu bar is revealed** — not tested with a live banner.
+
+**Divot bar actual footprint** — includes optional shadow extension not measured in running app.
+
+## Measurement required for feasibility assessment
+
+A human on macOS must:
+1. Trigger a real notification (e.g., from Calendar) with auto-hide ON.
+2. Run `divot-notification-banner-probe` and capture the banner's `kCGWindowLevel` and `kCGWindowBounds`.
+3. Record those values in the evidence document.
+4. Test overlap behavior when menu bar is revealed.
+5. Test on multi-display, notch-free, fullscreen, and Spaces scenarios.
+
+Until these measurements are provided, no safe public fix can be assessed.
 
 ## What was found
 
@@ -100,3 +132,4 @@ Window-level analysis shows notification banners use a level at or above 25 (abo
 - 2026-10-13T06:11:10Z · needs_input
 - 2026-10-13T06:11:11Z · status review→active
 - 2026-10-13T06:11:11Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T06:12:20Z · body: section Findings
