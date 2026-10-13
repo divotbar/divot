@@ -1,20 +1,21 @@
 ---
-last_close_out_gate_ms: 19838
-last_close_out_gate_at: "2026-10-13T08:16:19.779Z"
 id: "0079"
 title: Offscreen bar rendering to PNG with pixel assertions (follow-up to popover snapshots)
 type: chore
-status: review
+status: done
 priority: p3
 area: macos
 depends_on: ["0078"]
+merged_commit: 0d756a4ef99c29b6bd3575527feb6f0d2c704d57
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/offscreen-bar-rendering-to-png-with-pixe
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T07:01:36Z"
-updated_at: "2026-10-13T08:16:19Z"
+updated_at: "2026-10-13T08:16:22Z"
+last_close_out_gate_ms: 19838
+last_close_out_gate_at: "2026-10-13T08:16:19.779Z"
 review_passes: 4
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T07:42:06.739Z: repoos check failed: ◆ Check plan"
@@ -61,4 +62,4 @@ Build on the helper and docs/popover-snapshot-testing.md from #0078.
 - 2026-10-13T08:01:32Z · note: shots: skipped — the diff (6 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-13T08:04:36Z · note: review pass 4: good to go
 - 2026-10-13T08:16:19Z · close-out gate completed in 20s
-
+- 2026-10-13T08:16:22Z · status review→done, release:success
