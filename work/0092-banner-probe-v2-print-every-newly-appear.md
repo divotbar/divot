@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-13T18:45:22Z"
-review_passes: 3
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: macos
 assigned_to: ""
@@ -16,6 +11,8 @@ branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
+updated_at: "2026-10-13T18:49:54Z"
+review_passes: 3
 last_check_failure: "repoos check at 2026-10-13T18:41:26.243Z: repoos check failed: native-core — 􁁛 Suite \"Windowless presentation\" passed after 10.578 seconds."
 review_rounds: 2
 handoff_signal_retry_count: 1
@@ -64,4 +61,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:44:32Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (4c1b5492) during finalization (#0734)
 - 2026-10-13T18:45:22Z · note: review pass 3: needs some work
 - 2026-10-13T18:45:22Z · needs_input
-
+- 2026-10-13T18:49:54Z · needs_input
