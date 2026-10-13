@@ -12,7 +12,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T02:01:04Z"
-updated_at: "2026-10-13T02:01:04Z"
+updated_at: "2026-10-13T02:01:09Z"
 ---
 ## Problem
 Clicking the volume item only opens a System Settings pane. The maintainer wants a popup/dropdown with a slider to change the volume, like the new Wi-Fi popover (#0070).
@@ -23,12 +23,12 @@ Clicking the volume item only opens a System Settings pane. The maintainer wants
 - Devices that have no settable volume (some HDMI/DisplayPort outputs) show the slider disabled with a short note, not a broken control.
 
 ## Acceptance criteria
-- Public CoreAudio / AudioToolbox API only (default output device, virtual main volume and mute properties), no private APIs, no polling timer: use property listeners already used by the volume provider, and remove them when the popover closes.
-- Audio set/get logic sits behind a protocol seam and is unit tested with fakes (clamping 0...1, mute toggle, unsettable device state, external-change updates).
+- Public CoreAudio / AudioToolbox API only (default output device, virtual main volume and mute properties), no private APIs, no polling timer: use property listeners like the volume provider already does, and remove them when the popover closes.
+- Audio set/get logic sits behind a protocol seam and is unit tested with fakes (clamping 0...1, mute toggle, unsettable state, external-change updates).
 - Reuse the existing popover component from #0070; do not duplicate it.
-- The click behaviour change is documented in docs/ and the matching site/ pages (widgets guide and configuration reference if the click action is described there); the item stays optional per existing settings.
-- Keyboard accessibility: slider is adjustable with arrow keys and has an accessibility label and value.
-- Record in the task what CoreAudio reported for the current device and any device without settable volume; do not invent behaviour. The maintainer verifies on the packaged app that the slider changes the real volume (human step).
+- The click behaviour change is documented in docs/ and the matching site/ pages; the item stays optional per existing settings.
+- The slider is adjustable with arrow keys and has an accessibility label and value.
+- Record in the task what the code path does for an output with no settable volume; do not invent behaviour.
 
 ## Notes for AI
 Look at how the volume provider reads volume today and how #0070 built its popover and fake-backed tests. Out of scope: input devices, per-app volume, output device switching (possible follow-up).
@@ -37,3 +37,4 @@ Look at how the volume provider reads volume today and how #0070 built its popov
 
 - 2026-10-13T02:01:04Z · created · njachowski@gmail.com
 - 2026-10-13T02:01:04Z · needs_input
+- 2026-10-13T02:01:09Z · body: section Acceptance criteria
