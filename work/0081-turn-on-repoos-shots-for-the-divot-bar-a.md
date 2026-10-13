@@ -11,7 +11,7 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:26:39Z"
+updated_at: "2026-10-13T08:26:58Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -33,6 +33,13 @@ RepoOS #0761 landed command-based shot targets ([[shot.targets]]: a command rend
 ## Notes for AI
 Repo rule: do not commit images; repoos.toml edits happen on this task's branch only. Opening a popup 'for real' is not required: popovers are rendered offscreen by the existing snapshot tests, and that is the supported path. Do not use screencapture or Screen Recording. If the RepoOS server in this repo does not yet have #0761 (check repoos shot --help), stop and say so in a task note.
 
+## Evidence
+Run in this worktree (agent shell, offscreen AppKit rendering worked):
+- repoos shot --target "Divot bar" reported 8 shots saved: bar (chips off) plus Wi-Fi, Volume and Appearance popovers, native light and dark, default text size. A manual run of the same command with DIVOT_SNAPSHOT_SET=shots wrote exactly those 8 PNGs. Repeated runs add a numeric suffix to the collected file names, so the Changes tab can show -1/-2 duplicates from earlier runs.
+- git status shows only source, docs and config changes; git check-ignore matches work/.attachments/ (.gitignore:17) for the shots directory. repoos check passes, including the task-asset guard.
+- Not done: the ## Shots entry. repoos update --shots reads the MAIN checkout's repoos.toml, which has no 'Divot bar' target until this branch merges (error: unknown target, valid names: website), and the main checkout is off-limits. Declare it after merge: repoos update 0081 --shots '[{"target":"Divot bar","route":"/","label":"Divot bar and popovers"}]'. The handoff capture therefore relies on path matching (macos/Tests/**); a human must confirm what it records.
+- Calendar has no snapshot test, so no shot. Popover pixel assertions are disabled (they never ran before); reconciling them is follow-up.
+
 ## Activity
 
 - 2026-10-13T08:21:30Z · created · njachowski@gmail.com
@@ -43,3 +50,4 @@ Repo rule: do not commit images; repoos.toml edits happen on this task's branch 
 - 2026-10-13T08:25:07Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:26:38Z · note: review pass 1: needs some work
 - 2026-10-13T08:26:39Z · status review→active
+- 2026-10-13T08:26:58Z · body: section Evidence
