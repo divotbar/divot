@@ -21,17 +21,25 @@ struct PopoverSnapshotTests {
     // MARK: - Snapshot directory
 
     /// Get the snapshot output directory from DIVOT_SNAPSHOT_DIR or a default.
+    /// Default: macos/.build/snapshots/ (always under an ignored path).
+    /// If DIVOT_SNAPSHOT_DIR is set, it must be under an ignored path (contain "snapshots" or ".build").
     private func snapshotDirectory() -> URL {
         if let env = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_DIR"] {
-            return URL(fileURLWithPath: env)
+            let url = URL(fileURLWithPath: env)
+            // Verify the custom directory is under an ignored path
+            if !url.path.contains("snapshots") && !url.path.contains(".build") {
+                preconditionFailure("DIVOT_SNAPSHOT_DIR must be under an ignored path (should contain 'snapshots' or '.build')")
+            }
+            return url
         }
-        let buildDir = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent(".build")
-            .appendingPathComponent("snapshots")
+        // Default: macos/.build/snapshots/
+        // #filePath = .../macos/Tests/DivotAppKitTests/PopoverSnapshotTests.swift
+        // Delete 3 components to reach macos/ directory
+        let macosDir = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()  // .../macos/Tests/DivotAppKitTests/
+            .deletingLastPathComponent()  // .../macos/Tests/
+            .deletingLastPathComponent()  // .../macos/
+        let buildDir = macosDir.appendingPathComponent(".build").appendingPathComponent("snapshots")
         return buildDir
     }
 
@@ -459,5 +467,14 @@ struct PopoverSnapshotTests {
                 try testPopover(name: name, maker: makeAppearancePopoverController, appearance: appearance, isDark: isDark, fontSize: 16)
             }
         }
+    }
+
+    @Test("Snapshot directory is under an ignored path (safety check)")
+    func snapshotDirectoryIsIgnored() {
+        let dir = snapshotDirectory()
+        let path = dir.path
+        // Verify the default directory contains .build (gitignored)
+        #expect(path.contains(".build"), "Snapshot directory '\(path)' must be under .build/ (gitignored)")
+        #expect(path.contains("snapshots"), "Snapshot directory must be under snapshots/ subdirectory")
     }
 }
