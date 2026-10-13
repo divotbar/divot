@@ -69,3 +69,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:43:07Z · note: handoff requested (cli)
 - 2026-10-13T17:43:39Z · status active→review
 - 2026-10-13T17:43:39Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
+- 2026-10-13T17:43:39Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
