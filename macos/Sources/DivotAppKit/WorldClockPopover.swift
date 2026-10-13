@@ -1,6 +1,20 @@
 import AppKit
 import DivotCore
 
+/// NSSearchField subclass that handles Escape key to clear search
+@MainActor
+private final class SearchFieldWithEscape: NSSearchField {
+    var onEscape: (() -> Void)?
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 { // Escape key
+            onEscape?()
+        } else {
+            super.keyDown(with: event)
+        }
+    }
+}
+
 /// A popover anchored to the bar's time item that shows world clock entries for added timezones.
 @MainActor
 public final class WorldClockPopoverController {
@@ -29,6 +43,7 @@ public final class WorldClockPopoverController {
         controller.onOpenDateTimeSettings = { [weak self] in self?.openDateTimeSettings() }
         controller.onUpdateTimezones = { [weak self] timezones in
             self?.updateTimezones(timezones)
+            self?.render()
         }
 
         host.present(controller, relativeTo: view)
@@ -105,6 +120,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     private var currentTimezones: [String] = []
     private var searchField: NSSearchField?
     private var resultsController: TimezoneSearchResultsController?
+    private var searchObserver: NSObjectProtocol?
 
     override func loadView() {
         super.loadView()
@@ -216,20 +232,28 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         addLabel.identifier = Self.headerIdentifier
         addLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let search = NSSearchField()
+        let search = SearchFieldWithEscape()
         search.placeholderString = "Search (e.g., Tokyo)"
         search.font = .systemFont(ofSize: 11)
         search.translatesAutoresizingMaskIntoConstraints = false
         search.setAccessibilityLabel("Add timezone")
+        search.onEscape = { [weak self] in
+            self?.clearSearch()
+        }
         self.searchField = search
         styleSearchField()
 
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(searchTextDidChange(_:)),
-            name: NSControl.textDidChangeNotification,
-            object: search
-        )
+        if let oldObserver = searchObserver {
+            NotificationCenter.default.removeObserver(oldObserver)
+        }
+
+        searchObserver = NotificationCenter.default.addObserver(
+            forName: NSControl.textDidChangeNotification,
+            object: search,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateSearchResults()
+        }
 
         let resultsController = TimezoneSearchResultsController(
             onSelect: { [weak self] timezone in
@@ -277,12 +301,21 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         onUpdateTimezones?(updated)
     }
 
-    @objc private func searchTextDidChange(_ notification: Notification) {
+    private func updateSearchResults() {
         guard let resultsController = resultsController,
               let searchField = searchField else { return }
         let query = searchField.stringValue
         resultsController.updateResults(for: query, excluding: currentTimezones)
         resultsController.view.isHidden = query.isEmpty
+    }
+
+    @objc private func searchTextDidChange(_ notification: Notification) {
+        updateSearchResults()
+    }
+
+    private func clearSearch() {
+        searchField?.stringValue = ""
+        resultsController?.view.isHidden = true
     }
 
     private func addTimezone(_ timezone: String) {
@@ -309,6 +342,12 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     }
 
     private func friendlyCityName(_ tzIdentifier: String) -> String {
+        let mapping: [String: String] = [
+            "America/Los_Angeles": "San Francisco"
+        ]
+        if let friendlyName = mapping[tzIdentifier] {
+            return friendlyName
+        }
         let parts = tzIdentifier.components(separatedBy: "/")
         return (parts.last ?? tzIdentifier).replacingOccurrences(of: "_", with: " ")
     }
@@ -469,5 +508,10 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         let selectedRow = tableView.selectedRow
         guard selectedRow >= 0, selectedRow < results.count else { return }
         onSelect(results[selectedRow].identifier)
+    }
+
+    func tableView(_ tableView: NSTableView, didClick tableColumn: NSTableColumn, row: Int) {
+        guard row >= 0, row < results.count else { return }
+        onSelect(results[row].identifier)
     }
 }
