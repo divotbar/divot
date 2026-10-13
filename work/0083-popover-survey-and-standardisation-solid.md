@@ -11,7 +11,7 @@ branch: feat/popover-survey-and-standardisation-solid
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T09:20:58Z"
+updated_at: "2026-10-13T09:21:01Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -136,6 +136,11 @@ Runtime assertions in tests verify:
 - `realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme()` (BarThemeTests.swift): Appearance popover window has no NSVisualEffectView, is opaque, and background alpha is 1 for every theme family
 - `PopoverSnapshotTests`: Offscreen content render assertions for left alignment, contrast, and today's highlight across all popovers and themes
 
+## Shots
+```json
+[{"target": "Divot bar", "label": "Volume, Wi-Fi, Appearance, and Calendar popovers (offscreen snapshots)"}]
+```
+
 ## Activity
 
 - 2026-10-13T09:00:54Z · created · njachowski@gmail.com
@@ -158,3 +163,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T09:20:45Z · body: section Shot-by-shot notes
 - 2026-10-13T09:20:51Z · body: section Limits of offscreen shots
 - 2026-10-13T09:20:58Z · body: section Build and verification
+- 2026-10-13T09:21:01Z · body: section Shots
