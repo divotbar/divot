@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:35:59Z"
+updated_at: "2026-10-13T18:43:10Z"
 review_passes: 7
 review_rounds: 2
 dev_error_count: 1
@@ -93,6 +93,17 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ]
 ```
 
+## Root cause
+Reproduced and fixed through the real controller path (`WorldClockPopoverController` -> `WorldClockPopoverContentController` inside `BarPopoverHost`):
+
+1. **Panel sizing.** `render()` rebuilt the rows but never called `host.resize(to:)`, so the panel stayed at its initial footer-only height while the stack grew underneath - the large blank chrome in the packaged app.
+2. **Search action.** The search field relied on `NSSearchField.action`, which fires on Return or the search button, not on each keystroke. Live results now come from the `NSControl.textDidChangeNotification` observer.
+3. **Empty list conflated with defaults.** An empty `widgets.time.timezones` was treated the same as "never configured". The field is `[String]?`: absent (nil) resolves to the three defaults, an explicitly empty array stays empty.
+4. **Add/remove did not re-render.** Adding or removing a zone only invoked the update callback, not a re-render plus resize, so rows did not appear or disappear until the next provider tick. The callback now persists and re-renders.
+5. **Footer row wiped by the rebuild.** `render()` calls `clearRows()`, which also removed the "Open Date & Time Settings..." row that `loadView` added, so every rendered popover lost its last row. The footer is now rebuilt at the end of each render.
+6. **Results list layout.** The results scroll view had no Auto Layout height (a plain frame change is ignored once it is an arranged subview), kept whatever theme it was first built with, and AppKit's full-width table insets every cell by 6pt. Its height now tracks the row count, a restyle recolours the rows, and a custom row view plus flush constraints align the results with the other rows.
+7. **Snapshots were not the real states.** The snapshot tests rendered hard-coded zone arrays through a count switch, so they never showed the true first-run defaults or the add flow. They now resolve the empty and default lists through `WorldClock.resolvedTimezones` (the same path production and the Settings list use) and drive the real search field for the add-flow shot.
+
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
@@ -160,3 +171,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:16:17Z · agent exited with an error (opencode) · error: Transport
 - 2026-10-13T18:21:33Z · needs_input
+- 2026-10-13T18:43:10Z · body: section Root cause
