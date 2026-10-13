@@ -81,3 +81,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:37:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T08:38:02Z · body: section Review pass 4
 - 2026-10-13T08:38:27Z · status active→review
+- 2026-10-13T08:38:27Z · note: shots: skipped — 18 shots already captured — an engineer-made capture pre-empts the automatic one
