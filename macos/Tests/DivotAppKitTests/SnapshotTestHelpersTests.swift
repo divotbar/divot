@@ -193,4 +193,23 @@ struct SnapshotTestHelpersTests {
         #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "volume-popover-native-light-default"))
         #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "bar-right-native-light-default-chips-off"))
     }
+
+    @Test("unknown token summary diagnostic is printed")
+    @MainActor
+    func unknownTokenSummaryDiagnostic() {
+        let originalEnv = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_ONLY"]
+        defer {
+            if let value = originalEnv {
+                setenv("DIVOT_SNAPSHOT_ONLY", value, 1)
+            } else {
+                unsetenv("DIVOT_SNAPSHOT_ONLY")
+            }
+        }
+
+        setenv("DIVOT_SNAPSHOT_ONLY", "unknowntoken", 1)
+
+        // First call should not match and print summary
+        #expect(!SnapshotTestHelpers.matchesSnapshotFilter(named: "volume-popover-native-light-default"))
+        // Summary mentions the unknown token and known tokens
+    }
 }

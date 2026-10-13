@@ -69,6 +69,9 @@ struct PixelBuffer {
 @MainActor
 enum SnapshotTestHelpers {
 
+    private static var filterMatchFound = false
+    private static var filterSummaryPrinted = false
+
     /// Render a view with AppKit's bitmap cache API. Returns `nil` when nothing
     /// was drawn (no usable graphics context).
     static func render(_ view: NSView, size: NSSize) -> NSBitmapImageRep? {
@@ -140,7 +143,11 @@ enum SnapshotTestHelpers {
     /// Always returns true if no filter is set.
     static func matchesSnapshotFilter(named name: String) -> Bool {
         let (tokens, message, active) = parseSnapshotFilter()
-        guard active else { return true }
+        guard active else {
+            filterMatchFound = false
+            filterSummaryPrinted = false
+            return true
+        }
 
         // Check if the name contains any of the tokens.
         let matches = tokens.contains { token in
@@ -151,10 +158,23 @@ enum SnapshotTestHelpers {
             print("SnapshotTestHelpers: \(message)")
         }
 
-        if !matches && !tokens.isEmpty {
-            // If no token matches, only print once per name (not every test).
-            // The first unmatchable name prints a reminder.
+        if matches {
+            filterMatchFound = true
+        } else if !tokens.isEmpty {
+            // If no token matches, print a skip line for this snapshot
             print("SnapshotTestHelpers [\(name)]: Skipped — does not match DIVOT_SNAPSHOT_ONLY filter")
+
+            // If this is the first snapshot and no matches found yet, print summary
+            if !filterMatchFound && !filterSummaryPrinted && !tokens.isEmpty {
+                let knownTokens = ["bar", "volume", "wifi", "appearance", "calendar", "worldclock", "charging", "battery"]
+                let unknownTokens = tokens.filter { !knownTokens.contains($0) }
+                if !unknownTokens.isEmpty {
+                    let tokenList = unknownTokens.joined(separator: ", ")
+                    let knownList = knownTokens.joined(separator: ", ")
+                    print("SnapshotTestHelpers: DIVOT_SNAPSHOT_ONLY matched no snapshots: unknown token(s) \(tokenList); known tokens: \(knownList)")
+                    filterSummaryPrinted = true
+                }
+            }
         }
 
         return matches
