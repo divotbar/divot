@@ -2,7 +2,7 @@
 id: "0072"
 title: "Appearance popover: light/dark mode and theme family picker on the moon item"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 depends_on: ["0071"]
@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T02:01:47Z"
-updated_at: "2026-10-13T02:01:47Z"
+updated_at: "2026-10-13T02:20:07Z"
 ---
 ## Problem
 Clicking the moon (Appearance) item only toggles Divot's own light/dark mode (#0037). The maintainer wants a popup/dropdown on that item to either set light/dark or pick the theme family (Gruvbox, Ayu, etc.).
@@ -36,3 +36,4 @@ Look at how the Appearance item toggles today and how the Settings window reads 
 ## Activity
 
 - 2026-10-13T02:01:47Z · created · njachowski@gmail.com
+- 2026-10-13T02:20:07Z · status inbox→ready
