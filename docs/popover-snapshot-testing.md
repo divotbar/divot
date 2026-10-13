@@ -150,10 +150,10 @@ A `BarContentView(side: .right)` holding `battery, clock, network, volume` in th
 
 | PNG suffix | Chips | Battery | Used for |
 | --- | --- | --- | --- |
-| `chips-off` | off | charging | slot layout, ink placement, right inset, contrast, charging green |
-| `chips-on` | on, 80% transparency | charging | translucent chip fill, contrast on the chip |
-| `chips-solid` | on, fully opaque | charging | order, gaps and inset measured from chip edges |
-| `not-charging` | off | not charging | no charging green |
+| `chips-off-charging` | off | charging | slot layout, ink placement, right inset, contrast, charging green |
+| `chips-on-charging` | on, 80% transparency | charging | translucent chip fill, contrast on the chip |
+| `chips-solid-charging` | on, fully opaque | charging | order, gaps and inset measured from chip edges |
+| `battery` | off | not charging | no charging green |
 
 Pixels are converted to 8-bit sRGB before sampling, and the bitmap is drawn in sRGB, so alpha blends are comparable with the expected colours.
 
