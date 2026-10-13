@@ -418,6 +418,11 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// mode and the theme family and its last row opens Divot settings. `nil` in
     /// tests, where the item keeps its original one-click toggle.
     private let appearancePopover: AppearancePopoverController?
+    /// The shared calendar popover. When present, the date item opens it instead
+    /// of jumping straight to System Settings; the popover shows a month grid
+    /// with navigation and its last row opens the Date & Time pane. `nil` in
+    /// tests, where the item keeps its original settings-pane action.
+    private let calendarPopover: CalendarPopoverController?
 
     init(side: BarSide,
          items: [BarItemID],
@@ -435,6 +440,7 @@ final class BarContentView: NSView, BarContentLifecycle {
          wifiPopover: WifiPopoverController? = nil,
          volumePopover: VolumePopoverController? = nil,
          appearancePopover: AppearancePopoverController? = nil,
+         calendarPopover: CalendarPopoverController? = nil,
          onActivate: ((WidgetAction) -> Void)? = nil) {
         self.side = side
         self.items = items
@@ -444,6 +450,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         self.wifiPopover = wifiPopover
         self.volumePopover = volumePopover
         self.appearancePopover = appearancePopover
+        self.calendarPopover = calendarPopover
         self.onActivate = onActivate
         super.init(frame: .zero)
         wantsLayer = true
@@ -492,6 +499,12 @@ final class BarContentView: NSView, BarContentLifecycle {
                 // row opens Divot's own settings window.
                 if case .toggleAppearance = action, let view, let appearancePopover = self.appearancePopover {
                     appearancePopover.toggle(relativeTo: view, theme: self.theme)
+                    return
+                }
+                // The date item opens the calendar popover when one is
+                // configured; the popover's last row reaches the Date & Time pane.
+                if case .openSettings(.dateTime) = action, let view, let calendarPopover = self.calendarPopover {
+                    calendarPopover.toggle(relativeTo: view, theme: self.theme)
                     return
                 }
                 self.onActivate?(action)
