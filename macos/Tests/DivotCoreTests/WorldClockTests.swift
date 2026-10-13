@@ -13,8 +13,16 @@ final class WorldClockTests: XCTestCase {
         let timezones = ["America/Los_Angeles", "Asia/Tokyo"]
         let entries = WorldClock.entries(for: timezones)
         XCTAssertEqual(entries.count, 2)
-        XCTAssertEqual(entries[0].displayName, "Los Angeles")
+        XCTAssertEqual(entries[0].displayName, "San Francisco")
         XCTAssertEqual(entries[1].displayName, "Tokyo")
+    }
+
+    func testFriendlyNamesForDefaultTimezones() {
+        let entries = WorldClock.entries(for: ["America/Los_Angeles", "Europe/London", "Asia/Singapore"])
+        XCTAssertEqual(entries.count, 3)
+        XCTAssertEqual(entries[0].displayName, "San Francisco")
+        XCTAssertEqual(entries[1].displayName, "London")
+        XCTAssertEqual(entries[2].displayName, "Singapore")
     }
 
     func testInvalidTimezones() {

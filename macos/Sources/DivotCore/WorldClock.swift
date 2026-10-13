@@ -52,8 +52,14 @@ public enum WorldClock {
                 continue
             }
 
-            let displayName = (tzString.components(separatedBy: "/").last ?? tzString)
-                .replacingOccurrences(of: "_", with: " ")
+            let friendlyNames: [String: String] = [
+                "America/Los_Angeles": "San Francisco",
+                "Europe/London": "London",
+                "Asia/Singapore": "Singapore"
+            ]
+            let displayName = friendlyNames[tzString]
+                ?? ((tzString.components(separatedBy: "/").last ?? tzString)
+                    .replacingOccurrences(of: "_", with: " "))
             let offsetSeconds = tz.secondsFromGMT(for: referenceDate)
             let localOffsetSeconds = localTimeZone.secondsFromGMT(for: referenceDate)
             let diffSeconds = offsetSeconds - localOffsetSeconds

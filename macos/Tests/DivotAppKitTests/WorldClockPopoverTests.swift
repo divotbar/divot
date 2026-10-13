@@ -173,8 +173,36 @@ struct WorldClockPopoverRealFlowTests {
             return
         }
 
-        // Double-click the first result to select it
-        table.selectRowIndexes([0], byExtendingSelection: false)
+        // Find the row containing "San Francisco" (friendly name for America/Los_Angeles)
+        var losAngelesRowIndex: Int?
+        for rowIndex in 0..<table.numberOfRows {
+            guard let rowView = table.rowView(atRow: rowIndex, makeIfNecessary: true) else {
+                continue
+            }
+
+            var foundSanFrancisco = false
+            func walkRow(_ view: NSView) {
+                if let textField = view as? NSTextField,
+                   textField.stringValue.contains("San Francisco") {
+                    foundSanFrancisco = true
+                }
+                view.subviews.forEach(walkRow)
+            }
+            walkRow(rowView)
+
+            if foundSanFrancisco {
+                losAngelesRowIndex = rowIndex
+                break
+            }
+        }
+
+        guard let rowIndex = losAngelesRowIndex else {
+            Issue.record("expected to find San Francisco in search results")
+            return
+        }
+
+        // Double-click the result to select it
+        table.selectRowIndexes([rowIndex], byExtendingSelection: false)
         table.sendAction(table.doubleAction, to: table.target)
 
         // Verify the timezone was added to the callback and search closed
