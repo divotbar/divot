@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:57:14Z"
+updated_at: "2026-10-13T10:57:27Z"
 close_out_repair_count: 1
 review_passes: 5
 review_rounds: 2
@@ -140,3 +140,4 @@ The palette configuration on battery.100.bolt successfully isolates bolt colouri
 - 2026-10-13T10:53:49Z · note: close-out repair: merge-conflict
 - 2026-10-13T10:53:52Z · message_queued at 2026-10-13T10:53:52.523Z
 - 2026-10-13T10:57:14Z · status active→review
+- 2026-10-13T10:57:27Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (3256593) during finalization (#0734)
