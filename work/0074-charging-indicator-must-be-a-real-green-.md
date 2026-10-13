@@ -11,7 +11,7 @@ branch: feat/charging-indicator-must-be-a-real-green-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T04:58:20Z"
+updated_at: "2026-10-13T04:59:16Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -73,3 +73,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:56:24Z · body: section Approach
 - 2026-10-13T04:58:20Z · status active→review
 - 2026-10-13T04:58:20Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T04:59:16Z · note: review pass 4: good to go
