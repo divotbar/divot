@@ -331,12 +331,39 @@ struct BarSnapshotTests {
         assertChipFill(offChips, chips: .off)
         assertClockContrast(offChips, behind: offChips.background)
 
+        // The cup is drawn beside the battery percentage: green pixels must exist,
+        // sit well inside the battery slot, and the cup is clearly visible.
+        let cupGreenColumns = keepAwakeCupColumns(offChips, dark: config.dark)
+        #expect(cupGreenColumns.count >= 5, "Keep-awake cup drew only \(cupGreenColumns.count) pixels of the fixed green")
+        let battery = offChips.frames[0]
+        #expect(cupGreenColumns.allSatisfy { $0 >= offChips.column(battery.minX) - 1 && $0 <= offChips.column(battery.maxX) + 1 },
+                "Keep-awake cup green appears outside the battery slot")
+
         let onChips = try renderWithKeepAwake(config, chips: .translucent, theme: theme, metrics: metrics, label: "chips-on")
         assertSlotLayout(onChips)
         assertChipFill(onChips, chips: .translucent)
         let alpha = 1 - Double(Self.translucentChipOpacity) / 100
         assertClockContrast(onChips,
                             behind: onChips.selected.blended(over: onChips.background, alpha: alpha))
+
+        // Cup must still be visible on chips background.
+        let cupGreenOnChips = keepAwakeCupColumns(onChips, dark: config.dark)
+        #expect(cupGreenOnChips.count >= 5, "Keep-awake cup on chips drew only \(cupGreenOnChips.count) pixels of the fixed green")
+    }
+
+    private func keepAwakeCupColumns(_ r: Rendered, dark: Bool) -> [Int] {
+        // The cup uses the keep-awake palette green. Extract the hex and convert to RGB.
+        let cupHex = KeepAwakeIndicatorPalette.activeHex(dark: dark)
+        guard let cupColor = SRGBColor(hex: cupHex) else { return [] }
+        let cupRGB = RGB(r: cupColor.red, g: cupColor.green, b: cupColor.blue)
+
+        var columns: [Int] = []
+        for x in 0..<r.pixels.width {
+            for y in 0..<r.pixels.height where r.pixels.color(x, y).delta(cupRGB) < 0.05 {
+                columns.append(x)
+            }
+        }
+        return columns
     }
 
     private func renderWithKeepAwake(_ config: Config, chips: Chips, theme: BarTheme, metrics: BarMetrics, label: String) throws -> Rendered {
