@@ -111,3 +111,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T17:43:38Z · status active→review
 - 2026-10-13T17:43:38Z · note: handoff requested (cli)
 - 2026-10-13T17:44:18Z · status active→review
+- 2026-10-13T17:44:18Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
