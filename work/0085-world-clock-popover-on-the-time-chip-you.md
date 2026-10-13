@@ -2,14 +2,14 @@
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T13:29:21Z"
+updated_at: "2026-10-13T13:29:22Z"
 ---
 ## Problem
 Clicking the time chip only opens a System Settings pane. The date chip now opens a useful calendar (#0077); the time chip needs something equally useful. The maintainer lives in Jakarta and often needs the time in California (and others).
@@ -44,3 +44,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 
 - 2026-10-13T13:29:11Z · created · njachowski@gmail.com
 - 2026-10-13T13:29:21Z · body: section Screenshots
+- 2026-10-13T13:29:22Z · status inbox→ready
