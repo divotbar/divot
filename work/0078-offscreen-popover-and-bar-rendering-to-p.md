@@ -46,3 +46,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T06:36:23Z · status review→active
 - 2026-10-13T06:37:35Z · message_queued at 2026-10-13T06:37:35.540Z
 - 2026-10-13T06:40:00Z · status active→review
+- 2026-10-13T06:40:00Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
