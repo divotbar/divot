@@ -50,9 +50,9 @@ When the native macOS menu bar is auto-hidden (set to auto-hide in System Settin
 
 ### Why it happens
 
-Divot is positioned at the very top of the screen (y=0) to stay out of the way while the menu bar is hidden. Notification banners appear in the 33-point menu-bar region when the bar is hidden. Both Divot and the banner title row end up in overlapping screen space, causing visual overlap.
+Divot is positioned at the very top of the screen (y=0) to stay out of the way while the menu bar is hidden. Notification banners also appear near the top of the screen in this case. The visual overlap is reported by the maintainer, but the exact positioning mechanism and z-order (which draws on top) have not been measured.
 
-Whether banners draw on top or behind Divot (z-order) and the exact positioning mechanism are not fully understood — a maintainer needs to measure the actual window levels and bounds with a live notification.
+A precise explanation requires window-level data from a live notification on macOS.
 
 ### What to do
 

@@ -6,6 +6,18 @@ Task 0075 · investigation phase 2026-10-13.
 This records findings from investigating why macOS notification banners
 position themselves below the Divot bar (banner title row partly covered).
 
+## Measurement attempts
+
+- **Local probe run 2026-10-13:** `divot-notification-banner-probe` built and ran successfully;
+  no notification banners were visible (environment does not support GUI notifications).
+- **Live notification trigger 2026-10-13:** Attempted to trigger test notifications using
+  `osascript` and `NSUserNotification`; notifications were not displayed in the window list
+  (sandboxed environment, notifications blocked). **Could not measure actual banner window
+  levels or bounds.**
+
+Measurement requires a human on macOS with notifications enabled to run the probe with a
+live notification and capture `kCGWindowLevel` + `kCGWindowBounds`.
+
 ## What was observed
 
 | Field | Value |
