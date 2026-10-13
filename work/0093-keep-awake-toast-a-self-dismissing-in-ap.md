@@ -2,7 +2,7 @@
 id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
-status: active
+status: review
 needs_input: true
 needs_input_reason: dev-error
 needs_input_detail: the agent process exited with an error — open the task to see the full output
@@ -14,7 +14,7 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T19:19:50Z"
+updated_at: "2026-10-13T19:22:31Z"
 dev_error_count: 1
 ---
 ## Problem
@@ -43,36 +43,36 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 ```json
 [
 {
-  "label": "Caffeine on toast (Native light)",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
-  },
-  "glob": "*caffeine-toast-native-light-on*.png"
+"label": "Caffeine on toast (Native light)",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-native-light-on*.png"
 },
 {
-  "label": "Caffeine off toast (Native light)",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
-  },
-  "glob": "*caffeine-toast-native-light-off*.png"
+"label": "Caffeine off toast (Native light)",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-native-light-off*.png"
 },
 {
-  "label": "Caffeine on toast (Gruvbox dark)",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
-  },
-  "glob": "*caffeine-toast-gruvbox-dark-on*.png"
+"label": "Caffeine on toast (Gruvbox dark)",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-gruvbox-dark-on*.png"
 },
 {
-  "label": "Caffeine off toast (Gruvbox dark)",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
-  },
-  "glob": "*caffeine-toast-gruvbox-dark-off*.png"
+"label": "Caffeine off toast (Gruvbox dark)",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-gruvbox-dark-off*.png"
 }
 ]
 ```
@@ -87,3 +87,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:10:42Z · cli_override, model_override
 - 2026-10-13T19:10:46Z · model_override
 - 2026-10-13T19:19:50Z · body: section Shots
+- 2026-10-13T19:22:31Z · status active→review
