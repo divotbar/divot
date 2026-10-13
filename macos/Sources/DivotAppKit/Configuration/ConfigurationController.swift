@@ -131,3 +131,21 @@ public final class ConfigurationController {
         for observer in observers.values { observer(configuration) }
     }
 }
+
+// MARK: - Appearance popover seam
+
+/// The appearance popover reads and writes the same published configuration as
+/// the Settings window, so the two never disagree. The write helpers mutate the
+/// `appearance` block through `update`, which validates, persists atomically, and
+/// publishes; the observer pair is the controller's existing one.
+extension ConfigurationController: AppearanceSettingsControlling {
+    public var appearance: AppearanceConfiguration { configuration.appearance }
+
+    public func setAppearanceMode(_ mode: AppearanceConfiguration.Mode) {
+        update { $0.appearance.mode = mode }
+    }
+
+    public func setAppearanceFamily(_ family: AppearanceConfiguration.Family) {
+        update { $0.appearance.family = family }
+    }
+}

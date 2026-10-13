@@ -117,8 +117,9 @@ use pattern kills (`pkill`/`killall`).
   optional date (`date`), Wi-Fi/network status (`network`), and volume
   (`volume`).
 - **Appearance:** the optional `appearance` item shows the current light/dark
-  mode and toggles Divot's own bar rendering (never the macOS system
-  appearance).
+  mode; clicking it opens an appearance popover that sets Divot's own mode
+  (System/Light/Dark) and theme family and opens Divot's own settings window
+  (never the macOS system appearance).
 - **Themes:** the native default plus the Gruvbox, Ayu, Dracula, and Tokyo Night
   families, each with light and dark variants, selectable from Settings or the
   configuration file (`appearance.family`, `appearance.mode`). Custom
@@ -246,8 +247,9 @@ observe; leave unobserved items blank rather than marking them done.
 - [ ] Fullscreen, Spaces, and multiple displays (add/remove, sleep/wake).
 - [ ] VoiceOver and keyboard traversal of every item and the Settings window
       ([accessibility physical checks](accessibility-physical-checks.md)).
-- [ ] Click behavior: battery toggles keep-awake; the appearance item toggles
-      Divot's own light/dark rendering; the network item opens the read-only
+- [ ] Click behavior: battery toggles keep-awake; the appearance item opens the
+      appearance popover to set Divot's own light/dark mode and theme family and
+      its last row opens Divot settings; the network item opens the read-only
       Wi-Fi popover and its last row opens the Wi-Fi pane; the volume item opens
       the output-volume popover and its last row opens the Sound pane; the other
       status items open the intended System Settings pane or activate the

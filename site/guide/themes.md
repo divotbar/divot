@@ -27,6 +27,8 @@ Each variant is tested against a per-role contrast floor: body text clears WCAG 
 
 `appearance.mode` values are `system`, `dark`, and `light`. `system` follows the Mac's appearance; an explicit override applies app-wide, so the bar, settings window, menus, and popovers agree. Changing family or mode invalidates appearance-dependent caches only and does not restart providers. An accent must be a six-digit hex color such as `#B7CEFF`; leaving it at the built-in default uses each family's signature accent. From the command line, `divot theme set gruvbox --mode dark` writes the same fields, `divot theme show --json` reads them back, and omitting `--mode` keeps the current mode.
 
+The bar's `appearance` item opens an appearance popover that sets the `mode` and `family` with radio choices and a final **Open Divot Settings…** row. Both lists come from these same fields, so a family added to the contract appears in the popover automatically, and a choice writes through the same store the Settings window uses. The item no longer toggles light/dark directly; it never changes the macOS system appearance.
+
 ## Custom palette overrides
 
 A family is a starting point, not a cage. Under the same v2 configuration contract, `appearance.palette` overrides individual semantic color tokens—`foreground`, `background`, `accent`, `selected`, `occupied`, `error`—as six-digit hex values merged over the chosen family and variant. Set only what you want to change. `palette.accent` takes precedence over the root `accent`, and the derived chrome roles (muted and disabled text, surface, border, selected label) follow an overridden base.

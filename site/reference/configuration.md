@@ -38,6 +38,8 @@ The starter validator rejects missing fields, unknown fields, wrong types, and i
 
 `family` and `mode` are independent: changing `mode` keeps the chosen family. `native` is the default and follows macOS appearance. The root `accent` defaults to `#D6F58A`; while it is left at that default a family uses its own signature accent, and any other value overrides the family. `material` is kept in the configuration contract, but the flat chrome always draws the solid `background` token, so `native` and `opaque` no longer change the bar fill.
 
+The bar's `appearance` item opens an appearance popover anchored to the item: a **Mode** group (`System`, `Light`, `Dark`) and a **Theme** group (`Native`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`) built from these same fields, then an **Open Divot Settings…** row that opens Divot's own settings window. Choosing a value applies immediately through the same atomic store the Settings window and `divot theme` use, and while the popover is open it follows a change made elsewhere. The item no longer toggles light/dark directly, and it never changes the macOS system appearance.
+
 ## Palette overrides
 
 `appearance.palette` is an optional object that overrides individual semantic color tokens of the chosen family and variant. Each token is a six-digit hex color. Supported tokens are `foreground`, `background`, `accent`, `selected`, `occupied`, and `error`. Set only the tokens you want to change; the rest stay with the family. `palette.accent` takes precedence over the root `accent`. The parser, store, and theme resolver validate, persist, and apply palette overrides; derived chrome roles follow an overridden base.

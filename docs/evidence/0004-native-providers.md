@@ -27,8 +27,9 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | System readings | `macos/Sources/DivotAppKit/System*Reading.swift` | IOKit power sources, `NWPathMonitor`, Core Audio property listeners, `NSWorkspace` front app. |
 | Bar views | `macos/Sources/DivotAppKit/WidgetViews.swift`, `BarPanels.swift` | Per-item views, per-side content, panels; only changed items re-render. |
 | Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
-| Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout and the anchored `NSPopover` lifecycle reused by the Wi-Fi and volume popovers. |
+| Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout and the anchored `NSPopover` lifecycle reused by the Wi-Fi, volume, and appearance popovers. |
 | Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
+| Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | Mode and theme-family radio choices plus a Divot-settings row over the shared configuration store (task 0072). |
 | App wiring | `macos/Sources/DivotApp/DivotAppDelegate.swift`, `DivotAppWidgetReport.swift` | First-launch defaults, main-actor sink, action handling, `divot --widgets`. |
 
 ## Providers and lifecycle
@@ -100,6 +101,9 @@ the local `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex` bundle on macOS
 fallback when the extension link cannot be opened. The volume item opens the
 output-volume popover below (task 0071); its last row opens the Sound pane with
 the candidate `x-apple.systempreferences:com.apple.preference.sound` identifier.
+The appearance item opens the appearance popover below (task 0072); it no longer
+toggles light/dark directly, and its last row opens Divot's own settings window
+rather than a System Settings pane.
 The clock pane uses the same candidate `x-apple.systempreferences:com.apple.preference.*`
 pattern and **still needs validation on the target OS**.
 
@@ -186,6 +190,33 @@ The popover is anchored to the item and is `.transient`. Whether the slider
 actually moves the real output volume, and whether the item's percentage follows
 on screen, are **not verified here**: that is the maintainer's packaged-app check.
 
+## Appearance popover (task 0072)
+
+Clicking the appearance (moon/sun) item now opens the same anchored popover shell
+as the Wi-Fi and volume popovers (`BarPopover.swift` owns the shared layout and
+`.transient` lifecycle; `AppearancePopover.swift` supplies the rows) instead of
+toggling light/dark directly. It contains a **Mode** group (`System`, `Light`,
+`Dark`, matching `appearance.mode`) and a **Theme** group (`Native`, `Gruvbox`,
+`Ayu`, `Dracula`, `Tokyo Night`, matching `appearance.family`) as
+keyboard-accessible radio choices that show the current selection, then a final
+**Open Divot Settings…** row that opens Divot's own settings window, not a System
+Settings pane.
+
+Both lists are built from the configuration enums
+(`AppearanceConfiguration.Mode.allCases` and `.Family.allCases`), so a new family
+or mode appears here automatically, and every edit goes through the same
+`ConfigurationController` the Settings window and `divot theme` use — validate,
+atomic write, live reload — so the popover and the Settings window never
+disagree. The popover owns one `AppearancePopoverModel` over the
+`AppearanceSettingsControlling` seam (implemented live by
+`ConfigurationController`): it reads the current selection when it opens,
+subscribes to published changes while it is open so a change made in the Settings
+window or by the file watcher shows up without reopening, and removes that
+subscription on any close. It changes Divot's own rendering only; it never
+changes the macOS system appearance. Whether the popover applies on screen and
+lines up under the item is the maintainer's packaged-app check, not verified
+here.
+
 ## Tests
 
 `swift test --package-path macos` covers the pure and mocked behavior. What is
@@ -237,6 +268,17 @@ asserted, by category:
   note for an unsettable output, and the slider's accessibility label and value.
   `WidgetProviderTests` adds that a normal output reports `isSettable == true`
   and a read-only one reports `isSettable == false`.
+- **Appearance settings** (task 0072, `AppearanceSettingsTests`): the popover
+  model driven by a fake `AppearanceSettingsControlling` — the family/mode lists
+  come from the configuration enums, a mode or family selection writes through
+  the seam and reports the settled value without a duplicate render, an external
+  change replays the published configuration and updates the model, a change made
+  before observing is picked up by `refresh`, and observing registers once and is
+  removed on close. `AppearancePopoverTests` pins the content rows: every mode
+  and family is offered from the enums, the current selection is checked, a
+  selection forwards its value, every option carries an accessibility label and a
+  selected/not-selected value and refuses no first responder, focus lands on the
+  selected mode, and the settings row reports.
 
 ## Honest status by claim
 
@@ -244,8 +286,8 @@ asserted, by category:
 generations and stale rejection, independent per-item failure, coalescing,
 off-main start with a main-actor sink, the minute clock and its text, the item
 presentation, the default layout, the click-action mapping, the Wi-Fi list
-shaping and scan-model states, the output-volume clamp and popover model, and the
-subscription helpers.
+shaping and scan-model states, the output-volume clamp and popover model, the
+appearance selection model, and the subscription helpers.
 
 **Implemented but only asserted by construction, not observed:**
 
@@ -259,6 +301,9 @@ subscription helpers.
 - The live `CoreAudioVolumeReading.setLevel`/`setMuted` writes and the
   `VolumePopoverController` itself: the seam, the clamp, and the rows are tested
   with fakes, but no volume write or on-screen slider was exercised in an app.
+- The `AppearancePopoverController` itself: the seam, the selection model, and
+  the rows are tested with fakes, but no appearance choice or on-screen popover
+  was exercised in an app; whether the choice reaches the bar live is unobserved.
 
 **Not verified at all — a human must supply (do not treat as working):**
 
