@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T18:10:32Z"
+updated_at: "2026-10-13T18:11:42Z"
 review_passes: 7
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -152,3 +152,4 @@ Files captured:
 - 2026-10-13T18:09:05Z · body: section Verification
 - 2026-10-13T18:10:31Z · status active→review
 - 2026-10-13T18:10:32Z · note: shots: skipped — 228 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:11:42Z · note: review pass 8: good to go
