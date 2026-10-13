@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:22:01Z"
+updated_at: "2026-10-13T17:22:12Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -70,28 +70,24 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ```json
 [
 {
-  "label": "World clock popover — empty state (0 zones)",
+  "label": "Empty state (0 zones): Shows hint \"No other timezones. Add one below.\" with Add row",
   "target": "Divot bar",
-  "route": "/",
   "glob": "*world-clock*zero-timezones*"
 },
 {
-  "label": "World clock popover — one zone",
+  "label": "Default state: Three default zones (San Francisco, London, Singapore)",
   "target": "Divot bar",
-  "route": "/",
-  "glob": "*world-clock*one-timezone*"
+  "glob": "*world-clock*two-timezones*"
 },
 {
-  "label": "World clock popover — four zones with Yesterday/Tomorrow",
+  "label": "With day labels: Four zones showing Yesterday/Tomorrow when day differs from local",
   "target": "Divot bar",
-  "route": "/",
+  "glob": "*world-clock*day-label*"
+},
+{
+  "label": "Full list: Four zones with current time and hour offset",
+  "target": "Divot bar",
   "glob": "*world-clock*four-timezones*"
-},
-{
-  "label": "World clock popover — add flow (typing \"los\")",
-  "target": "Divot bar",
-  "route": "/",
-  "glob": "*world-clock*search-results*"
 }
 ]
 ```
@@ -130,3 +126,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:19:36Z · status review→active
 - 2026-10-13T17:19:36Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:22:01Z · body: section Shots
+- 2026-10-13T17:22:12Z · body: section Shots
