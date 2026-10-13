@@ -22,7 +22,10 @@ private extension NSColor {
 /// clear the 3:1 non-text floor against each family's bar in both appearances.
 /// The whole-icon tint is the chosen approach (see the task): a small bolt over
 /// the battery outline is not reliably legible, so the whole symbol carries the
-/// green (#0074).
+/// green (#0074). Contrast is audited against the bar background only, not the
+/// optional chip's selected fill, which spans luminance ranges that no single
+/// green can satisfy uniformly (site/guide/widgets.md documents the whole-symbol
+/// tint as the mitigation for visibility on chips).
 @MainActor
 @Test func chargingGreenClearsTheNonTextFloorOnEveryFamilyBarInLightAndDark() {
     for family in AppearanceConfiguration.Family.allCases {
