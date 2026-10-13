@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/dev-page-add-a-divot-bar-packaged-target
 created_at: "2026-10-13T17:21:21Z"
-updated_at: "2026-10-13T19:15:56Z"
+updated_at: "2026-10-13T19:21:01Z"
 ---
 ## Problem
 The Dev page's 'Divot bar' target runs swift run --package-path macos divot, a bare dev binary with no Info.plist and no bundle identity. It cannot ask for or hold Location permission (so the Wi-Fi name and network list show nothing), its Accessibility grant attaches to the host terminal or app, and permissions are never persistent. The packaged dist/Divot.app (scripts/package-app.sh) is the version that behaves like the real product, but today the maintainer has to build and relaunch it by hand.
@@ -33,3 +33,4 @@ Related: #0014 (package-app.sh), #0061 (Accessibility prompt), #0039 (Location).
 - 2026-10-13T17:21:21Z · created · njachowski@gmail.com
 - 2026-10-13T19:09:23Z · status inbox→ready
 - 2026-10-13T19:15:56Z · status ready→active, branch
+- 2026-10-13T19:21:01Z · message_queued at 2026-10-13T19:21:01.319Z
