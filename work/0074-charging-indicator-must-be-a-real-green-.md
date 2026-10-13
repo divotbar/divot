@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T03:53:51Z"
+updated_at: "2026-10-13T03:53:52Z"
 ---
 ## Problem
 #0058 drew the charging bolt in 'the theme's accent set'. On themes whose accent is not green (maintainer screenshot 2026-10-13, Dracula: the bolt is purple/blue) charging is not obvious. The maintainer wants it unmistakable.
@@ -32,3 +34,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 
 - 2026-10-13T03:53:48Z · created · njachowski@gmail.com
 - 2026-10-13T03:53:51Z · status inbox→ready
+- 2026-10-13T03:53:52Z · cli_override, model_override
