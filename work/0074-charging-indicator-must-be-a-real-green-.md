@@ -11,7 +11,7 @@ branch: feat/charging-indicator-must-be-a-real-green-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T03:53:48Z"
-updated_at: "2026-10-13T04:55:41Z"
+updated_at: "2026-10-13T04:56:24Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -38,6 +38,8 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - **Whole-icon tint (the chosen approach):** while charging the view tints the whole battery symbol and the bolt green, not just the bolt. A small bolt over the battery outline is not reliably legible and is lost against the optional chip fill, so the larger whole-symbol mark is what makes charging unmistakable, as the maintainer asked. The percentage label keeps the foreground colour; not charging draws no green and no bolt.
 
 - **Chip caveat:** a chip's fill is the family `selected` state colour, which spans the luminance range, so no single green can hold a numeric ratio against every chip fill. The whole-symbol tint keeps a large green mark on the chip even where that ratio is low; the numeric audit covers the bar background, matching the existing per-role convention.
+
+- **Charging vs error:** the icon prioritizes charging-green over error state, so if the battery item is both charging and in an error state, it draws green — charging is the more visually critical state and the label can convey error. Battery errors are rare and transient; charging state is what users need to distinguish at a glance.
 
 ## Activity
 
@@ -68,3 +70,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:55:41Z · needs_input
 - 2026-10-13T04:55:41Z · status review→active
 - 2026-10-13T04:55:41Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T04:56:24Z · body: section Approach

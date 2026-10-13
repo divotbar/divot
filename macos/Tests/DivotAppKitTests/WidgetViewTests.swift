@@ -45,9 +45,9 @@ private func imageViews(in view: NSView) -> [NSImageView] {
                                                                  isCharging: charging))))
     }
 
-    // While charging the outline is the plain full battery and the bolt is a
-    // separate element over it, so the outline keeps the bar's normal colour
-    // (#0058).
+    // While charging the whole battery symbol (outline and bolt) tints to the
+    // fixed green regardless of theme accent, so it is unmistakable on Dracula,
+    // Tokyo Night, and other non-green themes (#0074).
     let charging = BarItemView()
     charging.update(presentation(charging: true), action: .none)
     #expect(charging.displayedSymbolName == "battery.100")
