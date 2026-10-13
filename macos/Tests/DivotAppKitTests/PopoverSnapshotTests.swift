@@ -619,7 +619,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-zero-timezones"
+                let name = "worldclock-popover-\(familyName)-\(variantName)-default-zero-timezones"
                 try testPopover(name: name, maker: { self.makeWorldClockEmptyController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
@@ -635,7 +635,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-defaults"
+                let name = "worldclock-popover-\(familyName)-\(variantName)-default-defaults"
                 try testPopover(name: name, maker: { self.makeWorldClockDefaultsController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
@@ -651,7 +651,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-one-zone"
+                let name = "worldclock-popover-\(familyName)-\(variantName)-default-one-zone"
                 try testPopover(name: name, maker: { self.makeWorldClockOneZoneController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
@@ -667,7 +667,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-day-label"
+                let name = "worldclock-popover-\(familyName)-\(variantName)-default-day-label"
                 try testPopover(name: name, maker: { self.makeWorldClockDayLabelController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }
@@ -683,7 +683,7 @@ struct PopoverSnapshotTests {
             for (variantName, isDark) in variants {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
-                let name = "world-clock-popover-\(familyName)-\(variantName)-default-add-flow"
+                let name = "worldclock-popover-\(familyName)-\(variantName)-default-add-flow"
                 try testPopover(name: name, maker: { self.makeWorldClockAddFlowController(fontSize: $0) },
                                appearance: appearance, isDark: isDark, fontSize: 12)
             }

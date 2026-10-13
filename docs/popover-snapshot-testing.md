@@ -31,6 +31,34 @@ scripts/snapshots.sh
 
 This runs the test suite and prints the snapshot output directory. The tests run as part of `swift test --package-path macos` and report clearly if they cannot render (e.g., on headless systems). The script runs the suite through `scripts/swift-test-lock.sh`, which serializes Swift test runs across worktrees (#0091); snapshots render views offscreen, so a windowless test run still produces them.
 
+### Snapshot token filtering
+
+When developing a UI task, you can render only the snapshots that changed by passing `DIVOT_SNAPSHOT_ONLY=<tokens>`:
+
+```bash
+scripts/snapshots.sh --only worldclock
+DIVOT_SNAPSHOT_ONLY=wifi,volume swift test --package-path macos
+```
+
+Tokens match any substring in the snapshot filename. Snapshot filenames start with a token for reliable globbing.
+
+#### Known tokens and file naming
+- Popovers: `volume-popover-*`, `wifi-popover-*`, `wifi-permission-popover-*`, `appearance-popover-*`, `calendar-popover-*`, `worldclock-popover-*`
+- Bar group: `bar-right-*-chips-off-charging`, `bar-right-*-chips-on-charging`, `bar-right-*-chips-solid-charging`, `bar-right-*-battery`
+  - Tokens: `charging` (battery charging, green bolt visible), `battery` (not charging)
+
+Token values for filtering:
+- `bar`: entire right-hand bar group
+- `volume`: volume popover
+- `wifi`: Wi-Fi popover and permission message
+- `appearance`: appearance (theme picker) popover
+- `calendar`: calendar popover
+- `worldclock`: world clock popover (all timezone variants)
+- `charging`: bar with battery charging and green indicator
+- `battery`: bar with battery not charging
+
+Unknown tokens produce a diagnostic message and produce zero PNG files. Assertions still run against all rendered snapshots (filtered or not) — only the PNG output decision is controlled by the filter.
+
 ## Pixel assertions
 
 When snapshots render successfully, each test suite verifies ALL of the following:
@@ -73,6 +101,33 @@ The tests sample pixels at fixed coordinates that assume the default font and sy
 - **What the shots do and do not prove.** They render the content view over the solid palette fill, so they prove alignment, contrast and the selected style. They do not draw the popover window, so they cannot show the real chrome. The translucency fix is proven by the runtime test `realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme`, which presents the real panel and walks its view hierarchy (no `NSVisualEffectView`, alpha-1 chrome and content fill), not by the images. Visual sign-off on the packaged app is the maintainer's.
 - **Headless.** With no usable graphics context the tests skip and no PNGs are produced; RepoOS then records no shots.
 
+### Per-task shot selection
+
+RepoOS tasks can declare `## Shots` entries that name only the images they changed. When you pass `env` and `glob` parameters to a shot entry, RepoOS runs the target with the environment variables set and collects only matching files. Use this to render only the parts of Divot you changed:
+
+```json
+[
+  {
+    "target": "Divot bar",
+    "label": "World clock popover updated",
+    "env": {"DIVOT_SNAPSHOT_ONLY": "worldclock"},
+    "glob": "*worldclock*.png"
+  }
+]
+```
+
+Declare this in your task `## Shots` section (example from a Divot task):
+
+```bash
+repoos update <id> --shots '[{"target": "Divot bar", "label": "World clock popover", "env": {"DIVOT_SNAPSHOT_ONLY": "worldclock"}, "glob": "*worldclock*.png"}]'
+```
+
+Ad hoc from the command line:
+
+```bash
+repoos shot --target "Divot bar" --env DIVOT_SNAPSHOT_ONLY=worldclock --glob "*worldclock*.png"
+```
+
 ## Assertion strategy
 
 Instead of comparing against golden images (which don't travel across machines), assertions verify against the **resolved theme palette**:
@@ -95,10 +150,10 @@ A `BarContentView(side: .right)` holding `battery, clock, network, volume` in th
 
 | PNG suffix | Chips | Battery | Used for |
 | --- | --- | --- | --- |
-| `chips-off` | off | charging | slot layout, ink placement, right inset, contrast, charging green |
-| `chips-on` | on, 80% transparency | charging | translucent chip fill, contrast on the chip |
-| `chips-solid` | on, fully opaque | charging | order, gaps and inset measured from chip edges |
-| `not-charging` | off | not charging | no charging green |
+| `chips-off-charging` | off | charging | slot layout, ink placement, right inset, contrast, charging green |
+| `chips-on-charging` | on, 80% transparency | charging | translucent chip fill, contrast on the chip |
+| `chips-solid-charging` | on, fully opaque | charging | order, gaps and inset measured from chip edges |
+| `battery` | off | not charging | no charging green |
 
 Pixels are converted to 8-bit sRGB before sampling, and the bitmap is drawn in sRGB, so alpha blends are comparable with the expected colours.
 

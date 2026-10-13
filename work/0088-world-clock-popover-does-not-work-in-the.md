@@ -1,8 +1,9 @@
 ---
+close_out_repair_count: 1
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: review
+status: active
 priority: p0
 area: macos
 assigned_to: ""
@@ -11,9 +12,10 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T19:12:43Z"
-review_passes: 7
+updated_at: "2026-10-13T19:17:06Z"
+review_passes: 8
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -70,27 +72,91 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 ```json
 [
 {
-"label": "Empty state (0 zones): Shows hint \"No other timezones. Add one below.\" with Add row",
+"label": "Empty state (0 zones): header + hint, Add row and settings link",
 "target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "zero-timezones"
+},
 "glob": "*world-clock*zero-timezones*"
 },
 {
-"label": "Default state: Three default zones (San Francisco, London, Singapore)",
+"label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
 "target": "Divot bar",
-"glob": "*world-clock*two-timezones*"
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "default-defaults"
+},
+"glob": "*world-clock*default-defaults*"
 },
 {
-"label": "With day labels: Four zones showing Yesterday/Tomorrow when day differs from local",
+"label": "One zone: a single added zone row (Tokyo)",
 "target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "one-zone"
+},
+"glob": "*world-clock*one-zone*"
+},
+{
+"label": "Four zones with Yesterday/Tomorrow day labels across the date line",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "day-label"
+},
 "glob": "*world-clock*day-label*"
 },
 {
-"label": "Full list: Four zones with current time and hour offset",
+"label": "Add flow: 'los' typed, results list visible (San Francisco)",
 "target": "Divot bar",
-"glob": "*world-clock*four-timezones*"
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "add-flow"
+},
+"glob": "*world-clock*add-flow*"
 }
 ]
 ```
+
+## Root cause
+Reproduced and fixed through the real controller path (`WorldClockPopoverController` -> `WorldClockPopoverContentController` inside `BarPopoverHost`):
+
+1. **Panel sizing.** `render()` rebuilt the rows but never called `host.resize(to:)`, so the panel stayed at its initial footer-only height while the stack grew underneath - the large blank chrome in the packaged app.
+2. **Search action.** The search field relied on `NSSearchField.action`, which fires on Return or the search button, not on each keystroke. Live results now come from the `NSControl.textDidChangeNotification` observer.
+3. **Empty list conflated with defaults.** An empty `widgets.time.timezones` was treated the same as "never configured". The field is `[String]?`: absent (nil) resolves to the three defaults, an explicitly empty array stays empty.
+4. **Add/remove did not re-render.** Adding or removing a zone only invoked the update callback, not a re-render plus resize, so rows did not appear or disappear until the next provider tick. The callback now persists and re-renders.
+5. **Footer row wiped by the rebuild.** `render()` calls `clearRows()`, which also removed the "Open Date & Time Settings..." row that `loadView` added, so every rendered popover lost its last row. The footer is now rebuilt at the end of each render.
+6. **Results list layout.** The results scroll view had no Auto Layout height (a plain frame change is ignored once it is an arranged subview), kept whatever theme it was first built with, and AppKit's full-width table insets every cell by 6pt. Its height now tracks the row count, a restyle recolours the rows, and a custom row view plus flush constraints align the results with the other rows.
+7. **Snapshots were not the real states.** The snapshot tests rendered hard-coded zone arrays through a count switch, so they never showed the true first-run defaults or the add flow. They now resolve the empty and default lists through `WorldClock.resolvedTimezones` (the same path production and the Settings list use) and drive the real search field for the add-flow shot.
+
+## Shot descriptions
+Captured with `repoos shot --target "Divot bar" --glob '*world-clock*.png'` (Native and Gruvbox, light and dark, default text size) on the Asia/Jakarta machine (UTC+7); the live time reads 02:07. Every image renders the real `WorldClockPopoverContentController`; the only chrome missing is the popover window itself (arrow, shadow), which the offscreen render does not draw. 20 images: five states in two themes and two variants.
+
+### Empty state - `*world-clock*zero-timezones*` (4 images)
+`divot-bar-world-clock-popover-{native,gruvbox}-{light,dark}-default-zero-timezones-1.png`
+
+Header `02:07 UTC+7` with the local zone `Jakarta` beneath, the hint `No other timezones. Add one below.`, the `Add timezone...` row with its search field, and the `Open Date & Time Settings...` link. No zone rows and nothing disabled: the empty list stays fully functional. Native/Gruvbox and light/dark only change the palette.
+
+### Default first-run state - `*world-clock*defaults*` (4 images)
+`divot-bar-world-clock-popover-{native,gruvbox}-{light,dark}-default-defaults-2.png`
+
+Header `02:07 UTC+7` / `Jakarta`, then the three defaults resolved from an absent config key: `San Francisco  12:07 (14 h behind) Yesterday`, `London  20:07 (6 h behind) Yesterday`, `Singapore  03:07 (1 h ahead)`, each with a remove control; then the Add row and the settings link. This is the state the old `two-timezones` glob never showed.
+
+### One zone - `*world-clock*one-zone*` (4 images)
+`divot-bar-world-clock-popover-{native,gruvbox}-{light,dark}-default-one-zone-1.png`
+
+Header `02:07 UTC+7` / `Jakarta`, then a single stored zone `Tokyo  04:07 (2 h ahead)` with its remove control; Add row; settings link. Covers the "one zone" acceptance case, distinct from both the empty state and the defaults.
+
+### Four zones with day labels - `*world-clock*day-label*` (4 images)
+`divot-bar-world-clock-popover-{native,gruvbox}-{light,dark}-default-day-label-1.png`
+
+Rendered at the fixed instant 2026-01-01T10:00Z local UTC: header `10:00 UTC+0` / `GMT`, then `Kiritimati  00:00 (14 h ahead) Tomorrow`, `Midway  23:00 (11 h behind) Yesterday`, `Tokyo  19:00 (9 h ahead)`, `San Francisco  02:00 (8 h behind)`; Add row; settings link. Proves both a Yesterday and a Tomorrow label across the date line.
+
+### Add flow - `*world-clock*add-flow*` (4 images)
+`divot-bar-world-clock-popover-{native,gruvbox}-{light,dark}-default-add-flow-2.png`
+
+The empty state with `los` typed into the real search field and the result `San Francisco` visible directly beneath it, flush with the other rows; the Add row and the settings link are still present. Proves typing now returns a usable result (ranked so city matches come first) instead of nothing.
+
+The zone list fits up to eight rows and scrolls beyond that (`zoneRowsAreCappedAtEightAndScrollBeyond`), so a long list never grows the panel without bound; these shots cover 0-4 zones.
+
+## Root causes
+Consolidated into **Root cause** above (the two headings are left from parallel edits; the singular section is authoritative). This follow-up pass also adds: the panel-height cap (0–8 zones fit, the list scrolls beyond eight rows), one ranked search that puts city-name matches ahead of identifier-only matches, a single `WorldClock.friendlyName` shared by the popover, its search results and the Settings list, and windowless tests through the real `WorldClockPopoverController` (absent/empty/unset, remove-all then add then reopen, panel cap).
 
 ## Activity
 
@@ -157,4 +223,22 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T18:07:50Z · needs_input
 - 2026-10-13T18:07:50Z · status review→active
 - 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:16:17Z · agent exited with an error (opencode) · error: Transport
+- 2026-10-13T18:21:33Z · needs_input
+- 2026-10-13T18:43:10Z · body: section Root cause
+- 2026-10-13T18:43:20Z · body: section Shots
+- 2026-10-13T18:45:32Z · body: section Shots
+- 2026-10-13T18:52:10Z · body: section Shots
+- 2026-10-13T18:54:22Z · body: section Shot descriptions
+- 2026-10-13T18:59:56Z · body: section Root causes
+- 2026-10-13T19:06:13Z · body: section Shots
+- 2026-10-13T19:06:15Z · body: section Shots
+- 2026-10-13T19:06:30Z · body: section Root causes
+- 2026-10-13T19:09:06Z · body: section Shot descriptions
 - 2026-10-13T19:12:43Z · status active→review
+- 2026-10-13T19:12:43Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T19:15:48Z · note: review pass 8: needs some work
+- 2026-10-13T19:15:49Z · needs_input
+- 2026-10-13T19:17:06Z · status review→active, needs_input
+- 2026-10-13T19:17:06Z · note: close-out repair: merge-conflict
+
