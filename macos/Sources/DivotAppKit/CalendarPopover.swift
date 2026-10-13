@@ -252,8 +252,8 @@ final class CalendarPopoverContentController: BarPopoverContentController {
                 button.setButtonType(.momentaryPushIn)
 
                 if isToday {
-                    button.bezelColor = theme.accent
-                    button.contentTintColor = theme.accent
+                    button.bezelColor = theme.selected
+                    button.contentTintColor = theme.selectedForeground
                     button.font = .systemFont(ofSize: 11, weight: .semibold)
                 } else {
                     button.contentTintColor = theme.popoverPalette.label
@@ -362,15 +362,5 @@ final class CalendarPopoverContentController: BarPopoverContentController {
             }
         }
         return nil
-    }
-
-    private func contrastColor(against backgroundColor: NSColor) -> NSColor {
-        let components = backgroundColor.cgColor.components ?? [0, 0, 0, 1]
-        let red = components.count > 0 ? components[0] : 0
-        let green = components.count > 1 ? components[1] : 0
-        let blue = components.count > 2 ? components[2] : 0
-
-        let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
-        return luminance > 0.5 ? NSColor.black : NSColor.white
     }
 }
