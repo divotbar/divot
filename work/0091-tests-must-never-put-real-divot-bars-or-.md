@@ -35,3 +35,4 @@ Do not kill processes by name or pattern. Related: #0078/#0079 offscreen snapsho
 - 2026-10-13T16:50:44Z · status inbox→ready
 - 2026-10-13T16:50:45Z · status ready→active, branch
 - 2026-10-13T16:58:38Z · message_queued at 2026-10-13T16:58:38.135Z
+- 2026-10-13T16:58:38Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
