@@ -192,3 +192,4 @@ Until these measurements are provided, feasibility of a safe public fix cannot b
 - 2026-10-13T08:16:50Z · status review→active
 - 2026-10-13T08:16:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T08:18:27Z · status active→review
+- 2026-10-13T08:18:27Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
