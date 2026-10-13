@@ -1,22 +1,20 @@
 ---
-last_close_out_gate_ms: 55536
-last_close_out_gate_at: "2026-10-13T08:59:44.303Z"
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p1
 area: [macos, infra]
+merged_commit: c16c1c9c54d8a7cbf7c44a282e2c9632b6037334
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:59:44Z"
+updated_at: "2026-10-13T08:59:46Z"
+last_close_out_gate_ms: 55536
+last_close_out_gate_at: "2026-10-13T08:59:44.303Z"
 review_passes: 6
 close_out_repair_count: 1
 review_rounds: 2
@@ -98,4 +96,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:51:07Z · note: review pass 6: needs some work
 - 2026-10-13T08:51:07Z · needs_input
 - 2026-10-13T08:59:44Z · close-out gate completed in 56s
-
+- 2026-10-13T08:59:46Z · status review→done, release:success
