@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: active
+status: review
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -150,4 +150,4 @@ Files captured:
 - 2026-10-13T18:07:51Z · status review→active
 - 2026-10-13T18:07:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:09:05Z · body: section Verification
-- 2026-10-13T18:10:31Z · note: shots: skipped — 228 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:10:31Z · status active→review
