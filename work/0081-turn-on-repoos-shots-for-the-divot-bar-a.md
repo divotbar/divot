@@ -3,6 +3,9 @@ id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p1
 area: [macos, infra]
 assigned_to: ""
@@ -58,3 +61,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:29:25Z · status active→review
 - 2026-10-13T08:29:25Z · note: shots: skipped — 10 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:30:21Z · note: review pass 3: needs some work
+- 2026-10-13T08:30:21Z · needs_input
