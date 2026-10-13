@@ -19,10 +19,10 @@ private extension NSColor {
 }
 
 /// The keep-awake indicator is one fixed color that must clear the 3:1 non-text
-/// floor against every family's bar in both light and dark modes. It is tested
-/// against the bar background only, not the optional chip's selected fill, which
-/// spans luminance ranges that no single green can satisfy uniformly (like the
-/// charging green, #0084).
+/// floor against every family's bar background in both light and dark modes.
+/// Contrast is audited against the bar background only, not optional chip fills,
+/// following the pattern of the charging green (#0084): chip backgrounds span a
+/// wide luminance range that no single fixed colour can uniformly satisfy.
 @MainActor
 @Test func keepAwakeIndicatorClearsTheNonTextFloorOnEveryFamilyBarInLightAndDark() {
     for family in AppearanceConfiguration.Family.allCases {

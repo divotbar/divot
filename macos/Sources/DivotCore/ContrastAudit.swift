@@ -56,15 +56,15 @@ public enum ContrastAudit {
 /// The keep-awake "on" indicator colors, one per appearance variant.
 ///
 /// The cup must read as a distinct keep-awake mark on every family (Native, Gruvbox,
-/// Ayu, Dracula, Tokyo Night, Alpine) in light and dark, so this value is never taken
-/// from the theme accent or occupied role. The dark variant uses a darker green that
-/// provides 3:1 contrast against light theme backgrounds; the light variant uses a
-/// lighter green that provides 3:1 contrast against dark theme backgrounds.
+/// Ayu, Dracula, Tokyo Night, Alpine) in light and dark against bar backgrounds, and
+/// is contrast-audited against the bar only, not chip fills (see #0084 for the same
+/// pattern). Chip backgrounds span a wide luminance range; a single green cannot
+/// guarantee 3:1 against every chip fill while keeping the same colour on the bar.
 public enum KeepAwakeIndicatorPalette {
-    /// The keep-awake green for light mode: dark enough for light backgrounds.
-    public static let activeLightHex = "#1B5E31"
-    /// The keep-awake green for dark mode: light enough for dark backgrounds.
-    public static let activeDarkHex = "#52C449"
+    /// The keep-awake green for light mode: works against light bars.
+    public static let activeLightHex = "#0B6B3A"
+    /// The keep-awake green for dark mode: works against dark bars.
+    public static let activeDarkHex = "#7BD88F"
 
     /// The active indicator hex for the given appearance variant.
     public static func activeHex(dark: Bool) -> String {
