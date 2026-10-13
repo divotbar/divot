@@ -1,10 +1,8 @@
 ---
-updated_at: "2026-10-13T17:45:16Z"
-review_passes: 7
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
@@ -13,6 +11,8 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
+updated_at: "2026-10-13T17:49:24Z"
+review_passes: 7
 review_rounds: 2
 ---
 ## Problem
@@ -114,4 +114,5 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T17:44:18Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:44:19Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:45:16Z · note: review pass 7: needs some work
-
+- 2026-10-13T17:49:24Z · status review→active
+- 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
