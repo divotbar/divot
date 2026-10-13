@@ -2,7 +2,7 @@
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
