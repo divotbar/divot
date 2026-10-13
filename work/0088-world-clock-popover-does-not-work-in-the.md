@@ -8,11 +8,11 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-popover-does-not-work-in-the
-cli_override: claude code
-model_override: haiku
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:49:24Z"
-review_passes: 5
+updated_at: "2026-10-13T18:07:50Z"
+review_passes: 7
 review_rounds: 2
 ---
 ## Problem
@@ -140,3 +140,20 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:49:24Z · status review→active
 - 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:49:24Z · message_delivered: 1 message(s)
+- 2026-10-13T17:54:04Z · status active→review
+- 2026-10-13T17:54:04Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:56:15Z · note: review pass 6: needs some work
+- 2026-10-13T17:56:15Z · needs_input
+- 2026-10-13T17:58:43Z · needs_input
+- 2026-10-13T17:58:43Z · status review→active
+- 2026-10-13T17:58:43Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:00:31Z · cli_override, model_override
+- 2026-10-13T18:00:32Z · status active→review
+- 2026-10-13T18:00:32Z · note: handoff requested (cli)
+- 2026-10-13T18:00:59Z · status active→review
+- 2026-10-13T18:00:59Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:02:20Z · note: review pass 7: needs some work
+- 2026-10-13T18:02:20Z · needs_input
+- 2026-10-13T18:07:50Z · needs_input
+- 2026-10-13T18:07:50Z · status review→active
+- 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed

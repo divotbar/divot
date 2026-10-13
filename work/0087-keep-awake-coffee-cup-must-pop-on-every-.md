@@ -8,11 +8,11 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/keep-awake-coffee-cup-must-pop-on-every-
-cli_override: claude code
-model_override: haiku
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T17:49:24Z"
-review_passes: 7
+updated_at: "2026-10-13T18:07:50Z"
+review_passes: 9
 review_rounds: 2
 ---
 ## Problem
@@ -42,28 +42,44 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 ```json
 [
 {
-"label": "Keep-awake cup on Native light theme, chips off",
 "target": "Divot bar",
-"route": "/?family=native&mode=light&chipStyle=off",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native light theme, no chips",
+"glob": "keep-awake-native-light-default-chips-off.png"
 },
 {
-"label": "Keep-awake cup on Native dark theme, chips off",
 "target": "Divot bar",
-"route": "/?family=native&mode=dark&chipStyle=off",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native light theme, with chips",
+"glob": "keep-awake-native-light-default-chips-on.png"
 },
 {
-"label": "Keep-awake cup on Gruvbox light theme, chips on",
 "target": "Divot bar",
-"route": "/?family=gruvbox&mode=light&chipStyle=on",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native dark theme, no chips",
+"glob": "keep-awake-native-dark-default-chips-off.png"
 },
 {
-"label": "Keep-awake cup on Gruvbox dark theme, chips on",
 "target": "Divot bar",
-"route": "/?family=gruvbox&mode=dark&chipStyle=on",
-"highlight": "[data-battery-item]"
+"label": "Keep-awake cup on Native dark theme, with chips",
+"glob": "keep-awake-native-dark-default-chips-on.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox light theme, no chips",
+"glob": "keep-awake-gruvbox-light-default-chips-off.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox light theme, with chips",
+"glob": "keep-awake-gruvbox-light-default-chips-on.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox dark theme, no chips",
+"glob": "keep-awake-gruvbox-dark-default-chips-off.png"
+},
+{
+"target": "Divot bar",
+"label": "Keep-awake cup on Gruvbox dark theme, with chips",
+"glob": "keep-awake-gruvbox-dark-default-chips-on.png"
 }
 ]
 ```
@@ -116,3 +132,19 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T17:45:16Z · note: review pass 7: needs some work
 - 2026-10-13T17:49:24Z · status review→active
 - 2026-10-13T17:49:24Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:51:33Z · body: section Shots
+- 2026-10-13T17:53:25Z · status active→review
+- 2026-10-13T17:53:25Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:55:24Z · note: review pass 8: needs some work
+- 2026-10-13T17:55:24Z · needs_input
+- 2026-10-13T17:58:42Z · needs_input
+- 2026-10-13T17:58:42Z · status review→active
+- 2026-10-13T17:58:42Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:00:29Z · status active→review
+- 2026-10-13T18:00:29Z · cli_override, model_override
+- 2026-10-13T18:00:30Z · note: shots: skipped — 48 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:01:43Z · note: review pass 9: needs some work
+- 2026-10-13T18:01:44Z · needs_input
+- 2026-10-13T18:07:49Z · needs_input
+- 2026-10-13T18:07:50Z · status review→active
+- 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
