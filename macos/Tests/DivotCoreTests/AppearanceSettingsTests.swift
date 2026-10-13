@@ -27,12 +27,14 @@ private final class FakeAppearanceSettings: AppearanceSettingsControlling {
         modeWrites.append(mode)
         appearance.mode = mode
         configuration.appearance = appearance
+        publish()
     }
 
     func setAppearanceFamily(_ family: AppearanceConfiguration.Family) {
         familyWrites.append(family)
         appearance.family = family
         configuration.appearance = appearance
+        publish()
     }
 
     @discardableResult
@@ -51,6 +53,12 @@ private final class FakeAppearanceSettings: AppearanceSettingsControlling {
     func changeElsewhere(to appearance: AppearanceConfiguration) {
         self.appearance = appearance
         configuration.appearance = appearance
+        publish()
+    }
+
+    /// Publish the current configuration to observers, exactly as the live
+    /// `ConfigurationController` does after a save or an external reload.
+    private func publish() {
         for observer in observers.values { observer(configuration) }
     }
 }
@@ -83,7 +91,8 @@ struct AppearancePopoverModelTests {
         #expect(model.select(.light) == .light)
         #expect(settings.modeWrites == [.light])
         #expect(model.mode == .light)
-        // A selection is the presenter's own write; it must not double-render.
+        // With no observer registered, the model does not self-notify; the
+        // presenter renders from the returned value.
         #expect(changes == 0)
     }
 
@@ -94,6 +103,38 @@ struct AppearancePopoverModelTests {
         #expect(model.select(.tokyoNight) == .tokyoNight)
         #expect(settings.familyWrites == [.tokyoNight])
         #expect(model.family == .tokyoNight)
+    }
+
+    @Test func aSelectionWhileObservingPublishesThroughTheObserver() {
+        // The live store publishes to its observers on save, including the
+        // popover's own; the model must settle without a stale value.
+        let settings = FakeAppearanceSettings()
+        let model = AppearancePopoverModel(settings: settings)
+        model.startObserving()
+        var changes = 0
+        model.onChange = { changes += 1 }
+
+        #expect(model.select(.dark) == .dark)
+
+        #expect(settings.modeWrites == [.dark])
+        #expect(model.mode == .dark)
+        #expect(changes == 1)
+    }
+
+    @Test func reSelectingTheCurrentValueIsANoOp() {
+        let settings = FakeAppearanceSettings(
+            appearance: AppearanceConfiguration(family: .ayu, mode: .light))
+        let model = AppearancePopoverModel(settings: settings)
+        model.startObserving()
+        var changes = 0
+        model.onChange = { changes += 1 }
+
+        #expect(model.select(.light) == .light)
+        #expect(model.select(.ayu) == .ayu)
+
+        #expect(settings.modeWrites.isEmpty)
+        #expect(settings.familyWrites.isEmpty)
+        #expect(changes == 0)
     }
 
     @Test func followsAChangeMadeElsewhereWhileOpen() {

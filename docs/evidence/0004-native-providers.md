@@ -271,14 +271,15 @@ asserted, by category:
 - **Appearance settings** (task 0072, `AppearanceSettingsTests`): the popover
   model driven by a fake `AppearanceSettingsControlling` — the family/mode lists
   come from the configuration enums, a mode or family selection writes through
-  the seam and reports the settled value without a duplicate render, an external
-  change replays the published configuration and updates the model, a change made
-  before observing is picked up by `refresh`, and observing registers once and is
-  removed on close. `AppearancePopoverTests` pins the content rows: every mode
-  and family is offered from the enums, the current selection is checked, a
-  selection forwards its value, every option carries an accessibility label and a
-  selected/not-selected value and refuses no first responder, focus lands on the
-  selected mode, and the settings row reports.
+  the seam and reports the settled value, re-selecting the current value writes
+  nothing, a selection while observing is delivered through the observer, an
+  external change replays the published configuration and updates the model, a
+  change made before observing is picked up by `refresh`, and observing registers
+  once and is removed on close. `AppearancePopoverTests` pins the content rows:
+  every mode and family is offered from the enums, the current selection is
+  checked, a selection forwards its value, every option carries an accessibility
+  label and a selected/not-selected value and refuses no first responder, focus
+  lands on the selected mode, and the settings row reports.
 
 ## Honest status by claim
 

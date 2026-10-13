@@ -94,18 +94,21 @@ public final class AppearancePopoverModel {
     }
 
     /// The popover's variant choice. Applies immediately and returns the mode the
-    /// store settled on.
+    /// store settled on. Re-selecting the current mode is a no-op, so a stray
+    /// click on the checked row does not trigger a redundant write.
     @discardableResult
     public func select(_ mode: AppearanceConfiguration.Mode) -> AppearanceConfiguration.Mode {
+        guard mode != settings.appearance.mode else { return appearance.mode }
         settings.setAppearanceMode(mode)
         appearance = settings.appearance
         return appearance.mode
     }
 
     /// The popover's family choice. Applies immediately and returns the family
-    /// the store settled on.
+    /// the store settled on. Re-selecting the current family is a no-op.
     @discardableResult
     public func select(_ family: AppearanceConfiguration.Family) -> AppearanceConfiguration.Family {
+        guard family != settings.appearance.family else { return appearance.family }
         settings.setAppearanceFamily(family)
         appearance = settings.appearance
         return appearance.family

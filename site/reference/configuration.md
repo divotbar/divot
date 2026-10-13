@@ -187,7 +187,7 @@ Supported items: `workspaces`, `front-app`, `battery`, `network`, `volume`, `dat
 "right": ["battery", "time", "network", "volume"]
 ```
 
-Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The `appearance` item shows the current light/dark mode and toggles Divot's own rendering (never the macOS system appearance). The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
+Default left is `workspaces`, `front-app`; default right is `battery`, `time`, `network`, `volume`. Both groups are configurable and items can move between them. The `appearance` item shows the current light/dark mode; clicking it opens the appearance popover described above (mode and theme family through the same store as the Settings window, and a row that opens Divot's own settings window). It changes Divot's own rendering only, never the macOS system appearance. The legacy combined `clock` item is still accepted and migrated to `date`/`time` on load.
 
 ## Widget options
 
