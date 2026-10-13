@@ -1,4 +1,6 @@
 ---
+last_handoff_failure_fingerprint: "check|repoos check failed: site — (pass) validate > rejects out-of-range chip opacity [0.03ms]"
+last_handoff_failure_sha: c81c50a4f059cdec535d46d64fc9de354fe07fc8
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
@@ -84,3 +86,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T14:53:35Z · status active→review
 - 2026-10-13T14:53:36Z · note: handoff requested (cli)
 - 2026-10-13T14:53:54Z · handoff failed · task-file handoff failed at check · repoos check failed: site — (pass) validate > rejects out-of-range chip opacity [0.03ms]
+
