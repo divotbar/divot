@@ -74,3 +74,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T14:44:03Z · status active→review
 - 2026-10-13T14:44:03Z · note: handoff requested (cli)
 - 2026-10-13T14:44:29Z · status active→review
+- 2026-10-13T14:44:29Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (14b941e) during finalization (#0734)
