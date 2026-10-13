@@ -2,7 +2,7 @@
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
-updated_at: "2026-10-13T18:36:01Z"
+updated_at: "2026-10-13T18:39:14Z"
 handoff_signal_retry_count: 1
 check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-13T18:20:01.774Z: repoos check failed: ◆ Check plan"
@@ -52,3 +52,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:11:50Z · status review→active
 - 2026-10-13T18:20:31Z · message_queued at 2026-10-13T18:20:31.043Z
 - 2026-10-13T18:36:01Z · message_delivered: 1 message(s)
+- 2026-10-13T18:39:14Z · status active→review
