@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T09:22:00Z"
+updated_at: "2026-10-13T09:22:05Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -42,6 +42,22 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 ## Approach
 **Palette configuration on battery.100.bolt**: The charging battery symbol is macOS 26's built-in `battery.100.bolt`, rendered with NSImage.SymbolConfiguration(paletteColors:). Verified on macOS 26: the symbol's palette layers are ordered bolt (index 0), outline (index 1), fill (index 2). The palette assigns the fixed charging green to the bolt layer and the item's normal label colour to both the outline and fill layers. The symbol's design includes a thin halo around the bolt, providing separation so the green bolt is legible against the battery fill. No separate badge image is drawn; the palette configuration achieves bolt-only green within the single symbol.
 
+## Shots
+```json
+[
+{
+  "label": "Light theme, chips off: battery outline and fill are black, only the bolt is green",
+  "target": "default",
+  "route": "/"
+},
+{
+  "label": "Dark theme, chips on: battery outline and fill are white, only the bolt is green",
+  "target": "default",
+  "route": "/"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T09:05:20Z · created · njachowski@gmail.com
@@ -55,3 +71,4 @@ Maintainer screenshot 2026-10-13 16:04 after #0074: the whole battery is green w
 - 2026-10-13T09:20:49Z · note: review pass 1: needs some work
 - 2026-10-13T09:20:49Z · status review→active
 - 2026-10-13T09:22:00Z · body: section Approach
+- 2026-10-13T09:22:05Z · body: section Shots
