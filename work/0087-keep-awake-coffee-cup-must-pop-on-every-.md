@@ -11,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T16:19:53Z"
+updated_at: "2026-10-13T16:29:04Z"
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -36,6 +36,36 @@ Maintainer screenshots 2026-10-13: the keep-awake cup next to the battery. 1) da
 ## Notes for AI
 Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPresentation.swift, symbol cup.and.saucer) and the #0074/#0084 charging colour approach. Do not add a heavy blur shadow; the maintainer's bar is flat.
 
+## Shots
+```json
+[
+{
+  "label": "Keep-awake cup on Native light theme, chips off",
+  "target": "Divot bar",
+  "route": "/?family=native&mode=light&chipStyle=off",
+  "highlight": "[data-battery-item]"
+},
+{
+  "label": "Keep-awake cup on Native dark theme, chips off",
+  "target": "Divot bar",
+  "route": "/?family=native&mode=dark&chipStyle=off",
+  "highlight": "[data-battery-item]"
+},
+{
+  "label": "Keep-awake cup on Gruvbox light theme, chips on",
+  "target": "Divot bar",
+  "route": "/?family=gruvbox&mode=light&chipStyle=on",
+  "highlight": "[data-battery-item]"
+},
+{
+  "label": "Keep-awake cup on Gruvbox dark theme, chips on",
+  "target": "Divot bar",
+  "route": "/?family=gruvbox&mode=dark&chipStyle=on",
+  "highlight": "[data-battery-item]"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T16:15:55Z · created · njachowski@gmail.com
@@ -43,3 +73,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:19:52Z · status inbox→ready
 - 2026-10-13T16:19:52Z · cli_override, model_override
 - 2026-10-13T16:19:53Z · status ready→active, branch
+- 2026-10-13T16:29:04Z · body: section Shots
