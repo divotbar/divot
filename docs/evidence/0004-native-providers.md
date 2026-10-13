@@ -208,7 +208,7 @@ as the Wi-Fi and volume popovers (`BarPopover.swift` owns the shared layout and
 toggling light/dark directly. Task 0073 restyled it compact and horizontal: it
 contains a **Mode** row as one horizontal `System`/`Light`/`Dark` segmented
 control matching `appearance.mode`, a vertical list of theme-family options
-(`Native`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`, matching
+(`Native`, `Alpine`, `Gruvbox`, `Ayu`, `Dracula`, `Tokyo Night`, matching
 `appearance.family`) where each row is left-aligned and shows a small colour swatch taken from
 that family's own palette (`ThemeResolver.swatch`, so a new family needs no
 hand-copied colour) and the family name, with the current theme clearly marked, then a final **Open Divot

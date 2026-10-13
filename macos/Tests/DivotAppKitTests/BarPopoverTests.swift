@@ -153,7 +153,7 @@ private func pressEvent() -> NSEvent {
 /// and modes, so the popover renders predictably regardless of background.
 @MainActor
 @Test func popoverContentBackgroundIsFullyOpaqueForAllThemes() {
-    let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+    let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
     let modes: [AppearanceConfiguration.Mode] = [.light, .dark]
 
     for family in families {

@@ -13,7 +13,7 @@ import DivotCore
 /// (`docs/accessibility-physical-checks.md`).
 
 private let allFamilies: [AppearanceConfiguration.Family] =
-    [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+    [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
 
 @MainActor
 @Test func interactiveItemExposesButtonRoleLabelAndHelp() {

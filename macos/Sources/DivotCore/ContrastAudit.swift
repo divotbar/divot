@@ -79,7 +79,7 @@ public enum KeepAwakeIndicatorPalette {
 /// or blue accent, which made the charging mark look like an arbitrary colour
 /// (maintainer screenshot, 2026-10-13). It is one named constant for every
 /// family and both appearances — a mid green that clears the 3:1 non-text floor
-/// against the four dark bar backgrounds *and* the four light ones. Apple's
+/// against every curated dark bar background *and* every light one. Apple's
 /// bright system green fails a light bar and a light-green dark variant fails a
 /// dark one, so no brighter system green can be the single value. Only the bolt
 /// of the charging battery symbol is this green; the outline and fill keep the

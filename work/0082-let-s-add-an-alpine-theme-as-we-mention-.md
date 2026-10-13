@@ -1,21 +1,21 @@
 ---
-updated_at: "2026-10-13T10:53:08Z"
-review_passes: 5
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p2
 area: web
+merged_commit: 7f7e3983c9162abc18f844ef87fc130c6791d25a
 assigned_to: ai
 created_by: api
 branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
+updated_at: "2026-10-13T10:58:14Z"
+last_close_out_gate_ms: 140314
+last_close_out_gate_at: "2026-10-13T10:58:09.519Z"
+review_passes: 5
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T09:41:07.861Z: repoos check failed: ◆ Check plan"
 ---
@@ -108,4 +108,5 @@ The three preset buttons now read Alpine / Gruvbox / Dracula, matching the theme
 - 2026-10-13T10:51:10Z · note: shots: skipped — 17 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T10:53:08Z · note: review pass 5: needs some work
 - 2026-10-13T10:53:08Z · needs_input
-
+- 2026-10-13T10:58:09Z · close-out gate completed in 140s
+- 2026-10-13T10:58:14Z · status review→done, release:success

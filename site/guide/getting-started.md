@@ -10,7 +10,7 @@ There is no published download and no signed/notarized release yet. The [install
 
 ## What we're building
 
-A Swift/AppKit application for macOS 26+ on Apple silicon. A polished default — workspaces and the active app left of the camera, battery, time, network, and volume to the right — and both sides are configurable. A native theme plus four families pair with light and dark. AeroSpace and yabai are both supported, and the bar stays useful without a window manager. Local configuration and event-driven updates throughout.
+A Swift/AppKit application for macOS 26+ on Apple silicon. A polished default — workspaces and the active app left of the camera, battery, time, network, and volume to the right — and both sides are configurable. A native default, its own Alpine family, and four curated families pair with light and dark. AeroSpace and yabai are both supported, and the bar stays useful without a window manager. Local configuration and event-driven updates throughout.
 
 ## Explore
 

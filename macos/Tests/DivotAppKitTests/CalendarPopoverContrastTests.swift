@@ -23,7 +23,7 @@ private extension NSColor {
 @Suite("Calendar popover contrast")
 struct CalendarPopoverContrastTests {
     @Test func todayCellMeetsContrastAcrossAllThemesAndVariants() {
-        let themes: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let themes: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
 
         for family in themes {
             for dark in [false, true] {
