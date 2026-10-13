@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:26:22Z"
+updated_at: "2026-10-13T10:29:10Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -94,3 +94,4 @@ The palette approach successfully isolates the bolt: green spans less than the i
 - 2026-10-13T10:25:32Z · message_queued at 2026-10-13T10:25:32.690Z
 - 2026-10-13T10:26:02Z · status active→review
 - 2026-10-13T10:26:02Z · note: shots: skipped — the declared shot list produced no captures: shot #1: the resolved targets (website, Divot bar) do not include "default"; shot #2: the resolved targets (website, Divot bar) do not include "default"; website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T10:29:10Z · note: review pass 3: needs some work
