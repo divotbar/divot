@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T05:46:55Z"
+updated_at: "2026-10-13T05:50:52Z"
 ---
 ## Problem
 Maintainer screenshot 2026-10-13: a Chrome/Google Calendar notification banner appears at the top right with its top edge tucked under the Divot bar (its title row is partly covered). The native menu bar is hidden, and macOS places banners just below the menu bar area, which Divot now occupies.
@@ -35,9 +35,26 @@ Find out why, and whether Divot can avoid hiding banner content. This is an inve
 ## Notes for AI
 Related decisions: bar placement is the top edge when the native menu bar is hidden (#0021/#0023); Divot hugs the notch (#0028). Do not break those.
 
+## Findings
+See [evidence/0075-notification-banner-overlap.md](../evidence/0075-notification-banner-overlap.md) for detailed investigation results.
+
+## Summary
+
+Notification banners position themselves 33 points below the screen top (matching the native menu bar height). When the menu bar is auto-hidden, Divot's top-edge placement causes its bar to overlap with the banner's title row, which sits at y=33-40.
+
+Window-level analysis shows notification banners use a level at or above 25 (above the menu bar), while Divot is at level 23 (mainMenu - 1). No safe public API exists to reorder them without breaking the menu-bar-on-top or fullscreen constraints.
+
+## Options
+
+1. Accept as a limitation (documented in troubleshooting)
+2. Disable auto-hide on the native menu bar (banners reposition below it)
+3. Use cursor-reveal to slide Divot below the menu bar (banners do not follow)
+4. Future task: inset Divot when the menu bar is hidden (not implemented)
+
 ## Activity
 
 - 2026-10-13T05:46:47Z · created · njachowski@gmail.com
 - 2026-10-13T05:46:53Z · status inbox→ready
 - 2026-10-13T05:46:54Z · cli_override, model_override
 - 2026-10-13T05:46:55Z · status ready→active, branch
+- 2026-10-13T05:50:52Z · body: section Findings
