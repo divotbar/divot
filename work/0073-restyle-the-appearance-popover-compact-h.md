@@ -2,7 +2,7 @@
 id: "0073"
 title: "Restyle the Appearance popover: compact, horizontal and easy to scan"
 type: bug
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -49,4 +49,4 @@ Look at the Appearance popover view from #0072 and the Wi-Fi/volume popovers (#0
 - 2026-10-13T04:41:30Z · message_queued at 2026-10-13T04:41:30.105Z
 - 2026-10-13T04:46:48Z · cli_override, model_override
 - 2026-10-13T04:46:49Z · message_delivered: 1 message(s)
-- 2026-10-13T04:49:32Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T04:49:32Z · status active→review
