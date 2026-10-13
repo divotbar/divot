@@ -40,13 +40,22 @@ scripts/snapshots.sh --only worldclock
 DIVOT_SNAPSHOT_ONLY=wifi,volume swift test --package-path macos
 ```
 
-Tokens match any substring in the snapshot filename. Known tokens:
-- `bar`: right-hand bar group (battery, clock, network, volume)
+Tokens match any substring in the snapshot filename. Snapshot filenames start with a token for reliable globbing.
+
+#### Known tokens and file naming
+- Popovers: `volume-popover-*`, `wifi-popover-*`, `wifi-permission-popover-*`, `appearance-popover-*`, `calendar-popover-*`, `worldclock-popover-*`
+- Bar group: `bar-right-*-chips-off-charging`, `bar-right-*-chips-on-charging`, `bar-right-*-chips-solid-charging`, `bar-right-*-battery`
+  - Tokens: `charging` (battery charging, green bolt visible), `battery` (not charging)
+
+Token values for filtering:
+- `bar`: entire right-hand bar group
 - `volume`: volume popover
-- `wifi`: Wi-Fi popover and Wi-Fi permission message
+- `wifi`: Wi-Fi popover and permission message
 - `appearance`: appearance (theme picker) popover
 - `calendar`: calendar popover
 - `worldclock`: world clock popover (all timezone variants)
+- `charging`: bar with battery charging and green indicator
+- `battery`: bar with battery not charging
 
 Unknown tokens produce a diagnostic message and produce zero PNG files. Assertions still run against all rendered snapshots (filtered or not) — only the PNG output decision is controlled by the filter.
 
