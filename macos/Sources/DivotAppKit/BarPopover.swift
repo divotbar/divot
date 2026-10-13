@@ -13,7 +13,7 @@ import DivotCore
 /// audit the rest of the theme is checked against.
 @MainActor
 class BarPopoverContentController: NSViewController {
-    let stack = NSStackView()
+    let stack = PopoverRowStack()
 
     /// The theme the popover draws: its label, secondary, and link text come from
     /// the bar theme (a family theme also paints the background). Set before the
@@ -29,7 +29,7 @@ class BarPopoverContentController: NSViewController {
     static let linkIdentifier = NSUserInterfaceItemIdentifier("divot.popover.link")
 
     /// The rounded corner a family theme paints on its popover content.
-    static let contentCornerRadius: CGFloat = 6
+    static let contentCornerRadius: CGFloat = 7
 
     /// The smallest width the popover will take. The shared floor suits the
     /// Wi-Fi and volume content (a wrapping message and a slider row); the
@@ -47,7 +47,7 @@ class BarPopoverContentController: NSViewController {
     override func loadView() {
         let root = NSView()
         stack.orientation = .vertical
-        stack.alignment = .width
+        stack.alignment = .leading
         stack.spacing = 6
         stack.translatesAutoresizingMaskIntoConstraints = false
         root.addSubview(stack)
@@ -74,15 +74,12 @@ class BarPopoverContentController: NSViewController {
         // palette background; native uses the system window background (resolved
         // to light/dark from the popover's appearance setting).
         view.wantsLayer = true
-        view.layer?.backgroundColor = theme.popoverPalette.background.cgColor
-        if theme.usesSystemColors {
-            view.layer?.borderWidth = 0
-        } else {
-            view.layer?.borderColor = theme.popoverPalette.separator.cgColor
-            view.layer?.borderWidth = 1
-            view.layer?.cornerRadius = Self.contentCornerRadius
-            view.layer?.masksToBounds = true
-        }
+        view.layer?.backgroundColor = theme.popoverPalette.background.withAlphaComponent(1).cgColor
+        // The border is drawn by `PopoverChromeView`; the content only clips its
+        // own fill to the bubble's inner corner radius.
+        view.layer?.borderWidth = 0
+        view.layer?.cornerRadius = Self.contentCornerRadius
+        view.layer?.masksToBounds = true
         restyle(theme)
         view.needsDisplay = true
     }
@@ -152,15 +149,80 @@ class BarPopoverContentController: NSViewController {
         return line
     }
 
+    /// The one footer-link style: link-role text, left-aligned at the leading
+    /// inset, full row width.
     func linkButton(_ title: String, action: Selector) -> NSView {
-        let button = NSButton(title: title, target: self, action: action)
-        button.isBordered = false
-        button.bezelStyle = .inline
-        button.alignment = .left
-        button.font = .systemFont(ofSize: 12)
+        let button = PopoverLinkButton(title: title, target: self, action: action)
         button.contentTintColor = theme.popoverPalette.link
         button.identifier = Self.linkIdentifier
         return button
+    }
+}
+
+/// The vertical row stack every popover uses. Every row is pinned flush to the
+/// leading edge and stretched toward the trailing edge, so a row can never be
+/// centred or right-aligned inside a wider popover (AppKit's `.width` alignment
+/// leaves a low-hugging row centred at its intrinsic width).
+@MainActor
+final class PopoverRowStack: NSStackView {
+    override func addArrangedSubview(_ view: NSView) {
+        super.addArrangedSubview(view)
+        pin(view)
+    }
+
+    override func insertArrangedSubview(_ view: NSView, at index: Int) {
+        super.insertArrangedSubview(view, at: index)
+        pin(view)
+    }
+
+    private func pin(_ view: NSView) {
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        let trailing = view.trailingAnchor.constraint(equalTo: trailingAnchor)
+        trailing.priority = .defaultHigh
+        trailing.isActive = true
+    }
+}
+
+/// A borderless text button that always draws its title flush left in the
+/// theme's link colour (AppKit centres a borderless button's title inside a
+/// wide frame, which put footer links on the right).
+@MainActor
+final class PopoverLinkButton: NSButton {
+    static let rowHeight: CGFloat = 22
+
+    init(title: String, target: AnyObject?, action: Selector) {
+        super.init(frame: .zero)
+        self.title = title
+        self.target = target
+        self.action = action
+        isBordered = false
+        setButtonType(.momentaryPushIn)
+        alignment = .left
+        font = .systemFont(ofSize: 12)
+        setAccessibilityRole(.button)
+        setAccessibilityLabel(title)
+    }
+
+    required init?(coder: NSCoder) { fatalError("created in code") }
+
+    override var contentTintColor: NSColor? { didSet { needsDisplay = true } }
+
+    private var attributedLabel: NSAttributedString {
+        NSAttributedString(string: title, attributes: [
+            .font: font ?? NSFont.systemFont(ofSize: 12),
+            .foregroundColor: contentTintColor ?? NSColor.linkColor
+        ])
+    }
+
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: ceil(attributedLabel.size().width), height: Self.rowHeight)
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let label = attributedLabel
+        let size = label.size()
+        label.draw(at: NSPoint(x: 0, y: floor((bounds.height - size.height) / 2)))
     }
 }
 
@@ -281,19 +343,79 @@ final class PopoverEventMonitor: PopoverEventMonitoring {
     }
 }
 
-/// Owns one anchored `NSPopover` and its content controller.
-///
-/// The popover is `.transient` and additionally watched by `PopoverEventMonitor`
-/// so a click outside the app or on the desktop dismisses it, which `.transient`
-/// alone does not catch for an accessory app. Escape closes it, and a second
-/// click on the same bar item toggles it closed: the local monitor runs before
-/// the popover's own transient handling, closes it, and consumes the press so
-/// the item's action cannot immediately re-present it. The monitors are installed
-/// while it is shown and removed the instant it closes. `onClose` reports that
-/// close so the owner can tear down observers.
+/// The chrome Divot draws for every popover: one solid bubble (rounded body plus
+/// an arrow toward the anchor) filled with the opaque theme background and
+/// stroked with the theme separator. No `NSVisualEffectView`, material, or
+/// gradient is involved.
 @MainActor
-final class BarPopoverHost: NSObject, NSPopoverDelegate {
-    private var popover: NSPopover?
+final class PopoverChromeView: NSView {
+    static let arrowHeight: CGFloat = 8
+    static let arrowWidth: CGFloat = 16
+    static let cornerRadius: CGFloat = 8
+
+    var palette: BarTheme.PopoverPalette { didSet { needsDisplay = true } }
+    /// Arrow tip x, in this view's coordinates.
+    var arrowX: CGFloat { didSet { needsDisplay = true } }
+
+    init(palette: BarTheme.PopoverPalette, arrowX: CGFloat) {
+        self.palette = palette
+        self.arrowX = arrowX
+        super.init(frame: .zero)
+    }
+
+    required init?(coder: NSCoder) { fatalError("created in code") }
+
+    override var isFlipped: Bool { false }
+
+    /// The bubble outline for `bounds` (arrow on top).
+    func bubblePath() -> NSBezierPath {
+        let body = NSRect(x: 0.5, y: 0.5, width: bounds.width - 1,
+                          height: bounds.height - Self.arrowHeight - 0.5)
+        let path = NSBezierPath(roundedRect: body, xRadius: Self.cornerRadius, yRadius: Self.cornerRadius)
+        let half = Self.arrowWidth / 2
+        let x = min(max(arrowX, Self.cornerRadius + half), bounds.width - Self.cornerRadius - half)
+        path.move(to: NSPoint(x: x - half, y: body.maxY - 0.5))
+        path.line(to: NSPoint(x: x, y: body.maxY + Self.arrowHeight - 0.5))
+        path.line(to: NSPoint(x: x + half, y: body.maxY - 0.5))
+        path.close()
+        return path
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let path = bubblePath()
+        palette.background.withAlphaComponent(1).setFill()
+        path.fill()
+        palette.separator.setStroke()
+        path.lineWidth = 1
+        path.stroke()
+    }
+}
+
+/// The borderless panel that replaces `NSPopover`.
+final class BarPopoverPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+}
+
+/// Owns one anchored popover panel and its content controller.
+///
+/// Root cause of the remaining translucency (#0083): `NSPopover` draws its own
+/// frame view with a vibrant system material, which a layer fill painted on the
+/// content view cannot remove (the content only covers the inside of the frame).
+/// So Divot no longer uses `NSPopover`: the host shows a borderless panel whose
+/// only chrome is `PopoverChromeView`, drawn solid by Divot, shared by every
+/// popover. The panel window itself is non-opaque only so the rounded corners
+/// and arrow can be cut out; every pixel inside the bubble is opaque.
+///
+/// Dismissal is `PopoverEventMonitor`: a press outside the app or on the
+/// desktop, Escape, and a second click on the same bar item (consumed so the
+/// item cannot re-present it). The monitors are installed while shown and
+/// removed the instant it closes. `onClose` reports that close.
+@MainActor
+final class BarPopoverHost: NSObject {
+    private(set) var panel: BarPopoverPanel?
+    private var chrome: PopoverChromeView?
+    private var content: BarPopoverContentController?
     /// The bar item the popover is anchored to, so a press on it is the item's
     /// own toggle rather than an outside click.
     private weak var anchor: NSView?
@@ -304,75 +426,92 @@ final class BarPopoverHost: NSObject, NSPopoverDelegate {
         super.init()
     }
 
-    /// Called after the popover closes for any reason — an explicit `dismiss()`,
-    /// a click outside, or Escape — so the owner can remove its observers.
+    /// Called after the popover closes for any reason.
     var onClose: (() -> Void)?
 
-    var isShown: Bool { popover != nil }
+    var isShown: Bool { panel != nil }
+
+    /// The shown popover window, for runtime assertions.
+    var window: NSWindow? { panel }
 
     /// True while the outside-click/Escape monitors are installed.
     var isMonitoringDismiss: Bool { monitors.isMonitoring }
 
-    /// True when this host already shows a popover anchored to `view`, so the
-    /// item's click closes it rather than re-presenting it.
-    func isShown(relativeTo view: NSView) -> Bool { popover != nil && anchor === view }
+    func isShown(relativeTo view: NSView) -> Bool { panel != nil && anchor === view }
 
-    /// The item-click decision: a second click on the bar item that already owns
-    /// the open popover closes it; any other click opens it.
     func itemClickCloses(relativeTo view: NSView) -> Bool {
         PopoverDismissPolicy.itemClickCloses(alreadyOwnsAnchor: isShown(relativeTo: view))
     }
 
     func present(_ content: BarPopoverContentController, relativeTo view: NSView) {
         dismiss()
-        let popover = NSPopover()
-        popover.behavior = .transient
-        popover.animates = true
-        popover.delegate = self
-        // Adopt the bar theme's variant so the popover chrome and its system
-        // controls match the bar even when the app-wide appearance differs.
-        popover.appearance = content.theme.popoverAppearance
-        popover.contentViewController = content
+        let panel = BarPopoverPanel(contentRect: .zero,
+                                    styleMask: [.borderless, .nonactivatingPanel],
+                                    backing: .buffered,
+                                    defer: false)
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = true
+        panel.level = .popUpMenu
+        panel.isReleasedWhenClosed = false
+        panel.hidesOnDeactivate = false
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        panel.appearance = content.theme.popoverAppearance
+        panel.setAccessibilityLabel("Popover")
+
+        let chrome = PopoverChromeView(palette: content.theme.popoverPalette, arrowX: 0)
+        panel.contentView = chrome
+        chrome.addSubview(content.view)
         content.applyTheme()
-        popover.contentSize = content.preferredSize
-        popover.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
-        // Make the popover window opaque and solid-backed from the theme palette
-        // so the popover always renders predictably regardless of what is behind it.
-        configurePopoverWindowOpacity(popover, theme: content.theme)
-        self.popover = popover
-        anchor = view
+
+        self.panel = panel
+        self.chrome = chrome
+        self.content = content
+        self.anchor = view
+        layoutPanel(size: content.preferredSize)
+        panel.makeKeyAndOrderFront(nil)
         startDismissMonitors()
     }
 
-    /// Configure the popover window to be opaque and solid-backed from the theme
-    /// palette, disabling any vibrancy/translucency material.
-    private func configurePopoverWindowOpacity(_ popover: NSPopover, theme: BarTheme) {
-        guard let window = popover.contentViewController?.view.window else { return }
-        let palette = theme.popoverPalette
-        window.isOpaque = true
-        window.backgroundColor = palette.background
+    /// Size and place the panel under the anchor, clamped to its screen.
+    private func layoutPanel(size: NSSize) {
+        guard let panel, let chrome, let content, let anchor, let anchorWindow = anchor.window else { return }
+        let arrow = PopoverChromeView.arrowHeight
+        let total = NSSize(width: size.width + 2, height: size.height + arrow + 2)
+        let anchorScreen = anchorWindow.convertToScreen(anchor.convert(anchor.bounds, to: nil))
+        let visible = (anchorWindow.screen ?? NSScreen.main)?.visibleFrame
+            ?? NSRect(x: -10_000, y: -10_000, width: 20_000, height: 20_000)
+        var x = anchorScreen.midX - total.width / 2
+        x = min(max(x, visible.minX + 8), visible.maxX - total.width - 8)
+        let y = anchorScreen.minY - total.height - 2
+        panel.setFrame(NSRect(origin: NSPoint(x: x, y: y), size: total), display: false)
+        chrome.frame = NSRect(origin: .zero, size: total)
+        chrome.arrowX = anchorScreen.midX - x
+        content.view.frame = NSRect(x: 1, y: 1, width: size.width, height: size.height)
+        content.view.layoutSubtreeIfNeeded()
     }
 
     /// Match the popover to a content controller whose preferred size changed.
     func resize(to size: NSSize) {
-        popover?.contentSize = size
+        layoutPanel(size: size)
+    }
+
+    /// Update the shown popover's theme without closing it.
+    func restyle(theme: BarTheme) {
+        guard let panel, let chrome, let content else { return }
+        content.apply(theme: theme)
+        chrome.palette = theme.popoverPalette
+        panel.appearance = theme.popoverAppearance
     }
 
     func dismiss() {
         stopDismissMonitors()
-        guard let popover else { return }
-        self.popover = nil
+        guard let panel else { return }
+        self.panel = nil
+        chrome = nil
+        content = nil
         anchor = nil
-        popover.performClose(nil)
-    }
-
-    func popoverDidClose(_ notification: Notification) {
-        // A close that arrives after a newer popover was presented must not
-        // tear down the current one's state.
-        guard let closed = notification.object as? NSPopover, closed === popover else { return }
-        stopDismissMonitors()
-        popover = nil
-        anchor = nil
+        panel.orderOut(nil)
         onClose?()
     }
 
@@ -382,8 +521,7 @@ final class BarPopoverHost: NSObject, NSPopoverDelegate {
     /// decision is unit-tested directly.
     func pressAction(localEvent event: NSEvent) -> PopoverPressAction {
         // A press inside the popover itself keeps it open.
-        if let popoverWindow = popover?.contentViewController?.view.window,
-           event.window === popoverWindow {
+        if let popoverWindow = panel, event.window === popoverWindow {
             return PopoverDismissPolicy.actionForInAppPress(onAnchor: false, insidePopover: true)
         }
         // A press on the anchor item is the toggle-close; it is consumed so the
