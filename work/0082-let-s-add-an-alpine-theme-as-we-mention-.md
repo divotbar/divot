@@ -2,7 +2,7 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: active
+status: review
 priority: p2
 area: web
 assigned_to: ai
@@ -11,7 +11,7 @@ branch: feat/add-alpine-theme-and-refresh-landing-pag
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T08:56:17Z"
-updated_at: "2026-10-13T09:19:05Z"
+updated_at: "2026-10-13T09:20:12Z"
 ---
 ## Problem
 
@@ -66,3 +66,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T09:01:36Z · status ready→active, branch
 - 2026-10-13T09:16:29Z · body: section Shots
 - 2026-10-13T09:19:05Z · body: section Shots
+- 2026-10-13T09:20:12Z · status active→review
