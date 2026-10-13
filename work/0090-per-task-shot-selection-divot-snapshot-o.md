@@ -140,3 +140,4 @@ Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot:
 - 2026-10-13T18:01:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T18:04:19Z · body: section Verification
 - 2026-10-13T18:05:12Z · status active→review
+- 2026-10-13T18:05:12Z · note: shots: skipped — 188 shots already captured — an engineer-made capture pre-empts the automatic one
