@@ -59,6 +59,59 @@ open dist/Divot.app             # run it
 `package-app.sh` accepts `--configuration release` (default), `--output <dir>`,
 `--version <string>`, and `--no-archive` for a quicker local bundle.
 
+## Run from the RepoOS Dev page
+
+`repoos.toml` declares two bar targets on the Dev page, and only one may run at a
+time (two bars would stack on screen). Starting either stops the other first,
+with a clear message.
+
+| Target | Command | What it is |
+| --- | --- | --- |
+| **Divot bar** | `scripts/run-dev.sh` (`swift run --package-path macos divot`) | The bare dev binary. No `Info.plist` and no bundle identity. |
+| **Divot bar (packaged)** | `scripts/run-packaged.sh` | Rebuilds `dist/Divot.app` from this checkout, then runs the real bundle. |
+
+**Start** on the packaged target rebuilds the app (Release by default; pass
+`--configuration debug` to `scripts/run-packaged.sh` for a debug bundle), stops
+this checkout's other bar, launches the bundle with `open` (so LaunchServices
+makes Divot its own responsible process), waits for its PID, and prints the
+build log followed by a line with the commit the app was built from and its PID:
+
+```text
+run-packaged: running commit <commit> pid <pid>
+```
+
+**Stop** quits that app PID: a graceful `TERM`, then `KILL` after
+`DIVOT_STOP_TIMEOUT` seconds (default 5). **Restart** stops and starts again. The
+script only ever stops this checkout's own bars, matched by their exact
+executable path and stopped by PID — never by name or pattern. A failed build
+exits non-zero with the compiler error visible on the Dev page.
+
+The same thing without the Dev page:
+
+```sh
+scripts/run-packaged.sh            # build (Release) + stop the other bar + open dist/Divot.app
+scripts/run-packaged.sh --dry-run  # print the plan, change nothing
+scripts/run-packaged.sh --stop-only
+scripts/run-dev.sh                 # stop the packaged bar, then run the bare dev binary
+```
+
+### Which target holds which permission
+
+The packaged bundle is the one that behaves like the product:
+
+- **Location:** only the packaged `dist/Divot.app` can show the Wi-Fi name and
+  the nearby-network list, because macOS needs a bundle identity to grant
+  Location. The dev binary never gets the prompt, so the name and list stay
+  empty.
+- **Accessibility:** a grant made while running the dev binary attaches to the
+  host terminal or app, not to Divot, so it does not carry over. Grant it to
+  `dist/Divot.app` instead.
+- **Persistence:** Accessibility and Location grants persist per app, but the
+  preview is **ad-hoc signed**, so a rebuild changes the code signature and an
+  earlier grant may stop matching. If a rebuilt app loses the grant, remove the
+  stale Divot row and add the current `dist/Divot.app` again (see the hardware
+  checklist below).
+
 ## Where the artifacts land
 
 Everything is written under `dist/` (gitignored):
@@ -218,6 +271,11 @@ bar on your machine.
   the preview `VERSION`, the ad-hoc signing, and this guide stay honest (no
   `sudo`, no security-setting change, no quarantine stripping, no guessed
   identity).
+- `scripts/run-packaged.sh --dry-run` (declared as the `run-packaged-dry-run`
+  check step) exercises the Dev page's packaged target without launching any UI:
+  argument handling, exact-path PID discovery, and the planned build, launch and
+  stop steps. `scripts/run-packaged.test.ts` guards the same behaviour and that
+  `repoos.toml` declares both bar targets.
 
 The smoke gate never opens a window and never asserts appearance, VoiceOver, or
 desktop behavior.
