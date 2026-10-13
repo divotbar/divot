@@ -95,3 +95,4 @@ Landing / Alpine examples (website target, route /):
 
 The three preset buttons now read Alpine / Gruvbox / Dracula, matching the theme families the app ships. The PNGs are stored under the task shots folder; the reviewer can inspect them there. (The native Divot bar target is captured separately below.)
 - 2026-10-13T10:41:54Z · status active→review
+- 2026-10-13T10:41:54Z · note: shots: skipped — 17 shots already captured — an engineer-made capture pre-empts the automatic one
