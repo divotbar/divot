@@ -11,8 +11,8 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:49:25Z"
-review_passes: 4
+updated_at: "2026-10-13T18:07:51Z"
+review_passes: 7
 handoff_signal_retry_count: 1
 review_rounds: 2
 ---
@@ -36,6 +36,55 @@ Divot's 'Divot bar' shot target (#0081) still renders the whole fixed reduced se
 
 ## Notes for AI
 Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-entry env/glob) in ~/code/nick/repoos. Do not commit images.
+
+## Shots
+```json
+[
+{
+"label": "World clock popover — 6 families × 2 light/dark × variants",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "worldclock"
+},
+"glob": "*worldclock*.png"
+},
+{
+"label": "Battery charging indicator — 24 configs × 3 chip states",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "charging"
+},
+"glob": "*charging*.png"
+}
+]
+```
+
+## Verification
+Verified DIVOT_SNAPSHOT_ONLY filtering with repoos shot:
+
+**Setup**: DIVOT_SNAPSHOT_SET=shots (used by repoos shot by default)
+- Rendering: native and gruvbox themes only, light/dark variants, default text size
+- Assertions: run for all snapshots regardless of filter
+
+**Test 1: DIVOT_SNAPSHOT_ONLY=worldclock with glob '*worldclock*.png'**
+- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
+- Result: 16 PNG files captured
+- Content: World clock popover (native and gruvbox, light/dark, all variants: zero/two/four timezones + day-label)
+- Files: divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-{zero,two,four,day-label}-N.png
+- Gitignored: Yes (under work/.attachments/0090/shots/)
+
+**Test 2: DIVOT_SNAPSHOT_ONLY=charging with glob '*charging*.png'**
+- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
+- Result: 4 PNG files captured
+- Content: Bar with battery charging state (native light/dark only, default size, chips-off and chips-on states)
+- Files: divot-bar-bar-right-native-{light,dark}-default-chips-{off,on}-charging-N.png
+- Gitignored: Yes (under work/.attachments/0090/shots/)
+
+**Filter behavior verified**:
+- Each DIVOT_SNAPSHOT_ONLY token produces only its matching images
+- DIVOT_SNAPSHOT_SET=shots reduces matrix (no large/gruvbox-only for non-bar, no chips-solid for bar)
+- Glob patterns reliably select filtered images by token in filename
+- No cross-contamination between filters
 
 ## Activity
 
@@ -73,3 +122,27 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:49:25Z · needs_input
 - 2026-10-13T17:49:25Z · status review→active
 - 2026-10-13T17:49:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:50:52Z · body: section Shots
+- 2026-10-13T17:51:43Z · body: section Verification
+- 2026-10-13T17:53:37Z · status active→review
+- 2026-10-13T17:53:37Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:54:53Z · note: review pass 5: needs some work
+- 2026-10-13T17:54:53Z · needs_input
+- 2026-10-13T17:55:35Z · needs_input
+- 2026-10-13T17:55:35Z · status review→active
+- 2026-10-13T17:55:35Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:56:57Z · status active→review
+- 2026-10-13T17:56:57Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:58:13Z · note: review pass 6: needs some work
+- 2026-10-13T17:58:13Z · needs_input
+- 2026-10-13T18:01:44Z · needs_input
+- 2026-10-13T18:01:44Z · status review→active
+- 2026-10-13T18:01:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:04:19Z · body: section Verification
+- 2026-10-13T18:05:12Z · status active→review
+- 2026-10-13T18:05:12Z · note: shots: skipped — 188 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T18:06:24Z · note: review pass 7: needs some work
+- 2026-10-13T18:06:24Z · needs_input
+- 2026-10-13T18:07:51Z · needs_input
+- 2026-10-13T18:07:51Z · status review→active
+- 2026-10-13T18:07:51Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
