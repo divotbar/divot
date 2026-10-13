@@ -3,6 +3,9 @@ id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: web
 assigned_to: ai
@@ -104,3 +107,4 @@ The three preset buttons now read Alpine / Gruvbox / Dracula, matching the theme
 - 2026-10-13T10:51:10Z · status active→review
 - 2026-10-13T10:51:10Z · note: shots: skipped — 17 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T10:53:08Z · note: review pass 5: needs some work
+- 2026-10-13T10:53:08Z · needs_input
