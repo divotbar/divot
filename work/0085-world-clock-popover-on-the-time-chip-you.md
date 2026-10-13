@@ -2,7 +2,7 @@
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T15:52:24Z"
+updated_at: "2026-10-13T15:55:50Z"
 review_passes: 5
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
@@ -126,3 +126,4 @@ What the offscreen shots do **not** prove: they render the content view over the
 - 2026-10-13T15:50:36Z · body: section Shots
 - 2026-10-13T15:52:19Z · body: section Shot evidence
 - 2026-10-13T15:52:24Z · body: section Shot evidence
+- 2026-10-13T15:55:50Z · status active→review
