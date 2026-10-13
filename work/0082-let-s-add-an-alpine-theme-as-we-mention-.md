@@ -3,6 +3,9 @@ id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: web
 assigned_to: ai
@@ -82,3 +85,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T10:28:40Z · status active→review
 - 2026-10-13T10:28:40Z · note: shots: skipped — 6 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T10:32:20Z · note: review pass 3: needs some work
+- 2026-10-13T10:32:20Z · needs_input
