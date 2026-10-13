@@ -8,6 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T16:15:55Z"
 updated_at: "2026-10-13T16:19:52Z"
 ---
@@ -39,3 +41,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T16:15:55Z · created · njachowski@gmail.com
 - 2026-10-13T16:15:59Z · body: section Screenshots
 - 2026-10-13T16:19:52Z · status inbox→ready
+- 2026-10-13T16:19:52Z · cli_override, model_override
