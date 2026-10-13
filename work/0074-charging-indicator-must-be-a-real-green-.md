@@ -2,7 +2,7 @@
 id: "0074"
 title: "Charging indicator must be a real green, independent of theme"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -50,4 +50,4 @@ Look at the badge tint code around WidgetViews.swift (the #0058 bolt) and BarThe
 - 2026-10-13T04:36:46Z · message_queued at 2026-10-13T04:36:46.445Z
 - 2026-10-13T04:46:51Z · cli_override, model_override
 - 2026-10-13T04:46:52Z · message_delivered: 1 message(s)
-- 2026-10-13T04:48:52Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
+- 2026-10-13T04:48:52Z · status active→review
