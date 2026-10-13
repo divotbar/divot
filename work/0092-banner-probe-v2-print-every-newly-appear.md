@@ -39,3 +39,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T17:19:22Z · cli_override, model_override
 - 2026-10-13T17:19:23Z · status ready→active, branch
 - 2026-10-13T17:33:30Z · message_queued at 2026-10-13T17:33:30.802Z
+- 2026-10-13T17:33:30Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
