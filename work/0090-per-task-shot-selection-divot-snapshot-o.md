@@ -11,7 +11,7 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T17:50:52Z"
+updated_at: "2026-10-13T17:51:43Z"
 review_passes: 4
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -41,23 +41,40 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 ```json
 [
 {
-  "label": "World clock popover — 6 families × 2 light/dark × variants",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "worldclock"
-  },
-  "glob": "*worldclock*.png"
+"label": "World clock popover — 6 families × 2 light/dark × variants",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "worldclock"
+},
+"glob": "*worldclock*.png"
 },
 {
-  "label": "Battery charging indicator — 24 configs × 3 chip states",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "charging"
-  },
-  "glob": "*charging*.png"
+"label": "Battery charging indicator — 24 configs × 3 chip states",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "charging"
+},
+"glob": "*charging*.png"
 }
 ]
 ```
+
+## Verification
+Tested DIVOT_SNAPSHOT_ONLY filtering with two different tokens and repoos shot --env/--glob:
+
+**Token: worldclock**
+- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=worldclock --glob '*worldclock*.png'
+- Result: 16 PNG files captured (world clock popover variants; gitignored under work/.attachments/0090/shots/)
+- Content: Worldclock popover at native and gruvbox themes, light/dark, all timezone variants (zero/two/four/day-label)
+- File names contain 'worldclock' token for reliable glob matching
+
+**Token: charging**  
+- Command: repoos shot --target 'Divot bar' --env DIVOT_SNAPSHOT_ONLY=charging --glob '*charging*.png'
+- Result: 16 PNG files captured (all with 'charging' in filename; gitignored under work/.attachments/0090/shots/)
+- Content: Bar with battery charging state — native and gruvbox themes, light/dark, three chip states (off/on-translucent/on-solid)
+- File names contain 'charging' token; only these were rendered when filter was set
+
+Filter works correctly: each token produces only its own image set with no cross-contamination. Assertions run for all rendered snapshots regardless of filter setting (PNG output is gated, not rendering/assertions).
 
 ## Activity
 
@@ -96,3 +113,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:49:25Z · status review→active
 - 2026-10-13T17:49:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:50:52Z · body: section Shots
+- 2026-10-13T17:51:43Z · body: section Verification
