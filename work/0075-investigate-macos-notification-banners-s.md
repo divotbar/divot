@@ -2,7 +2,7 @@
 id: "0075"
 title: "Investigate: macOS notification banners sit under the Divot bar"
 type: bug
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
@@ -164,3 +164,5 @@ Until these measurements are provided, feasibility of a safe public fix cannot b
 - 2026-10-13T06:28:00Z · note: review pass 6: needs some work
 - 2026-10-13T06:28:00Z · needs_input
 - 2026-10-13T06:31:32Z · needs_input
+- 2026-10-13T06:31:32Z · status review→active
+- 2026-10-13T06:31:32Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
