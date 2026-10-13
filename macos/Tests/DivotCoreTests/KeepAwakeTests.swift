@@ -141,3 +141,18 @@ private final class ObservingBox: @unchecked Sendable {
     #expect(SRGBColor(hex: "#FFF") == nil)
     #expect(SRGBColor(hex: "#GGGGGG") == nil)
 }
+
+@Test func chipBlendAndOutlineFallbackUseTheAuditedMath() {
+    let black = SRGBColor(red: 0, green: 0, blue: 0)
+    let white = SRGBColor(red: 1, green: 1, blue: 1)
+    // The outline is whichever of black/white contrasts more with the backdrop.
+    #expect(KeepAwakeIndicatorPalette.outline(for: black) == white)
+    #expect(KeepAwakeIndicatorPalette.outline(for: white) == black)
+    // Blending a colour over itself leaves it unchanged; a half blend of white
+    // over black lands at mid grey.
+    #expect(white.blended(over: white, alpha: 0.5) == white)
+    let grey = white.blended(over: black, alpha: 0.5)
+    #expect(abs(grey.red - 0.5) < 1e-9)
+    // An out-of-range alpha is clamped, not extrapolated.
+    #expect(white.blended(over: black, alpha: 2) == white)
+}
