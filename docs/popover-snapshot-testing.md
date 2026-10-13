@@ -2,9 +2,9 @@
 
 ## Overview
 
-`PopoverSnapshotTests` renders Divot's bar popovers offscreen to PNG files for visual review and pixel-level assertions. The tests run headlessly without a display and gracefully skip when offscreen rendering is unavailable (e.g., CI environments without a frame buffer).
+`PopoverSnapshotTests` renders Divot's bar popovers offscreen to PNG files for visual review and pixel-level assertions. The tests run headlessly without requiring a display; on systems without a frame buffer (e.g., CI), they print a clear message and pass without rendering.
 
-**Important:** Rendered snapshots are local evidence only — they are not tracked in git and are not reproduced across machines or macOS versions.
+**Important:** Rendered snapshots are local evidence only — they are stored in the gitignored `macos/.build/snapshots/` directory and are not tracked in git. Snapshots are not reproduced across machines or macOS versions; they serve as a checkpoint for the developer who runs them.
 
 ## What gets rendered
 

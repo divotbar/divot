@@ -6,10 +6,10 @@
 # are written to a gitignored directory for manual review.
 #
 # On macOS with a display, snapshots are rendered using offscreen AppKit
-# bitmap caching. On headless systems (CI), the test records a clear message
-# and continues without error.
+# bitmap caching. On headless systems (CI), tests skip gracefully with a
+# clear message and the suite still passes.
 
-set -e
+set -eo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SNAPSHOT_DIR="${DIVOT_SNAPSHOT_DIR:-$REPO_ROOT/macos/.build/snapshots}"
@@ -21,7 +21,13 @@ echo "Snapshots will be written to: $SNAPSHOT_DIR"
 echo ""
 
 cd "$REPO_ROOT"
-swift test --package-path macos --filter PopoverSnapshot 2>&1 | grep -E "Test|passed|failed|Suite"
+swift test --package-path macos 2>&1 | grep -E 'Popover snapshots|Test.*popover.*renders|passed|failed'
+
+exit_code=${PIPESTATUS[0]}
+if [ $exit_code -ne 0 ]; then
+    echo "Test suite failed with exit code $exit_code"
+    exit $exit_code
+fi
 
 echo ""
 echo "Snapshots directory: $SNAPSHOT_DIR"
