@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T08:39:48Z"
+review_passes: 5
 id: "0081"
 title: "Turn on RepoOS shots for the Divot bar and popovers, and prove the capture works end to end"
 type: chore
@@ -14,8 +16,6 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:39:48Z"
-review_passes: 4
 review_rounds: 2
 ---
 ## Problem
@@ -87,3 +87,4 @@ I could not open the review report's Automated verification section from this sa
 - 2026-10-13T08:38:27Z · note: shots: skipped — 18 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T08:39:48Z · note: review pass 5: needs some work
 - 2026-10-13T08:39:48Z · needs_input
+
