@@ -73,6 +73,19 @@ paths = ["site/**"]
 command = "bun run dev --port {port}"
 readyPath = "/"
 
+# Evidence shots for native work (#0081): renders the bar and popovers offscreen
+# via the snapshot tests into REPOOS_SHOT_DIR (gitignored under work/.attachments).
+# DIVOT_SNAPSHOT_SET=shots keeps it to a small representative set; the full matrix
+# stays with scripts/snapshots.sh. See docs/popover-snapshot-testing.md.
+[[shot.targets]]
+name = "Divot bar"
+areas = ["macos"]
+paths = ["macos/Sources/**", "macos/Tests/**"]
+command = 'DIVOT_SNAPSHOT_DIR="$REPOOS_SHOT_DIR" DIVOT_SNAPSHOT_SET=shots swift test --package-path macos --filter SnapshotTests'
+outputGlob = ["**/*.png"]
+requires = ["swift"]
+timeoutMs = 900000
+
 [[check.steps]]
 name = "justfile"
 command = "just --fmt --check"

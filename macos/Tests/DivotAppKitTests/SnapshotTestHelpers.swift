@@ -89,8 +89,52 @@ enum SnapshotTestHelpers {
         return nil
     }
 
-    /// Write a bitmap as PNG into `directory` (created if needed).
+    /// True when `url` is somewhere git ignores: a path inside a `.build` directory or ending in `snapshots`,
+    /// or the RepoOS shot directory (`REPOOS_SHOT_DIR`, under the gitignored
+    /// `work/.attachments/`) when `DIVOT_SNAPSHOT_DIR` points exactly at it.
+    static func isIgnoredLocation(_ url: URL) -> Bool {
+        let path = url.standardizedFileURL.path
+        let components = url.standardizedFileURL.pathComponents
+        if components.contains(".build") || components.last == "snapshots" { return true }
+        guard let shot = ProcessInfo.processInfo.environment["REPOOS_SHOT_DIR"], !shot.isEmpty else {
+            return false
+        }
+        let shotPath = URL(fileURLWithPath: shot).standardizedFileURL.path
+        return path == shotPath && shotPath.contains("/.attachments/")
+    }
+
+    /// The snapshot output directory: `DIVOT_SNAPSHOT_DIR` if set (it must be an
+    /// ignored location, so rendered images can never be committed), otherwise
+    /// `macos/.build/snapshots/`. `testFile` is the calling test's `#filePath`.
+    static func snapshotDirectory(testFile: String = #filePath) -> URL {
+        if let env = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_DIR"] {
+            let url = URL(fileURLWithPath: env)
+            if !isIgnoredLocation(url) {
+                preconditionFailure("DIVOT_SNAPSHOT_DIR must be under an ignored path (be inside '.build', end in 'snapshots', or be REPOOS_SHOT_DIR)")
+            }
+            return url
+        }
+        let macosDir = URL(fileURLWithPath: testFile)
+            .deletingLastPathComponent()  // DivotAppKitTests
+            .deletingLastPathComponent()  // Tests
+            .deletingLastPathComponent()  // macos
+        return macosDir.appendingPathComponent(".build").appendingPathComponent("snapshots")
+    }
+
+    /// Whether `name` belongs in this run's output. The full matrix is written
+    /// unless `DIVOT_SNAPSHOT_SET=shots`, which keeps a small representative set
+    /// for RepoOS evidence: native light and dark at the default text size, the
+    /// bar with chips off, and each popover. Assertions run for every name either way.
+    static func wantsPNG(named name: String) -> Bool {
+        guard ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_SET"] == "shots" else { return true }
+        guard name.contains("-native-"), name.contains("-default") else { return false }
+        return !name.hasPrefix("bar-") || name.hasSuffix("-chips-off")
+    }
+
+    /// Write a bitmap as PNG into `directory` (created if needed). Skipped when
+    /// the reduced set excludes `name`.
     static func writePNG(name: String, rep: NSBitmapImageRep, directory: URL) throws {
+        guard wantsPNG(named: name) else { return }
         guard let png = rep.representation(using: .png, properties: [:]) else {
             throw SnapshotError.pngEncodingFailed
         }
