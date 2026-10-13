@@ -2,7 +2,7 @@
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: active
+status: review
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -114,4 +114,4 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:49:25Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:50:52Z · body: section Shots
 - 2026-10-13T17:51:43Z · body: section Verification
-- 2026-10-13T17:53:37Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T17:53:37Z · status active→review
