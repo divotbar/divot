@@ -227,8 +227,8 @@ public enum ConfigurationSchema {
                 default: .ampm, \.widgets.time.timeFormat),
         optionalText("widgets.time.customPattern", "Custom time format pattern for timeFormat=custom.",
                      \.widgets.time.customPattern),
-        stringArray("widgets.time.timezones", "User's added world timezones (IANA identifiers).",
-                    default: [], \.widgets.time.timezones),
+        timezoneArray("widgets.time.timezones", "User's added world timezones (IANA identifiers).",
+                      \.widgets.time.timezones),
         boolean("widgets.network.showWifiName", "Show the connected Wi-Fi network name (asks for Location permission).",
                 default: false, \.widgets.network.showWifiName),
         boolean("widgets.volume.showVolumePercent", "Show the volume percentage.",
@@ -524,6 +524,25 @@ public enum ConfigurationSchema {
             write: { configuration, newValue in
                 guard case .stringArray(let array) = newValue else {
                     throw ConfigurationError(path: key, message: "expected string array")
+                }
+                configuration[keyPath: keyPath] = array
+            })
+    }
+
+    private static func timezoneArray(_ key: String, _ summary: String,
+                                      _ keyPath: WritableKeyPath<DivotConfiguration, [String]>) -> ConfigurationSetting {
+        let knownTimezones = Set(TimeZone.knownTimeZoneIdentifiers)
+        return ConfigurationSetting(
+            key: key, type: .stringArray, defaultValue: .stringArray([]), summary: summary,
+            read: { .stringArray($0[keyPath: keyPath]) },
+            write: { configuration, newValue in
+                guard case .stringArray(let array) = newValue else {
+                    throw ConfigurationError(path: key, message: "expected string array")
+                }
+                for timezone in array {
+                    if !knownTimezones.contains(timezone) {
+                        throw ConfigurationError(path: key, message: "unknown timezone: \(timezone)")
+                    }
                 }
                 configuration[keyPath: keyPath] = array
             })

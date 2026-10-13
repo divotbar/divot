@@ -138,6 +138,9 @@ function options(id: string, value: unknown) {
         if (!Array.isArray(value.timezones)) throw new Error(`${path}.timezones: expected array`)
         for (const tz of value.timezones) {
           if (typeof tz !== 'string') throw new Error(`${path}.timezones: expected array of strings`)
+          if (!/^[A-Za-z0-9_]+\/[A-Za-z0-9_]+/.test(tz) && !tz.startsWith('UTC')) {
+            throw new Error(`${path}.timezones: invalid IANA identifier format "${tz}"`)
+          }
         }
       }
       return
