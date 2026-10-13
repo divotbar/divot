@@ -81,70 +81,44 @@ A popover that renders with the correct theme colors, correct alignment, and no 
 
 # Bar snapshot testing
 
-`BarSnapshotTests` renders the menu bar (right-side panel) offscreen to PNG files for visual verification and pixel-level assertions. Like popover snapshots, bar snapshots are stored in the gitignored `macos/.build/snapshots/` directory and are local evidence only.
+`BarSnapshotTests` renders the **right-hand bar group** offscreen and asserts on its pixels. Like the popover snapshots it is local evidence only: PNGs go to the gitignored `macos/.build/snapshots/` (or `DIVOT_SNAPSHOT_DIR`), are never committed, and nothing is compared with a stored golden. Every expected value comes from `BarMetrics`, the resolved `BarTheme`, or `ChargingIndicatorPalette`.
 
-## What gets rendered
+## What is rendered
 
-### Bar right panel
-The right-side panel containing status items (clock, battery, network, volume, etc.) is rendered at:
-- All five theme families: native, Gruvbox, Ayu, Dracula, Tokyo Night
-- Both light and dark variants (10 configurations each)
-- Default text size (14pt) and one larger size (16pt)
-- Both with chips enabled and disabled
+A `BarContentView(side: .right)` holding `battery, clock, network, volume` in that order, 420 pt wide and `BarMetrics.height` tall, hosted in a light or dark `NSAppearance`. Twenty configurations: five theme families × light/dark × the default (14 pt) and one larger (16 pt) text size. Each configuration makes four renders, so 80 PNGs:
 
-This produces 40 bar snapshots (1 right panel × 5 families × 2 variants × 2 sizes × 2 chip states).
+| PNG suffix | Chips | Battery | Used for |
+| --- | --- | --- | --- |
+| `chips-off` | off | charging | slot layout, ink placement, right inset, contrast, charging green |
+| `chips-on` | on, 80% transparency | charging | translucent chip fill, contrast on the chip |
+| `chips-solid` | on, fully opaque | charging | order, gaps and inset measured from chip edges |
+| `not-charging` | off | not charging | no charging green |
 
-## Running the tests
+Pixels are converted to 8-bit sRGB before sampling, and the bitmap is drawn in sRGB, so alpha blends are comparable with the expected colours.
 
-The bar snapshots run as part of the standard test suite:
+## What the tests enforce
+
+1. **Item order and gaps.** Laid-out item slots are left to right in configured order, every gap equals `BarMetrics.rightItemSpacing`, and no slot is empty. With chips off, every slot contains drawn pixels and the gaps and leading margin are pure bar background. With solid chips, the chip edges are measured on the centre pixel row: four chips, starting at their slots, separated by the 8 pt gap (within two device pixels).
+2. **17 pt right inset.** The last slot ends `BarMetrics.rightEdgeInset` (17 pt) from the right edge, no pixel is drawn in the inset, the rightmost drawn column sits within 4 pt of the inset line, and the solid chip's right edge measures 17 pt from the bitmap edge (scaled by the bitmap scale, within two device pixels).
+3. **Chip fill and opacity.** Probed 1 pt inside each slot: chips off is the bar background; 80% transparency is the chip colour blended over the bar background at 20% (within 0.025 per channel, and the test fails if that blend is indistinguishable from the background); a fully opaque chip is the chip colour.
+4. **Charging green.** While charging, pixels of the fixed `ChargingIndicatorPalette` green (#248E3C) are present, all inside the battery slot, and span at least the icon width (the whole battery symbol is tinted, not only the bolt). With the battery not charging, no pixel is that green, and the battery still draws.
+5. **Text contrast.** The strongest pixel in the clock label meets `ContrastAudit.textThreshold` (4.5:1) against the bar background (chips off) or the blended chip colour (chips on).
+
+The assertions were checked by mutation: changing the right inset, the item gap, the chip alpha, the whole-symbol charging tint, or drawing chips when off each makes the suite fail.
+
+## Running
 
 ```bash
-swift test --package-path macos
+swift test --package-path macos --filter BarSnapshotTests
 ```
 
-Or use the provided script:
+`scripts/snapshots.sh` runs the full test suite, shows the popover and bar suite lines, and prints the output directory.
 
-```bash
-scripts/snapshots.sh
-```
+## What is not covered, and why
 
-This command also prints the snapshot output directory.
-
-## Pixel assertions
-
-When snapshots render successfully, each test verifies:
-
-1. **Background color** (`assertBackgroundColor`): The bar's background matches the theme's palette background color within a tolerance of 0.1 sRGB per channel, accounting for subpixel rendering differences.
-
-2. **Right edge inset** (`assertRightEdgeInset`): Verifies that `BarMetrics.rightEdgeInset == 17`, confirming the constant is defined correctly to reserve space for the camera-in-use indicator. Full pixel-level validation of the inset would require a more complex bar layout with multiple items.
-
-3. **Text contrast** (`assertTextContrast`): When text pixels are present, they meet the WCAG AA threshold (4.5:1 contrast) against the background. If no text is found, the assertion passes (the bar may be icons-only or minimal).
-
-4. **Chip styling** (`assertChipOpacity`): Confirms rendering succeeds and produces a non-empty bitmap. Full validation of chip visual styling would require injecting test items with known dimensions and tracking their pixel boundaries.
-
-## Known limitations
-
-### Test scope
-
-The initial test renders only the right-side panel with a minimal set of items (clock). The left-side panel (workspaces and front app) requires live workspace data and icon fetching, making it unsuitable for simple offscreen rendering tests. Future tests can extend coverage to the left side with mock workspace data.
-
-### No live provider data
-
-Bar snapshots do not render live provider output (battery, network, volume, time). These would require injecting mock provider state through the WidgetPipeline. The current tests render the structural layout and demonstrate the theming system. This limitation affects verification of:
-
-- **Charging indicator color**: The battery widget would display the fixed green (#248E3C) from `ChargingIndicatorPalette.green` when charging, but requires a `BatterySnapshot` with `isCharging: true`. To test this, inject mock battery state through `WidgetPipeline.emit()` or similar provider machinery.
-- **Real-time data widgets**: Items like time, network signal, and volume level require provider input.
-
-### Headless environments
-
-On systems without a display, `cacheDisplay` returns an empty bitmap. The test detects this and records a clear message instead of failing.
-
-## Assertion strategy
-
-Like popover snapshots, bar assertions verify against the **resolved theme palette**:
-
-- The bar's background should always be `theme.background`
-- Text/icons should meet contrast requirements against the background
-- This means the assertion passes correctly on any macOS version with the same theme colors resolved
-
-A bar that renders with the correct theme colors and acceptable contrast has satisfied the test's intent.
+- **Left group (workspaces, front app, Divot mark).** Not rendered or asserted. This is not an offscreen limitation: `WorkspaceBarView` and the front-app item can be rendered the same way (the existing workspace tests drive the view with a stub adapter and icon provider). These tests simply do not cover it yet, so left-side order, gaps and chip style have no visual evidence.
+- **Panel chrome.** The tests render `BarContentView`, not the `NSPanel`s. The panel level, the notch split between the two panels, and the optional bottom-shadow strip are not drawn.
+- **Network and volume glyphs.** Their slots are checked for presence, position and spacing, not for which symbol is drawn.
+- **Live data.** Items are fed fixed snapshots (80% charging battery, a fixed clock date, Wi-Fi connected, 50% volume), not provider output.
+- **Headless sessions.** If AppKit produces no pixels, the test fails (`Offscreen rendering produced no pixels`) rather than passing without assertions. This differs from the popover suite, which prints a skip message.
+- **Other machines.** Colours are compared within a tolerance after conversion to sRGB, but font and symbol rasterisation can differ between macOS versions, so a pass here is evidence for the machine that ran it.

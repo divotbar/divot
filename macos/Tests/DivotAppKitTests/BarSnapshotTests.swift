@@ -3,24 +3,70 @@ import Testing
 import DivotCore
 @testable import DivotAppKit
 
-/// Renders the menu bar offscreen to PNG for visual verification and pixel assertions.
+/// Renders the right-hand bar group (battery, clock, network, volume) offscreen
+/// for every theme family in light and dark, at the default and one larger text
+/// size, and asserts on the pixels. PNGs go to the gitignored
+/// `macos/.build/snapshots/` (or `DIVOT_SNAPSHOT_DIR`); nothing is compared with
+/// a stored golden, every expected value comes from `BarMetrics`, the resolved
+/// `BarTheme` or `ChargingIndicatorPalette`.
 ///
-/// Snapshots are written to a gitignored directory (DIVOT_SNAPSHOT_DIR or
-/// macos/.build/snapshots/) for manual review. Tests gracefully skip when
-/// offscreen rendering is unavailable (headless environments).
-///
-/// When snapshots render successfully, pixel assertions verify:
-/// - Background color matches theme palette
-/// - Right-edge inset of 17px is structurally defined in BarMetrics
-/// - Text contrast meets WCAG AA when text is present
-///
-/// Known limitations (documented in docs/popover-snapshot-testing.md):
-/// - No live provider data: battery/network/time widgets need WidgetPipeline emission
-/// - Item spacing/gaps require multi-item layouts with injected test state
-/// - Chip styling visual verification requires pixel-boundary analysis with known widget extents
+/// Per configuration four renders are made:
+/// - chips off, battery charging: slot layout, gaps, right inset, contrast, green
+/// - chips on at 80% transparency: chip fill is the alpha-blended chip colour
+/// - chips on, fully opaque: chip edges give a pixel-measured order, gap and inset
+/// - chips off, not charging: no charging green anywhere
 @MainActor
 @Suite("Bar snapshots")
 struct BarSnapshotTests {
+
+    static let items: [BarItemID] = [.battery, .clock, .network, .volume]
+    static let barWidth: CGFloat = 420
+    static let translucentChipOpacity = 80
+
+    struct Config: Sendable, CustomStringConvertible {
+        let family: AppearanceConfiguration.Family
+        let dark: Bool
+        let textSize: CGFloat
+
+        var description: String { name }
+        var name: String {
+            "\(family.rawValue)-\(dark ? "dark" : "light")-\(textSize == 14 ? "default" : "large")"
+        }
+    }
+
+    nonisolated static let configs: [Config] = {
+        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
+        return families.flatMap { family in
+            [false, true].flatMap { dark in
+                [CGFloat(14), CGFloat(16)].map { Config(family: family, dark: dark, textSize: $0) }
+            }
+        }
+    }()
+
+    enum Chips {
+        case off
+        case translucent
+        case solid
+    }
+
+    /// One rendered bar plus the layout facts the assertions compare it to.
+    struct Rendered {
+        let pixels: PixelBuffer
+        let metrics: BarMetrics
+        /// Item frames in points, left to right, in `items` order.
+        let frames: [CGRect]
+        let scale: Double
+        let background: RGB
+        let selected: RGB
+
+        var centerRow: Int { pixels.height / 2 }
+        func column(_ points: CGFloat) -> Int { Int((Double(points) * scale).rounded()) }
+        func isBackground(_ x: Int, _ y: Int, tolerance: Double = 0.02) -> Bool {
+            pixels.color(x, y).delta(background) < tolerance
+        }
+    }
+
+    // MARK: Rendering
 
     private func snapshotDirectory() -> URL {
         if let env = ProcessInfo.processInfo.environment["DIVOT_SNAPSHOT_DIR"] {
@@ -31,223 +77,251 @@ struct BarSnapshotTests {
             return url
         }
         let macosDir = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let buildDir = macosDir.appendingPathComponent(".build").appendingPathComponent("snapshots")
-        return buildDir
+            .deletingLastPathComponent()  // DivotAppKitTests
+            .deletingLastPathComponent()  // Tests
+            .deletingLastPathComponent()  // macos
+        return macosDir.appendingPathComponent(".build").appendingPathComponent("snapshots")
     }
 
-    // MARK: - Pixel assertions
-
-    private func assertBackgroundColor(in rep: NSBitmapImageRep, matches theme: BarTheme) {
-        let expected = theme.background
-        guard let sRGB = expected.usingColorSpace(.sRGB) else { return }
-
-        let width = rep.pixelsWide
-        let height = rep.pixelsHigh
-        let centerY = height / 2
-        let samples = [(width/4, centerY), (width/2, centerY)]
-
-        var successCount = 0
-        for (x, y) in samples {
-            guard let pixel = SnapshotTestHelpers.pixelColor(in: rep, x: x, y: y) else { continue }
-
-            let tolerance: CGFloat = 0.1
-            let rMatch = abs(pixel.r - sRGB.redComponent) < tolerance
-            let gMatch = abs(pixel.g - sRGB.greenComponent) < tolerance
-            let bMatch = abs(pixel.b - sRGB.blueComponent) < tolerance
-
-            if rMatch && gMatch && bMatch {
-                successCount += 1
-            }
+    private func render(_ config: Config, chips: Chips, charging: Bool, label: String) throws -> Rendered {
+        let appearance = AppearanceConfiguration(family: config.family,
+                                                 mode: config.dark ? .dark : .light,
+                                                 material: .opaque)
+        let theme = BarTheme.resolve(appearance, dark: config.dark,
+                                     increasedContrast: false, reduceTransparency: false)
+        let metrics = BarMetrics.scaled(textSize: config.textSize)
+        let opacity: Int
+        switch chips {
+        case .off, .solid: opacity = 0
+        case .translucent: opacity = Self.translucentChipOpacity
         }
 
-        #expect(successCount > 0, "No sampled pixels matched the background color")
+        let view = BarContentView(side: .right, items: Self.items,
+                                  enablesChipStyle: chips != .off,
+                                  chipOpacity: opacity,
+                                  metrics: metrics)
+        let nsAppearance = try #require(NSAppearance(named: config.dark ? .darkAqua : .aqua))
+        view.appearance = nsAppearance
+        view.apply(theme: theme)
+        view.applyInitialState()
+        view.apply([
+            .update(WidgetState(id: .battery, revision: 1,
+                                content: .battery(BatterySnapshot(presence: .internalBattery,
+                                                                  percentage: 80,
+                                                                  isCharging: charging,
+                                                                  isPluggedIn: charging)))),
+            .update(WidgetState(id: .clock, revision: 1,
+                                content: .clock(ClockSnapshot(date: Date(timeIntervalSince1970: 1_800_000_000))))),
+            .update(WidgetState(id: .network, revision: 1,
+                                content: .network(NetworkSnapshot(isConnected: true, kind: .wifi)))),
+            .update(WidgetState(id: .volume, revision: 1,
+                                content: .volume(VolumeSnapshot(hasOutputDevice: true, level: 0.5, isMuted: false))))
+        ])
+        let size = CGSize(width: Self.barWidth, height: metrics.height)
+        view.frame = NSRect(origin: .zero, size: size)
+        view.layoutSubtreeIfNeeded()
+
+        let rep = try #require(SnapshotTestHelpers.render(view, size: size),
+                               "Offscreen rendering produced no pixels for \(label)")
+        let name = "bar-right-\(config.name)-\(label)"
+        try SnapshotTestHelpers.writePNG(name: name, rep: rep, directory: snapshotDirectory())
+        let pixels = try #require(PixelBuffer(rep))
+
+        let itemViews = view.subviews.compactMap { $0 as? BarItemView }
+        try #require(itemViews.count == Self.items.count)
+        return Rendered(pixels: pixels,
+                        metrics: metrics,
+                        frames: itemViews.map(\.frame),
+                        scale: Double(pixels.width) / Double(size.width),
+                        background: SnapshotTestHelpers.rgb(theme.layerBackground, in: nsAppearance),
+                        selected: SnapshotTestHelpers.rgb(theme.selected, in: nsAppearance))
     }
 
-    private func assertRightEdgeInset(in rep: NSBitmapImageRep, theme: BarTheme) {
-        #expect(BarMetrics.rightEdgeInset == 17, "BarMetrics.rightEdgeInset should be 17pt to reserve camera-indicator space")
+    // MARK: Assertions
+
+    /// Item order and gaps from the laid-out slots, against `BarMetrics`.
+    private func assertSlotLayout(_ r: Rendered) {
+        for (left, right) in zip(r.frames, r.frames.dropFirst()) {
+            #expect(left.minX < right.minX, "Items are out of order")
+            #expect(abs((right.minX - left.maxX) - r.metrics.rightItemSpacing) < 0.01,
+                    "Gap between items is \(right.minX - left.maxX), expected \(r.metrics.rightItemSpacing)")
+        }
+        let last = r.frames.last!
+        #expect(abs((Self.barWidth - last.maxX) - BarMetrics.rightEdgeInset) < 0.01,
+                "Rightmost item ends \(Self.barWidth - last.maxX)pt from the right edge, expected \(BarMetrics.rightEdgeInset)")
+        #expect(r.frames.allSatisfy { $0.width > 0 }, "An item collapsed to zero width")
     }
 
-    private func assertTextContrast(in rep: NSBitmapImageRep, theme: BarTheme) {
-        let bgColor = theme.background
-        guard let bgSRGB = bgColor.usingColorSpace(.sRGB) else { return }
-
-        let bgSRGBColor = SRGBColor(
-            red: Double(bgSRGB.redComponent),
-            green: Double(bgSRGB.greenComponent),
-            blue: Double(bgSRGB.blueComponent)
-        )
-
-        let width = rep.pixelsWide
-        let height = rep.pixelsHigh
-        let tolerance: CGFloat = 0.15
-
-        var foundTextPixel = false
-        var textPixelsWithBadContrast = 0
-        var textPixelsWithGoodContrast = 0
-
-        for row in stride(from: height / 4, to: 3 * height / 4, by: max(1, height / 10)) {
-            for col in stride(from: width / 8, to: 7 * width / 8, by: max(1, width / 15)) {
-                guard let pixel = SnapshotTestHelpers.pixelColor(in: rep, x: col, y: row) else { continue }
-
-                let isBackground = abs(pixel.r - bgSRGB.redComponent) < tolerance
-                    && abs(pixel.g - bgSRGB.greenComponent) < tolerance
-                    && abs(pixel.b - bgSRGB.blueComponent) < tolerance
-
-                if !isBackground && pixel.a > 0.1 {
-                    foundTextPixel = true
-                    let textSRGBColor = SRGBColor(
-                        red: Double(pixel.r),
-                        green: Double(pixel.g),
-                        blue: Double(pixel.b)
-                    )
-
-                    let contrast = ContrastAudit.ratio(textSRGBColor, bgSRGBColor)
-                    if contrast >= ContrastAudit.textThreshold {
-                        textPixelsWithGoodContrast += 1
-                    } else {
-                        textPixelsWithBadContrast += 1
-                    }
+    /// With chips off the drawn ink must sit inside the slots: every item draws
+    /// something, and the gaps, the leading margin and the right inset are pure
+    /// bar background.
+    private func assertInkMatchesSlots(_ r: Rendered) {
+        let height = r.pixels.height
+        func columnsAreBackground(_ range: Range<Int>) -> Bool {
+            for x in range where x >= 0 && x < r.pixels.width {
+                for y in 0..<height where !r.isBackground(x, y) { return false }
+            }
+            return true
+        }
+        for (index, frame) in r.frames.enumerated() {
+            var inked = false
+            scan: for x in r.column(frame.minX)..<r.column(frame.maxX) {
+                for y in 0..<height where !r.isBackground(x, y, tolerance: 0.1) {
+                    inked = true
+                    break scan
                 }
             }
+            #expect(inked, "Item \(index) (\(Self.items[index].rawValue)) drew nothing in its slot")
         }
-
-        if foundTextPixel && textPixelsWithBadContrast > 0 {
-            let ratio = Double(textPixelsWithGoodContrast) / Double(textPixelsWithBadContrast + textPixelsWithGoodContrast)
-            #expect(ratio >= 0.8, "Most text pixels should meet contrast >= \(ContrastAudit.textThreshold):1 (found \(ratio * 100)% with good contrast)")
+        for (left, right) in zip(r.frames, r.frames.dropFirst()) {
+            #expect(columnsAreBackground((r.column(left.maxX) + 1)..<(r.column(right.minX) - 1)),
+                    "Ink between \(left.maxX)pt and \(right.minX)pt, inside the item gap")
         }
-    }
+        #expect(columnsAreBackground(0..<(r.column(r.frames[0].minX) - 1)), "Ink left of the first item")
+        let insetStart = r.column(Self.barWidth - BarMetrics.rightEdgeInset)
+        #expect(columnsAreBackground((insetStart + 1)..<r.pixels.width), "Ink inside the 17pt right inset")
 
-    private func assertAllPixelProperties(rep: NSBitmapImageRep, theme: BarTheme) {
-        assertBackgroundColor(in: rep, matches: theme)
-        assertRightEdgeInset(in: rep, theme: theme)
-        assertTextContrast(in: rep, theme: theme)
-    }
-
-    // MARK: - Bar view creation
-
-    private func makeBarView(
-        side: BarSide,
-        items: [BarItemID],
-        chipsEnabled: Bool,
-        fontSize: CGFloat
-    ) -> BarContentView {
-        let metrics = fontSize != 14
-            ? BarMetrics.scaled(textSize: fontSize)
-            : BarMetrics.default
-
-        return BarContentView(
-            side: side,
-            items: items,
-            enablesChipStyle: chipsEnabled,
-            chipOpacity: chipsEnabled ? 80 : 0,
-            metrics: metrics
-        )
-    }
-
-    private func testBar(
-        name: String,
-        side: BarSide,
-        items: [BarItemID],
-        appearance: AppearanceConfiguration,
-        isDark: Bool,
-        fontSize: CGFloat,
-        chipsEnabled: Bool
-    ) throws {
-        let theme = BarTheme.resolve(appearance, dark: isDark)
-        let metrics = fontSize != 14
-            ? BarMetrics.scaled(textSize: fontSize)
-            : BarMetrics.default
-
-        let view = makeBarView(side: side, items: items, chipsEnabled: chipsEnabled, fontSize: fontSize)
-        view.apply(theme: theme)
-
-        let viewWidth: CGFloat = 800
-        let viewHeight: CGFloat = metrics.height
-        view.frame = NSRect(x: 0, y: 0, width: viewWidth, height: viewHeight)
-
-        guard let rep = SnapshotTestHelpers.renderView(view, size: CGSize(width: viewWidth, height: viewHeight)) else {
-            print("BarSnapshotTests [\(name)]: Skipped — offscreen rendering unavailable (headless environment)")
-            return
+        // The rightmost drawn column sits against the inset line, not far short of it.
+        var rightmostInk = -1
+        for x in stride(from: insetStart, through: 0, by: -1) {
+            if (0..<height).contains(where: { !r.isBackground(x, $0, tolerance: 0.1) }) {
+                rightmostInk = x
+                break
+            }
         }
-
-        try SnapshotTestHelpers.writeBitmapToPNG(name: name, rep: rep, directory: snapshotDirectory())
-        assertAllPixelProperties(rep: rep, theme: theme)
+        let shortfall = Double(insetStart - rightmostInk) / r.scale
+        #expect(rightmostInk >= 0 && shortfall <= 4,
+                "Rightmost ink is \(shortfall)pt short of the \(BarMetrics.rightEdgeInset)pt inset line")
     }
 
-    // MARK: - Tests
-
-    @Test("Right bar — all themes × light/dark × default size × chips off")
-    func rightBarDefaultSizeNoChips() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
-        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
-        let rightItems: [BarItemID] = [.clock]
-
-        for family in families {
-            for (variantName, isDark) in variants {
-                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
-                let familyName = family == .native ? "native" : family.rawValue
-                let name = "bar-right-\(familyName)-\(variantName)-default-chips-off"
-                try testBar(name: name, side: .right, items: rightItems, appearance: appearance, isDark: isDark, fontSize: 14, chipsEnabled: false)
+    /// Chip fill: off draws none, translucent draws the alpha-blended chip colour,
+    /// both probed one point inside each slot's left edge (inside the chip padding,
+    /// clear of any glyph).
+    private func assertChipFill(_ r: Rendered, chips: Chips) {
+        let alpha = 1 - Double(Self.translucentChipOpacity) / 100
+        let expected = r.selected.blended(over: r.background, alpha: alpha)
+        if chips == .translucent {
+            #expect(expected.delta(r.background) > 0.03,
+                    "Chip colour is indistinguishable from the bar background; cannot prove opacity")
+        }
+        for (index, frame) in r.frames.enumerated() {
+            let probe = r.pixels.color(r.column(frame.minX + 1), r.centerRow)
+            switch chips {
+            case .off:
+                #expect(probe.delta(r.background) < 0.02, "Chips off but item \(index) has a chip fill")
+            case .translucent:
+                #expect(probe.delta(expected) < 0.025,
+                        "Item \(index) chip is \(probe), expected \(expected) at \(Self.translucentChipOpacity)% transparency")
+            case .solid:
+                #expect(probe.delta(r.selected) < 0.025, "Item \(index) solid chip is \(probe), expected \(r.selected)")
             }
         }
     }
 
-    @Test("Right bar — all themes × light/dark × default size × chips on")
-    func rightBarDefaultSizeWithChips() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
-        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
-        let rightItems: [BarItemID] = [.clock]
-
-        for family in families {
-            for (variantName, isDark) in variants {
-                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
-                let familyName = family == .native ? "native" : family.rawValue
-                let name = "bar-right-\(familyName)-\(variantName)-default-chips-on"
-                try testBar(name: name, side: .right, items: rightItems, appearance: appearance, isDark: isDark, fontSize: 14, chipsEnabled: true)
-            }
+    /// Fully opaque chips make each slot an edge-to-edge block of the chip colour,
+    /// so order, gap widths and the right inset can be measured from pixels alone.
+    private func assertMeasuredChipRuns(_ r: Rendered) {
+        #expect(r.selected.delta(r.background) > 0.05, "Chip colour is indistinguishable from the bar background")
+        var runs: [Range<Int>] = []
+        var start: Int?
+        for x in 0..<r.pixels.width {
+            let inChip = !r.isBackground(x, r.centerRow, tolerance: 0.03)
+            if inChip, start == nil { start = x }
+            if !inChip, let begin = start { runs.append(begin..<x); start = nil }
         }
+        if let begin = start { runs.append(begin..<r.pixels.width) }
+
+        #expect(runs.count == Self.items.count, "Measured \(runs.count) chips, expected \(Self.items.count)")
+        guard runs.count == Self.items.count else { return }
+        let tolerance = Int(ceil(r.scale)) + 1
+        for (index, run) in runs.enumerated() {
+            #expect(abs(run.lowerBound - r.column(r.frames[index].minX)) <= tolerance,
+                    "Chip \(index) starts at column \(run.lowerBound), expected \(r.column(r.frames[index].minX))")
+        }
+        for (left, right) in zip(runs, runs.dropFirst()) {
+            let gapPoints = Double(right.lowerBound - left.upperBound) / r.scale
+            #expect(abs(gapPoints - Double(r.metrics.rightItemSpacing)) <= 1.0 / r.scale * 2,
+                    "Measured chip gap \(gapPoints)pt, expected \(r.metrics.rightItemSpacing)pt")
+        }
+        let insetPoints = Double(r.pixels.width - runs.last!.upperBound) / r.scale
+        #expect(abs(insetPoints - Double(BarMetrics.rightEdgeInset)) <= 1.0 / r.scale * 2,
+                "Measured right inset \(insetPoints)pt, expected \(BarMetrics.rightEdgeInset)pt")
     }
 
-    @Test("Right bar — all themes × light/dark × larger text (16pt) × chips off")
-    func rightBarLargerTextNoChips() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
-        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
-        let rightItems: [BarItemID] = [.clock]
-
-        for family in families {
-            for (variantName, isDark) in variants {
-                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
-                let familyName = family == .native ? "native" : family.rawValue
-                let name = "bar-right-\(familyName)-\(variantName)-large-chips-off"
-                try testBar(name: name, side: .right, items: rightItems, appearance: appearance, isDark: isDark, fontSize: 16, chipsEnabled: false)
+    /// The strongest pixel in the clock label must clear the text threshold against
+    /// whatever sits behind it.
+    private func assertClockContrast(_ r: Rendered, behind: RGB) {
+        let frame = r.frames[1]
+        var best = 0.0
+        for x in r.column(frame.minX)..<r.column(frame.maxX) {
+            for y in 0..<r.pixels.height {
+                best = max(best, ContrastAudit.ratio(r.pixels.color(x, y).srgb, behind.srgb))
             }
         }
+        #expect(best >= ContrastAudit.textThreshold,
+                "Clock text peaks at \(best):1, below \(ContrastAudit.textThreshold):1")
     }
 
-    @Test("Right bar — all themes × light/dark × larger text (16pt) × chips on")
-    func rightBarLargerTextWithChips() throws {
-        let families: [AppearanceConfiguration.Family] = [.native, .gruvbox, .ayu, .dracula, .tokyoNight]
-        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
-        let rightItems: [BarItemID] = [.clock]
-
-        for family in families {
-            for (variantName, isDark) in variants {
-                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
-                let familyName = family == .native ? "native" : family.rawValue
-                let name = "bar-right-\(familyName)-\(variantName)-large-chips-on"
-                try testBar(name: name, side: .right, items: rightItems, appearance: appearance, isDark: isDark, fontSize: 16, chipsEnabled: true)
+    private func chargingGreenColumns(_ r: Rendered) -> [Int] {
+        let green = RGB(r: Double(ChargingIndicatorPalette.green.red),
+                        g: Double(ChargingIndicatorPalette.green.green),
+                        b: Double(ChargingIndicatorPalette.green.blue))
+        var columns: [Int] = []
+        for x in 0..<r.pixels.width {
+            for y in 0..<r.pixels.height where r.pixels.color(x, y).delta(green) < 0.05 {
+                columns.append(x)
             }
         }
+        return columns
     }
 
-    @Test("Snapshot directory is under an ignored path (safety check)")
+    // MARK: Tests
+
+    @Test("Right bar layout, inset, chip fill, contrast and charging green", arguments: configs)
+    func rightBar(config: Config) throws {
+        let off = try render(config, chips: .off, charging: true, label: "chips-off")
+        assertSlotLayout(off)
+        assertInkMatchesSlots(off)
+        assertChipFill(off, chips: .off)
+        assertClockContrast(off, behind: off.background)
+
+        // Charging green fills the battery slot, the first item, and nothing else.
+        let green = chargingGreenColumns(off)
+        #expect(green.count >= 10, "Charging battery drew only \(green.count) pixels of the fixed green")
+        // The whole battery symbol is tinted, not just the bolt, so the green
+        // spans at least the icon box.
+        let greenSpan = (green.max() ?? 0) - (green.min() ?? 0)
+        #expect(greenSpan >= off.column(off.metrics.iconSize),
+                "Charging green spans \(greenSpan)px, narrower than the \(off.column(off.metrics.iconSize))px icon: only the bolt is tinted")
+        let battery = off.frames[0]
+        #expect(green.allSatisfy { $0 >= off.column(battery.minX) - 1 && $0 <= off.column(battery.maxX) + 1 },
+                "Charging green appears outside the battery slot")
+
+        let translucent = try render(config, chips: .translucent, charging: true, label: "chips-on")
+        assertSlotLayout(translucent)
+        assertChipFill(translucent, chips: .translucent)
+        let alpha = 1 - Double(Self.translucentChipOpacity) / 100
+        assertClockContrast(translucent,
+                            behind: translucent.selected.blended(over: translucent.background, alpha: alpha))
+
+        let solid = try render(config, chips: .solid, charging: true, label: "chips-solid")
+        assertSlotLayout(solid)
+        assertChipFill(solid, chips: .solid)
+        assertMeasuredChipRuns(solid)
+
+        let idle = try render(config, chips: .off, charging: false, label: "not-charging")
+        #expect(chargingGreenColumns(idle).isEmpty, "Charging green drawn while not charging")
+        var batteryInked = false
+        for x in idle.column(idle.frames[0].minX)..<idle.column(idle.frames[0].maxX) {
+            for y in 0..<idle.pixels.height where !idle.isBackground(x, y, tolerance: 0.1) { batteryInked = true }
+        }
+        #expect(batteryInked, "Not-charging render drew no battery, so the absence check proves nothing")
+    }
+
+    @Test("Snapshot directory is under an ignored path")
     func snapshotDirectoryIsIgnored() {
-        let dir = snapshotDirectory()
-        let path = dir.path
+        let path = snapshotDirectory().path
         #expect(path.contains(".build"), "Snapshot directory '\(path)' must be under .build/ (gitignored)")
-        #expect(path.contains("snapshots"), "Snapshot directory must be under snapshots/ subdirectory")
+        #expect(path.contains("snapshots"), "Snapshot directory must be under snapshots/")
     }
 }
