@@ -8,8 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-popover-does-not-work-in-the
-cli_override: claude code
-model_override: haiku
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
 updated_at: "2026-10-13T18:00:31Z"
 review_passes: 6
@@ -147,3 +147,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:58:43Z · needs_input
 - 2026-10-13T17:58:43Z · status review→active
 - 2026-10-13T17:58:43Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:00:31Z · cli_override, model_override
