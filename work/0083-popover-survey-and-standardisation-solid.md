@@ -3,6 +3,9 @@ id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-failed
+needs_input_detail: the cursor agent timed out after 900s
 priority: p0
 area: macos
 assigned_to: ""
@@ -167,3 +170,4 @@ Runtime assertions in tests verify:
 - 2026-10-13T09:22:37Z · status active→review
 - 2026-10-13T09:22:44Z · note: shots: skipped — 22 handoff shots already captured for this exact plan (fa84252) during finalization (#0734)
 - 2026-10-13T09:41:06Z · note: review pass 2: failed — no usable report
+- 2026-10-13T09:41:06Z · needs_input
