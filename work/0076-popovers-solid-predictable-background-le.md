@@ -11,7 +11,7 @@ branch: feat/popovers-solid-predictable-background-le
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:50:05Z"
-updated_at: "2026-10-13T05:50:09Z"
+updated_at: "2026-10-13T05:55:43Z"
 ---
 ## Problem
 Maintainer feedback with screenshots (2026-10-13) on the Appearance, Volume and Wi-Fi popovers after #0073:
@@ -42,3 +42,4 @@ The maintainer's wording was ambiguous ('dial back the opacity', 'shouldn't be o
 - 2026-10-13T05:50:08Z · status inbox→ready
 - 2026-10-13T05:50:08Z · cli_override, model_override
 - 2026-10-13T05:50:09Z · status ready→active, branch
+- 2026-10-13T05:55:43Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
