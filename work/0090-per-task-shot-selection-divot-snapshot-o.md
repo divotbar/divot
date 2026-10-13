@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 114529
-last_close_out_gate_at: "2026-10-13T18:38:04.456Z"
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
-status: review
+status: done
 priority: p2
 area: [macos, docs]
+merged_commit: e2b846a059967e2c9464385a3eafb88d12d32e1f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
-updated_at: "2026-10-13T18:38:04Z"
+updated_at: "2026-10-13T18:38:14Z"
+last_close_out_gate_ms: 114529
+last_close_out_gate_at: "2026-10-13T18:38:04.456Z"
 review_passes: 8
 handoff_signal_retry_count: 1
 review_rounds: 2
@@ -156,4 +157,4 @@ Files captured:
 - 2026-10-13T18:10:32Z · note: shots: skipped — 228 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T18:11:42Z · note: review pass 8: good to go
 - 2026-10-13T18:38:04Z · close-out gate completed in 115s
-
+- 2026-10-13T18:38:14Z · status review→done, release:success
