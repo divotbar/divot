@@ -177,10 +177,11 @@ private func pressEvent() -> NSEvent {
 }
 
 /// Runtime check on the real popover window (no offscreen rendering): the host
-/// shows a borderless panel (isOpaque=false, clear background) to cut out the
-/// rounded corners and arrow, but the PopoverChromeView bubble inside is fully
-/// opaque (alpha 1 fill) with no NSVisualEffectView, and all text colours clear
-/// WCAG AA (4.5:1) contrast. Appearance theme rows all start at the same inset.
+/// shows a borderless panel with a clear (non-opaque) background so the rounded
+/// corners and arrow can be cut out, but the PopoverChromeView bubble drawn
+/// inside is fully opaque (alpha 1 fill) with no NSVisualEffectView material.
+/// All text colours clear WCAG AA (4.5:1) contrast. Appearance rows start at the
+/// same leading inset.
 @MainActor
 @Test func realPopoverWindowHasNoMaterialAndASolidFillForEveryTheme() {
     func walk(_ view: NSView, _ visit: (NSView) -> Void) {
