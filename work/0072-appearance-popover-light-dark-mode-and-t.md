@@ -9,6 +9,8 @@ depends_on: ["0071"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T02:01:47Z"
 updated_at: "2026-10-13T02:20:07Z"
 ---
@@ -37,3 +39,4 @@ Look at how the Appearance item toggles today and how the Settings window reads 
 
 - 2026-10-13T02:01:47Z · created · njachowski@gmail.com
 - 2026-10-13T02:20:07Z · status inbox→ready
+- 2026-10-13T02:20:07Z · cli_override, model_override
