@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T18:43:20Z"
+updated_at: "2026-10-13T18:45:32Z"
 review_passes: 7
 review_rounds: 2
 dev_error_count: 1
@@ -73,22 +73,34 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 {
   "label": "Empty state (0 zones): header + 'No other timezones. Add one below.', Add row and settings link",
   "target": "Divot bar",
-  "glob": "*world-clock*zero-timezones*"
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "worldclock"
+  },
+  "glob": "*worldclock*zero-timezones*"
 },
 {
   "label": "Default first-run state: three defaults (San Francisco, London, Singapore)",
   "target": "Divot bar",
-  "glob": "*world-clock*defaults*"
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "worldclock"
+  },
+  "glob": "*worldclock*defaults*"
 },
 {
   "label": "Four zones with Yesterday/Tomorrow day labels across the date line",
   "target": "Divot bar",
-  "glob": "*world-clock*day-label*"
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "worldclock"
+  },
+  "glob": "*worldclock*day-label*"
 },
 {
   "label": "Add flow: 'los' typed, results list visible (San Francisco)",
   "target": "Divot bar",
-  "glob": "*world-clock*add-flow*"
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "worldclock"
+  },
+  "glob": "*worldclock*add-flow*"
 }
 ]
 ```
@@ -173,3 +185,4 @@ Reproduced and fixed through the real controller path (`WorldClockPopoverControl
 - 2026-10-13T18:21:33Z · needs_input
 - 2026-10-13T18:43:10Z · body: section Root cause
 - 2026-10-13T18:43:20Z · body: section Shots
+- 2026-10-13T18:45:32Z · body: section Shots
