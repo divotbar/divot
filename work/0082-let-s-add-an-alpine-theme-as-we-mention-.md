@@ -2,7 +2,7 @@
 id: "0082"
 title: Add Alpine theme and refresh landing-page examples
 type: feature
-status: active
+status: review
 priority: p2
 area: web
 assigned_to: ai
@@ -74,4 +74,4 @@ Let’s add an “Alpine” theme as we mention on the landing page (and change 
 - 2026-10-13T09:22:30Z · status review→active
 - 2026-10-13T10:03:11Z · message_queued at 2026-10-13T10:03:11.315Z
 - 2026-10-13T10:03:11Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
-- 2026-10-13T10:24:00Z · note: shots: skipped — 3 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-13T10:24:00Z · status active→review
