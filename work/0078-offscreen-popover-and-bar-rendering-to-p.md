@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-13T06:56:09Z"
-review_passes: 4
 id: "0078"
 title: Offscreen popover and bar rendering to PNG with pixel assertions (gitignored output)
 type: chore
@@ -14,15 +12,17 @@ branch: feat/offscreen-popover-and-bar-rendering-to-p
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T06:23:20Z"
+updated_at: "2026-10-13T07:01:35Z"
+review_passes: 4
 review_rounds: 2
 ---
 ## Problem
 Native UI changes here have no visual evidence: RepoOS shots only cover web targets, so every macOS task reports 'shots: skipped'. Look, alignment, translucency and contrast problems were found only by the maintainer's eye (Appearance, Volume and Wi-Fi popovers, #0072-#0076). A RepoOS feature for command-based native shots is filed separately in the RepoOS repo (#0761); this task gives Divot something to feed it.
 
 ## Desired UX
-- A test helper renders Divot views offscreen to PNG without showing a window and without Screen Recording permission (AppKit bitmapImageRepForCachingDisplay / cacheDisplay or equivalent public API), inside the normal swift test run.
-- It renders the bar and each popover (Wi-Fi, Volume, Appearance and, once it lands, Calendar) for every theme family in light and dark, at the default text size and one larger size.
-- The images are written to a gitignored directory (for example macos/.build/snapshots/ or a path from an environment variable such as DIVOT_SNAPSHOT_DIR). They are NEVER committed to git: add the ignore rule, and make sure nothing under docs/ or site/ references a tracked PNG from this task.
+- A test helper renders each Divot popover (Wi-Fi, Volume, Appearance and Calendar) offscreen to PNG without showing a window and without Screen Recording permission, inside the normal swift test run, for every theme family in light and dark at the default text size and one larger size.
+- The images are written to a gitignored directory and are NEVER committed.
+- Rendering the bar itself is split into a follow-up task (rescoped by the driver on 2026-10-13 because the popover work is complete and the bar needs its own view harness).
 
 ## Acceptance criteria
 - Pixel-level assertions that do not need stored baseline images: the popover background fill is fully opaque (alpha 1) and equals the theme popover palette; sampled text pixels meet the existing contrast threshold against the sampled background; content is left-aligned (first non-background pixel column of header and rows within a small tolerance of the leading inset); nothing is clipped (content bounds within the popover bounds). Do not commit golden images.
@@ -60,4 +60,4 @@ Look at how the popover views and BarTheme/popoverPalette are built (BarPopover.
 - 2026-10-13T06:53:22Z · status active→review
 - 2026-10-13T06:53:23Z · note: shots: skipped — the diff (5 changed paths) touches no [[preview.paths]] globs — no UI change to capture
 - 2026-10-13T06:56:09Z · note: review pass 4: needs some work
-
+- 2026-10-13T07:01:35Z · body: section Desired UX
