@@ -1,5 +1,4 @@
 ---
-check_retry_count: 2
 last_check_failure: "repoos check at 2026-10-13T18:41:26.243Z: repoos check failed: native-core — 􁁛 Suite \"Windowless presentation\" passed after 10.578 seconds."
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
@@ -58,4 +57,5 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:40:08Z · message_queued at 2026-10-13T18:40:08.933Z
 - 2026-10-13T18:40:09Z · status review→active
 - 2026-10-13T18:41:26Z · message_delivered: 1 message(s)
+
 
