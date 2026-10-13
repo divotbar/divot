@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T16:58:21Z"
+updated_at: "2026-10-13T16:58:22Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -81,3 +81,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T16:49:20Z · status review→active
 - 2026-10-13T16:55:38Z · message_queued at 2026-10-13T16:55:38.559Z
 - 2026-10-13T16:58:21Z · status active→review
+- 2026-10-13T16:58:22Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (ba47c0df) during finalization (#0734)
