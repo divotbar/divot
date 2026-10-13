@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:19:36Z"
+updated_at: "2026-10-13T17:22:01Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -66,6 +66,36 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - The Settings window list behaves the same: removing everything leaves a working Add control.
 - Tests (through the real controller path, as above): remove every default one by one -> empty state rows are correct; add a zone from empty -> persisted and shown; reopen after emptying -> still empty; unset the key -> defaults return. Add an empty-state shot and an 'after adding from empty' shot.
 
+## Shots
+```json
+[
+{
+  "label": "World clock popover — empty state (0 zones)",
+  "target": "Divot bar",
+  "route": "/",
+  "glob": "*world-clock*zero-timezones*"
+},
+{
+  "label": "World clock popover — one zone",
+  "target": "Divot bar",
+  "route": "/",
+  "glob": "*world-clock*one-timezone*"
+},
+{
+  "label": "World clock popover — four zones with Yesterday/Tomorrow",
+  "target": "Divot bar",
+  "route": "/",
+  "glob": "*world-clock*four-timezones*"
+},
+{
+  "label": "World clock popover — add flow (typing \"los\")",
+  "target": "Divot bar",
+  "route": "/",
+  "glob": "*world-clock*search-results*"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T16:20:27Z · created · njachowski@gmail.com
@@ -99,3 +129,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:19:36Z · needs_input
 - 2026-10-13T17:19:36Z · status review→active
 - 2026-10-13T17:19:36Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T17:22:01Z · body: section Shots
