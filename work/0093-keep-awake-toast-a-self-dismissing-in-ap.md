@@ -2,14 +2,14 @@
 id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
-status: inbox
+status: ready
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T17:13:26Z"
+updated_at: "2026-10-13T18:55:30Z"
 ---
 ## Problem
 Clicking the battery item toggles keep-awake (#0018, #0051), but the only feedback is the small cup appearing or disappearing, which is easy to miss. The maintainer wants a short message under the battery item saying whether caffeine is now on or off, regardless of Focus/Do Not Disturb.
@@ -36,3 +36,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 ## Activity
 
 - 2026-10-13T17:13:26Z · created · njachowski@gmail.com
+- 2026-10-13T18:55:30Z · status inbox→ready
