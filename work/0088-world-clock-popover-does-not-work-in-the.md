@@ -93,3 +93,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:10:50Z · status review→active
 - 2026-10-13T17:10:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:14:21Z · status active→review
+- 2026-10-13T17:14:21Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (3e4e0c11) during finalization (#0734)
