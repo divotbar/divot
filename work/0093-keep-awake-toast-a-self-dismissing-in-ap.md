@@ -8,6 +8,8 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: claude code
+model_override: haiku
 created_at: "2026-10-13T17:13:26Z"
 updated_at: "2026-10-13T18:55:30Z"
 ---
@@ -37,3 +39,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 
 - 2026-10-13T17:13:26Z · created · njachowski@gmail.com
 - 2026-10-13T18:55:30Z · status inbox→ready
+- 2026-10-13T18:55:30Z · cli_override, model_override
