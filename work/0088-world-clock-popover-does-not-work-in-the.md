@@ -3,6 +3,9 @@ id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p0
 area: macos
 assigned_to: ""
@@ -11,7 +14,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:46:22Z"
+updated_at: "2026-10-13T17:46:23Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -135,3 +138,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:44:13Z · note: shots: failed — capture command for "Divot bar" exited 127 sh: scripts/swift-test-lock.sh: No such file or directory
 - 2026-10-13T17:46:22Z · note: review pass 5: needs some work
+- 2026-10-13T17:46:23Z · needs_input
