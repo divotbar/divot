@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T17:07:28Z"
+review_passes: 3
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
@@ -14,9 +16,7 @@ branch: feat/world-clock-popover-does-not-work-in-the
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-13T17:07:28Z"
 review_rounds: 2
-review_passes: 2
 ---
 ## Problem
 #0085 landed, but in the packaged app (maintainer screenshot 2026-10-13 23:16, UTC+7) the world clock popover does not work and looks wrong, and it does not look like the shots that were used to approve it (second screenshot):
@@ -92,3 +92,4 @@ Added by the maintainer 2026-10-13: when the user has removed ALL timezones the 
 - 2026-10-13T17:06:13Z · note: shots: skipped — 12 handoff shots already captured for this exact plan (3e4e0c11) during finalization (#0734)
 - 2026-10-13T17:07:28Z · note: review pass 3: needs some work
 - 2026-10-13T17:07:28Z · needs_input
+
