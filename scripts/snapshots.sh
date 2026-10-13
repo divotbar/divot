@@ -8,6 +8,10 @@
 # On macOS with a display, snapshots are rendered using offscreen AppKit
 # bitmap caching. On headless systems (CI), tests skip gracefully with a
 # clear message and the suite still passes.
+#
+# Note: DIVOT_SNAPSHOT_DIR should point to a gitignored directory.
+# By default it uses macos/.build/snapshots/ which is covered by the
+# existing macos/.build/ ignore rule.
 
 set -eo pipefail
 
@@ -21,8 +25,10 @@ echo "Snapshots will be written to: $SNAPSHOT_DIR"
 echo ""
 
 cd "$REPO_ROOT"
+# Run PopoverSnapshotTests suite specifically
 swift test --package-path macos 2>&1 | grep -E 'Popover snapshots|Test.*popover.*renders|passed|failed'
 
+# Capture the exit code from swift test (not grep)
 exit_code=${PIPESTATUS[0]}
 if [ $exit_code -ne 0 ]; then
     echo "Test suite failed with exit code $exit_code"
