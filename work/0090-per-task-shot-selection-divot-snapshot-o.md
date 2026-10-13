@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-13T17:58:13Z"
-review_passes: 6
 id: "0090"
 title: "Per-task shot selection: DIVOT_SNAPSHOT_ONLY filter and a ## Shots recipe (using RepoOS #0769)"
 type: chore
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p2
 area: [macos, docs]
 assigned_to: ""
@@ -16,6 +11,8 @@ branch: feat/per-task-shot-selection-divot-snapshot-o
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:31:06Z"
+updated_at: "2026-10-13T18:01:44Z"
+review_passes: 6
 handoff_signal_retry_count: 1
 review_rounds: 2
 ---
@@ -128,4 +125,4 @@ Filter works correctly: each token produces only its own image set with no cross
 - 2026-10-13T17:56:57Z · note: shots: skipped — 68 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-13T17:58:13Z · note: review pass 6: needs some work
 - 2026-10-13T17:58:13Z · needs_input
-
+- 2026-10-13T18:01:44Z · needs_input
