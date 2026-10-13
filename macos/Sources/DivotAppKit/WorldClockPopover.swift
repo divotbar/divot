@@ -6,15 +6,18 @@ import DivotCore
 public final class WorldClockPopoverController {
     private let openDateTimeSettings: @MainActor () -> Void
     private let getConfiguration: @MainActor () -> DivotConfiguration
+    private let updateTimezones: @MainActor ([String]) -> Void
 
     private let host = BarPopoverHost()
     private var content: WorldClockPopoverContentController?
     private var refreshTimer: Timer?
 
     public init(openDateTimeSettings: @escaping @MainActor () -> Void,
-               getConfiguration: @escaping @MainActor () -> DivotConfiguration) {
+               getConfiguration: @escaping @MainActor () -> DivotConfiguration,
+               updateTimezones: @escaping @MainActor ([String]) -> Void) {
         self.openDateTimeSettings = openDateTimeSettings
         self.getConfiguration = getConfiguration
+        self.updateTimezones = updateTimezones
         host.onClose = { [weak self] in self?.handleClosed() }
     }
 
