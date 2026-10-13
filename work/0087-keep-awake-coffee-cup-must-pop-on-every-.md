@@ -11,7 +11,7 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T18:21:23Z"
+updated_at: "2026-10-13T18:35:22Z"
 review_passes: 9
 review_rounds: 2
 dev_error_count: 1
@@ -154,3 +154,4 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:16:52Z · note: handoff requested (cli)
 - 2026-10-13T18:17:28Z · handoff failed · task-file handoff failed at validate · handoff worktree does not match the registered task worktree
 - 2026-10-13T18:21:23Z · needs_input
+- 2026-10-13T18:35:22Z · note: handoff requested (ui-review)
