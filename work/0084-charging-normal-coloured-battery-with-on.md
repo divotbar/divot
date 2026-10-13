@@ -2,7 +2,7 @@
 id: "0084"
 title: "Charging: normal-coloured battery with only the bolt green (undo the whole-icon tint)"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/charging-normal-coloured-battery-with-on
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T09:05:20Z"
-updated_at: "2026-10-13T10:29:46Z"
+updated_at: "2026-10-13T10:30:38Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -100,3 +100,4 @@ The palette approach successfully isolates the bolt from the body: the fixed gre
 - 2026-10-13T10:29:10Z · status review→active
 - 2026-10-13T10:29:39Z · body: section Shots
 - 2026-10-13T10:29:46Z · body: section Visual verification
+- 2026-10-13T10:30:38Z · status active→review
