@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-13T18:40:08Z"
+review_passes: 2
 id: "0092"
 title: "Banner probe v2: print every newly appearing window with its real layer, and measure Divot's actual window"
 type: bug
@@ -11,12 +13,10 @@ branch: feat/banner-probe-v2-print-every-newly-appear
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T16:56:56Z"
-updated_at: "2026-10-13T18:40:08Z"
 handoff_signal_retry_count: 1
 check_retry_count: 1
 last_check_failure: "repoos check at 2026-10-13T18:20:01.774Z: repoos check failed: ◆ Check plan"
 review_rounds: 1
-review_passes: 1
 ---
 ## Problem
 #0089 fixed the layer key but main's divot-notification-banner-probe --watch (DivotNotificationBannerProbe/main.swift, watchForNotificationWindows) still only reports windows whose owner name contains the exact, case-sensitive text 'NotificationCenter'. The maintainer ran it twice (2026-10-13 23:28 and 23:53) with real system overlays on screen (the Control Center panel was opened during the second run) and it printed only 'No NotificationCenter windows observed'. It also prints 'Divot panel layer for comparison: 23', computed from NSWindow.Level.mainMenu.rawValue - 1, not measured from Divot's real panel. The maintainer's Mac currently has Do Not Disturb on, so test notifications never appear; the Control Center panel is the reliable reference overlay.
@@ -55,3 +55,4 @@ Related: #0075, #0080, #0089. Do not kill processes by name.
 - 2026-10-13T18:39:14Z · status active→review
 - 2026-10-13T18:39:26Z · note: 28 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-13T18:40:08Z · note: review pass 2: needs some work
+
