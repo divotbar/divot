@@ -11,7 +11,7 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T15:49:27Z"
+updated_at: "2026-10-13T15:50:36Z"
 review_passes: 5
 review_rounds: 2
 last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
@@ -44,6 +44,17 @@ Maintainer screenshot 2026-10-13 20:26: the current bar with the time chip (20:2
 
 ## Notes for AI
 Reuse the shared popover component and the time-format helpers; follow the patterns of #0070-#0077 and #0083. Do not use sunrise/sunset or any location API. The time-converter scrubber and day/night marking are a separate follow-up task.
+
+## Shots
+```json
+[
+{
+  "target": "Divot bar",
+  "label": "World clock popover (world-clock-* snapshots)"
+}
+]
+```
+
 
 ## Activity
 
@@ -98,3 +109,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T15:44:43Z · needs_input
 - 2026-10-13T15:44:44Z · status review→active
 - 2026-10-13T15:44:44Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T15:50:36Z · body: section Shots
