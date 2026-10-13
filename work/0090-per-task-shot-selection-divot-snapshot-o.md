@@ -61,3 +61,4 @@ Reference: RepoOS user-docs/configuration.md section on [[shot.targets]] (per-en
 - 2026-10-13T17:19:37Z · status review→active
 - 2026-10-13T17:19:37Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-13T17:22:03Z · status active→review
+- 2026-10-13T17:22:03Z · note: handoff requested (cli)
