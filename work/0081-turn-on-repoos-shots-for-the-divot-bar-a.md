@@ -11,7 +11,7 @@ branch: feat/turn-on-repoos-shots-for-the-divot-bar-a
 cli_override: claude code
 model_override: sonnet
 created_at: "2026-10-13T08:21:30Z"
-updated_at: "2026-10-13T08:31:29Z"
+updated_at: "2026-10-13T08:31:43Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -40,6 +40,11 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - Not done: the ## Shots entry. repoos update --shots reads the MAIN checkout's repoos.toml, which has no 'Divot bar' target until this branch merges (error: unknown target, valid names: website), and the main checkout is off-limits. Declare it after merge: repoos update 0081 --shots '[{"target":"Divot bar","route":"/","label":"Divot bar and popovers"}]'. The handoff capture therefore relies on path matching (macos/Tests/**); a human must confirm what it records.
 - Calendar has no snapshot test, so no shot. Popover pixel assertions are disabled (they never ran before); reconciling them is follow-up.
 
+## Shots
+```json
+[{"target":"Divot bar","label":"Divot bar and popovers (offscreen snapshots)"}]
+```
+
 ## Activity
 
 - 2026-10-13T08:21:30Z · created · njachowski@gmail.com
@@ -62,3 +67,4 @@ Run in this worktree (agent shell, offscreen AppKit rendering worked):
 - 2026-10-13T08:31:29Z · needs_input
 - 2026-10-13T08:31:29Z · status review→active
 - 2026-10-13T08:31:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T08:31:43Z · body: section Shots
