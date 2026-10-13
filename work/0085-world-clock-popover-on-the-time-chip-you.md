@@ -1,6 +1,4 @@
 ---
-check_retry_count: 1
-last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
 id: "0085"
 title: "World clock popover on the time chip: your timezones with day label and hour difference"
 type: feature
@@ -13,7 +11,9 @@ branch: feat/world-clock-popover-on-the-time-chip-you
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T13:29:11Z"
-updated_at: "2026-10-13T13:29:23Z"
+updated_at: "2026-10-13T13:49:17Z"
+check_retry_count: 1
+last_check_failure: "repoos check at 2026-10-13T13:40:12.423Z: repoos check failed: native-core — 􁁛 Test configureReplacesAProviderWhoseActivationChanged() passed after 8.044 seconds."
 ---
 ## Problem
 Clicking the time chip only opens a System Settings pane. The date chip now opens a useful calendar (#0077); the time chip needs something equally useful. The maintainer lives in Jakarta and often needs the time in California (and others).
@@ -51,4 +51,4 @@ Reuse the shared popover component and the time-format helpers; follow the patte
 - 2026-10-13T13:29:22Z · status inbox→ready
 - 2026-10-13T13:29:23Z · cli_override, model_override
 - 2026-10-13T13:29:23Z · status ready→active, branch
-
+- 2026-10-13T13:49:17Z · message_queued at 2026-10-13T13:49:17.753Z
