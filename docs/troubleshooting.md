@@ -32,7 +32,7 @@ Exact z-order (which draws on top) and notification window levels are unmeasured
 
 **Investigation needed:** For a fix to be possible, a maintainer must:
 1. Trigger a real notification with auto-hide ON.
-2. Run `divot-notification-banner-probe` and share the banner's `kCGWindowLevel` and bounds.
+2. Run `divot-notification-banner-probe --watch` and share the banner's `kCGWindowLayer` and bounds.
 3. Determine the overlap mechanism and whether a safe public fix exists.
 
 ## Other constraints
