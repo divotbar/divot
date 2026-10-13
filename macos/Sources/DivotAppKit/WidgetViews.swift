@@ -190,19 +190,9 @@ final class BarItemView: NSView {
         displayedIndicatorSymbolName = indicator.symbolName
         let cupColor = indicatorColor(for: indicator.role)
 
-        // For keep-awake cups, add a thin outline for contrast on chips.
-        // Use strong outline: black for light modes, white for dark modes.
-        if indicator.role == .keepAwakeActive {
-            let outlineColor = NSColor(srgbRed: theme.isDark ? 1.0 : 0.0,
-                                       green: theme.isDark ? 1.0 : 0.0,
-                                       blue: theme.isDark ? 1.0 : 0.0,
-                                       alpha: 1)
-            indicatorView.image = Self.cupWithOutline(image: image, fillColor: cupColor, outlineColor: outlineColor)
-            indicatorView.contentTintColor = nil
-        } else {
-            indicatorView.image = image
-            indicatorView.contentTintColor = cupColor
-        }
+        // Render the cup in the fixed green color.
+        indicatorView.image = image
+        indicatorView.contentTintColor = cupColor
         indicatorView.isHidden = false
         // A native tooltip is the one thing AGENTS.md forbids; the state is
         // announced through the item's accessible label instead.
