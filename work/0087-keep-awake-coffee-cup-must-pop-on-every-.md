@@ -2,7 +2,10 @@
 id: "0087"
 title: Keep-awake coffee cup must pop on every theme in light and dark
 type: bug
-status: active
+status: review
+needs_input: true
+needs_input_reason: dev-error
+needs_input_detail: "error: Transport"
 priority: p2
 area: macos
 assigned_to: ""
@@ -11,9 +14,10 @@ branch: feat/keep-awake-coffee-cup-must-pop-on-every-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T16:15:55Z"
-updated_at: "2026-10-13T18:07:50Z"
+updated_at: "2026-10-13T18:16:10Z"
 review_passes: 9
 review_rounds: 2
+dev_error_count: 1
 ---
 ## Problem
 The keep-awake coffee cup next to the battery percentage (#0018, #0051) is hard to see: maintainer screenshots 2026-10-13 show it as a low-contrast olive/yellow cup on the chip (dark theme) and a muted brown-green cup on a pale yellow-green chip (light theme), close to the chip colour.
@@ -148,3 +152,5 @@ Look at how the cup is drawn next to the battery (WidgetViews.swift / WidgetPres
 - 2026-10-13T18:07:49Z · needs_input
 - 2026-10-13T18:07:50Z · status review→active
 - 2026-10-13T18:07:50Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-13T18:16:08Z · agent exited with an error (opencode) · error: Transport
+- 2026-10-13T18:16:10Z · status active→review
