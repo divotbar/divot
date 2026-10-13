@@ -11,7 +11,7 @@ branch: feat/investigate-macos-notification-banners-s
 cli_override: claude code
 model_override: haiku
 created_at: "2026-10-13T05:46:47Z"
-updated_at: "2026-10-13T05:59:54Z"
+updated_at: "2026-10-13T06:00:38Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -93,3 +93,4 @@ Window-level analysis shows notification banners use a level at or above 25 (abo
 - 2026-10-13T05:59:17Z · note: review pass 2: needs some work
 - 2026-10-13T05:59:17Z · status review→active
 - 2026-10-13T05:59:54Z · body: section Findings
+- 2026-10-13T06:00:38Z · note: shots: skipped — website matched only documentation content, and no declared shot names a route — docs captures need a declared route, so this target was skipped
