@@ -1,15 +1,11 @@
 ---
-last_close_out_gate_ms: 145606
-last_close_out_gate_at: "2026-10-13T10:53:38.531Z"
 id: "0083"
 title: "Popover survey and standardisation: solid, left-aligned, readable, verified with shots"
 type: bug
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p0
 area: macos
+merged_commit: 349075f2bcd07ee8605cb0d3e41148ad92658b93
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/popover-survey-and-standardisation-solid
@@ -18,7 +14,9 @@ model_override: haiku
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T09:00:54Z"
-updated_at: "2026-10-13T10:53:38Z"
+updated_at: "2026-10-13T10:53:43Z"
+last_close_out_gate_ms: 145606
+last_close_out_gate_at: "2026-10-13T10:53:38.531Z"
 review_passes: 5
 review_rounds: 2
 ---
@@ -207,4 +205,4 @@ The 22 PNG captures for Divot popovers are produced by the `repoos shot --target
 - 2026-10-13T10:48:57Z · note: review pass 6: needs some work
 - 2026-10-13T10:48:57Z · needs_input
 - 2026-10-13T10:53:38Z · close-out gate completed in 146s
-
+- 2026-10-13T10:53:43Z · status review→done, release:success
