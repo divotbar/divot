@@ -371,10 +371,11 @@ public enum ConfigurationParser {
 
     private static func keepAwakeOptions(_ value: Any?) throws -> KeepAwakeConfiguration {
         guard let value else { return .default }
-        let object = try shape(value, required: [], optional: ["remember", "isActive"], path: "keepAwake")
+        let object = try shape(value, required: [], optional: ["remember", "isActive", "showToast"], path: "keepAwake")
         var configuration = KeepAwakeConfiguration.default
         if let raw = object["remember"] { configuration.remember = try boolean(raw, path: "keepAwake.remember") }
         if let raw = object["isActive"] { configuration.isActive = try boolean(raw, path: "keepAwake.isActive") }
+        if let raw = object["showToast"] { configuration.showToast = try boolean(raw, path: "keepAwake.showToast") }
         return configuration
     }
 

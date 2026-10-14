@@ -415,6 +415,9 @@ private func error<T>(_ body: () throws -> T) -> ConfigurationError? {
     let withValue = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":["battery"],"keepAwake":{"remember":true,"isActive":true}}"##)
     #expect(try ConfigurationParser.parse(jsonObject: withValue).configuration.keepAwake
         == KeepAwakeConfiguration(remember: true, isActive: true))
+
+    let toastOff = try json(##"{"version":2,"appearance":{"family":"native","mode":"system","accent":"#D6F58A","material":"native"},"layout":{"height":32,"padding":12},"left":["workspaces"],"right":["battery"],"keepAwake":{"showToast":false}}"##)
+    #expect(try ConfigurationParser.parse(jsonObject: toastOff).configuration.keepAwake.showToast == false)
 }
 
 @Test func keepAwakeRejectsUnknownAndWronglyTypedFields() throws {

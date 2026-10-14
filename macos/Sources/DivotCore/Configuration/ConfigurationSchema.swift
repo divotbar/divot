@@ -241,6 +241,8 @@ public enum ConfigurationSchema {
                 default: false, \.keepAwake.remember),
         boolean("keepAwake.isActive", "Remembered keep-awake state; only written while remember is on.",
                 default: false, \.keepAwake.isActive),
+        boolean("keepAwake.showToast", "Show the keep-awake message when caffeine is toggled.",
+                default: true, \.keepAwake.showToast),
         boolean("menuBar.trustAccessibilityProbe", "Trust the Accessibility menu-bar observation on notched hardware.",
                 default: false, \.menuBar.trustAccessibilityProbe),
         boolean("menuBar.moveBelowOnCursorReveal", "Follow an auto-hidden menu bar's reveal from the pointer at the top strip.",

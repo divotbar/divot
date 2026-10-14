@@ -84,8 +84,8 @@ function text(value: unknown) {
  * item must stay valid even when the battery is not placed on either side.
  */
 function keepAwake(value: unknown) {
-  shape(value, [], ['remember', 'isActive'], 'keepAwake')
-  flags(value, ['remember', 'isActive'], 'keepAwake')
+  shape(value, [], ['remember', 'isActive', 'showToast'], 'keepAwake')
+  flags(value, ['remember', 'isActive', 'showToast'], 'keepAwake')
 }
 
 /**

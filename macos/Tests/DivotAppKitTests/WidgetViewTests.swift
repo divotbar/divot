@@ -90,6 +90,29 @@ private func imageViews(in view: NSView) -> [NSImageView] {
 }
 
 @MainActor
+@Test func batteryToggleReportsTheClickedItemViewForToastPlacement() {
+    var anchor: NSView?
+    var actions: [WidgetAction] = []
+    let content = BarContentView(side: .right,
+                                 items: [.battery],
+                                 onActivate: { actions.append($0) },
+                                 onToggleKeepAwake: { anchor = $0 })
+    content.applyInitialState()
+    let item = try! #require(content.itemViewForID(.battery) as? BarItemView)
+    let presentation = WidgetPresenter.present(
+        id: .battery,
+        state: WidgetState(id: .battery, revision: 1,
+                           content: .battery(BatterySnapshot(presence: .internalBattery,
+                                                             percentage: 80,
+                                                             isCharging: false,
+                                                             isKeepingAwake: false))))
+    item.update(presentation, action: .toggleKeepAwake)
+    #expect(item.accessibilityPerformPress())
+    #expect(anchor === item)
+    #expect(actions == [.toggleKeepAwake])
+}
+
+@MainActor
 @Test func nativeStatusSymbolsUseTheBarIconSizeAndScaleWithTextSize() {
     func resolvedImage(_ view: BarItemView) -> NSImage? {
         imageViews(in: view).first { !$0.isHidden && $0.image != nil }?.image

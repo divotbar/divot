@@ -122,6 +122,35 @@ public enum KeepAwakeIndicatorPalette {
 /// dark one, so no brighter system green can be the single value. Only the bolt
 /// of the charging battery symbol is this green; the outline and fill keep the
 /// normal label colour (#0084).
+/// Fixed semantic colours for the keep-awake toast heading and accent mark (#0093).
+///
+/// The toast draws on the same solid popover background as the bar popovers. The
+/// on/off state is carried by these greens and reds, not the theme accent, so
+/// caffeine feedback reads the same on every family in light and dark.
+public enum KeepAwakeToastPalette {
+    public static let activeLightHex = "#0B6B3A"
+    public static let activeDarkHex = "#7BD88F"
+    public static let inactiveLightHex = "#C41E3A"
+    public static let inactiveDarkHex = "#FF7B7B"
+
+    public static func activeHex(dark: Bool) -> String { dark ? activeDarkHex : activeLightHex }
+    public static func inactiveHex(dark: Bool) -> String { dark ? inactiveDarkHex : inactiveLightHex }
+
+    public static func active(dark: Bool) -> ThemeColor {
+        guard let color = ThemeColor(hex: activeHex(dark: dark)) else {
+            preconditionFailure("Invalid keep-awake toast green: \(activeHex(dark: dark))")
+        }
+        return color
+    }
+
+    public static func inactive(dark: Bool) -> ThemeColor {
+        guard let color = ThemeColor(hex: inactiveHex(dark: dark)) else {
+            preconditionFailure("Invalid keep-awake toast red: \(inactiveHex(dark: dark))")
+        }
+        return color
+    }
+}
+
 public enum ChargingIndicatorPalette {
     /// The SF Symbol drawn while charging: a battery with a bolt, whose palette
     /// layers (bolt, outline, fill) let the view colour the bolt alone.

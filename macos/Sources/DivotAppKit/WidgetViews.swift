@@ -444,6 +444,9 @@ final class BarContentView: NSView, BarContentLifecycle {
     /// configured item; it decorates the left group and opens Divot settings.
     private var appIconButton: DivotAppIconButton?
     var onActivate: ((WidgetAction) -> Void)?
+    /// The battery item's click, with the item view that was pressed (for
+    /// anchoring the keep-awake toast on the correct display).
+    var onToggleKeepAwake: ((NSView) -> Void)?
 
     private let metrics: BarMetrics
     /// The shared Wi-Fi popover. When present, the network item opens it instead
@@ -489,7 +492,8 @@ final class BarContentView: NSView, BarContentLifecycle {
          appearancePopover: AppearancePopoverController? = nil,
          calendarPopover: CalendarPopoverController? = nil,
          worldClockPopover: WorldClockPopoverController? = nil,
-         onActivate: ((WidgetAction) -> Void)? = nil) {
+         onActivate: ((WidgetAction) -> Void)? = nil,
+         onToggleKeepAwake: ((NSView) -> Void)? = nil) {
         self.side = side
         self.items = items
         self.metrics = metrics
@@ -501,6 +505,7 @@ final class BarContentView: NSView, BarContentLifecycle {
         self.calendarPopover = calendarPopover
         self.worldClockPopover = worldClockPopover
         self.onActivate = onActivate
+        self.onToggleKeepAwake = onToggleKeepAwake
         super.init(frame: .zero)
         wantsLayer = true
         // The mark leads the left group only; the right group starts at the
@@ -562,6 +567,9 @@ final class BarContentView: NSView, BarContentLifecycle {
                 if id == .time, case .openSettings(.dateTime) = action, let view, let worldClockPopover = self.worldClockPopover {
                     worldClockPopover.toggle(relativeTo: view, theme: self.theme)
                     return
+                }
+                if case .toggleKeepAwake = action, let view {
+                    self.onToggleKeepAwake?(view)
                 }
                 self.onActivate?(action)
             }
@@ -706,6 +714,11 @@ final class BarContentView: NSView, BarContentLifecycle {
         super.viewDidChangeEffectiveAppearance()
         needsDisplay = true
         onEffectiveAppearanceChange?()
+    }
+
+    /// Get the item view for a specific item ID, if it exists.
+    func itemViewForID(_ id: BarItemID) -> NSView? {
+        itemViews[id]
     }
 }
 

@@ -65,4 +65,26 @@ struct WindowlessAppKitTests {
 
         surface.close()
     }
+
+    @Test func keepAwakeToastPresentRecordsWithoutShowingAWindow() {
+        #expect(onScreenWindowsOwnedByThisProcess().isEmpty)
+
+        let presenter = RecordingWindowPresenter()
+        let host = KeepAwakeToastHost(presenter: presenter)
+        let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
+                                    styleMask: .borderless, backing: .buffered, defer: false)
+        let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
+        anchorWindow.contentView?.addSubview(anchor)
+
+        let state = KeepAwakeToastState(isActive: true)
+        host.present(state, relativeTo: anchor, theme: .systemDefault)
+
+        #expect(presenter.orderFrontRegardlessCount == 1)
+        #expect(presenter.wouldPresent)
+        #expect(host.panel != nil)
+        #expect(host.panel?.isVisible != true)
+
+        host.dismiss(animated: false)
+        #expect(onScreenWindowsOwnedByThisProcess().isEmpty)
+    }
 }
