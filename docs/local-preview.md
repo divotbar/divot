@@ -188,8 +188,9 @@ person has looked at them on screen; that is on the hardware checklist below.
 
 The bar is designed to keep the native menu bar accessible while Divot stays
 visible: it occupies the top edge when the native bar is hidden and shifts below
-it when it is revealed, returning to the top when it hides. Panel level is just
-below the system menu bar (`mainMenu - 1`), so native menus stay above Divot.
+it when it is revealed, returning to the top when it hides. Panel level sits
+below notification banners and the native menu bar (level 20 since #0080), so
+banners draw over the bar and native menus stay above Divot.
 
 Disclosed limits (never hidden):
 

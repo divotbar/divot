@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-14T06:26:49Z"
-review_passes: 1
 id: "0080"
 title: Measure the banner window level with the probe and decide the fix
 type: chore
@@ -14,6 +12,7 @@ branch: feat/measure-the-banner-window-level-with-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T07:47:17Z"
+updated_at: "2026-10-14T06:26:02Z"
 ---
 ## Problem
 #0075 shipped an investigation, evidence doc and a read-only divot-notification-banner-probe, but nobody has measured the notification banner window yet, so the core question is still open: can Divot sit below banners (or otherwise avoid hiding their content) with public API? Maintainer screenshot 2026-10-13 shows a Chrome / Google Calendar banner whose title row is tucked under the Divot bar.
@@ -64,15 +63,6 @@ Highest-layer windows visible at end of watch period:
 3. Notification Centre [NotificationCenter banner] (layer 21)
 4. Dock (layer 20)
 
-## Decision
-Measured 2026-10-14 (maintainer run, macOS 26.5.2, packaged app, auto-hide on): Divot panel layer 23, CG-bounds (942, 0, 768, 39); notification banner layer 21; Dock 20; ControlCenter 25.
-
-**Decision: lower the bar panel's window level to 20 — one point below the measured notification-banner layer — and keep collection behavior unchanged.**
-
-Reasoning: the banner sits *below* Divot (21 < 23), so Divot is what hides the banner's title row. Reordering the bar beneath the banner is the minimal public-API fix: a banner then draws over the bar, while the bar stays above ordinary app windows (level 0) and below the native menu bar (24) and its pop-up menus (101), which still open above Divot. Window level is orthogonal to `collectionBehavior`, so the #0009/#0021/#0023 Spaces and fullscreen placement is unaffected. Insetting the bar was rejected: it duplicates the #0023 cursor-reveal slide and breaks the intentional #0021 top-edge placement.
-
-Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPanels.swift`) with a unit test in `BarPanelContainerTests.swift`; evidence doc, docs, and site troubleshooting/workspaces pages updated. The banner's own bounds and the revealed-menu-bar case were not in the pasted output and remain unmeasured; the maintainer's eye check on the packaged app with a real notification is still required (no visual sign-off claimed).
-
 
 ## Activity
 
@@ -82,8 +72,4 @@ Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPan
 - 2026-10-14T06:15:13Z · body: section Probe output
 - 2026-10-14T06:15:13Z · cli_override, model_override
 - 2026-10-14T06:15:14Z · status ready→active, branch
-- 2026-10-14T06:22:05Z · body: section Decision
-- 2026-10-14T06:26:03Z · status active→review
-- 2026-10-14T06:26:31Z · note: 60 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
-- 2026-10-14T06:26:49Z · note: review pass 1: good to go
-
+- 2026-10-14T06:26:02Z · status active→review

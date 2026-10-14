@@ -1,284 +1,259 @@
 # Evidence · 0075 notification banner overlap with Divot bar
 
-Status: **investigation incomplete; banner window levels and overlap mechanism unmeasured; limitation documented but fix feasibility unresolved.**
-Task 0075 · investigation phase 2026-10-13.
+Status: **banner level measured (21) and root cause confirmed; Divot's panel
+level lowered to 20 (#0080). The z-order fix awaits the maintainer's eye check
+on the packaged app; the banner's own bounds and the revealed-menu-bar /
+fullscreen cases are still unmeasured.**
+Task 0075 (investigation) · task 0080 (measurement + fix) · 2026-10-14.
 
-This records findings from investigating why macOS notification banners
-position themselves below the Divot bar (banner title row partly covered).
+This records what a live measurement observed on the maintainer's Mac about why
+macOS notification banners sit under the Divot bar, and the fix decided from it.
+It does not claim the fixed behaviour looks right on screen; a person must still
+verify it by eye (see [What a person still has to do](#what-a-person-still-has-to-do)).
 
-## Measurement setup
+## Measurement run (2026-10-14)
 
-**Probe 2026-10-13 (initial):** Built and ran `divot-notification-banner-probe` (queries
-`CGWindowListCopyWindowInfo` for all windows). The probe:
-- Parses window levels via NSNumber/intValue to avoid silent zero values
-- Parses bounds from X/Y/Width/Height dictionary entries as NSNumber doubles
-- Converts CoreGraphics coordinates (top-left origin) to AppKit coordinates (bottom-left origin) using primary screen height
-- Labels all output as AppKit coordinates for clarity
+Maintainer run on the packaged `dist/Divot.app` with the native menu bar set to
+auto-hide, while a real **App Background Activity** notification banner was on
+screen:
 
-Result: no notification windows found in that sandboxed environment.
+```text
+$ swift run --package-path macos divot-notification-banner-probe --watch 20
+os=26.5.2
+Watching all windows for 20 seconds, polling twice per second...
 
-**Probe 2026-10 (watch mode, v2):** Updated probe provides a `--watch` mode for live measurement:
+[13:13:17] window-77191 [Divot panel] owner=divot pid=89801 layer=23 CG-bounds=(0, 0, 769, 39) AppKit-bounds=(0, 1068, 769, 39) alpha=1.00 on-screen=true
+[13:13:17] window-77192 [Divot panel] owner=divot pid=89801 layer=23 CG-bounds=(942, 0, 768, 39) AppKit-bounds=(942, 1068, 768, 39) alpha=1.00 on-screen=true
 
-```bash
-swift build --package-path macos && macos/.build/debug/divot-notification-banner-probe --watch [seconds]
+[13:13:33] ControlCenter panels (layer 25, above Divot panel layer 23): window-53 (Amphetamine), window-14505, window-54133, window-61067, window-61090, window-61353, window-77190 (all Item-0), CG-bounds y=-34, on-screen=false
+[13:13:33] window-77197 owner=Window Server name="System Status Item Clone" layer=25 CG-bounds=(1425, -26, 20, 18) alpha=0.29 on-screen=false
+
+## Summary
+Divot panel layer (measured): 23
+  CG-bounds: (942, 0, 768, 39)
+  AppKit-bounds: (942, 1068, 768, 39)
+
+Highest-layer windows visible at end of watch period:
+1. IsThereNet (layer 2147483628)
+2. divot [Divot panel] (layer 23)
+3. Notification Centre [NotificationCenter banner] (layer 21)
+4. Dock (layer 20)
 ```
 
-This polls `CGWindowListCopyWindowInfo` twice per second (0.5-second intervals) and prints:
-- **Every newly appearing window:** timestamp, owner name, owner PID, window name, layer, CG bounds, AppKit-flipped bounds, alpha, on-screen status
-- **Every window whose bounds or layer changed** between polls
-- **Window classification:** `[NotificationCenter banner]` or `[ControlCenter]` (detected by owner name or bundle ID, case-insensitive) or `[Divot panel]`
-- **Divot panel's measured layer:** extracted from the window list and printed in real time
-- **Comparison line:** for each changed window, notes whether its layer is above, below, or equal to Divot's measured panel layer
-- **Summary:** lists the 5 highest-layer windows observed on-screen, or notes if nothing new appeared
+### What the numbers say
 
-**Prerequisites for measurement:**
-1. Do Not Disturb must be OFF (notifications are suppressed when DND is enabled)
-2. Notification Center or Calendar must deliver a notification during the watch period
-3. Alternative: Open System Settings → Control Center panel to test with a ControlCenter window (a stable, reliable overlay for layer comparison)
+| Window | Layer | Bounds (CG, top-left origin) | Notes |
+| --- | --- | --- | --- |
+| Divot panel (left) | 23 | (0, 0, 769, 39) | top edge; 39 pt tall |
+| Divot panel (right) | 23 | (942, 0, 768, 39) | camera-housing gap between x=769 and x=942 |
+| NotificationCenter banner | 21 | **not captured in this run** | level read from the end-of-watch list |
+| Dock | 20 | not captured | reference point for the level band |
+| ControlCenter panel | 25 | y=-34 (off-screen here) | ordered above Divot already |
 
-**Example to trigger a banner:** 
-```bash
-osascript -e 'display notification "Test message" with title "Divot test"'
-```
-Or trigger a Calendar event notification, or use another app that sends notifications.
+Coordinates keep their frame of reference. CG bounds use macOS's **top-left**
+origin; AppKit bounds are the same rectangles flipped against the primary
+display height (1107): `AppKit y = 1107 − CG maxY`. Divot's top-edge panel is
+therefore CG `y=0` / AppKit `y=1068`, and it is 39 points tall.
 
-## What was observed
+**Root cause (measured, not inferred):** Divot's panel is at `kCGWindowLayer`
+23 and the notification banner at 21, so Divot is ordered **above** the banner.
+The banner's title row is hidden because the bar's opaque full-width region
+occupies the top 39 points and draws over it. The overlap is a z-order
+relationship, not only the spatial coincidence of both sitting near y=0.
 
-| Field | Value |
-| --- | --- |
-| OS | macOS 26.5.2 (build 25F84) |
-| Hardware | Apple silicon (arm64), one built-in **notched** display (1710 × 1107) |
-| Probe | `divot-notification-banner-probe` (custom CoreGraphics window enumeration) |
-
-Probe output confirmed system state and window level definitions. No notification
-banners were visible during the probe run; banner positioning is inferred from
-the menu-bar height measurements and documented macOS behavior.
+**What this run did not capture.** The banner's own bounds are not in the paste
+above: the `--watch` summary prints only the *layer* of the highest windows,
+and per-window CG/AppKit bounds are printed only for windows that newly appear
+or change during the watch. The banner was already on screen when the watch
+seeded, so only its level reached the summary. Running the one-shot probe
+(`divot-notification-banner-probe`, no `--watch`) while a banner is visible
+prints its `frame (AppKit coords)`.
 
 ## Questions answered
 
 ### 1. What window level, collection behaviour and ignoresMouseEvents does the Divot panel use?
 
-**Divot bar configuration** (`BarPanels.swift` line 211–212):
+**Bar configuration (`BarPanels.swift`):**
 
 | Property | Value | Purpose |
 | --- | --- | --- |
-| Window level | `NSWindow.Level.mainMenu - 1` (= 23) | Just below the native system menu bar (level 24) |
-| Collection behavior | `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]` | Spans all Spaces, stays fixed on-screen, appears in fullscreen, excludes from app switcher |
-| ignoresMouseEvents | (not set, defaults to `false`) | Panels receive mouse events; can activate popovers |
+| Window level | 20 (before #0080: `mainMenu - 1` = 23) | Below notification banners, above app content, below the native menu bar |
+| Collection behavior | `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]` | Spans all Spaces, stays fixed on-screen, appears in fullscreen, excluded from the app switcher |
+| ignoresMouseEvents | (not set, defaults to `false`) | Panels receive mouse events so they can activate popovers |
 | Nonactivating | `canBecomeKey == false`, `canBecomeMain == false` | Cannot steal focus from the user's frontmost app |
 
-**Comment in BarPanels.swift (lines 207–210):**
-> "Just under the system menu bar, so native menus still open above Divot.
-> Spatial placement already avoids overlap on notch-free displays; this keeps
-> the native bar on top in the unresolved notched case. Final level/collection
-> choices are physical-validation items."
-
-This means the level choice is provisional pending physical testing.
+Window *level* and `collectionBehavior` are orthogonal: lowering the level does
+not change Spaces/fullscreen membership. The collection behavior is unchanged
+by #0080.
 
 ### 2. What are the window levels of notification banner windows?
 
-**Notification banners were not visible during the probe run, so window levels
-were NOT measured.** This is a critical gap; the findings below are inferences,
-not observations. A maintainer must re-run the probe with a live banner visible.
+**Measured: layer 21.** The end-of-watch list above reports
+`Notification Centre [NotificationCenter banner] (layer 21)`. For reference, the
+same run measured the Dock at 20 and ControlCenter panels at 25.
 
-Standard NSWindow levels for reference:
+Standard `NSWindow.Level` values for the surrounding band (public constants):
 
 | Level | API name | Purpose |
 | --- | --- | --- |
-| 24 | `NSWindow.Level.mainMenu` | System menu bar |
-| 25 | (no constant; `mainMenu + 1`) | Status windows (system UI, menu bar drop-downs) |
 | 20 | `NSWindow.Level.dock` (deprecated) | Dock |
-| 3 | `NSWindow.Level.floating` | Floating panels |
+| 21 | *(no constant)* | Notification banner (measured) |
+| 24 | `NSWindow.Level.mainMenu` | System menu bar |
+| 25 | `NSWindow.Level.statusBar` | Status windows (ControlCenter, status items) |
+| 101 | `NSWindow.Level.popUpMenu` | Open menus |
 
-**Not observed; needs measurement:** Notification banners are rendered by
-`NotificationCenter.app`. Their actual window level is unknown. Without a live
-measurement, claims about z-order (whether banners draw above or below Divot)
-are unfounded.
+The banner level is not a public constant; it was read at runtime via
+`CGWindowListCopyWindowInfo`. It is one point above the Dock and three points
+below the native menu bar.
 
 ### 3. Is the banner positioned using the menu bar height macOS believes is present?
 
-**The menu bar height is consistent: 33 points.** This is confirmed via
-`NSScreen.frame.maxY - visibleFrame.maxY` = 33 on this notched display.
+The menu-bar height on this machine is **33 points**, confirmed via
+`NSScreen.frame.maxY − visibleFrame.maxY = 33` on the notched display. The
+measured Divot panel is 39 points tall (`y=0`, height 39), consistent with the
+configured bar height plus the optional 6-point bottom shadow strip.
 
-**Spatial positioning (observed):**
+The banner's exact y-position is **not measured** (bounds were not captured; see
+above). What is measured is the ordering: Divot (23) draws over the banner (21),
+which is why the banner's title row is covered.
 
-- **Menu bar area:** 33 points at the top of the screen (includes camera housing on notched displays).
-- **Divot bar position when native menu bar is hidden (auto-hide ON):** y=0 (top edge).
-- **Notification banner position reported by the task:** "top edge tucked under the Divot bar,"
-  implying spatial overlap. The banner's top is positioned in the region where Divot sits.
-
-**The overlap mechanism (inferred, not directly measured):**
-
-Given that Divot is at the top edge and notification banners appear with their content
-overlapped by the Divot bar, the most likely explanation is that banners are positioned
-at or near y=0-33 (matching the menu bar offset), while Divot occupies y=0 to at least y=32.
-The exact heights and padding are unknown without measuring the running packaged app.
-
-**Does the overlap change when the menu bar is revealed?**
-Not observed in this investigation. The task assumes revealed-bar behavior differs, but
-this was not tested with a live banner and different menu-bar states. Measurement needed.
-
-**Known geometry factor:** `BarPanels.swift` constructs panels with optional shadow
-extension (shadowHeight, up to 6 points for the `.bottomShadow` option), which could
-extend the visual footprint below y=32. The actual Divot footprint in the packaged app
-is not measured here.
+**Does the overlap change when the menu bar is revealed?** Not measured — there
+is no revealed-menu-bar run with a live banner. The level relationship is
+expected to be the same, but that remains unverified.
 
 ### 4. Can the panel be ordered below banners without losing its place above normal app windows and fullscreen behaviour?
 
-**Window-level reordering is not viable, pending measurement.** Explanation:
+**Yes, with public API — and #0080 implements it.** The measured banner level
+(21) leaves a public level that is above ordinary windows and below banners.
+Divot now sets the panel to **`NSWindow.Level(rawValue: 20)`** instead of
+`mainMenu - 1` (23):
 
-**Known constraints from #0009 and #0023:**
-- Divot must stay above normal app windows and fullscreen content (collection behavior `.fullScreenAuxiliary`).
-- Divot must stay below the native system menu bar (level 24) so menus draw on top.
-- Related decision: bar placement stays at the top edge when hidden (#0021/#0023).
+- Above ordinary app content (level 0) and fullscreen app windows.
+- Below the notification banner (21), so a banner draws over the bar.
+- Below the native menu bar (24) and its pop-up menus (101), so system menus
+  still open above Divot.
+- Below ControlCenter / status windows (25), which were already above Divot.
 
-**Current Divot level:** 23 (mainMenu - 1).
+Level is independent of `collectionBehavior`, so the all-Spaces and fullscreen
+placement decided in #0021/#0023 is unchanged. The one trade-off is that level
+20 equals the Dock's level; on a left- or right-side Dock the revealed Dock can
+therefore draw over the bar's end. The Dock is not part of the menu-bar band and
+the bar is ordered front, so this is a minor, disclosed trade.
 
-**Unresolved question: Banner window levels.**
-The actual window level of notification banners is unknown (not measured in this probe).
-Any claim about reordering "below" banners depends on:
-1. Knowing what level banners use.
-2. Finding a level above 0 (normal windows) but below 24 (menu bar) that also places
-   Divot below banners.
-
-Without live measurement of banner levels, no feasibility assessment is possible.
-
-**Spatial positioning (y-coordinate) adjustment:**
-Inset Divot vertically (e.g., y=33 to avoid banners at y=33+) is theoretically possible
-but conflicts with the top-edge design from task #0021. The menu bar (when visible)
-occupies the full 33-point band, so inset Divot duplicates the below-bar slide
-already provided by the cursor-reveal feature (task #0023). No additional spatial
-fix is apparent without architectural changes.
+The alternative — inset the bar vertically below the banner — was rejected: it
+duplicates the cursor-reveal slide from #0023 and breaks the intentional
+top-edge placement from #0021.
 
 ### 5. Is there any public API to offset or reserve space for notification banners?
 
 **No.** Findings:
 
-- **No AppKit/Foundation API** provides a way to notify the system that a window is
-  occupying top-edge screen space (e.g., `reserveScreenEdge`, `avoidanceRects`).
-  The Divot panel uses `NSPanel` with collection behavior `.stationary` (window manager
-  does not move it) and custom frame constraints (bypassing AppKit's `visibleFrame`
-  clamp via `constrainFrameRect`).
+- **No AppKit/Foundation API** lets a window declare that it occupies top-edge
+  screen space or reserve an avoidance rect. The Divot panel uses `NSPanel` with
+  `.stationary` collection behavior and a custom `constrainFrameRect(_:to:)`.
+- **No NotificationCenter API** allows offsets, exclusion zones, or stacking
+  preferences. Banner positioning is internal to `NotificationCenter.app`; the
+  banner's layer is only readable after the fact via `CGWindowListCopyWindowInfo`.
+- **No public event** fires when a notification appears or disappears.
+- **Accessibility** exposes no banner-specific properties or events.
 
-- **No NotificationCenter API** allows specifying offsets, exclusion zones, or stacking
-  preferences. Banner positioning is managed internally by `NotificationCenter.app`.
+So the only public lever is Divot's own window level, which is what #0080 uses.
 
-- **No public event** fires when a notification appears or disappears. The only way to
-  detect banners is to poll `CGWindowListCopyWindowInfo` (as done in the probe), which
-  is the deprecated polling approach, not event-driven.
+## Decision (task #0080)
 
-- **Accessibility API** provides no banner-specific properties or events.
+**Lower the bar panel's window level to 20 — one point below the measured
+notification-banner layer — and keep the collection behavior unchanged.**
+
+Reasoning:
+
+1. The measurement shows the banner is *below* Divot (21 < 23), so the bar is
+   what hides the banner. The minimal public fix is to reorder, not to move.
+2. A level below 21 but above 0 keeps the bar above app content while letting
+   banners draw over it, so banner content is never hidden.
+3. Window level is orthogonal to `collectionBehavior`, so it cannot regress the
+   Spaces/fullscreen placement from #0009/#0021/#0023.
+4. Insetting the bar was rejected (duplicates the #0023 slide, breaks the #0021
+   top-edge design).
+
+Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPanels.swift`)
+with a test in `macos/Tests/DivotAppKitTests/BarPanelContainerTests.swift`. The
+level is a documented literal because macOS does not expose a
+notification-banner level constant; the evidence above is its source.
+
+## Public API inventory
+
+| API | Shape | What it can do | Limitation found |
+| --- | --- | --- | --- |
+| `NSWindow.level` | config | Set where a window orders | No banner-aware constant; the banner level is read at runtime, not declared |
+| `CGWindowListCopyWindowInfo` | read | Read every window's `kCGWindowLayer` and `kCGWindowBounds` | Deprecated polling; the only way to observe banners |
+| `NSScreen.frame` / `visibleFrame` | geometry | Menu-bar height on notch-free displays | Masked by the camera housing on notched displays |
+| `NSScreen.safeAreaInsets` | geometry | Camera-housing inset | A hardware property; does not report bar visibility |
+| `NSScreen.auxiliaryTopLeftArea` / `auxiliaryTopRightArea` | geometry | Notch-aware layout basis (side regions of the housing band) | Do not report bar visibility |
+| Accessibility (`AXUIElementCreateSystemWide`) | public AX | Permission-gated menu-bar probe | Not trusted by default; no banner signal |
+| `NSApplication.didChangeScreenParametersNotification` | event | Display-config changes | Not observed on menu-bar reveal |
 
 ## Related prior work
 
-- **Task 0021 / 0023:** Bar placement at the top edge and cursor-reveal slide below
-  the native menu bar. These decisions make Divot's top-edge position intentional.
+- **Task 0021 / 0023:** Bar placement at the top edge and cursor-reveal slide
+  below the native menu bar. Those decisions make Divot's top-edge position
+  intentional and are unchanged by the level fix.
 - **Task 0009:** Menu bar coexistence and visibility detection. Confirms that
-  `visibleFrame` excludes the menu bar height regardless of hide state on notched hardware.
+  `visibleFrame` excludes the menu-bar height regardless of hide state on
+  notched hardware.
 
 ## Findings summary
 
 | Finding | Status |
 | --- | --- |
-| Divot window level | Level 23 (mainMenu - 1); confirmed in code. Public, intentional. |
-| Collection behavior | `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]`; confirmed in code. |
+| Divot window level | Level 23 (`mainMenu - 1`) measured; changed to 20 in #0080. |
+| Collection behavior | `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]`; confirmed in code, unchanged. |
 | ignoresMouseEvents | Not set; defaults to `false` (panels receive events). Confirmed in code. |
-| Menu bar height | 33 points; confirmed via screen geometry on notched display. |
-| Notification banner window level | **Not measured.** Banners not visible during probe run. Level unknown. |
-| Banner spatial positioning | **Not measured.** Banners absent during probe. Task report describes overlap; exact y-coordinates unknown. |
-| Overlap scenario | **Reported (not verified):** Native menu bar auto-hidden, Divot at top edge, banner present → spatial overlap. |
-| Overlap when menu bar revealed | **Not observed.** Needs test with revealed menu bar and live banner. |
-| Safe window-level fix | **Cannot assess without banner level measurement.** No fix apparent for spatial overlap without violating top-edge design. |
-| Public API for banner coordination | Not found. NotificationCenter positioning is internal. |
+| Menu bar height | 33 points; confirmed via screen geometry on the notched display. |
+| Notification banner window level | **Measured: 21** on macOS 26.5. |
+| Banner spatial positioning | **Not measured:** bounds were not in the `--watch` summary. The one-shot probe prints them. |
+| Overlap scenario | **Confirmed by measurement:** Divot at 23 draws over the banner at 21 → banner title row hidden. |
+| Overlap when menu bar revealed | **Not observed.** Still needs a run with a revealed native bar and a live banner. |
+| Fix | **Implemented (public API):** panel level lowered to 20; test added. Awaits the maintainer's eye check. |
 
 ## Limitations and constraints
 
-1. **Notification windows were not observed despite trigger attempts.** Attempted to create
-   notifications via `osascript` and deprecated `NSUserNotification` API in a sandboxed
-   environment. Notification delivery succeeded, but windows did not appear in
-   `CGWindowListCopyWindowInfo` results (notifications may be blocked or unsupported
-   in this environment). Window levels, y-coordinates, and z-order cannot be determined.
-   This is the most critical gap. Maintainer must re-run `divot-notification-banner-probe`
-   on real macOS with a live, visible notification and attach `kCGWindowLayer` and
-   `kCGWindowBounds` values.
+1. **Banner bounds were not captured.** The `--watch` summary reports the layer
+   of the highest windows but not their bounds, and the banner predated the
+   watch seed. Use the one-shot probe while a banner is visible for bounds.
+2. **Single run, single display, auto-hide on.** The revealed-menu-bar,
+   fullscreen, Spaces, multi-display, and notch-free cases were not run with a
+   live banner.
+3. **The banner layer is not a public constant.** 21 was read at runtime on
+   macOS 26.5. If a future OS moves banners to 20 or below, Divot's level 20
+   would no longer sit beneath them; the level is one point of margin by design.
+4. **Level 20 equals the Dock's level.** On a side Dock the revealed Dock can
+   draw over the bar's end.
 
-2. **Divot bar height and shadow extension are not measured in the running app.**
-   `BarPanels.swift` defines an optional 6-point bottom shadow; the actual panel
-   footprint on-screen depends on configuration and runtime rendering. The overlap
-   extent cannot be assessed without measuring the packaged app.
+## What a person still has to do
 
-3. **Single-display, notched hardware only.** Multi-display, notch-free, mixed scales,
-   and fullscreen/Spaces were not tested. Menu bar height may differ on other hardware.
+Fabricated proof is not included. To finish #0080 a maintainer must:
 
-4. **Menu-bar visibility change (auto-hide toggle) was not tested with a live banner.**
-   The assumption that banners reposition when the menu bar reveals is unvalidated.
+1. Build the packaged app (`scripts/package-app.sh`, open `dist/Divot.app`) with
+   the native menu bar on auto-hide and confirm by eye that a real notification
+   banner now draws **over** the Divot bar rather than being tucked under it.
+2. If desired, capture the banner's bounds with the one-shot probe while a
+   banner is visible (not `--watch`), to fill the `bounds` gap above.
+3. Note anything the level change regressed (system menus, ControlCenter,
+   fullscreen, a side Dock).
 
-5. **Environment limitations prevented live testing.** The sandboxed environment where
-   the investigation was performed does not support GUI notifications or does not
-   enumerate them via `CGWindowListCopyWindowInfo`. Results from this environment
-   cannot be extrapolated to real macOS behavior. Maintainer must test on hardware
-   where notifications are actually displayed.
-
-## Measurement run — a human must supply
-
-Use the `--watch` mode to capture live data while a notification is visible:
-
-1. Build the probe: `swift build --package-path macos`
-2. Make sure Do Not Disturb is OFF
-3. In a second terminal, trigger a notification (e.g., `osascript -e 'display notification "Test"...'`)
-4. Immediately run: `macos/.build/debug/divot-notification-banner-probe --watch 30`
-5. Copy the output from the summary — particularly:
-   - NotificationCenter banner's window layer and bounds (AppKit coordinates)
-   - Divot panel's measured layer and bounds
-   - Comparison line showing layer relationship
-   
-   Attach this output to task #0080 or a new task with evidence.
-   
-   **Alternative reference overlay:** Open System Settings → Control Center (e.g., toggle Wi-Fi) instead of waiting for a notification. The ControlCenter panel provides a stable, re-triggerable window for layer comparison without relying on notifications. Run `--watch` while the panel is open; the output will classify it as `[ControlCenter]` and show its real layer and position.
-   
-6. Also test and document:
-   - Overlap behavior on notch-free displays and multi-display setups
-   - Notification appearance during fullscreen and Spaces transitions
+Do not claim visual sign-off without that eye check.
 
 ## Conclusion
 
-**Verified facts:**
-- Divot is positioned at screen top (y=0) as intended.
-- Menu bar height is 33 points on this notched display.
-- No public API exists to coordinate banner positioning.
-- No banner windows were visible during the investigation.
+**Verified by measurement (2026-10-14):**
+- Divot's panel draws at layer 23, full-width across the top 39 points.
+- A live notification banner draws at layer 21 — *below* Divot. The overlap is
+  z-order, and Divot is the window hiding the banner.
+- The Dock is at 20 and ControlCenter at 25.
 
-**Unverified (reported by maintainer, not measured):**
-- Notification banners overlap Divot visually when auto-hide is ON.
-- Overlap mechanism (window-level z-order vs. spatial y-coordinate or both).
-- Whether overlap is resolved when the menu bar is revealed.
-- Actual Divot bar footprint (height + shadow extension).
+**Decided and implemented (#0080):** lower the panel level to 20 so banners draw
+over the bar, using public `NSWindow.level` only; collection behavior and
+placement are unchanged.
 
-**Feasibility of a public fix: Cannot assess** until:
-1. Maintainer runs the probe with a live banner and shares `kCGWindowLevel` + `kCGWindowBounds`.
-2. Packaged app is tested with a real notification while auto-hide is ON and OFF.
-3. Multi-display, notch-free, fullscreen, and Spaces scenarios are tested.
-
-**Expected workaround (not verified with a live banner):** Disabling auto-hide is expected
-to resolve overlap by separating the 33-point menu-bar region from Divot's top-edge
-placement, assuming notification positioning respects the visible menu bar.
-
-## Options for the user
-
-1. **Accept the limitation** as documented in the troubleshooting guide; not all
-   third-party top-edge bars avoid this overlap.
-2. **Disable auto-hide** on the native menu bar; the banner repositions below the
-   visible menu bar and no longer overlaps.
-3. **Use the cursor-reveal / move-below setting** (task #0023) to slide Divot below
-   the revealed menu bar on pointer entry; banners do not follow this slide, so
-   overlap is still possible if the banner appears while the bar is at the top.
-4. **Request a feature** (future task) to add an optional inset or offset for Divot
-   when the menu bar is hidden (not implemented; would affect bar geometry and
-   the top-edge design from #0021).
-
-## Follow-up
-
-- Maintainer should verify the overlap visually with the packaged app, a live
-  notification (e.g., from Calendar), and auto-hide ON.
-- If a fix is needed, a future task must decide on option 4 (inset/offset when
-  bar is hidden) and measure its impact on notch coverage and visual balance.
+**Still open:** the banner's bounds, the revealed-menu-bar case, and the
+maintainer's visual confirmation on the packaged app.

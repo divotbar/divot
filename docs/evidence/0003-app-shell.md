@@ -93,8 +93,9 @@ network access or any physical hardware.
 
 - The AppKit panel flags that avoid focus theft (`NSApplication` is an accessory
   app; panels are borderless/nonactivating and refuse `canBecomeKey`/`canBecomeMain`).
-- Window level just below the system menu bar (`mainMenu - 1`, so native menus
-  stay above Divot) and collection behavior
+- Window level below notification banners and the native menu bar (level 20
+  since #0080; the banner layer was later measured at 21, so banners draw over
+  the bar and native menus stay above Divot) and collection behavior
   `[.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]`.
 - The nonactivating panels override `constrainFrameRect(_:to:)` so a top-edge
   placement may occupy the camera-housing band. AppKit's default clamp parks the
