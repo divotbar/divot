@@ -1,6 +1,6 @@
 ---
-updated_at: "2026-10-14T03:52:21Z"
-review_passes: 11
+last_close_out_gate_ms: 78862
+last_close_out_gate_at: "2026-10-14T03:55:04.418Z"
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
@@ -18,6 +18,8 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T16:20:27Z"
+updated_at: "2026-10-14T03:55:04Z"
+review_passes: 11
 close_out_repair_count: 1
 review_rounds: 2
 dev_error_count: 1
@@ -274,4 +276,5 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:50:49Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-14T03:52:21Z · note: review pass 12: needs some work
 - 2026-10-14T03:52:21Z · needs_input
+- 2026-10-14T03:55:04Z · close-out gate completed in 79s
 
