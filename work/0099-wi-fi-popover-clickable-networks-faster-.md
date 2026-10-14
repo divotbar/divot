@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-14T07:17:58Z"
-updated_at: "2026-10-14T07:17:58Z"
+updated_at: "2026-10-14T07:28:55Z"
 ---
 ## Problem
 The Wi-Fi popover has three UX problems, measured on this Mac:
@@ -19,9 +19,12 @@ The Wi-Fi popover has three UX problems, measured on this Mac:
 3. The popover never shows anything before the scan finishes, even though the list could start with what is already known.
 
 ## Desired UX
-- Each network row is clickable. Clicking a saved or open network connects to it; a secured network that is not saved asks for its password in a Divot-styled dialog (never a plain text field in the bar), then connects. The current network stays marked.
-- Show something immediately on open: the last completed scan (with 'Updated Xs ago') and the saved networks from the system, marked as 'not checked' until the scan confirms them in range. The scan then updates the list in place.
-- While scanning, show a subtle animation (for example a pulsing signal icon or a shimmer row) rather than static text, so the user can see work is in progress. Keep the 8 s timeout, but show the cached list in the meantime.
+- Each network row is clickable. Clicking an in-range network connects to it; the popover shows 'Connecting...' and then the new current network, or the macOS error. A secured network that is not saved asks for its password in a Divot-styled dialog (never a plain text field in the bar), then connects. The current network stays marked.
+- On open, if the last completed scan finished within the past 10 minutes, show that cached list immediately, with 'Updated Xs ago'. Run the live scan in the background at the same time and update the list in place when it finishes. Scan on every open, regardless of cache age.
+- Previously joined networks are shown differently from in-range networks, so the user can see past networks at a glance. Use a clearly separate group or row style (for example a 'Previously joined' section or a muted row with a clock icon). Tell apart 'in range now' from 'joined before, not in range now'.
+- Do NOT list all saved profiles. The system holds about 211 saved profiles on this Mac, which is too many for the list. Only show previously joined networks that Divot has connected to itself, capped to a short recent list, for example the last 5. Record each successful connect Divot makes, with its time, in Divot's own state.
+- While scanning, show a subtle animation (for example a pulsing signal icon or a shimmer row) rather than static text.
+- Scan timeout: 20 seconds (raised from 8), so a slow scan still finishes. The cached list stays visible until the scan completes or times out.
 
 ## Acceptance criteria
 - Clicking an in-range network connects to it; the popover shows 'Connecting...' and then the new current network, or an error message from macOS.
@@ -48,3 +51,4 @@ The popover is macos/Sources/DivotAppKit/WifiPopover.swift; the scanner is WifiN
 
 - 2026-10-14T07:17:58Z · created · njachowski@gmail.com
 - 2026-10-14T07:17:58Z · screenshots
+- 2026-10-14T07:28:55Z · body: section Desired UX
