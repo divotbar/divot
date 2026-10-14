@@ -298,18 +298,34 @@ public struct DivotSettingsView: View {
                     Text("World Clock Timezones")
                         .font(.headline)
 
-                    if model.configuration.widgets.time.timezones.isEmpty {
-                        Text("No timezones added. Click the time chip to add timezones.")
+                    let timezones = WorldClock.resolvedTimezones(
+                        configured: model.configuration.widgets.time.timezones)
+
+                    if timezones.isEmpty {
+                        HStack(spacing: 8) {
+                            Text("No timezones added.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            // A working Add control, so removing the last zone is
+                            // not a dead end in Settings.
+                            Menu("Add timezone") {
+                                ForEach(WorldClock.resolvedTimezones(configured: nil), id: \.self) { tz in
+                                    Button(WorldClock.friendlyName(for: tz)) {
+                                        model.addWorldClockTimezone(tz)
+                                    }
+                                }
+                            }
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("Add a world clock timezone")
+                        }
                     } else {
-                        ForEach(model.configuration.widgets.time.timezones, id: \.self) { tz in
+                        ForEach(timezones, id: \.self) { tz in
                             HStack {
-                                Text(tz.components(separatedBy: "/").last ?? tz)
+                                Text(WorldClock.friendlyName(for: tz))
                                     .font(.caption)
                                 Spacer()
                                 Button(action: {
-                                    var updated = model.configuration.widgets.time.timezones
+                                    var updated = timezones
                                     if let index = updated.firstIndex(of: tz) {
                                         updated.remove(at: index)
                                         model.updateWorldClockTimezones(updated)

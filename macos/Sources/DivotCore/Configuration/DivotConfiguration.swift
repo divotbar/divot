@@ -325,10 +325,10 @@ public struct TimeConfiguration: Equatable, Sendable {
     public var timeFormat: Format
     /// Custom time pattern for Format.custom; only meaningful when timeFormat is .custom.
     public var customPattern: String?
-    /// User's added world timezones (IANA identifiers).
-    public var timezones: [String]
+    /// User's added world timezones (IANA identifiers). Nil means never configured (use defaults); empty array means explicitly configured as empty.
+    public var timezones: [String]?
 
-    public init(seconds: Bool = false, timeFormat: Format = .ampm, customPattern: String? = nil, timezones: [String] = []) {
+    public init(seconds: Bool = false, timeFormat: Format = .ampm, customPattern: String? = nil, timezones: [String]? = nil) {
         self.seconds = seconds
         self.timeFormat = timeFormat
         // Only keep customPattern if timeFormat is custom
