@@ -388,6 +388,54 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    /// The scanning state (task 0099): the spinner row beside the status line,
+    /// rendered over an empty list as on a cold open with no fresh cache.
+    private func makeWifiScanningController(fontSize: CGFloat = 12) -> WifiPopoverContentController {
+        let controller = WifiPopoverContentController()
+        _ = controller.view
+        controller.render(.scanning)
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
+        return controller
+    }
+
+    /// A join in flight (task 0099): the tapped row shows "Connecting…" while
+    /// the rest of the list stays visible.
+    private func makeWifiConnectingController(fontSize: CGFloat = 12) -> WifiPopoverContentController {
+        let controller = WifiPopoverContentController()
+        _ = controller.view
+        controller.renderList(networks: [
+            WifiNetwork(ssid: "Example Network", rssi: -40, isSecure: true, isCurrent: false),
+            WifiNetwork(ssid: "Guest Network", rssi: -60, isSecure: false, isCurrent: true)
+        ],
+        connectingSSID: "Example Network")
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
+        return controller
+    }
+
+    /// A cached first paint with Divot-joined history (task 0099): the age line
+    /// above the live list and the separate "Previously joined" section for
+    /// networks Divot connected to that are not in range now.
+    private func makeWifiPreviouslyJoinedController(fontSize: CGFloat = 12) -> WifiPopoverContentController {
+        let controller = WifiPopoverContentController()
+        _ = controller.view
+        controller.renderList(
+            networks: [
+                WifiNetwork(ssid: "Example Network", rssi: -40, isSecure: true, isCurrent: true),
+                WifiNetwork(ssid: "Guest Network", rssi: -60, isSecure: false, isCurrent: false)
+            ],
+            isScanning: true,
+            cacheSummary: "Updated 5s ago",
+            recentJoins: [WifiJoinedNetwork(ssid: "Home", lastJoinedAt: Date(timeIntervalSince1970: 1_700_000_000))])
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
+        return controller
+    }
+
     private func makeCalendarController(fontSize: CGFloat = 12) -> CalendarPopoverContentController {
         let controller = CalendarPopoverContentController()
         _ = controller.view
@@ -651,6 +699,26 @@ struct PopoverSnapshotTests {
             let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
             let name = "wifi-popover-many-native-\(variantName)-default"
             try testPopover(name: name, maker: makeWifiManyNetworksController, appearance: appearance, isDark: isDark, fontSize: 12)
+        }
+    }
+
+    @Test("Wi-Fi popover new states (task 0099) — native light/dark, scanning, connecting, previously joined")
+    func wifiPopoverNewStates() throws {
+        // Native light and dark only, matching the long-list test above, so the
+        // reduced `DIVOT_SNAPSHOT_SET=shots` set carries each new state once per
+        // variant: the animated scanning row, the "Connecting…" row, and the
+        // cached age line with the separate Previously joined section.
+        let makers: [(String, (CGFloat) -> WifiPopoverContentController)] = [
+            ("wifi-scanning-popover", makeWifiScanningController),
+            ("wifi-connecting-popover", makeWifiConnectingController),
+            ("wifi-previously-joined-popover", makeWifiPreviouslyJoinedController)
+        ]
+        for (prefix, maker) in makers {
+            for (variantName, isDark) in [("light", false), ("dark", true)] {
+                let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
+                let name = "\(prefix)-native-\(variantName)-default"
+                try testPopover(name: name, maker: maker, appearance: appearance, isDark: isDark, fontSize: 12)
+            }
         }
     }
 

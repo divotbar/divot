@@ -246,6 +246,17 @@ struct WifiPopoverRowsTests {
                 "clicking a row asks to join that network")
     }
 
+    @Test func networkRowsDrawNoButtonCellTitle() {
+        let controller = WifiPopoverContentController()
+        _ = controller.view
+        controller.renderList(networks: networks())
+
+        let rows = networkRowButtons(in: controller.view)
+        #expect(rows.count == 2)
+        #expect(rows.allSatisfy { $0.title.isEmpty },
+                "an NSButton defaults its title to \"Button\" and its cell draws it over the row's own icon and name")
+    }
+
     @Test func scanningAnimatesInsteadOfStaticText() {
         let controller = WifiPopoverContentController()
         _ = controller.view

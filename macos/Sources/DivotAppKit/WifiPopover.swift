@@ -10,8 +10,10 @@ import DivotCore
 /// in the background, updating the list in place. Closing the popover cancels
 /// an in-flight scan or connect. Each in-range row is a button: clicking it
 /// associates with that network, showing "Connecting…" then the new current
-/// network or the macOS error. A secured network with no password yet asks
-/// for one through a Divot-styled dialog holding an `NSSecureTextField`; the
+/// network or the macOS error. A secured network is tried passwordless first
+/// (so a keychain-saved network joins without prompting); only a rejected
+/// passwordless attempt asks for one through a Divot-styled dialog holding an
+/// `NSSecureTextField`; the
 /// password is passed only to the connector and never persisted or logged.
 /// Networks Divot joined itself appear in a separate "Previously joined"
 /// section (system saved profiles are never listed). The last row opens the
@@ -564,16 +566,9 @@ final class WifiPopoverContentController: BarPopoverContentController {
     /// the signal, name, and marks. While a connect is in flight every row is
     /// disabled and the joining row shows its own spinner and "Connecting…".
     private func rowButton(for network: WifiNetwork, connectingSSID: String?) -> NSView {
-        let button = WifiNetworkRowButton(ssid: network.ssid)
-        button.target = self
-        button.action = #selector(selectRow(_:))
-        button.setAccessibilityRole(.button)
-        button.setAccessibilityLabel(Self.accessibilityLabel(for: network))
-
-        let signal = NSImageView()
-        signal.image = Self.signalImage(level: network.signalLevel)
-        signal.contentTintColor = theme.popoverPalette.label
-        signal.setContentHuggingPriority(.required, for: .horizontal)
+        var views: [NSView] = []
+        views.append(fixedIcon(Self.signalImage(level: network.signalLevel),
+                               tint: theme.popoverPalette.label))
 
         let name = NSTextField(labelWithString: network.ssid)
         name.font = network.isCurrent ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13)
@@ -581,39 +576,36 @@ final class WifiPopoverContentController: BarPopoverContentController {
         name.lineBreakMode = .byTruncatingMiddle
         name.maximumNumberOfLines = 1
         name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        views.append(name)
 
         let spacer = NSView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        var views: [NSView] = [signal, name, spacer]
+        views.append(spacer)
         if network.ssid == connectingSSID {
             let spinner = NSProgressIndicator()
             spinner.style = .spinning
             spinner.controlSize = .small
             spinner.startAnimation(nil)
             spinner.setContentHuggingPriority(.required, for: .horizontal)
+            spinner.setContentCompressionResistancePriority(.required, for: .horizontal)
             let joining = NSTextField(labelWithString: "Connecting…")
             joining.font = .systemFont(ofSize: 12)
             joining.textColor = theme.popoverPalette.secondary
             joining.identifier = Self.secondaryIdentifier
             joining.setContentHuggingPriority(.required, for: .horizontal)
+            joining.setContentCompressionResistancePriority(.required, for: .horizontal)
             views += [spinner, joining]
         } else {
             if network.isCurrent {
-                let check = NSImageView()
-                check.image = NSImage(systemSymbolName: "checkmark.circle.fill",
-                                      accessibilityDescription: "Connected")
-                check.contentTintColor = theme.popoverPalette.link
-                check.setContentHuggingPriority(.required, for: .horizontal)
-                views.append(check)
+                views.append(fixedIcon(NSImage(systemSymbolName: "checkmark.circle.fill",
+                                               accessibilityDescription: "Connected"),
+                                           tint: theme.popoverPalette.link))
             }
             if network.isSecure {
-                let lock = NSImageView()
-                lock.image = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: "Secure")
-                lock.contentTintColor = theme.popoverPalette.secondary
-                lock.setContentHuggingPriority(.required, for: .horizontal)
-                views.append(lock)
+                views.append(fixedIcon(NSImage(systemSymbolName: "lock.fill",
+                                               accessibilityDescription: "Secure"),
+                                           tint: theme.popoverPalette.secondary))
             }
         }
 
@@ -621,17 +613,32 @@ final class WifiPopoverContentController: BarPopoverContentController {
         inner.orientation = .horizontal
         inner.alignment = .centerY
         inner.spacing = 8
-        inner.translatesAutoresizingMaskIntoConstraints = false
-        button.addSubview(inner)
-        NSLayoutConstraint.activate([
-            inner.topAnchor.constraint(equalTo: button.topAnchor),
-            inner.bottomAnchor.constraint(equalTo: button.bottomAnchor),
-            inner.leadingAnchor.constraint(equalTo: button.leadingAnchor),
-            inner.trailingAnchor.constraint(equalTo: button.trailingAnchor)
-        ])
+        // The button reports the stack's size as its own: an empty `NSButton`
+        // has no intrinsic width for its cell, so without this the row stack
+        // squeezes the button to zero and the icon draws over the name.
+        let button = WifiNetworkRowButton(ssid: network.ssid, inner: inner)
+        button.target = self
+        button.action = #selector(selectRow(_:))
+        button.setAccessibilityRole(.button)
+        button.setAccessibilityLabel(Self.accessibilityLabel(for: network))
         // While one network is joining, the whole list holds still.
         button.isEnabled = connectingSSID == nil
         return button
+    }
+
+    /// One 16 pt row icon with a fixed frame, so an SF Symbol never reports a
+    /// zero size and draws over its neighbour.
+    private func fixedIcon(_ image: NSImage?, tint: NSColor) -> NSImageView {
+        let view = NSImageView()
+        view.image = image
+        view.imageScaling = .scaleProportionallyDown
+        view.contentTintColor = tint
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        view.setContentHuggingPriority(.required, for: .horizontal)
+        view.setContentCompressionResistancePriority(.required, for: .horizontal)
+        return view
     }
 
     /// A previously joined network Divot connected to itself: muted text with
@@ -708,19 +715,37 @@ private struct WifiPopoverListRender {
 }
 
 /// A whole-row button holding one network's visuals. The SSID travels on the
-/// button itself so the action can find its network without a tag table.
+/// button itself so the action can find its network without a tag table. The
+/// button reports its content stack's size as its own intrinsic size: an empty
+/// `NSButton` cell has no width to offer, so without this the row stack
+/// squeezes the button and its subviews overlap.
 private final class WifiNetworkRowButton: NSButton {
     let ssid: String
+    private let inner: NSStackView
 
-    init(ssid: String) {
+    init(ssid: String, inner: NSStackView) {
         self.ssid = ssid
+        self.inner = inner
         super.init(frame: .zero)
         isBordered = false
         setButtonType(.momentaryPushIn)
         alignment = .left
+        // An `NSButton` defaults its title to "Button" and its cell draws it
+        // over the row's own views; clear it so only the stack shows.
+        title = ""
+        addSubview(inner)
+        inner.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            inner.topAnchor.constraint(equalTo: topAnchor),
+            inner.bottomAnchor.constraint(equalTo: bottomAnchor),
+            inner.leadingAnchor.constraint(equalTo: leadingAnchor),
+            inner.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ])
     }
 
     required init?(coder: NSCoder) { fatalError("created in code") }
+
+    override var intrinsicContentSize: NSSize { inner.fittingSize }
 }
 
 /// The Divot-styled password dialog for a secured network: a small panel with

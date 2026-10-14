@@ -535,7 +535,7 @@ final class BarContentView: NSView, BarContentLifecycle {
             let view = BarItemView(metrics: metrics, item: id, enablesChipStyle: enablesChipStyle, chipOpacity: chipOpacity)
             view.onActivate = { [weak self, weak view] action in
                 guard let self else { return }
-                // The network item opens the read-only Wi-Fi popover when one is
+                // The network item opens the Wi-Fi popover when one is
                 // configured; the popover's last row reaches the settings pane.
                 // A second click on the item toggles it closed.
                 if case .openSettings(.network) = action, let view, let wifiPopover = self.wifiPopover {

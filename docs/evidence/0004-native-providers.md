@@ -26,7 +26,7 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | Provider wrappers | `macos/Sources/DivotAppKit/WidgetProviders.swift` | Clock, front-app, battery, network, volume providers over small reading protocols. |
 | System readings | `macos/Sources/DivotAppKit/System*Reading.swift` | IOKit power sources, `NWPathMonitor`, Core Audio property listeners, `NSWorkspace` front app. |
 | Bar views | `macos/Sources/DivotAppKit/WidgetViews.swift`, `BarPanels.swift` | Per-item views, per-side content, panels; only changed items re-render. |
-| Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
+| Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Clickable nearby-network popover with join, cached first paint, and animated scanning state, the CoreWLAN scanner and connector behind seams, and the pure list shaping (task 0070, clickable since task 0099). |
 | Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout, the theme-aware label/secondary/link colours, and the anchored `NSPopover` lifecycle (transient + outside-click/Escape monitors, same-item toggle) reused by the Wi-Fi, volume, and appearance popovers. |
 | Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
 | Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a vertical list of theme-family options plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
@@ -115,8 +115,9 @@ Clicking the network item opens an `NSPopover` anchored to the item
 for a secured network, and the connected network marked and pinned first. Each
 in-range row is a button: clicking it joins that network through the
 `WifiNetworkConnecting` seam, showing "Connecting…" and then the new current
-network or the macOS error. A secured network with no password yet asks for one
-through a Divot-styled dialog holding an `NSSecureTextField` (never a plain
+network or the macOS error. A secured network is always tried passwordless
+first (so a keychain-saved network joins without prompting); only a rejected
+passwordless attempt asks for a password, through a Divot-styled dialog holding an `NSSecureTextField` (never a plain
 field in the bar); the password is passed only to the join call and is never
 written to Divot's configuration, state, or logs. Networks Divot joined itself
 are recorded with their time and shown in a separate **Previously joined**

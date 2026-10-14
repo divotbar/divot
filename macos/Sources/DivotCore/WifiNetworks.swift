@@ -23,7 +23,7 @@ public struct WifiScannedNetwork: Equatable, Sendable {
     }
 }
 
-/// One row of the read-only Wi-Fi popover: a network after dedupe and marking.
+/// One row of the Wi-Fi popover: a network after dedupe and marking.
 public struct WifiNetwork: Equatable, Sendable, Identifiable {
     public let ssid: String
     public let rssi: Int

@@ -111,14 +111,11 @@ public final class CoreWLANWifiConnector: WifiNetworkConnecting, @unchecked Send
         guard let interface = client.interface() else {
             return .failed("Wi-Fi is not available on this Mac.")
         }
-        if isSecure, password == nil {
-            // A secured network with no password yet: ask first rather than
-            // sending a doomed association. (An already-saved network would
-            // join without one; the failure path below still offers the
-            // dialog when a passwordless attempt is rejected.)
-            return .requiresPassword
-        }
         do {
+            // Always attempt the association first, even for a secured
+            // network with no password: a keychain-saved network joins
+            // without one, and only a rejected passwordless attempt (the
+            // authorization-failure path below) asks for a password.
             // Association takes a `CWNetwork`, so run a directed scan for the
             // SSID first and join the match. A network that left range since
             // the list painted reports honestly instead of joining the wrong one.
