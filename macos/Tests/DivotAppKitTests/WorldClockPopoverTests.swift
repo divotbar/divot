@@ -255,16 +255,13 @@ struct WorldClockPopoverRealFlowTests {
         return nil
     }
 
-    @Test func compactOffsetFormatting() {
-        let controller = WorldClockPopoverContentController()
-        _ = controller.view
-
-        #expect(controller.formatCompactOffset(0) == "+0")
-        #expect(controller.formatCompactOffset(25200) == "+7")
-        #expect(controller.formatCompactOffset(19800) == "+5:30")
-        #expect(controller.formatCompactOffset(20700) == "+5:45")
-        #expect(controller.formatCompactOffset(-28800) == "-8")
-        #expect(controller.formatCompactOffset(-12600) == "-3:30")
+    @Test func utcOffsetLabelFormatting() {
+        #expect(WorldClock.utcOffsetLabel(forOffsetSeconds: 0) == "UTC+0")
+        #expect(WorldClock.utcOffsetLabel(forOffsetSeconds: 25200) == "UTC+7")
+        #expect(WorldClock.utcOffsetLabel(forOffsetSeconds: 19800) == "UTC+5:30")
+        #expect(WorldClock.utcOffsetLabel(forOffsetSeconds: 20700) == "UTC+5:45")
+        #expect(WorldClock.utcOffsetLabel(forOffsetSeconds: -28800) == "UTC-8")
+        #expect(WorldClock.utcOffsetLabel(forOffsetSeconds: -12600) == "UTC-3:30")
     }
 
     @Test func searchingForATimezoneAndSelectingItAddsTheZoneAndPersistsIt() {
@@ -456,14 +453,18 @@ struct WorldClockPopoverRealControllerTests {
         return nil
     }
 
-    /// The visible text of each result row, in list order.
+    /// The visible city-name text of each result row, in list order. A row now
+    /// holds a leading name field and a trailing UTC-offset field, so the name is
+    /// the first non-empty field found in the row.
     private func resultRowNames(in view: NSView) -> [String] {
         guard let table = firstTableView(in: view) else { return [] }
         return (0..<table.numberOfRows).compactMap { row in
             guard let rowView = table.rowView(atRow: row, makeIfNecessary: true) else { return nil }
             var name: String?
             func walk(_ v: NSView) {
-                if let field = v as? NSTextField, !field.stringValue.isEmpty { name = field.stringValue }
+                if name == nil, let field = v as? NSTextField, !field.stringValue.isEmpty {
+                    name = field.stringValue
+                }
                 v.subviews.forEach(walk)
             }
             walk(rowView)
@@ -910,6 +911,72 @@ struct WorldClockPopoverRealControllerTests {
         table2.keyDown(with: keyEvent(48)) // Tab
         #expect(panel.firstResponder === search2.currentEditor(),
                 "Tab returns focus to the search field")
+    }
+}
+
+/// The search-result rows now carry a right-aligned current UTC offset per zone
+/// (#0097), alongside the left-aligned city name.
+@MainActor
+@Suite("World clock search result offsets")
+struct WorldClockSearchResultOffsetTests {
+    /// 2026-01-01T00:00Z, so winter offsets (no DST) are deterministic.
+    private let winter = Date(timeIntervalSince1970: 1_767_225_600)
+
+    private func makeController() -> TimezoneSearchResultsController {
+        TimezoneSearchResultsController(onSelect: { _ in }, theme: .systemDefault)
+    }
+
+    private func fields(in view: NSView) -> [NSTextField] {
+        var result: [NSTextField] = []
+        func walk(_ v: NSView) {
+            if let field = v as? NSTextField { result.append(field) }
+            v.subviews.forEach(walk)
+        }
+        walk(view)
+        return result
+    }
+
+    @Test func resultsCarryPositiveNegativeAndZeroOffsets() {
+        let controller = makeController()
+
+        controller.updateResults(for: "tokyo", currentTimezones: [], at: winter)
+        #expect(controller.results.first(where: { $0.identifier == "Asia/Tokyo" })?.utcOffset == "UTC+9",
+                "a positive offset is shown")
+
+        controller.updateResults(for: "new york", currentTimezones: [], at: winter)
+        #expect(controller.results.first(where: { $0.identifier == "America/New_York" })?.utcOffset == "UTC-5",
+                "a negative offset is shown")
+
+        controller.updateResults(for: "abidjan", currentTimezones: [], at: winter)
+        #expect(controller.results.first(where: { $0.identifier == "Africa/Abidjan" })?.utcOffset == "UTC+0",
+                "a zero offset is shown as UTC+0 (got \(controller.results.map(\.utcOffset)))")
+    }
+
+    @Test func rowShowsTheNameOnTheLeftAndTheOffsetRightAligned() {
+        let controller = makeController()
+        controller.updateResults(for: "tokyo", currentTimezones: [], at: winter)
+
+        guard let table = controller.view.documentView as? NSTableView,
+              let row = table.rowView(atRow: 0, makeIfNecessary: true) else {
+            Issue.record("expected a result row")
+            return
+        }
+        row.frame = NSRect(x: 0, y: 0, width: 272, height: TimezoneSearchResultsController.rowHeight)
+        row.layoutSubtreeIfNeeded()
+
+        let rowFields = fields(in: row)
+        guard let name = rowFields.first(where: { $0.stringValue == "Tokyo" }),
+              let offset = rowFields.first(where: { $0.stringValue == "UTC+9" }) else {
+            Issue.record("expected a Tokyo row with a UTC+9 offset (got \(rowFields.map(\.stringValue)))")
+            return
+        }
+
+        #expect(name.frame.minX <= 1, "the city name sits in the leading column")
+        #expect(offset.alignment == .right, "the offset is right-aligned within its field")
+        #expect(offset.frame.minX > row.bounds.width * 0.6,
+                "the offset sits at the trailing edge (name maxX \(name.frame.maxX), offset minX \(offset.frame.minX))")
+        #expect(name.frame.maxX <= offset.frame.minX,
+                "the city name never overlaps the offset column")
     }
 }
 
