@@ -17,10 +17,13 @@ public final class CoreWLANNetworkScanner: WifiNetworkScanning, @unchecked Senda
     private let scanQueue = DispatchQueue(label: "divot.wifi-scan", qos: .userInitiated)
 
     public init(locationTracker: any LocationAuthorizationTracking = LocationAuthorizationTracker(),
-                timeout: Duration = .seconds(8)) {
+                timeout: Duration = .seconds(20)) {
         self.locationTracker = locationTracker
         self.timeout = timeout
     }
+
+    /// The scan bound, exposed so tests pin the raised timeout.
+    var timeoutForTesting: Duration { timeout }
 
     public func scan() async -> WifiScanResponse {
         guard locationTracker.currentStatus().isAuthorizedForWifiName else {
@@ -79,26 +82,87 @@ public final class CoreWLANNetworkScanner: WifiNetworkScanning, @unchecked Senda
         }
     }
 
-    /// Guards a `CheckedContinuation` so only the first of two racing tasks
-    /// resumes it. The loser's value is ignored.
-    private final class ResumeGate: @unchecked Sendable {
-        private let lock = NSLock()
-        private var finished = false
-        private let continuation: CheckedContinuation<WifiScanResponse, Never>
+}
 
-        init(continuation: CheckedContinuation<WifiScanResponse, Never>) {
-            self.continuation = continuation
-        }
+/// Joins a Wi-Fi network with the public CoreWLAN API only.
+///
+/// Association changes system state, so this runs on the same serial queue as
+/// the scanner, off the main actor. Passwords arrive only as this call's
+/// argument and are never persisted or logged: on success macOS keeps the
+/// credential in the keychain, and Divot records only the SSID and time in
+/// its own join history.
+public final class CoreWLANWifiConnector: WifiNetworkConnecting, @unchecked Sendable {
+    private let connectQueue = DispatchQueue(label: "divot.wifi-connect", qos: .userInitiated)
 
-        func resume(with value: WifiScanResponse) {
-            lock.lock()
-            if finished {
-                lock.unlock()
-                return
+    public init() {}
+
+    public func connect(ssid: String, isSecure: Bool, password: String?) async -> WifiConnectOutcome {
+        await withCheckedContinuation { continuation in
+            connectQueue.async {
+                continuation.resume(returning: Self.associate(ssid: ssid, isSecure: isSecure, password: password))
             }
-            finished = true
-            lock.unlock()
-            continuation.resume(returning: value)
         }
+    }
+
+    private static func associate(ssid: String, isSecure: Bool, password: String?) -> WifiConnectOutcome {
+        let trimmed = ssid.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return .failed("That network has no name to join.") }
+        let client = CWWiFiClient.shared()
+        guard let interface = client.interface() else {
+            return .failed("Wi-Fi is not available on this Mac.")
+        }
+        do {
+            // Always attempt the association first, even for a secured
+            // network with no password: a keychain-saved network joins
+            // without one, and only a rejected passwordless attempt (the
+            // authorization-failure path below) asks for a password.
+            // Association takes a `CWNetwork`, so run a directed scan for the
+            // SSID first and join the match. A network that left range since
+            // the list painted reports honestly instead of joining the wrong one.
+            let found = try interface.scanForNetworks(withSSID: Data(trimmed.utf8))
+            guard let target = found.first(where: { $0.ssid == trimmed }) ?? found.first else {
+                return .failed("“\(trimmed)” is not in range right now.")
+            }
+            try interface.associate(to: target, password: password)
+            return .connected(ssid: trimmed)
+        } catch {
+            let message = error.localizedDescription
+            if password == nil, isAuthorizationFailure(message) {
+                return .requiresPassword
+            }
+            return .failed(message)
+        }
+    }
+
+    /// CoreWLAN reports a rejected passwordless association through several
+    /// localized wordings; match the stable core ("password", "credential",
+    /// "authoriz", "authenticat") rather than one exact string.
+    private static func isAuthorizationFailure(_ message: String) -> Bool {
+        let lowered = message.lowercased()
+        return lowered.contains("password") || lowered.contains("credential")
+            || lowered.contains("authoriz") || lowered.contains("authenticat")
+    }
+}
+
+/// Guards a `CheckedContinuation` so only the first of two racing tasks
+/// resumes it. The loser's value is ignored.
+private final class ResumeGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var finished = false
+    private let continuation: CheckedContinuation<WifiScanResponse, Never>
+
+    init(continuation: CheckedContinuation<WifiScanResponse, Never>) {
+        self.continuation = continuation
+    }
+
+    func resume(with value: WifiScanResponse) {
+        lock.lock()
+        if finished {
+            lock.unlock()
+            return
+        }
+        finished = true
+        lock.unlock()
+        continuation.resume(returning: value)
     }
 }

@@ -26,7 +26,7 @@ Shell and display coordinator: [0003 evidence](0003-app-shell.md).
 | Provider wrappers | `macos/Sources/DivotAppKit/WidgetProviders.swift` | Clock, front-app, battery, network, volume providers over small reading protocols. |
 | System readings | `macos/Sources/DivotAppKit/System*Reading.swift` | IOKit power sources, `NWPathMonitor`, Core Audio property listeners, `NSWorkspace` front app. |
 | Bar views | `macos/Sources/DivotAppKit/WidgetViews.swift`, `BarPanels.swift` | Per-item views, per-side content, panels; only changed items re-render. |
-| Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Read-only nearby-network popover, the CoreWLAN scanner behind a seam, and the pure list shaping (task 0070). |
+| Wi-Fi popover | `macos/Sources/DivotAppKit/WifiPopover.swift`, `WifiNetworkScanner.swift`, `macos/Sources/DivotCore/WifiNetworks.swift` | Clickable nearby-network popover with join, cached first paint, and animated scanning state, the CoreWLAN scanner and connector behind seams, and the pure list shaping (task 0070, clickable since task 0099). |
 | Bar popover scaffold | `macos/Sources/DivotAppKit/BarPopover.swift` | Shared header/body/settings-row layout, the theme-aware label/secondary/link colours, and the anchored `NSPopover` lifecycle (transient + outside-click/Escape monitors, same-item toggle) reused by the Wi-Fi, volume, and appearance popovers. |
 | Volume popover | `macos/Sources/DivotAppKit/VolumePopover.swift`, `macos/Sources/DivotCore/OutputVolume.swift` | Output-volume slider with a percentage, a mute toggle, and a Sound-settings row over a tested set/get seam (task 0071). |
 | Appearance popover | `macos/Sources/DivotAppKit/AppearancePopover.swift`, `macos/Sources/DivotCore/AppearanceSettings.swift` | System/Light/Dark segmented control and a vertical list of theme-family options plus a Divot-settings row over the shared configuration store (tasks 0072/0073). |
@@ -93,7 +93,8 @@ explicit default action (`WidgetActions`): front-app activates the running app;
 the clock opens the matching System Settings pane; the battery item toggles
 keep-awake (task 0018), which is a provider action rather than a settings link;
 the workspaces item owns no action here (that is the workspace-adapter
-milestone). The network item opens the read-only Wi-Fi popover below (task 0070);
+milestone). The network item opens the Wi-Fi popover below (task 0070, clickable
+since task 0099);
 its last row opens System Settings › Wi-Fi via the macOS 13+ extension id
 `x-apple.systempreferences:com.apple.wifi-settings-extension` (confirmed against
 the local `/System/Library/ExtensionKit/Extensions/Wi-Fi.appex` bundle on macOS
@@ -111,20 +112,35 @@ pattern and **still needs validation on the target OS**.
 
 Clicking the network item opens an `NSPopover` anchored to the item
 (`WifiPopover.swift`) that lists nearby networks: SSID, a signal glyph, a lock
-for a secured network, and the connected network marked and pinned first. The
-behavior is read-only — there is no join, no password field, and no network
-configuration. The last row is **Open Wi-Fi Settings…** (the #0069 pane link).
+for a secured network, and the connected network marked and pinned first. Each
+in-range row is a button: clicking it joins that network through the
+`WifiNetworkConnecting` seam, showing "Connecting…" and then the new current
+network or the macOS error. A secured network is always tried passwordless
+first (so a keychain-saved network joins without prompting); only a rejected
+passwordless attempt asks for a password, through a Divot-styled dialog holding an `NSSecureTextField` (never a plain
+field in the bar); the password is passed only to the join call and is never
+written to Divot's configuration, state, or logs. Networks Divot joined itself
+are recorded with their time and shown in a separate **Previously joined**
+section (most recent first, at most five, skipping SSIDs that are in range now);
+system saved profiles are never listed. The last row is **Open Wi-Fi Settings…**
+(the #0069 pane link).
 The network rows live in a scroll view whose height is capped at 90% of the
 screen the popover is shown on, so a long list of nearby networks scrolls
 instead of growing the panel without bound (task 0095).
 
 The scan runs through the `WifiNetworkScanning` seam (`DivotAppKit`), once per
-open and never on a timer; closing the popover cancels an in-flight scan. The
+open and never on a timer; closing the popover cancels an in-flight scan or
+join. The last completed list scan is cached with its finish time: when it is
+less than 10 minutes old the next open paints it at once with its age
+("Updated Xs ago") and always runs the live scan in the background, updating
+the list in place. The
 live scanner (`CoreWLANNetworkScanner`) uses public CoreWLAN only
 (`CWWiFiClient.shared().interface()`, `CWInterface.scanForNetworks(withSSID:)`),
 runs the blocking call on its own serial queue rather than the main actor, and
-races it against an 8-second timeout so a wedged scan still settles into a
-visible state. `WifiNetworks` in `DivotCore` is the pure list logic: dedupe by
+races it against a 20-second timeout so a wedged scan still settles into a
+visible state; the cached rows stay visible until the live result lands or the
+scan times out. While scanning, a spinning indicator animates beside the status
+line instead of static text. `WifiNetworks` in `DivotCore` is the pure list logic: dedupe by
 SSID keeping the strongest reading (a signal tie keeps the secure entry so a
 lock is never dropped), drop blank/hidden SSIDs, mark and pin the current
 network, then sort by signal descending and name. States are explicit:
@@ -148,12 +164,14 @@ Findings recorded for the follow-up decision (no behavior was invented):
   TCC attributed the scan to a parent process that already holds Location, and
   Divot's shipped path is the permission-gated one the acceptance criteria ask
   for. A packaged app with Location denied is still the check a person must run.
-- **Joining known networks.** The public CoreWLAN header exposes
-  `CWInterface.associate(to:password:)` (macOS 10.7+) and
-  `associate(toEnterpriseNetwork:identity:username:password:)`, so the API
-  surface exists; whether it works for an unsandboxed app without extra
-  entitlements is unverified, and credential prompting, keychain use, and
-  failure UX are out of scope for this read-only spike. A follow-up task decides.
+- **Joining networks (task 0099).** The public CoreWLAN header exposes
+  `CWInterface.associate(to:password:)` (macOS 10.7+), which the live
+  `CoreWLANWifiConnector` calls with the `CWNetwork` a directed scan returns
+  for the tapped SSID, off the main actor. Tests join through a fake connector
+  and a fake password provider, so no test touches system state or prompts;
+  whether association works for an unsandboxed app without extra entitlements,
+  and the real join UX, are validated on the packaged app by a person, not
+  claimed here.
 - **Duplicate SSIDs are real.** The same probe returned the SSID `ARISTA` twice
   (RSSI −60 and −70), which is the multi-BSSID case the dedupe rule collapses.
 

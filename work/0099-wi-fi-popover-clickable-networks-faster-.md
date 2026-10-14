@@ -10,10 +10,7 @@ created_by: njachowski@gmail.com
 branch: feat/wi-fi-popover-clickable-networks-faster-
 model_override: opencode-go/muse-spark-1.3-contributor
 created_at: "2026-10-14T07:17:58Z"
-updated_at: "2026-10-14T08:20:53Z"
-review_passes: 2
-review_rounds: 1
-dev_error_count: 1
+updated_at: "2026-10-14T08:09:52Z"
 ---
 ## Problem
 The Wi-Fi popover has three UX problems, measured on this Mac:
@@ -57,29 +54,6 @@ The popover is macos/Sources/DivotAppKit/WifiPopover.swift; the scanner is WifiN
 ## Measurements
 Merged into the section above.
 
-## Timing
-In-app timing is instrumented in WifiPopoverController (firstPaintInterval: open to first list shown; liveListInterval: open to live list shown) and asserted by tests (cachedSecondOpenPaintsAtOnceAndStillRescansLive).
-
-Measured on this Mac 2026-10-14 with an immediate fake scanner (debug swift test build, mechanism only — no real CoreWLAN scan):
-- Cold open (no cache): first paint arrives with the live list at ~0.044 s.
-- Warm open (fresh cache): cached list paints synchronously at present at ~0.006 s; the live scan settles in the background at ~0.011 s.
-
-In production the live leg adds the real CoreWLAN scan (about 5.6 s first scan per the task spec on this Mac), while the cached first paint stays on the millisecond scale above. Live on-device timings with a real scan still need a maintainer run on the packaged app.
-
-## Shots
-```json
-[
-{
-"label": "Wi-Fi popover states",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "wifi"
-},
-"glob": "*wifi*.png"
-}
-]
-```
-
 ## Activity
 
 - 2026-10-14T07:17:58Z · created · njachowski@gmail.com
@@ -92,14 +66,4 @@ In production the live leg adds the real CoreWLAN scan (about 5.6 s first scan p
 - 2026-10-14T07:39:42Z · model_override
 - 2026-10-14T07:39:46Z · status inbox→ready
 - 2026-10-14T07:39:47Z · status ready→active, branch
-- 2026-10-14T07:39:49Z · agent exited with an error (opencode) · error: Upstream request failed: This Go model trains on request data. Allow paid endpoints that train on request data in your workspace's Privacy settings to use it.
-- 2026-10-14T08:07:30Z · body: section Timing
 - 2026-10-14T08:09:52Z · status active→review
-- 2026-10-14T08:10:12Z · note: 60 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
-- 2026-10-14T08:10:56Z · note: review pass 1: needs some work
-- 2026-10-14T08:10:56Z · status review→active
-- 2026-10-14T08:12:22Z · body: section Shots
-- 2026-10-14T08:19:24Z · status active→review
-- 2026-10-14T08:19:25Z · note: shots: skipped — 16 handoff shots already captured for this exact plan (3581cf85) during finalization (#0734)
-- 2026-10-14T08:20:18Z · note: review pass 2: good to go
-- 2026-10-14T08:20:53Z · needs_input (dev-error) dismissed by human

@@ -1,47 +1,117 @@
 import AppKit
 import DivotCore
 
-/// A read-only popover that lists nearby Wi-Fi networks, anchored to the bar's
-/// network item.
+/// A popover that lists nearby Wi-Fi networks and joins them, anchored to the
+/// bar's network item.
 ///
 /// It owns one `WifiScanModel` and scans only when it is presented, never on a
-/// timer. Closing the popover cancels an in-flight scan. The list is read-only
-/// by design: there is no join, no password field, and no network configuration.
-/// The last row opens the matching System Settings pane. The popover look and
-/// lifecycle come from the shared `BarPopoverHost`.
+/// timer. Opening paints the last completed scan at once when it finished
+/// within the last 10 minutes ("Updated Xs ago") and always runs a live scan
+/// in the background, updating the list in place. Closing the popover cancels
+/// an in-flight scan or connect. Each in-range row is a button: clicking it
+/// associates with that network, showing "Connecting…" then the new current
+/// network or the macOS error. A secured network is tried passwordless first
+/// (so a keychain-saved network joins without prompting); only a rejected
+/// passwordless attempt asks for one through a Divot-styled dialog holding an
+/// `NSSecureTextField`; the
+/// password is passed only to the connector and never persisted or logged.
+/// Networks Divot joined itself appear in a separate "Previously joined"
+/// section (system saved profiles are never listed). The last row opens the
+/// matching System Settings pane. The popover look and lifecycle come from
+/// the shared `BarPopoverHost`.
 @MainActor
 public final class WifiPopoverController {
     private let model: WifiScanModel
+    private let connector: any WifiNetworkConnecting
+    private let joinStore: any WifiJoinHistoryStoring
+    private let passwordProvider: (@MainActor (String) async -> String?)?
     private let openWifiSettings: @MainActor () -> Void
     private let openLocationSettings: @MainActor () -> Void
 
-    private let host = BarPopoverHost()
+    private let host: BarPopoverHost
     private var content: WifiPopoverContentController?
     private var scanTask: Task<Void, Never>?
+    private var connectTask: Task<Void, Never>?
+
+    private var networks: [WifiNetwork] = []
+    private var isScanning = false
+    private var cacheSummary: String?
+    private var connectingSSID: String?
+    private var notice: String?
+    private var recentJoins: [WifiJoinedNetwork] = []
+
+    private var openStartedAt: Date?
+    /// Open-to-first-list-shown, set when the popover first paints a list
+    /// (cached or live). Exposed so the task records measured in-app timing.
+    public private(set) var firstPaintInterval: TimeInterval?
+    /// Open-to-live-list-shown, set when the background scan settles.
+    public private(set) var liveListInterval: TimeInterval?
 
     public init(scanner: any WifiNetworkScanning,
+                connector: any WifiNetworkConnecting = CoreWLANWifiConnector(),
+                joinStore: any WifiJoinHistoryStoring = FileWifiJoinHistoryStore(),
+                passwordProvider: (@MainActor (String) async -> String?)? = nil,
                 openWifiSettings: @escaping @MainActor () -> Void,
-                openLocationSettings: @escaping @MainActor () -> Void) {
+                openLocationSettings: @escaping @MainActor () -> Void,
+                presenter: any WindowPresenting = SystemWindowPresenter()) {
         self.model = WifiScanModel(scanner: scanner)
+        self.connector = connector
+        self.joinStore = joinStore
+        self.passwordProvider = passwordProvider
         self.openWifiSettings = openWifiSettings
         self.openLocationSettings = openLocationSettings
+        self.host = BarPopoverHost(presenter: presenter)
         // A `.transient` popover closes on a click outside or Escape without
-        // calling `dismiss()`; cancel an in-flight scan on any close.
+        // calling `dismiss()`; cancel an in-flight scan or connect on any close.
         host.onClose = { [weak self] in self?.handleClosed() }
     }
 
-    /// Show the popover below `view`, then scan once off the main actor.
+    /// The cached rows the next open paints at once, when fresh. Exposed for
+    /// tests that assert the immediate first paint without a window server.
+    var cachedNetworksIfFresh: (networks: [WifiNetwork], summary: String)? {
+        model.cachedNetworksIfFresh()
+    }
+
+    /// The shown content, exposed for tests that click rows windowlessly.
+    var contentForTesting: WifiPopoverContentController? { content }
+
+    /// Test seam: the same controller behind an injected host, so windowless
+    /// tests never touch the event stream or the window server (#0091).
+    init(scanner: any WifiNetworkScanning,
+         connector: any WifiNetworkConnecting,
+         joinStore: any WifiJoinHistoryStoring,
+         passwordProvider: (@MainActor (String) async -> String?)?,
+         openWifiSettings: @escaping @MainActor () -> Void,
+         openLocationSettings: @escaping @MainActor () -> Void,
+         testingHost host: BarPopoverHost) {
+        self.model = WifiScanModel(scanner: scanner)
+        self.connector = connector
+        self.joinStore = joinStore
+        self.passwordProvider = passwordProvider
+        self.openWifiSettings = openWifiSettings
+        self.openLocationSettings = openLocationSettings
+        self.host = host
+        host.onClose = { [weak self] in self?.handleClosed() }
+    }
+
+    /// Show the popover below `view`: paint the fresh cache at once when there
+    /// is one, then scan live in the background and update in place.
     public func present(relativeTo view: NSView, theme: BarTheme = .systemDefault) {
         dismiss()
+        openStartedAt = Date()
+        firstPaintInterval = nil
+        liveListInterval = nil
+        recentJoins = joinStore.load()
         let controller = WifiPopoverContentController()
         controller.theme = theme
         controller.onOpenWifiSettings = { [weak self] in self?.openWifiSettings() }
         controller.onOpenLocationSettings = { [weak self] in self?.openLocationSettings() }
         controller.onRetry = { [weak self] in self?.refresh() }
+        controller.onSelect = { [weak self] network in self?.select(network) }
 
         host.present(controller, relativeTo: view)
         self.content = controller
-        refresh()
+        paintCachedThenScan()
     }
 
     /// A click on the network item. When this item already owns the open
@@ -54,10 +124,12 @@ public final class WifiPopoverController {
         }
     }
 
-    /// Close the popover and cancel any in-flight scan.
+    /// Close the popover and cancel any in-flight scan or connect.
     public func dismiss() {
         scanTask?.cancel()
         scanTask = nil
+        connectTask?.cancel()
+        connectTask = nil
         host.dismiss()
         content = nil
     }
@@ -76,22 +148,164 @@ public final class WifiPopoverController {
         }
     }
 
-    /// The popover closed for any reason; stop the scan and the rows.
+    /// The popover closed for any reason; stop the scan, the connect, and rows.
     private func handleClosed() {
         scanTask?.cancel()
         scanTask = nil
+        connectTask?.cancel()
+        connectTask = nil
         content = nil
     }
 
-    private func refresh() {
+    /// Paint the fresh cache at once when there is one (recording the
+    /// open-to-first-paint timing), then always run the live scan in the
+    /// background and update the list in place when it settles.
+    private func paintCachedThenScan() {
         scanTask?.cancel()
-        render(.scanning)
+        isScanning = true
+        connectingSSID = nil
+        notice = nil
+        if let cached = model.cachedNetworksIfFresh() {
+            networks = cached.networks
+            cacheSummary = cached.summary
+            if let openStartedAt { firstPaintInterval = Date().timeIntervalSince(openStartedAt) }
+        } else {
+            networks = []
+            cacheSummary = nil
+        }
+        renderCurrent()
         scanTask = Task { [weak self] in
             guard let self else { return }
             let state = await self.model.scan()
             guard !Task.isCancelled else { return }
-            self.render(state)
+            self.applyScanned(state)
         }
+    }
+
+    private func refresh() {
+        guard content != nil else { return }
+        notice = nil
+        isScanning = true
+        renderCurrent()
+        scanTask?.cancel()
+        scanTask = Task { [weak self] in
+            guard let self else { return }
+            let state = await self.model.scan()
+            guard !Task.isCancelled else { return }
+            self.applyScanned(state)
+        }
+    }
+
+    /// Settle the background scan: replace the list in place on success (the
+    /// cached rows stay visible until now), or show the failure while keeping
+    /// the cached rows when there are any.
+    private func applyScanned(_ state: WifiScanState) {
+        isScanning = false
+        switch state {
+        case .networks(let found):
+            networks = found
+            cacheSummary = model.lastCompleted.map { $0.ageSummary() }
+            notice = nil
+            if let openStartedAt {
+                let elapsed = Date().timeIntervalSince(openStartedAt)
+                liveListInterval = elapsed
+                if firstPaintInterval == nil { firstPaintInterval = elapsed }
+            }
+            renderCurrent()
+        case .permissionDenied, .unavailable, .failed:
+            // A cached list outlives a failed rescan: keep the rows and note
+            // the failure instead of blanking the popover.
+            if networks.isEmpty {
+                render(state)
+            } else {
+                if case .failed(let reason) = state { notice = reason }
+                if let openStartedAt, liveListInterval == nil {
+                    liveListInterval = Date().timeIntervalSince(openStartedAt)
+                }
+                renderCurrent()
+            }
+        case .idle, .scanning:
+            renderCurrent()
+        }
+    }
+
+    /// A click on an in-range row: associate with that network, showing
+    /// "Connecting…" until macOS answers. Serialized: taps while a connect is
+    /// in flight are ignored.
+    private func select(_ network: WifiNetwork) {
+        guard connectingSSID == nil, content != nil else { return }
+        connectingSSID = network.ssid
+        notice = nil
+        renderCurrent()
+        connectTask?.cancel()
+        connectTask = Task { [weak self] in
+            guard let self else { return }
+            await self.connect(network: network, password: nil)
+        }
+    }
+
+    private func connect(network: WifiNetwork, password: String?) async {
+        let outcome = await connector.connect(ssid: network.ssid,
+                                              isSecure: network.isSecure,
+                                              password: password)
+        guard !Task.isCancelled else { return }
+        switch outcome {
+        case .connected(let ssid):
+            connectingSSID = nil
+            notice = nil
+            recentJoins = WifiJoinHistory.recorded(recentJoins, ssid: ssid)
+            joinStore.save(recentJoins)
+            model.markCurrent(ssid: ssid)
+            networks = networks.map {
+                WifiNetwork(ssid: $0.ssid, rssi: $0.rssi,
+                            isSecure: $0.isSecure, isCurrent: $0.ssid == ssid)
+            }
+            // A network that connected but was not in the scanned list (a
+            // hidden join completing late) still appears, marked current.
+            if !networks.contains(where: { $0.ssid == ssid }) {
+                networks.insert(WifiNetwork(ssid: ssid, rssi: -50,
+                                            isSecure: network.isSecure, isCurrent: true), at: 0)
+            }
+            renderCurrent()
+        case .requiresPassword:
+            let entered = await requestPassword(for: network.ssid)
+            guard !Task.isCancelled else { return }
+            guard let entered else {
+                // The dialog was cancelled: back to the list, no error.
+                connectingSSID = nil
+                renderCurrent()
+                return
+            }
+            // `entered` lives only in this call chain: it is passed to the
+            // connector and never stored or logged.
+            await connect(network: network, password: entered)
+        case .failed(let reason):
+            connectingSSID = nil
+            notice = "Couldn't join “\(network.ssid)”. \(reason)"
+            renderCurrent()
+        }
+    }
+
+    /// Ask for the network's password through the injected provider (tests) or
+    /// the Divot-styled dialog (production). The result is never stored.
+    private func requestPassword(for ssid: String) async -> String? {
+        if let passwordProvider {
+            return await passwordProvider(ssid)
+        }
+        return await WifiPasswordPrompt.prompt(ssid: ssid)
+    }
+
+    private func renderCurrent() {
+        let inRange = Set(networks.map(\.ssid))
+        let previous = WifiJoinHistory.recent(recentJoins, excludingInRange: inRange)
+        guard let content else { return }
+        content.renderList(networks: networks,
+                           isScanning: isScanning,
+                           cacheSummary: cacheSummary,
+                           connectingSSID: connectingSSID,
+                           notice: notice,
+                           recentJoins: previous)
+        host.resize(to: content.preferredSize)
     }
 
     private func render(_ state: WifiScanState) {
@@ -198,8 +412,13 @@ final class WifiPopoverContentController: BarPopoverContentController {
     var onOpenWifiSettings: (() -> Void)?
     var onOpenLocationSettings: (() -> Void)?
     var onRetry: (() -> Void)?
+    var onSelect: ((WifiNetwork) -> Void)?
 
-    private var lastState: WifiScanState = .scanning
+    /// The last list render, so a theme change rebuilds the same rows.
+    private var lastList = WifiPopoverListRender()
+    /// The last non-list state, so a theme change rebuilds the message it
+    /// showed instead of an empty list.
+    private var lastFallback: WifiScanState?
     private let networkList = WifiNetworkListView()
 
     /// The scrollable network list, exposed for tests that assert its 90%
@@ -208,40 +427,100 @@ final class WifiPopoverContentController: BarPopoverContentController {
 
     override func loadView() {
         super.loadView()
-        render(.scanning)
+        renderList()
     }
 
     /// Rows bake their colours in when built, so a theme change rebuilds them.
     override func restyle(_ theme: BarTheme) {
         super.restyle(theme)
-        render(lastState)
+        if let lastFallback {
+            render(lastFallback)
+        } else {
+            renderList(lastList)
+        }
     }
 
     /// Rebuild the body for a new scan state. The header and settings row are
     /// always present; only the body swaps.
     func render(_ state: WifiScanState) {
-        lastState = state
-        clearRows()
-        stack.addArrangedSubview(header("Wi-Fi"))
         switch state {
         case .idle, .scanning:
-            stack.addArrangedSubview(message("Scanning for networks…"))
+            renderList(WifiPopoverListRender(isScanning: true))
         case .networks(let networks):
-            if networks.isEmpty {
-                stack.addArrangedSubview(message("No networks found."))
-            } else {
-                networkList.setRows(networks.map { row(for: $0) })
-                stack.addArrangedSubview(networkList)
+            renderList(WifiPopoverListRender(networks: networks))
+        case .permissionDenied, .unavailable, .failed:
+            lastFallback = state
+            lastList = WifiPopoverListRender()
+            clearRows()
+            stack.addArrangedSubview(header("Wi-Fi"))
+            switch state {
+            case .permissionDenied:
+                stack.addArrangedSubview(message("Location access is needed to list nearby Wi-Fi networks. "
+                                               + "Divot never reads network names without it."))
+                stack.addArrangedSubview(linkButton("Open Location Services…",
+                                                    action: #selector(openLocationServices)))
+            case .unavailable:
+                stack.addArrangedSubview(message("Wi-Fi is not available on this Mac."))
+            case .failed(let reason):
+                stack.addArrangedSubview(message("Couldn't scan for networks. \(reason)"))
+                stack.addArrangedSubview(linkButton("Try Again", action: #selector(retry)))
+            case .idle, .scanning, .networks:
+                break
             }
-        case .permissionDenied:
-            stack.addArrangedSubview(message("Location access is needed to list nearby Wi-Fi networks. "
-                                             + "Divot never reads network names without it."))
-            stack.addArrangedSubview(linkButton("Open Location Services…",
-                                                action: #selector(openLocationServices)))
-        case .unavailable:
-            stack.addArrangedSubview(message("Wi-Fi is not available on this Mac."))
-        case .failed(let reason):
-            stack.addArrangedSubview(message("Couldn't scan for networks. \(reason)"))
+            stack.addArrangedSubview(separator())
+            stack.addArrangedSubview(linkButton("Open Wi-Fi Settings…",
+                                                action: #selector(openWifiSettings)))
+            stack.needsLayout = true
+        }
+    }
+
+    /// Rebuild the body for the live list. The header and settings row are
+    /// always present; only the body swaps. A fresh cache paints at once with
+    /// its age line while `isScanning` keeps an animated row on screen; the
+    /// background scan then updates the list in place.
+    func renderList(networks: [WifiNetwork] = [],
+                    isScanning: Bool = false,
+                    cacheSummary: String? = nil,
+                    connectingSSID: String? = nil,
+                    notice: String? = nil,
+                    recentJoins: [WifiJoinedNetwork] = []) {
+        renderList(WifiPopoverListRender(networks: networks,
+                                         isScanning: isScanning,
+                                         cacheSummary: cacheSummary,
+                                         connectingSSID: connectingSSID,
+                                         notice: notice,
+                                         recentJoins: recentJoins))
+    }
+
+    private func renderList(_ list: WifiPopoverListRender) {
+        lastList = list
+        lastFallback = nil
+        clearRows()
+        stack.addArrangedSubview(header("Wi-Fi"))
+        if let cacheSummary = list.cacheSummary {
+            stack.addArrangedSubview(ageLine(cacheSummary))
+        }
+        if list.isScanning {
+            stack.addArrangedSubview(scanningRow())
+        }
+        if list.networks.isEmpty {
+            if !list.isScanning {
+                stack.addArrangedSubview(message("No networks found."))
+            }
+        } else {
+            networkList.setRows(list.networks.map {
+                rowButton(for: $0, connectingSSID: list.connectingSSID)
+            })
+            stack.addArrangedSubview(networkList)
+        }
+        if !list.recentJoins.isEmpty {
+            stack.addArrangedSubview(sectionLabel("Previously joined"))
+            for join in list.recentJoins {
+                stack.addArrangedSubview(previouslyJoinedRow(for: join))
+            }
+        }
+        if let notice = list.notice {
+            stack.addArrangedSubview(message(notice))
             stack.addArrangedSubview(linkButton("Try Again", action: #selector(retry)))
         }
         stack.addArrangedSubview(separator())
@@ -252,12 +531,44 @@ final class WifiPopoverContentController: BarPopoverContentController {
 
     // MARK: - Rows
 
-    /// One network row: signal, name, a spacer, then the lock and current marks.
-    private func row(for network: WifiNetwork) -> NSView {
-        let signal = NSImageView()
-        signal.image = Self.signalImage(level: network.signalLevel)
-        signal.contentTintColor = theme.popoverPalette.label
-        signal.setContentHuggingPriority(.required, for: .horizontal)
+    /// The cached list's age ("Updated 5s ago"), shown on the immediate first
+    /// paint while the live scan runs behind it.
+    private func ageLine(_ text: String) -> NSView {
+        let label = NSTextField(labelWithString: text)
+        label.font = .systemFont(ofSize: 11)
+        label.textColor = theme.popoverPalette.secondary
+        label.identifier = Self.secondaryIdentifier
+        return label
+    }
+
+    /// The scanning state: a spinning indicator beside the label, so the wait
+    /// visibly moves instead of sitting as static text.
+    private func scanningRow() -> NSView {
+        let spinner = NSProgressIndicator()
+        spinner.style = .spinning
+        spinner.controlSize = .small
+        spinner.startAnimation(nil)
+        spinner.setContentHuggingPriority(.required, for: .horizontal)
+
+        let label = NSTextField(labelWithString: "Scanning…")
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = theme.popoverPalette.secondary
+        label.identifier = Self.secondaryIdentifier
+
+        let row = NSStackView(views: [spinner, label])
+        row.orientation = .horizontal
+        row.alignment = .centerY
+        row.spacing = 8
+        return row
+    }
+
+    /// One clickable network row: the whole row is a borderless button holding
+    /// the signal, name, and marks. While a connect is in flight every row is
+    /// disabled and the joining row shows its own spinner and "Connecting…".
+    private func rowButton(for network: WifiNetwork, connectingSSID: String?) -> NSView {
+        var views: [NSView] = []
+        views.append(fixedIcon(Self.signalImage(level: network.signalLevel),
+                               tint: theme.popoverPalette.label))
 
         let name = NSTextField(labelWithString: network.ssid)
         name.font = network.isCurrent ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 13)
@@ -265,35 +576,93 @@ final class WifiPopoverContentController: BarPopoverContentController {
         name.lineBreakMode = .byTruncatingMiddle
         name.maximumNumberOfLines = 1
         name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        views.append(name)
 
         let spacer = NSView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        var views: [NSView] = [signal, name, spacer]
-        if network.isCurrent {
-            let check = NSImageView()
-            check.image = NSImage(systemSymbolName: "checkmark.circle.fill",
-                                  accessibilityDescription: "Connected")
-            check.contentTintColor = theme.popoverPalette.link
-            check.setContentHuggingPriority(.required, for: .horizontal)
-            views.append(check)
+        views.append(spacer)
+        if network.ssid == connectingSSID {
+            let spinner = NSProgressIndicator()
+            spinner.style = .spinning
+            spinner.controlSize = .small
+            spinner.startAnimation(nil)
+            spinner.setContentHuggingPriority(.required, for: .horizontal)
+            spinner.setContentCompressionResistancePriority(.required, for: .horizontal)
+            let joining = NSTextField(labelWithString: "Connecting…")
+            joining.font = .systemFont(ofSize: 12)
+            joining.textColor = theme.popoverPalette.secondary
+            joining.identifier = Self.secondaryIdentifier
+            joining.setContentHuggingPriority(.required, for: .horizontal)
+            joining.setContentCompressionResistancePriority(.required, for: .horizontal)
+            views += [spinner, joining]
+        } else {
+            if network.isCurrent {
+                views.append(fixedIcon(NSImage(systemSymbolName: "checkmark.circle.fill",
+                                               accessibilityDescription: "Connected"),
+                                           tint: theme.popoverPalette.link))
+            }
+            if network.isSecure {
+                views.append(fixedIcon(NSImage(systemSymbolName: "lock.fill",
+                                               accessibilityDescription: "Secure"),
+                                           tint: theme.popoverPalette.secondary))
+            }
         }
-        if network.isSecure {
-            let lock = NSImageView()
-            lock.image = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: "Secure")
-            lock.contentTintColor = theme.popoverPalette.secondary
-            lock.setContentHuggingPriority(.required, for: .horizontal)
-            views.append(lock)
-        }
 
-        let row = NSStackView(views: views)
+        let inner = NSStackView(views: views)
+        inner.orientation = .horizontal
+        inner.alignment = .centerY
+        inner.spacing = 8
+        // The button reports the stack's size as its own: an empty `NSButton`
+        // has no intrinsic width for its cell, so without this the row stack
+        // squeezes the button to zero and the icon draws over the name.
+        let button = WifiNetworkRowButton(ssid: network.ssid, inner: inner)
+        button.target = self
+        button.action = #selector(selectRow(_:))
+        button.setAccessibilityRole(.button)
+        button.setAccessibilityLabel(Self.accessibilityLabel(for: network))
+        // While one network is joining, the whole list holds still.
+        button.isEnabled = connectingSSID == nil
+        return button
+    }
+
+    /// One 16 pt row icon with a fixed frame, so an SF Symbol never reports a
+    /// zero size and draws over its neighbour.
+    private func fixedIcon(_ image: NSImage?, tint: NSColor) -> NSImageView {
+        let view = NSImageView()
+        view.image = image
+        view.imageScaling = .scaleProportionallyDown
+        view.contentTintColor = tint
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.widthAnchor.constraint(equalToConstant: 16).isActive = true
+        view.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        view.setContentHuggingPriority(.required, for: .horizontal)
+        view.setContentCompressionResistancePriority(.required, for: .horizontal)
+        return view
+    }
+
+    /// A previously joined network Divot connected to itself: muted text with
+    /// a clock mark, in its own section below the live list. These are not in
+    /// range now, so they are shown, not joined, from here.
+    private func previouslyJoinedRow(for join: WifiJoinedNetwork) -> NSView {
+        let clock = NSImageView()
+        clock.image = NSImage(systemSymbolName: "clock.fill", accessibilityDescription: "Previously joined")
+        clock.contentTintColor = theme.popoverPalette.secondary
+        clock.setContentHuggingPriority(.required, for: .horizontal)
+
+        let name = NSTextField(labelWithString: join.ssid)
+        name.font = .systemFont(ofSize: 12)
+        name.textColor = theme.popoverPalette.secondary
+        name.lineBreakMode = .byTruncatingMiddle
+        name.maximumNumberOfLines = 1
+
+        let row = NSStackView(views: [clock, name])
         row.orientation = .horizontal
         row.alignment = .centerY
         row.spacing = 8
         row.setAccessibilityElement(true)
         row.setAccessibilityRole(.staticText)
-        row.setAccessibilityLabel(Self.accessibilityLabel(for: network))
+        row.setAccessibilityLabel("\(join.ssid), previously joined")
         return row
     }
 
@@ -316,6 +685,11 @@ final class WifiPopoverContentController: BarPopoverContentController {
 
     // MARK: - Actions
 
+    @objc private func selectRow(_ sender: WifiNetworkRowButton) {
+        guard let network = lastList.networks.first(where: { $0.ssid == sender.ssid }) else { return }
+        onSelect?(network)
+    }
+
     @objc private func openWifiSettings() {
         onOpenWifiSettings?()
     }
@@ -326,5 +700,115 @@ final class WifiPopoverContentController: BarPopoverContentController {
 
     @objc private func retry() {
         onRetry?()
+    }
+}
+
+/// The arguments of one `renderList` call, kept so a theme change rebuilds
+/// the same rows.
+private struct WifiPopoverListRender {
+    var networks: [WifiNetwork] = []
+    var isScanning = false
+    var cacheSummary: String? = nil
+    var connectingSSID: String? = nil
+    var notice: String? = nil
+    var recentJoins: [WifiJoinedNetwork] = []
+}
+
+/// A whole-row button holding one network's visuals. The SSID travels on the
+/// button itself so the action can find its network without a tag table. The
+/// button reports its content stack's size as its own intrinsic size: an empty
+/// `NSButton` cell has no width to offer, so without this the row stack
+/// squeezes the button and its subviews overlap.
+private final class WifiNetworkRowButton: NSButton {
+    let ssid: String
+    private let inner: NSStackView
+
+    init(ssid: String, inner: NSStackView) {
+        self.ssid = ssid
+        self.inner = inner
+        super.init(frame: .zero)
+        isBordered = false
+        setButtonType(.momentaryPushIn)
+        alignment = .left
+        // An `NSButton` defaults its title to "Button" and its cell draws it
+        // over the row's own views; clear it so only the stack shows.
+        title = ""
+        addSubview(inner)
+        inner.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            inner.topAnchor.constraint(equalTo: topAnchor),
+            inner.bottomAnchor.constraint(equalTo: bottomAnchor),
+            inner.leadingAnchor.constraint(equalTo: leadingAnchor),
+            inner.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("created in code") }
+
+    override var intrinsicContentSize: NSSize { inner.fittingSize }
+}
+
+/// The Divot-styled password dialog for a secured network: a small panel with
+/// a prompt, an `NSSecureTextField` (never a plain field in the bar), and
+/// Join/Cancel. The entered password is returned to the caller only; this
+/// dialog stores and logs nothing.
+@MainActor
+enum WifiPasswordPrompt {
+    static func prompt(ssid: String) async -> String? {
+        let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 300, height: 132),
+                            styleMask: [.titled],
+                            backing: .buffered,
+                            defer: false)
+        panel.title = "Join \u{201C}\(ssid)\u{201D}"
+        let label = NSTextField(labelWithString: "Enter the password for \u{201C}\(ssid)\u{201D}.")
+        label.font = .systemFont(ofSize: 12)
+        let field = NSSecureTextField()
+        field.placeholderString = "Password"
+        let join = NSButton(title: "Join", target: nil, action: nil)
+        join.keyEquivalent = "\r"
+        let cancel = NSButton(title: "Cancel", target: nil, action: nil)
+        cancel.keyEquivalent = "\u{1b}"
+        let buttons = NSStackView(views: [cancel, join])
+        buttons.orientation = .horizontal
+        buttons.alignment = .centerY
+        buttons.spacing = 8
+        guard let content = panel.contentView else { return nil }
+        for view: NSView in [label, field, buttons] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            content.addSubview(view)
+        }
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: content.topAnchor, constant: 16),
+            label.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+            field.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 8),
+            field.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
+            field.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+            buttons.topAnchor.constraint(equalTo: field.bottomAnchor, constant: 12),
+            buttons.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+            buttons.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -12)
+        ])
+        let stopper = ModalStopper()
+        join.target = stopper
+        join.action = #selector(ModalStopper.stopJoin)
+        cancel.target = stopper
+        cancel.action = #selector(ModalStopper.stopCancel)
+        panel.makeFirstResponder(field)
+        let code = NSApp.runModal(for: panel)
+        panel.orderOut(nil)
+        guard code == .OK else { return nil }
+        let value = field.stringValue
+        return value.isEmpty ? nil : value
+    }
+
+    @MainActor
+    private final class ModalStopper: NSObject {
+        @objc func stopJoin() {
+            NSApp.stopModal(withCode: .OK)
+        }
+
+        @objc func stopCancel() {
+            NSApp.stopModal(withCode: .cancel)
+        }
     }
 }

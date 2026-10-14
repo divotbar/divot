@@ -14,7 +14,7 @@ The Wi-Fi name needs Location permission, which macOS requires for reading the c
 
 ## The Wi-Fi popover shows no networks
 
-Clicking the network item opens a read-only popover of nearby networks. That list also needs Location permission, because macOS gates network names on it. Without permission the popover shows a short message and a button to **System Settings → Privacy & Security → Location Services** instead of an empty list; grant access there and click the item again. Divot scans only when the popover opens, so a network that appears later shows up on the next open. The popover never joins a network and never asks for a password; use **Open Wi-Fi Settings…** at its last row for anything beyond looking.
+Clicking the network item opens a popover of nearby networks. That list also needs Location permission, because macOS gates network names on it. Without permission the popover shows a short message and a button to **System Settings → Privacy & Security → Location Services** instead of an empty list; grant access there and click the item again. Divot scans on every open and paints its recent cached list at once when it has one, so a network that appears later shows up on the next open. Clicking a network joins it; a secured network asks for its password in a Divot dialog first. Use **Open Wi-Fi Settings…** at its last row for anything beyond that.
 
 ## Permissions only work in the packaged app
 

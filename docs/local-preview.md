@@ -309,7 +309,7 @@ observe; leave unobserved items blank rather than marking them done.
       ([accessibility physical checks](accessibility-physical-checks.md)).
 - [ ] Click behavior: battery toggles keep-awake; the appearance item opens the
       appearance popover to set Divot's own light/dark mode and theme family and
-      its last row opens Divot settings; the network item opens the read-only
+      its last row opens Divot settings; the network item opens the
       Wi-Fi popover and its last row opens the Wi-Fi pane; the volume item opens
       the output-volume popover and its last row opens the Sound pane; the other
       status items open the intended System Settings pane or activate the
