@@ -626,12 +626,56 @@ struct WorldClockPopoverRealControllerTests {
         let sanNames = resultRowNames(in: controller.view)
         #expect(sanNames.first == "San Francisco",
                 "a city-name prefix match is ranked first (got \(sanNames))")
-        #expect(sanNames.count <= 6, "at most six results are shown (got \(sanNames.count))")
+        #expect(!sanNames.isEmpty, "the query returns matches")
 
         search.stringValue = "los"
         NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
         #expect(resultRowNames(in: controller.view).contains("San Francisco"),
                 "'los' still finds the Los Angeles zone")
+    }
+
+    /// Every match is listed — the results are no longer truncated at six — and
+    /// a zone already in the user's list is shown marked "Already added" and
+    /// cannot be added a second time (#0096).
+    @Test func everyMatchIsListedAndAddedZonesAreMarked() {
+        let controller = WorldClockPopoverContentController()
+        _ = controller.view
+        controller.render(timezones: ["Asia/Singapore"], timeFormat: .twentyFourHour, showSeconds: false)
+
+        guard let search = firstSearchField(in: controller.view) else {
+            Issue.record("expected a search field")
+            return
+        }
+
+        search.stringValue = "singapore"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        let names = resultRowNames(in: controller.view)
+        guard let singapore = names.first(where: { $0.contains("Singapore") }) else {
+            Issue.record("expected Singapore in the results (got \(names))")
+            return
+        }
+        #expect(singapore.contains("Already added"),
+                "an already-added zone is marked 'Already added' (got \(singapore))")
+
+        // A broad query returns more than the old six-row cap.
+        search.stringValue = "america"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        #expect(resultRowNames(in: controller.view).count > 6,
+                "every match is listed, not truncated at six")
+
+        // The already-added row cannot be added again.
+        search.stringValue = "singapore"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        var reported: [String]?
+        controller.onUpdateTimezones = { reported = $0 }
+        guard let table = firstTableView(in: controller.view),
+              let row = resultRowNames(in: controller.view).firstIndex(where: { $0.contains("Singapore") }) else {
+            Issue.record("expected a Singapore result row")
+            return
+        }
+        table.selectRowIndexes([row], byExtendingSelection: false)
+        table.sendAction(table.doubleAction, to: table.target)
+        #expect(reported == nil, "an already-added row cannot be added again")
     }
 
     @Test func zoneRowsAreCappedAtEightAndScrollBeyond() {
@@ -736,6 +780,47 @@ struct WorldClockPopoverRealControllerTests {
         NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
         #expect(panel.frame.height < heightWithResults,
                 "the live panel shrinks again when the results list hides")
+    }
+
+    /// A broad query grows the real panel to the 90% screen cap and the results
+    /// scroll beyond it, rather than overflowing the screen (#0096). This drives
+    /// the live panel through the host, not just the content view's size.
+    @Test func manyResultsCapTheLivePanelAtNinetyPercentAndScroll() throws {
+        let (store, dir) = try makeTempStore()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        // An explicit empty list so a broad query is not dominated by added rows.
+        var config = store.current
+        config.widgets.time.timezones = []
+        try store.save(config)
+
+        let (controller, host, window, _) = presentingControllerWithHost(store: store)
+        defer { controller.dismiss(); _ = window }
+
+        guard let content = controller.contentForTesting,
+              let search = firstSearchField(in: content.view),
+              let panel = host.panel,
+              let results = content.searchResultsForTesting else {
+            Issue.record("expected a presented panel with a search field and results list")
+            return
+        }
+
+        // Pin the screen the cap is computed from so the assertion is deterministic.
+        content.screenHeightForTesting = 1000
+        let heightBefore = panel.frame.height
+
+        search.stringValue = "a"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+
+        #expect(results.results.count > 6, "a broad query lists every match")
+        #expect(panel.frame.height > heightBefore, "the live panel grows with the results")
+        #expect(panel.frame.height <= 900 + 1,
+                "the live panel stays within 90% of the screen height (got \(panel.frame.height))")
+        #expect(results.cappedHeight < 900,
+                "the results list scrolls below the panel cap (got \(results.cappedHeight))")
+        let rowsHeight = CGFloat(results.results.count) * TimezoneSearchResultsController.rowHeight
+        #expect(rowsHeight > results.cappedHeight + 1,
+                "there are more rows than fit, so the list scrolls (rows \(rowsHeight), cap \(results.cappedHeight))")
+        #expect(results.view.hasVerticalScroller, "the results list scrolls vertically")
     }
 
     /// Tab moves focus from the search field into the results list, Return adds
