@@ -1,6 +1,4 @@
 ---
-last_close_out_gate_ms: 152986
-last_close_out_gate_at: "2026-10-14T06:33:10.311Z"
 id: "0080"
 title: Measure the banner window level with the probe and decide the fix
 type: chore
@@ -14,7 +12,9 @@ branch: feat/measure-the-banner-window-level-with-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T07:47:17Z"
-updated_at: "2026-10-14T06:33:10Z"
+updated_at: "2026-10-14T06:33:12Z"
+last_close_out_gate_ms: 152986
+last_close_out_gate_at: "2026-10-14T06:33:10.311Z"
 review_passes: 1
 ---
 ## Problem
@@ -89,4 +89,4 @@ Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPan
 - 2026-10-14T06:26:31Z · note: 60 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-14T06:26:49Z · note: review pass 1: good to go
 - 2026-10-14T06:33:10Z · close-out gate completed in 153s
-
+- 2026-10-14T06:33:12Z · note: handoff requested (cli)
