@@ -99,3 +99,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:41:15Z · needs_input
 - 2026-10-14T04:41:15Z · status review→active
 - 2026-10-14T04:41:15Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-14T04:41:15Z · message_delivered: 1 message(s)
