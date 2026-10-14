@@ -86,6 +86,7 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                 calendarPopover: CalendarPopoverController? = nil,
                 worldClockPopover: WorldClockPopoverController? = nil,
                 onWidgetAction: ((WidgetAction) -> Void)? = nil,
+                onToggleKeepAwake: ((NSView) -> Void)? = nil,
                 presenter: any WindowPresenting = SystemWindowPresenter()) {
         self.id = id
         self.configuration = configuration
@@ -112,7 +113,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                           appearancePopover: appearancePopover,
                                           calendarPopover: calendarPopover,
                                           worldClockPopover: worldClockPopover,
-                                          onActivate: onWidgetAction)
+                                          onActivate: onWidgetAction,
+                                          onToggleKeepAwake: onToggleKeepAwake)
         self.rightContent = BarContentView(side: .right,
                                            items: layout.right,
                                            enablesChipStyle: configuration.chipStyle,
@@ -125,7 +127,8 @@ public final class NSPanelBarSurface: BarDisplaySurface {
                                            appearancePopover: appearancePopover,
                                            calendarPopover: calendarPopover,
                                            worldClockPopover: worldClockPopover,
-                                           onActivate: onWidgetAction)
+                                           onActivate: onWidgetAction,
+                                           onToggleKeepAwake: onToggleKeepAwake)
         self.left = Self.makePanel(on: screen, content: leftContent, shadowHeight: shadowStrip)
         self.right = Self.makePanel(on: screen, content: rightContent, shadowHeight: shadowStrip)
         leftContent.onEffectiveAppearanceChange = { [weak self] in self?.restyle() }
@@ -357,11 +360,3 @@ final class BarPanelContainer: NSView {
     }
 }
 
-/// Extension for keep-awake toast support.
-extension NSPanelBarSurface {
-    /// Finds and returns the battery item view if it exists on either this
-    /// surface's left or right panel, so the toast can be positioned relative to it.
-    func batteryItemView() -> NSView? {
-        leftContent.itemViewForID(.battery) ?? rightContent.itemViewForID(.battery)
-    }
-}

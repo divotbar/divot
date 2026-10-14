@@ -33,6 +33,10 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Presents the keep-awake toast panel, positioned below the battery item.
     private var keepAwakeToastHost: KeepAwakeToastHost?
     private var keepAwakeToastSubscription: (any ProviderSubscription)?
+    /// The battery item that last toggled keep-awake, for toast placement on the
+    /// correct display (weak so a rebuilt bar does not keep a stale anchor).
+    private weak var keepAwakeToastAnchor: NSView?
+    private var lastAppliedConfiguration: DivotConfiguration?
     /// Reads and toggles the app appearance; reused across all clicks so only
     /// one subscription is held.
     private var appearanceReading: SystemAppearanceReading?
@@ -165,6 +169,9 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
                                             worldClockPopover: worldClockPopover,
                                             onWidgetAction: { action in
                 self?.perform(action)
+            },
+                                            onToggleKeepAwake: { view in
+                self?.keepAwakeToastAnchor = view
             })
             // A family/appearance change can change icon rendering; drop the
             // appearance-dependent icon cache.
@@ -234,6 +241,10 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
 
     /// Apply one validated configuration to every consumer.
     private func apply(_ configuration: DivotConfiguration) {
+        if let last = lastAppliedConfiguration, !last.rendersSameBar(as: configuration) {
+            cancelKeepAwakeToast()
+        }
+        lastAppliedConfiguration = configuration
         // Appearance first: a surface rebuilt below resolves its theme from the
         // live effective appearance, so the app-wide override must be in place.
         applyAppearance(configuration.appearance)
@@ -271,12 +282,17 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func cancelKeepAwakeToast() {
+        keepAwakeToastAnchor = nil
+        keepAwakeToastController?.dismissToast()
+    }
+
     /// Present or dismiss the keep-awake toast from controller state.
     private func applyKeepAwakeToast(_ toast: KeepAwakeToastState?) {
         guard let keepAwakeToastHost else { return }
         if let toast {
             guard configurationController?.configuration.keepAwake.showToast ?? true else { return }
-            guard let batteryView = coordinator?.findBatteryItemView() else { return }
+            guard let batteryView = keepAwakeToastAnchor, batteryView.window != nil else { return }
             let configuration = configurationController?.configuration ?? .default
             let dark = batteryView.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
             let theme = BarTheme.resolve(configuration.appearance, dark: dark)
