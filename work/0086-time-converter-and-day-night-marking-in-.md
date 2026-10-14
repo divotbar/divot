@@ -12,7 +12,7 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T04:46:00Z"
+updated_at: "2026-10-14T04:51:12Z"
 review_passes: 4
 review_rounds: 2
 ---
@@ -57,13 +57,13 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 ```
 
 ## Evidence
-Shots were re-captured on the final HEAD (merge of `main`). The `Divot bar` target runs with `DIVOT_SNAPSHOT_ONLY=worldclock` under the reduced `DIVOT_SNAPSHOT_SET=shots`, so each state is captured in Native and Gruvbox, light and dark.
+Shots were deleted and re-captured on the current HEAD (`7ffba8a8`) so the PNG evidence is tied to the reviewed commit, not the earlier `6cd1350d`. The `Divot bar` target runs with `DIVOT_SNAPSHOT_ONLY=worldclock` under the reduced `DIVOT_SNAPSHOT_SET=shots`; each state is captured in Native and Gruvbox, light and dark. RepoOS stores them as `work/.attachments/0086/shots/divot-bar-<state>-1.png`.
 
-RepoOS stores the handoff captures as `work/.attachments/0086/shots/divot-bar-<state>-1.png` (the `-1` suffix is the handoff capture; a manual `repoos shot` re-run appends `-2`, `-3`, …). The eight images are:
+The only `macos/Sources`/`macos/Tests` change since the original `1ffac1eb` capture is `main`'s Wi-Fi long-list work (`WifiPopover.swift`, `WifiPopoverTests.swift`, `PopoverSnapshotTests.swift`), brought in by the merge; the world-clock conversion/day-night code is unchanged, so these images are the same world-clock states re-tied to the current commit.
 
 **At now — `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-defaults-1.png`**
-- Header reads the current local time and zone (captured `11:29 UTC+7` / `Jakarta`); the scrubber thumb sits at the current minute with its `11:29` label, and the **Now** control is greyed out because the converter is un-scrubbed.
-- Rows convert at that instant: San Francisco `21:29 (14 h behind) Yesterday` with a moon, London `05:29 (6 h behind)` with a moon, Singapore `12:29 (1 h ahead)` with a sun. The sun/moon marker shows each zone's fixed 09:00–18:00 local working window at a glance.
+- Header reads the current local time and zone (this capture: `11:49 UTC+7` / `Jakarta`); the scrubber thumb sits at the current minute with its `11:49` label, and the **Now** control is greyed out because the converter is un-scrubbed.
+- Rows convert at that instant: San Francisco `21:49 (14 h behind) Yesterday` with a moon, London `05:49 (6 h behind)` with a moon, Singapore `12:49 (1 h ahead)` with a sun. The sun/moon marker shows each zone's fixed 09:00–18:00 local working window at a glance.
 - Native and Gruvbox differ only in palette (Native neutral grey; Gruvbox warm sepia light / warm brown dark); layout and content are identical.
 
 **Scrubbed — `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-scrubbed-1.png`**
@@ -107,3 +107,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:46:00Z · needs_input
 - 2026-10-14T04:46:00Z · status review→active
 - 2026-10-14T04:46:00Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
+- 2026-10-14T04:51:12Z · body: section Evidence
