@@ -10,7 +10,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/dev-page-add-a-divot-bar-packaged-target
 created_at: "2026-10-13T17:21:21Z"
-updated_at: "2026-10-13T21:59:33Z"
+updated_at: "2026-10-14T02:31:02Z"
 last_close_out_gate_ms: 122718
 last_close_out_gate_at: "2026-10-13T21:59:27.423Z"
 review_passes: 1
@@ -53,3 +53,4 @@ The Dev page itself cannot drive this branch: RepoOS runs dev targets in the pro
 - 2026-10-13T20:08:57Z · note: review pass 1: good to go
 - 2026-10-13T21:59:27Z · close-out gate completed in 123s
 - 2026-10-13T21:59:33Z · status review→done, release:success
+- 2026-10-14T02:31:02Z · message_expired: not delivered within timeout
