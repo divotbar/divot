@@ -73,3 +73,4 @@ Screenshots from the maintainer are attached. The first (screenshot 1) shows 'si
 - 2026-10-14T04:49:19Z · status review→active
 - 2026-10-14T04:50:45Z · message_queued at 2026-10-14T04:50:45.863Z
 - 2026-10-14T04:52:28Z · status active→review
+- 2026-10-14T04:52:28Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (63b066b9) during finalization (#0734)
