@@ -435,10 +435,13 @@ public struct KeepAwakeConfiguration: Equatable, Sendable {
     public var remember: Bool
     /// The remembered state. Only meaningful when `remember` is `true`.
     public var isActive: Bool
+    /// Show the keep-awake toast when caffeine is toggled. Default on.
+    public var showToast: Bool
 
-    public init(remember: Bool = false, isActive: Bool = false) {
+    public init(remember: Bool = false, isActive: Bool = false, showToast: Bool = true) {
         self.remember = remember
         self.isActive = isActive
+        self.showToast = showToast
     }
 
     public static let `default` = KeepAwakeConfiguration()

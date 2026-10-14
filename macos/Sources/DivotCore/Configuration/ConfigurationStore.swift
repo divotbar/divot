@@ -243,6 +243,7 @@ private extension KeepAwakeConfiguration {
         var object: [String: Any] = [:]
         if remember { object["remember"] = true }
         if isActive { object["isActive"] = true }
+        if !showToast { object["showToast"] = false }
         return object
     }
 }
