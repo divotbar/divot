@@ -3,6 +3,9 @@ id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p0
 area: macos
 assigned_to: ""
@@ -252,3 +255,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T02:30:16Z · review_cli_override, review_model_override
 - 2026-10-14T02:30:19Z · needs_input (review-failed) cleared for review again by human
 - 2026-10-14T02:32:52Z · note: review pass 10: needs some work
+- 2026-10-14T02:32:52Z · needs_input
