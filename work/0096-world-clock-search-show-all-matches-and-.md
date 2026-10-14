@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-14T04:49:19Z"
+review_passes: 1
 id: "0096"
 title: "World clock search: show all matches, and cap the results at 90% of screen height with scrolling"
 type: bug
@@ -11,7 +13,6 @@ branch: feat/world-clock-search-show-all-matches-and-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T04:37:00Z"
-updated_at: "2026-10-14T04:49:19Z"
 ---
 ## Problem
 In the world clock popover, the Add timezone search has two problems.
@@ -68,3 +69,4 @@ Screenshots from the maintainer are attached. The first (screenshot 1) shows 'si
 - 2026-10-14T04:46:14Z · body: section Shots
 - 2026-10-14T04:48:38Z · status active→review
 - 2026-10-14T04:49:19Z · note: review pass 1: needs some work
+
