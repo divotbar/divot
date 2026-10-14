@@ -20,8 +20,10 @@ When there are many wifi networks the list view gets too long, instead it should
 ## Screenshots
 
 ![Screenshot-2026-10-14-at-09.29.12](/api/tasks/0095/attachments/screenshot-1.png)
+![Screenshot-2026-10-14-at-10.48.10](/api/tasks/0095/attachments/screenshot-2.png)
 
 ## Activity
 
 - 2026-10-14T03:49:52Z · created · api
+- 2026-10-14T03:49:52Z · screenshots
 - 2026-10-14T03:49:52Z · screenshots
