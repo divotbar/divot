@@ -101,6 +101,97 @@ public final class WifiPopoverController {
     }
 }
 
+/// The scrollable list of nearby Wi-Fi networks. It fits its content up to a
+/// maximum of 90% of the screen height and scrolls beyond that, so a long list
+/// of networks cannot grow the popover without bound (the header and the
+/// settings link stay on screen).
+@MainActor
+final class WifiNetworkListView: NSView {
+    /// The fraction of the screen height the list may occupy before scrolling.
+    static let maximumHeightFraction: CGFloat = 0.9
+    private static let rowSpacing: CGFloat = 6
+
+    /// Test seam: pins the screen height the cap is computed from. `nil` (the
+    /// default) uses the list's own window screen, then the main screen; when no
+    /// screen is known (a headless run) the list is left uncapped.
+    var screenHeightOverride: CGFloat?
+
+    private let scrollView = NSScrollView()
+    private let rows = PopoverRowStack()
+    private var heightConstraint: NSLayoutConstraint?
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        translatesAutoresizingMaskIntoConstraints = false
+
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        // Draw nothing of its own; the popover's solid fill shows through, and no
+        // vibrancy material is introduced (#0083).
+        scrollView.drawsBackground = false
+        scrollView.contentView.drawsBackground = false
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+
+        rows.orientation = .vertical
+        rows.alignment = .leading
+        rows.spacing = Self.rowSpacing
+        rows.translatesAutoresizingMaskIntoConstraints = false
+
+        scrollView.documentView = rows
+        addSubview(scrollView)
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            rows.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
+            rows.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor),
+            rows.topAnchor.constraint(equalTo: scrollView.contentView.topAnchor)
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError("created in code") }
+
+    /// Replace the rows and size to fit the content, clamped to the screen cap.
+    func setRows(_ newRows: [NSView]) {
+        for view in rows.arrangedSubviews {
+            rows.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+        for view in newRows {
+            rows.addArrangedSubview(view)
+        }
+        rows.layoutSubtreeIfNeeded()
+
+        let spacing = Self.rowSpacing
+        let heights = newRows.map { $0.fittingSize.height }
+        let total = heights.reduce(0, +) + spacing * CGFloat(max(0, newRows.count - 1))
+        setHeight(min(total, maximumHeight ?? total))
+    }
+
+    /// The height the list is currently pinned to. Exposed for tests that assert
+    /// the screen cap without depending on a laid-out frame.
+    var cappedHeight: CGFloat { heightConstraint?.constant ?? 0 }
+
+    /// 90% of the screen the list is shown on, or `nil` when no screen is known
+    /// (a headless run), which leaves the list uncapped.
+    private var maximumHeight: CGFloat? {
+        let screenHeight = screenHeightOverride
+            ?? window?.screen?.frame.height
+            ?? NSScreen.main?.frame.height
+        guard let screenHeight else { return nil }
+        return screenHeight * Self.maximumHeightFraction
+    }
+
+    private func setHeight(_ height: CGFloat) {
+        heightConstraint?.isActive = false
+        let constraint = heightAnchor.constraint(equalToConstant: max(1, height))
+        constraint.isActive = true
+        heightConstraint = constraint
+    }
+}
+
 /// The popover's content: a header, a scannable body, and the settings row.
 @MainActor
 final class WifiPopoverContentController: BarPopoverContentController {
@@ -109,6 +200,11 @@ final class WifiPopoverContentController: BarPopoverContentController {
     var onRetry: (() -> Void)?
 
     private var lastState: WifiScanState = .scanning
+    private let networkList = WifiNetworkListView()
+
+    /// The scrollable network list, exposed for tests that assert its 90%
+    /// screen-height cap and scrolling behaviour.
+    var networkListForTesting: WifiNetworkListView { networkList }
 
     override func loadView() {
         super.loadView()
@@ -134,9 +230,8 @@ final class WifiPopoverContentController: BarPopoverContentController {
             if networks.isEmpty {
                 stack.addArrangedSubview(message("No networks found."))
             } else {
-                for network in networks {
-                    stack.addArrangedSubview(row(for: network))
-                }
+                networkList.setRows(networks.map { row(for: $0) })
+                stack.addArrangedSubview(networkList)
             }
         case .permissionDenied:
             stack.addArrangedSubview(message("Location access is needed to list nearby Wi-Fi networks. "

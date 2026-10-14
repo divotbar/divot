@@ -114,6 +114,9 @@ Clicking the network item opens an `NSPopover` anchored to the item
 for a secured network, and the connected network marked and pinned first. The
 behavior is read-only — there is no join, no password field, and no network
 configuration. The last row is **Open Wi-Fi Settings…** (the #0069 pane link).
+The network rows live in a scroll view whose height is capped at 90% of the
+screen the popover is shown on, so a long list of nearby networks scrolls
+instead of growing the panel without bound (task 0095).
 
 The scan runs through the `WifiNetworkScanning` seam (`DivotAppKit`), once per
 open and never on a timer; closing the popover cancels an in-flight scan. The
