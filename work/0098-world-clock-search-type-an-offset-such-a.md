@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0098"
 title: "World clock search: type an offset such as +7 or -8 to find zones in that offset"
 type: feature
@@ -61,3 +62,4 @@ The current search lives in WorldClockPopover.swift (updateResults). Zone identi
 - 2026-10-14T05:46:56Z · status review→active
 - 2026-10-14T05:46:56Z · note: close-out repair: merge-conflict
 - 2026-10-14T05:46:56Z · message_delivered: 1 message(s)
+
