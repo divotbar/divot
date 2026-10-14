@@ -116,3 +116,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T05:06:20Z · message_queued at 2026-10-14T05:06:20.204Z
 - 2026-10-14T05:06:20Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-14T05:14:45Z · status active→review
+- 2026-10-14T05:14:45Z · note: shots: skipped — 8 shots already captured — an engineer-made capture pre-empts the automatic one
