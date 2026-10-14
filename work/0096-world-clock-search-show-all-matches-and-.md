@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T04:37:00Z"
-updated_at: "2026-10-14T04:37:00Z"
+updated_at: "2026-10-14T04:37:07Z"
 ---
 ## Problem
 In the world clock popover, the Add timezone search has two problems.
@@ -38,3 +40,4 @@ Screenshots from the maintainer are attached. The first (screenshot 1) shows 'si
 
 - 2026-10-14T04:37:00Z · created · njachowski@gmail.com
 - 2026-10-14T04:37:00Z · screenshots
+- 2026-10-14T04:37:07Z · cli_override, model_override
