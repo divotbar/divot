@@ -2,7 +2,7 @@
 
 This sets up the tap that serves `brew install --cask divotbar/tap/divot`. The
 rules come from
-[docs/infrastructure.md](../docs/infrastructure.md#homebrew-cask). The contents
+[docs/infrastructure.md](../infrastructure.md#homebrew-cask). The contents
 are already prepared in `packaging/homebrew-tap/`.
 
 ## Part 1: create the repository

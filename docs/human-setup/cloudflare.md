@@ -3,7 +3,7 @@
 This is the one-time setup for the website. It follows the same pattern RepoOS
 uses for its own sites: a git-connected Worker driven by `wrangler.jsonc`, with
 `main` as the dev branch and `prod` as production. The source of truth is
-[docs/infrastructure.md](../docs/infrastructure.md#static-hosting-and-deployment).
+[docs/infrastructure.md](../infrastructure.md#static-hosting-and-deployment).
 
 ## Before you start
 

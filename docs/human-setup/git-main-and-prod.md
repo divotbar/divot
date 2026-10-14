@@ -2,7 +2,7 @@
 
 Three things: push `main` to GitHub, create `prod` from it, and cut the first
 release tag. The rules come from
-[docs/infrastructure.md](../docs/infrastructure.md) and RepoOS's own practice.
+[docs/infrastructure.md](../infrastructure.md) and RepoOS's own practice.
 
 ## Rules to keep in mind
 
