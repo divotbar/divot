@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 127551
-last_close_out_gate_at: "2026-10-14T04:24:18.219Z"
 id: "0095"
 title: Make the Wi-Fi network list scrollable
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: c58edcc7b29350bac5978dfcdd594e988be6431f
 assigned_to: ai
 created_by: api
 branch: feat/make-the-wi-fi-network-list-scrollable
 created_at: "2026-10-14T03:49:52Z"
-updated_at: "2026-10-14T04:24:18Z"
+updated_at: "2026-10-14T04:24:21Z"
+last_close_out_gate_ms: 127551
+last_close_out_gate_at: "2026-10-14T04:24:18.219Z"
 review_passes: 2
 review_rounds: 1
 ---
@@ -76,4 +77,4 @@ When there are many wifi networks the list view gets too long, instead it should
 - 2026-10-14T04:17:33Z · note: shots: skipped — 10 handoff shots already captured for this exact plan (c58edcc7) during finalization (#0734)
 - 2026-10-14T04:18:45Z · note: review pass 2: good to go
 - 2026-10-14T04:24:18Z · close-out gate completed in 128s
-
+- 2026-10-14T04:24:21Z · status review→done, release:success
