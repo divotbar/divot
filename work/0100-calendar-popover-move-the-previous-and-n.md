@@ -2,12 +2,12 @@
 id: "0100"
 title: "Calendar popover: move the previous and next month arrows beside the month and year"
 type: feature
-status: ready
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/calendar-popover-move-the-previous-and-n
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T08:39:43Z"
@@ -39,3 +39,4 @@ The calendar popover is macos/Sources/DivotAppKit/CalendarPopover.swift; the hea
 - 2026-10-14T08:39:43Z · screenshots
 - 2026-10-14T08:39:47Z · status inbox→ready
 - 2026-10-14T08:39:57Z · cli_override, model_override
+- 2026-10-14T08:39:57Z · status ready→active, branch
