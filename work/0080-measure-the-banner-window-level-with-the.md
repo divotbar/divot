@@ -90,3 +90,4 @@ Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPan
 - 2026-10-14T06:26:49Z · note: review pass 1: good to go
 - 2026-10-14T06:33:10Z · close-out gate completed in 153s
 - 2026-10-14T06:33:12Z · note: handoff requested (cli)
+- 2026-10-14T06:33:12Z · handoff failed · task-file handoff failed at validate · task must be active or review, but is inbox
