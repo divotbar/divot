@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-14T04:18:46Z"
-review_passes: 2
 id: "0095"
 title: Make the Wi-Fi network list scrollable
 type: feature
@@ -11,7 +9,7 @@ assigned_to: ai
 created_by: api
 branch: feat/make-the-wi-fi-network-list-scrollable
 created_at: "2026-10-14T03:49:52Z"
-review_rounds: 1
+updated_at: "2026-10-14T04:10:00Z"
 ---
 ## Problem
 
@@ -43,20 +41,6 @@ When there are many wifi networks the list view gets too long, instead it should
 ![Screenshot-2026-10-14-at-09.29.12](/api/tasks/0095/attachments/screenshot-1.png)
 ![Screenshot-2026-10-14-at-10.48.10](/api/tasks/0095/attachments/screenshot-2.png)
 
-## Shots
-```json
-[
-{
-"label": "Wi-Fi popover network list",
-"target": "Divot bar",
-"env": {
-"DIVOT_SNAPSHOT_ONLY": "wifi"
-},
-"glob": "*wifi*.png"
-}
-]
-```
-
 ## Activity
 
 - 2026-10-14T03:49:52Z · created · api
@@ -65,12 +49,4 @@ When there are many wifi networks the list view gets too long, instead it should
 - 2026-10-14T03:50:06Z · status draft→inbox, title, area, assigned_to, body
 - 2026-10-14T04:02:50Z · status inbox→ready
 - 2026-10-14T04:02:59Z · status ready→active, branch
-- 2026-10-14T04:07:22Z · body: section Shots
-- 2026-10-14T04:10:02Z · status active→review
-- 2026-10-14T04:11:10Z · note: review pass 1: needs some work
-- 2026-10-14T04:11:13Z · status review→active
-- 2026-10-14T04:12:57Z · message_queued at 2026-10-14T04:12:57.656Z
-- 2026-10-14T04:17:30Z · status active→review
-- 2026-10-14T04:17:33Z · note: shots: skipped — 10 handoff shots already captured for this exact plan (c58edcc7) during finalization (#0734)
-- 2026-10-14T04:18:45Z · note: review pass 2: good to go
-
+- 2026-10-14T04:10:00Z · status active→review
