@@ -8,8 +8,9 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+model_override: opencode-go/muse-spark-1.3-contributor
 created_at: "2026-10-14T07:17:58Z"
-updated_at: "2026-10-14T07:29:12Z"
+updated_at: "2026-10-14T07:39:42Z"
 ---
 ## Problem
 The Wi-Fi popover has three UX problems, measured on this Mac:
@@ -62,3 +63,4 @@ Merged into the section above.
 - 2026-10-14T07:29:06Z · body: section Measurements (this Mac, macOS 26.5.2)
 - 2026-10-14T07:29:06Z · body: section Measurements
 - 2026-10-14T07:29:12Z · body: section Acceptance criteria
+- 2026-10-14T07:39:42Z · model_override
