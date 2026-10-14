@@ -2,7 +2,7 @@
 id: "0096"
 title: "World clock search: show all matches, and cap the results at 90% of screen height with scrolling"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/world-clock-search-show-all-matches-and-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T04:37:00Z"
-updated_at: "2026-10-14T04:46:14Z"
+updated_at: "2026-10-14T04:48:38Z"
 ---
 ## Problem
 In the world clock popover, the Add timezone search has two problems.
@@ -40,20 +40,20 @@ Screenshots from the maintainer are attached. The first (screenshot 1) shows 'si
 ```json
 [
 {
-  "label": "World clock search: many results capped at 90% of the screen height and scrolling",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "many-results"
-  },
-  "glob": "*many-results*.png"
+"label": "World clock search: many results capped at 90% of the screen height and scrolling",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "many-results"
+},
+"glob": "*many-results*.png"
 },
 {
-  "label": "World clock search: an already-added zone marked Already added",
-  "target": "Divot bar",
-  "env": {
-    "DIVOT_SNAPSHOT_ONLY": "already-added"
-  },
-  "glob": "*already-added*.png"
+"label": "World clock search: an already-added zone marked Already added",
+"target": "Divot bar",
+"env": {
+  "DIVOT_SNAPSHOT_ONLY": "already-added"
+},
+"glob": "*already-added*.png"
 }
 ]
 ```
@@ -66,3 +66,4 @@ Screenshots from the maintainer are attached. The first (screenshot 1) shows 'si
 - 2026-10-14T04:37:11Z · status inbox→ready
 - 2026-10-14T04:37:12Z · status ready→active, branch
 - 2026-10-14T04:46:14Z · body: section Shots
+- 2026-10-14T04:48:38Z · status active→review
