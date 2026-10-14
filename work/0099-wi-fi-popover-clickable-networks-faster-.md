@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-14T07:17:58Z"
-updated_at: "2026-10-14T07:28:55Z"
+updated_at: "2026-10-14T07:29:06Z"
 ---
 ## Problem
 The Wi-Fi popover has three UX problems, measured on this Mac:
@@ -35,9 +35,9 @@ The Wi-Fi popover has three UX problems, measured on this Mac:
 - docs/ and site/ pages describing the Wi-Fi item are updated.
 
 ## Measurements (this Mac, macOS 26.5.2)
-- CWInterface.scanForNetworks, first call: 5.57 s, 11 networks.
-- Second and third calls: 0.02 s, 26 networks.
-- CWInterface.configuration().networkProfiles: 211 saved profiles, readable without a scan. These show saved networks, not which are in range.
+- CWInterface.scanForNetworks, first call in a standalone process: 5.57 s, 11 networks.
+- Second and third calls in the same standalone process: 0.02 s, 26 networks. This does NOT match the maintainer's experience in the app, where each open takes about 5-7 s. The engineer must measure in-app timing (popover open to list shown) before relying on any fast-path numbers.
+- CWInterface.configuration().networkProfiles returns 211 saved profiles on this Mac. These are not a usable list (see Desired UX).
 
 ## Notes for AI
 The popover is macos/Sources/DivotAppKit/WifiPopover.swift; the scanner is WifiNetworkScanner.swift (CoreWLAN, 8 s timeout, one scan per open); the list shaping is macos/Sources/DivotCore/WifiNetworks.swift. Connecting needs a CoreWLAN associate call and a Location gate for network names, which the scanner already checks. Joining a network changes system state, so the connect path needs a fake in tests and a clear manual check by the maintainer. Screenshots from the maintainer are attached: 1 shows the list with the current network checked and lock icons; 2 shows the 'Scanning for networks...' state.
@@ -58,3 +58,4 @@ The popover is macos/Sources/DivotAppKit/WifiPopover.swift; the scanner is WifiN
 - 2026-10-14T07:17:58Z · screenshots
 - 2026-10-14T07:28:55Z · body: section Desired UX
 - 2026-10-14T07:28:55Z · body: section Measurements
+- 2026-10-14T07:29:06Z · body: section Measurements (this Mac, macOS 26.5.2)
