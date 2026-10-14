@@ -369,6 +369,25 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    /// A long nearby-network list, pinned to a 600 pt screen so the shot shows
+    /// the list clipped at 90% of it (540 pt) and scrollable on any machine. The
+    /// cap is a fixed test seam; production reads the popover's own screen.
+    private func makeWifiManyNetworksController(fontSize: CGFloat = 12) -> WifiPopoverContentController {
+        let controller = WifiPopoverContentController()
+        _ = controller.view
+        controller.networkListForTesting.screenHeightOverride = 600
+        controller.render(.networks((0..<40).map { index in
+            WifiNetwork(ssid: "Nearby Network \(index + 1)",
+                        rssi: -35 - index * 2,
+                        isSecure: !index.isMultiple(of: 3),
+                        isCurrent: index == 0)
+        }))
+        if fontSize != 12 {
+            applyFontSize(fontSize, to: controller.view)
+        }
+        return controller
+    }
+
     private func makeCalendarController(fontSize: CGFloat = 12) -> CalendarPopoverContentController {
         let controller = CalendarPopoverContentController()
         _ = controller.view
@@ -565,6 +584,17 @@ struct PopoverSnapshotTests {
                 let name = "wifi-popover-\(familyName)-\(variantName)-default"
                 try testPopover(name: name, maker: makeWifiPopoverController, appearance: appearance, isDark: isDark, fontSize: 12)
             }
+        }
+    }
+
+    @Test("Wi-Fi popover with many networks — native light/dark, list capped and scrollable")
+    func wifiPopoverManyNetworks() throws {
+        // Native light and dark only, so the reduced `DIVOT_SNAPSHOT_SET=shots`
+        // set carries one long-list image per variant as visual proof of the cap.
+        for (variantName, isDark) in [("light", false), ("dark", true)] {
+            let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
+            let name = "wifi-popover-many-native-\(variantName)-default"
+            try testPopover(name: name, maker: makeWifiManyNetworksController, appearance: appearance, isDark: isDark, fontSize: 12)
         }
     }
 
