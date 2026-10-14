@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
 created_at: "2026-10-14T07:17:58Z"
-updated_at: "2026-10-14T07:29:06Z"
+updated_at: "2026-10-14T07:29:12Z"
 ---
 ## Problem
 The Wi-Fi popover has three UX problems, measured on this Mac:
@@ -28,9 +28,12 @@ The Wi-Fi popover has three UX problems, measured on this Mac:
 
 ## Acceptance criteria
 - Clicking an in-range network connects to it; the popover shows 'Connecting...' and then the new current network, or an error message from macOS.
-- A secured, unsaved network asks for its password through the dialog; the password is never written to Divot's config or logs.
-- Opening the popover shows the last scan result or saved networks within 100 ms, and the list updates when the scan finishes.
+- A secured, unsaved network asks for its password through a Divot-styled dialog; the password is never written to Divot's config or logs.
+- If the last scan finished within 10 minutes, the popover shows that cached list at once, with 'Updated Xs ago'; a live scan always runs in the background on open and updates the list in place.
+- Previously joined networks (only those Divot has connected to, capped to a short recent list) appear in a visibly separate group or style from in-range networks. Saved system profiles are not listed.
+- The scan timeout is 20 seconds.
 - The scanning state animates; the static text is gone.
+- In-app timing is measured (popover open to first list shown, and to live list shown) and recorded in the task.
 - Tests use a fake scanner and a fake connector; no test joins a real network or prompts for a password.
 - docs/ and site/ pages describing the Wi-Fi item are updated.
 
@@ -58,3 +61,4 @@ Merged into the section above.
 - 2026-10-14T07:28:55Z · body: section Measurements
 - 2026-10-14T07:29:06Z · body: section Measurements (this Mac, macOS 26.5.2)
 - 2026-10-14T07:29:06Z · body: section Measurements
+- 2026-10-14T07:29:12Z · body: section Acceptance criteria
