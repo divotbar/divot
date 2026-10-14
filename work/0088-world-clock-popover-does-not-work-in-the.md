@@ -13,7 +13,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-14T03:39:30Z"
+updated_at: "2026-10-14T03:49:45Z"
 review_passes: 10
 close_out_repair_count: 1
 review_rounds: 2
@@ -128,22 +128,22 @@ Reproduced and fixed through the real controller path (`WorldClockPopoverControl
 7. **Snapshots were not the real states.** The snapshot tests rendered hard-coded zone arrays through a count switch, so they never showed the true first-run defaults or the add flow. They now resolve the empty and default lists through `WorldClock.resolvedTimezones` (the same path production and the Settings list use) and drive the real search field for the add-flow shot.
 
 ## Shot descriptions
-Captured with `repoos shot --target "Divot bar" --glob '*worldclock*.png'` (Native and Gruvbox, light and dark, default text size) on the Asia/Jakarta machine (UTC+7); the live time reads 02:21. Every image renders the real `WorldClockPopoverContentController`; the only chrome missing is the popover window itself (arrow, shadow), which the offscreen render does not draw. 20 images: five states in two themes and two variants.
+Captured with `repoos shot --target "Divot bar" --glob '*worldclock*.png'` (Native and Gruvbox, light and dark, default text size) on the Asia/Jakarta machine (UTC+7); the live time reads 10:48. Each image is the real popover panel: `BarPopoverHost` builds and sizes a `BarPopoverPanel`, and the capture renders that panel's chrome (the solid bubble and its arrow) plus the content at the host-computed size, so the panel dimensions are the ones the app uses — not just the content view. 20 images: five states in two themes and two variants.
 
 ### Empty state - `*worldclock*zero-timezones*` (4 images)
 `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-zero-timezones-1.png`
 
-Header `02:21 UTC+7` with the local zone `Jakarta` beneath, the hint `No other timezones. Add one below.`, the `Add timezone...` row with its search field, and the `Open Date & Time Settings...` link. No zone rows and nothing disabled: the empty list stays fully functional. Native/Gruvbox and light/dark only change the palette.
+Header `10:48 UTC+7` with the local zone `Jakarta` beneath, the hint `No other timezones. Add one below.`, the `Add timezone...` row with its search field, and the `Open Date & Time Settings...` link. No zone rows and nothing disabled: the empty list stays fully functional. Native/Gruvbox and light/dark only change the palette.
 
 ### Default first-run state - `*worldclock*default-defaults*` (4 images)
 `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-defaults-1.png`
 
-Header `02:21 UTC+7` / `Jakarta`, then the three defaults resolved from an absent config key: `San Francisco  12:21 (14 h behind) Yesterday`, `London  20:21 (6 h behind) Yesterday`, `Singapore  03:21 (1 h ahead)`, each with a remove control; then the Add row and the settings link. This is the state the old `two-timezones` glob never showed.
+Header `10:48 UTC+7` / `Jakarta`, then the three defaults resolved from an absent config key: `San Francisco  20:48 (14 h behind) Yesterday`, `London  04:48 (6 h behind) Yesterday`, `Singapore  11:48 (1 h ahead)`, each with a remove control; then the Add row and the settings link.
 
 ### One zone - `*worldclock*one-zone*` (4 images)
 `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-one-zone-1.png`
 
-Header `02:21 UTC+7` / `Jakarta`, then a single stored zone `Tokyo  04:21 (2 h ahead)` with its remove control; Add row; settings link. Covers the "one zone" acceptance case, distinct from both the empty state and the defaults.
+Header `10:48 UTC+7` / `Jakarta`, then a single stored zone `Tokyo  12:48 (2 h ahead)` with its remove control; Add row; settings link. Covers the "one zone" acceptance case, distinct from both the empty state and the defaults.
 
 ### Four zones with day labels - `*worldclock*day-label*` (4 images)
 `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-day-label-1.png`
@@ -153,7 +153,7 @@ Rendered at the fixed instant 2026-01-01T10:00Z local UTC: header `10:00 UTC+0` 
 ### Add flow - `*worldclock*add-flow*` (4 images)
 `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-add-flow-1.png`
 
-The empty state with `los` typed into the real search field and the result `San Francisco` visible directly beneath it, flush with the other rows; the Add row and the settings link are still present. Proves typing now returns a usable result (ranked so city matches come first) instead of nothing.
+The empty state with `los` typed into the real search field and the result `San Francisco` visible directly beneath it, flush with the other rows; the Add row and the settings link are still present. Proves typing returns a usable result (ranked so city matches come first) and grows the real panel to fit it.
 
 The zone list fits up to eight rows and scrolls beyond that (`zoneRowsAreCappedAtEightAndScrollBeyond`), so a long list never grows the panel without bound; these shots cover 0-4 zones.
 
@@ -266,3 +266,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:39:29Z · status review→active
 - 2026-10-14T03:39:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T03:39:30Z · message_delivered: 1 message(s)
+- 2026-10-14T03:49:45Z · body: section Shot descriptions
