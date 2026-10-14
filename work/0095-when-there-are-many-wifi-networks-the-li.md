@@ -17,6 +17,11 @@ When there are many wifi networks the list view gets too long, instead it should
 
 When there are many wifi networks the list view gets too long, instead it should become scrollable. Let’s set the max height of the wifi network list at 90% of screen height.
 
+## Screenshots
+
+![Screenshot-2026-10-14-at-09.29.12](/api/tasks/0095/attachments/screenshot-1.png)
+
 ## Activity
 
 - 2026-10-14T03:49:52Z · created · api
+- 2026-10-14T03:49:52Z · screenshots
