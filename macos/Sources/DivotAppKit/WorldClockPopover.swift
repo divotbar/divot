@@ -17,6 +17,123 @@ private final class SearchFieldWithEscape: NSSearchField {
     }
 }
 
+/// The time scrubber slider. Arrow keys move it one step (the task's keyboard
+/// rule: 15 minutes); the controller maps that onto `WorldClockScrubber`. It
+/// takes first responder so Tab and a click both reach it.
+@MainActor
+private final class TimeScrubberSlider: NSSlider {
+    /// Called with -1 (back) or +1 (forward) for an arrow-key press.
+    var onStep: ((Int) -> Void)?
+
+    override var acceptsFirstResponder: Bool { true }
+    override var canBecomeKeyView: Bool { true }
+
+    override func keyDown(with event: NSEvent) {
+        switch event.keyCode {
+        case 123, 125: onStep?(-1) // left arrow, down arrow
+        case 124, 126: onStep?(1)  // right arrow, up arrow
+        default: super.keyDown(with: event)
+        }
+    }
+}
+
+/// One left-aligned zone row: a day/night marker, the zone name over its time,
+/// offset and day label, and a remove control at the trailing edge.
+///
+/// It is a controller rather than a bare view so scrubbing updates the time and
+/// marker in place instead of rebuilding the stack, which would interrupt a drag
+/// and drop the search field's focus.
+@MainActor
+private final class WorldClockZoneRow {
+    let view: NSView
+    let removeButton = NSButton()
+
+    private let marker = NSImageView()
+    private let nameLabel: NSTextField
+    private let infoLabel = NSTextField(labelWithString: "")
+    private let timezone: String
+    private let displayName: String
+
+    init(entry: WorldClockEntry, theme: BarTheme,
+         removeTarget: AnyObject?, removeAction: Selector) {
+        self.timezone = entry.timezone
+        self.displayName = entry.displayName
+
+        marker.translatesAutoresizingMaskIntoConstraints = false
+        marker.imageScaling = .scaleProportionallyDown
+        marker.setAccessibilityRole(.image)
+        NSLayoutConstraint.activate([
+            marker.widthAnchor.constraint(equalToConstant: 14),
+            marker.heightAnchor.constraint(equalToConstant: 14)
+        ])
+
+        nameLabel = NSTextField(labelWithString: entry.displayName)
+        nameLabel.font = .systemFont(ofSize: 12)
+        nameLabel.textColor = theme.popoverPalette.label
+        nameLabel.identifier = BarPopoverContentController.headerIdentifier
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        infoLabel.font = .systemFont(ofSize: 11)
+        infoLabel.textColor = theme.popoverPalette.secondary
+        infoLabel.identifier = BarPopoverContentController.secondaryIdentifier
+        infoLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        removeButton.setButtonType(.momentaryPushIn)
+        removeButton.image = NSImage(systemSymbolName: "xmark.circle.fill",
+                                     accessibilityDescription: "Remove \(entry.displayName)")
+        removeButton.bezelStyle = .circular
+        removeButton.font = .systemFont(ofSize: 11)
+        removeButton.translatesAutoresizingMaskIntoConstraints = false
+        removeButton.identifier = NSUserInterfaceItemIdentifier(entry.timezone)
+        removeButton.target = removeTarget
+        removeButton.action = removeAction
+        removeButton.setAccessibilityLabel("Remove \(entry.displayName)")
+        removeButton.toolTip = "Remove \(entry.displayName)"
+
+        let textStack = NSStackView(views: [nameLabel, infoLabel])
+        textStack.orientation = .vertical
+        textStack.spacing = 2
+        textStack.alignment = .leading
+        textStack.translatesAutoresizingMaskIntoConstraints = false
+
+        let rowStack = NSStackView(views: [marker, textStack, removeButton])
+        rowStack.orientation = .horizontal
+        rowStack.spacing = 8
+        rowStack.alignment = .centerY
+        rowStack.translatesAutoresizingMaskIntoConstraints = false
+        rowStack.distribution = .fill
+        self.view = rowStack
+    }
+
+    /// Repaint the converted time, offset, day label and day/night marker.
+    func update(entry: WorldClockEntry,
+                timeFormat: TimeConfiguration.Format,
+                showSeconds: Bool,
+                customPattern: String?,
+                theme: BarTheme) {
+        guard entry.timezone == timezone else { return }
+        let zone = TimeZone(identifier: entry.timezone) ?? .current
+        let timeText = worldClockTimeString(entry.date, timeZone: zone,
+                                            timeFormat: timeFormat,
+                                            showSeconds: showSeconds,
+                                            customPattern: customPattern)
+        let offsetText = WorldClock.formatHourOffset(entry.hourOffset)
+        let dayText = entry.dayLabel.map { " \($0)" } ?? ""
+        infoLabel.stringValue = "\(timeText) (\(offsetText))\(dayText)"
+
+        let symbol = entry.isWorkingHours ? "sun.max.fill" : "moon.fill"
+        let description = entry.isWorkingHours ? "Working hours" : "Outside working hours"
+        marker.image = NSImage(systemSymbolName: symbol, accessibilityDescription: description)
+        marker.contentTintColor = entry.isWorkingHours
+            ? theme.popoverPalette.label
+            : theme.popoverPalette.secondary
+        marker.setAccessibilityLabel(description)
+
+        let dayAnnouncement = entry.dayLabel.map { ", \($0)" } ?? ""
+        infoLabel.setAccessibilityLabel("\(timeText), \(offsetText)\(dayAnnouncement), \(description)")
+    }
+}
+
 /// A results row whose cell is flush with the leading edge. AppKit's default
 /// full-width row insets its cell by 6pt, which would misalign the results with
 /// the rest of the popover's rows.
@@ -264,11 +381,34 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     /// the real panel to match. A full render resizes through the host anyway.
     var onContentSizeChanged: (() -> Void)? = nil
 
+    /// The value a single scrub step moves, in minutes (mirrors the core rule).
+    static let scrubStepMinutes = WorldClockScrubber.stepMinutes
+    /// The slider's top value, in local minutes of day.
+    static let lastMinuteOfDay = 24 * 60 - 1
+
     private var currentTimezones: [String] = []
+    private var timeFormat: TimeConfiguration.Format = .twentyFourHour
+    private var showSeconds = false
+    private var customPattern: String?
+    private var localTimeZone: TimeZone = .current
+    private var calendar: Calendar = .current
+    /// The converter state. Persists across the bar's per-minute refresh so a
+    /// scrubbed instant is not reset to "now" while the popover stays open.
+    private var scrubber: WorldClockScrubber?
+
+    private var localTimeLabel: NSTextField?
+    private var scrubberSlider: TimeScrubberSlider?
+    private var scrubberTimeLabel: NSTextField?
+    private var nowButton: NSButton?
+    private var zoneRows: [WorldClockZoneRow] = []
+
     private var searchField: NSSearchField?
     private var resultsController: TimezoneSearchResultsController?
     private var searchObserver: NSObjectProtocol?
     private let zoneList = TimezoneZoneListView()
+
+    /// Test seam: the live slider, so a test can drive the real arrow-key path.
+    var scrubberSliderForTesting: NSSlider? { scrubberSlider }
 
     /// The always-last row: a separator and the Date & Time settings link. Built
     /// by every render because `clearRows()` removes the previous one.
@@ -287,18 +427,31 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
                 calendar: Calendar = .current) {
         clearRows()
         self.currentTimezones = timezones
+        self.timeFormat = timeFormat
+        self.showSeconds = showSeconds
+        self.customPattern = customPattern
+        self.localTimeZone = localTimeZone
+        self.calendar = calendar
 
-        let now = date
+        // Keep a scrubbed instant across the bar's per-minute refresh, but always
+        // advance the reference so the "Now" control means the current minute.
+        if var existing = scrubber, existing.localTimeZone == localTimeZone {
+            existing.referenceDate = date
+            scrubber = existing
+        } else {
+            scrubber = WorldClockScrubber(referenceDate: date,
+                                          localTimeZone: localTimeZone,
+                                          calendar: calendar)
+        }
+
         let entries = WorldClock.entries(for: timezones, at: date,
                                          localTimeZone: localTimeZone, calendar: calendar)
 
-        let localOffset = localTimeZone.secondsFromGMT(for: date)
-        let localOffsetStr = formatCompactOffset(localOffset)
-        let timeAndOffsetText = "\(formatTime(now, timeZone: localTimeZone, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern))  UTC\(localOffsetStr)"
-        let localTime = NSTextField(labelWithString: timeAndOffsetText)
+        let localTime = NSTextField(labelWithString: "")
         localTime.font = .systemFont(ofSize: 14, weight: .semibold)
         localTime.textColor = theme.popoverPalette.label
         localTime.identifier = Self.headerIdentifier
+        localTimeLabel = localTime
         stack.addArrangedSubview(localTime)
 
         let localCityLabel = NSTextField(labelWithString: WorldClock.friendlyName(for: localTimeZone.identifier))
@@ -307,22 +460,26 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         localCityLabel.identifier = Self.secondaryIdentifier
         stack.addArrangedSubview(localCityLabel)
 
-        if !entries.isEmpty {
-            stack.addArrangedSubview(separator())
-            zoneList.setRows(entries.map {
-                zoneRow(for: $0, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern)
-            })
-            stack.addArrangedSubview(zoneList)
-        }
+        // The time converter: a scrubber over the local day and its "Now" reset.
+        stack.addArrangedSubview(separator())
+        addScrubberRows()
+        stack.addArrangedSubview(separator())
 
-        if entries.isEmpty {
+        if !entries.isEmpty {
+            zoneRows = entries.map { entry in
+                WorldClockZoneRow(entry: entry, theme: theme,
+                                  removeTarget: self, removeAction: #selector(removeTimezone(_:)))
+            }
+            zoneList.setRows(zoneRows.map(\.view))
+            stack.addArrangedSubview(zoneList)
+            stack.addArrangedSubview(separator())
+        } else {
+            zoneRows = []
             let hintLabel = NSTextField(labelWithString: "No other timezones. Add one below.")
             hintLabel.font = .systemFont(ofSize: 11)
             hintLabel.textColor = theme.popoverPalette.secondary
             hintLabel.identifier = Self.secondaryIdentifier
             stack.addArrangedSubview(hintLabel)
-        } else {
-            stack.addArrangedSubview(separator())
         }
 
         let addLabel = NSTextField(labelWithString: "Add timezone…")
@@ -379,6 +536,124 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         stack.addArrangedSubview(resultsController.view)
 
         addSettingsRow()
+        updateTimes()
+    }
+
+    /// Build the scrubber row: the slider with its selected time, and a "Now"
+    /// reset beside the fixed working-hours note. Added directly to the row
+    /// stack so the slider stretches to the popover's width.
+    private func addScrubberRows() {
+        let slider = TimeScrubberSlider(value: 0, minValue: 0,
+                                        maxValue: Double(Self.lastMinuteOfDay),
+                                        target: nil, action: nil)
+        slider.isContinuous = true
+        slider.target = self
+        slider.action = #selector(scrubberDragged)
+        slider.onStep = { [weak self] direction in self?.stepScrubber(by: direction) }
+        slider.setAccessibilityLabel("Time to convert")
+        slider.setAccessibilityHelp("Arrow keys adjust by 15 minutes")
+        slider.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        slider.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        scrubberSlider = slider
+
+        let timeLabel = NSTextField(labelWithString: "")
+        timeLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        timeLabel.alignment = .right
+        timeLabel.textColor = theme.popoverPalette.label
+        timeLabel.identifier = Self.headerIdentifier
+        timeLabel.setContentHuggingPriority(.required, for: .horizontal)
+        timeLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        timeLabel.translatesAutoresizingMaskIntoConstraints = false
+        timeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        scrubberTimeLabel = timeLabel
+
+        let sliderRow = NSStackView(views: [slider, timeLabel])
+        sliderRow.orientation = .horizontal
+        sliderRow.alignment = .centerY
+        sliderRow.spacing = 8
+        sliderRow.distribution = .fill
+        sliderRow.translatesAutoresizingMaskIntoConstraints = false
+        stack.addArrangedSubview(sliderRow)
+
+        let reset = NSButton(title: "Now", target: self, action: #selector(resetScrubber))
+        reset.bezelStyle = .rounded
+        reset.controlSize = .small
+        reset.setAccessibilityLabel("Reset to now")
+        reset.setAccessibilityHelp("Return the converter to the current time")
+        reset.translatesAutoresizingMaskIntoConstraints = false
+        nowButton = reset
+
+        let caption = NSTextField(labelWithString: "Working hours 09:00–18:00")
+        caption.font = .systemFont(ofSize: 10)
+        caption.textColor = theme.popoverPalette.secondary
+        caption.identifier = Self.secondaryIdentifier
+        caption.translatesAutoresizingMaskIntoConstraints = false
+        caption.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+
+        let spacer = NSView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        let captionRow = NSStackView(views: [reset, caption, spacer])
+        captionRow.orientation = .horizontal
+        captionRow.alignment = .centerY
+        captionRow.spacing = 8
+        captionRow.distribution = .fill
+        captionRow.translatesAutoresizingMaskIntoConstraints = false
+        stack.addArrangedSubview(captionRow)
+    }
+
+    /// Repaint the header, the scrubber and every zone row for the instant the
+    /// converter currently shows. Called after a render, a scrub step, a drag,
+    /// a "Now" reset and a theme change.
+    func updateTimes() {
+        guard let scrubber else { return }
+        let shown = scrubber.shownDate
+
+        let localOffset = localTimeZone.secondsFromGMT(for: shown)
+        let localText = worldClockTimeString(shown, timeZone: localTimeZone,
+                                             timeFormat: timeFormat, showSeconds: showSeconds,
+                                             customPattern: customPattern)
+        localTimeLabel?.stringValue = "\(localText)  UTC\(formatCompactOffset(localOffset))"
+
+        let entries = WorldClock.entries(for: currentTimezones, at: shown,
+                                         localTimeZone: localTimeZone, calendar: calendar)
+        for (row, entry) in zip(zoneRows, entries) {
+            row.update(entry: entry, timeFormat: timeFormat, showSeconds: showSeconds,
+                       customPattern: customPattern, theme: theme)
+        }
+
+        let minutes = scrubber.shownMinutesOfDay
+        let timeText = worldClockTimeString(shown, timeZone: localTimeZone,
+                                            timeFormat: timeFormat, showSeconds: false,
+                                            customPattern: customPattern)
+        scrubberTimeLabel?.stringValue = timeText
+        scrubberSlider?.doubleValue = Double(minutes)
+        scrubberSlider?.setAccessibilityValue(timeText)
+        nowButton?.isEnabled = !scrubber.isFollowingNow
+    }
+
+    /// Move the converter by whole 15-minute steps. The slider's arrow keys and
+    /// a test both go through here, so the keyboard rule is exercised end to end.
+    func stepScrubber(by steps: Int) {
+        guard scrubber != nil else { return }
+        scrubber?.step(by: steps)
+        updateTimes()
+    }
+
+    @objc private func scrubberDragged() {
+        guard let slider = scrubberSlider else { return }
+        let minutes = min(Self.lastMinuteOfDay, max(0, Int(slider.doubleValue.rounded())))
+        let snapped = (minutes / Self.scrubStepMinutes) * Self.scrubStepMinutes
+        scrubber?.setTimeOfDay(hour: snapped / 60, minute: snapped % 60)
+        updateTimes()
+    }
+
+    @objc private func resetScrubber() {
+        scrubber?.reset()
+        updateTimes()
     }
 
     /// Recolour the search field's text and placeholder from the theme, so the
@@ -388,6 +663,9 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         super.restyle(theme)
         styleSearchField()
         resultsController?.restyle(theme)
+        // A theme change must repaint the zone markers, which are images, not
+        // text fields, so the row colours are re-derived from the new palette.
+        updateTimes()
     }
 
     private func styleSearchField() {
@@ -465,81 +743,39 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         }
     }
 
-    /// One left-aligned zone row: the zone name over its time, offset and day
-    /// label, with a small remove control at the trailing edge.
-    private func zoneRow(for entry: WorldClockEntry,
-                         timeFormat: TimeConfiguration.Format,
-                         showSeconds: Bool,
-                         customPattern: String?) -> NSView {
-        let label = NSTextField(labelWithString: entry.displayName)
-        label.font = .systemFont(ofSize: 12)
-        label.textColor = theme.popoverPalette.label
-        label.identifier = Self.headerIdentifier
-        label.translatesAutoresizingMaskIntoConstraints = false
-
-        let timeText = formatTime(entry.date, timeZone: TimeZone(identifier: entry.timezone)!, timeFormat: timeFormat, showSeconds: showSeconds, customPattern: customPattern)
-        let offsetText = WorldClock.formatHourOffset(entry.hourOffset)
-        let dayText = entry.dayLabel.map { " \($0)" } ?? ""
-
-        let info = NSTextField(labelWithString: "\(timeText) (\(offsetText))\(dayText)")
-        info.font = .systemFont(ofSize: 11)
-        info.textColor = theme.popoverPalette.secondary
-        info.identifier = Self.secondaryIdentifier
-        info.translatesAutoresizingMaskIntoConstraints = false
-
-        let removeButton = NSButton()
-        removeButton.setButtonType(.momentaryPushIn)
-        removeButton.image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: "Remove \(entry.displayName)")
-        removeButton.bezelStyle = .circular
-        removeButton.font = .systemFont(ofSize: 11)
-        removeButton.translatesAutoresizingMaskIntoConstraints = false
-        removeButton.identifier = NSUserInterfaceItemIdentifier(entry.timezone)
-        removeButton.target = self
-        removeButton.action = #selector(removeTimezone(_:))
-        removeButton.setAccessibilityLabel("Remove \(entry.displayName)")
-        removeButton.toolTip = "Remove \(entry.displayName)"
-
-        let textStack = NSStackView(views: [label, info])
-        textStack.orientation = .vertical
-        textStack.spacing = 2
-        textStack.alignment = .leading
-        textStack.translatesAutoresizingMaskIntoConstraints = false
-
-        let rowStack = NSStackView(views: [textStack, removeButton])
-        rowStack.orientation = .horizontal
-        rowStack.spacing = 8
-        rowStack.alignment = .centerY
-        rowStack.translatesAutoresizingMaskIntoConstraints = false
-        rowStack.distribution = .fill
-        return rowStack
-    }
-
-    private func formatTime(_ date: Date, timeZone: TimeZone, timeFormat: TimeConfiguration.Format, showSeconds: Bool, customPattern: String? = nil) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = .current
-        formatter.timeZone = timeZone
-
-        if timeFormat == .custom, let customPattern = customPattern, !customPattern.isEmpty {
-            formatter.dateFormat = customPattern
-        } else {
-            let template: String
-            switch timeFormat {
-            case .twentyFourHour:
-                template = showSeconds ? "HHmms" : "HHmm"
-            case .ampm:
-                template = showSeconds ? "jmms" : "jmm"
-            case .custom:
-                template = showSeconds ? "HHmms" : "HHmm"
-            }
-            formatter.setLocalizedDateFormatFromTemplate(template)
-        }
-
-        return formatter.string(from: date)
-    }
-
     @objc private func openDateTimeSettings() {
         onOpenDateTimeSettings()
     }
+}
+
+/// The time string for one zone, following the user's time format and custom
+/// pattern. Shared by the header, the scrubber label and every zone row so they
+/// cannot drift.
+private func worldClockTimeString(_ date: Date,
+                                  timeZone: TimeZone,
+                                  timeFormat: TimeConfiguration.Format,
+                                  showSeconds: Bool,
+                                  customPattern: String?) -> String {
+    let formatter = DateFormatter()
+    formatter.locale = .current
+    formatter.timeZone = timeZone
+
+    if timeFormat == .custom, let customPattern, !customPattern.isEmpty {
+        formatter.dateFormat = customPattern
+    } else {
+        let template: String
+        switch timeFormat {
+        case .twentyFourHour:
+            template = showSeconds ? "HHmms" : "HHmm"
+        case .ampm:
+            template = showSeconds ? "jmms" : "jmm"
+        case .custom:
+            template = showSeconds ? "HHmms" : "HHmm"
+        }
+        formatter.setLocalizedDateFormatFromTemplate(template)
+    }
+
+    return formatter.string(from: date)
 }
 
 /// Controller for displaying and selecting from timezone search results.
