@@ -2,7 +2,7 @@
 id: "0096"
 title: "World clock search: show all matches, and cap the results at 90% of screen height with scrolling"
 type: bug
-status: active
+status: review
 priority: p1
 area: macos
 assigned_to: ""
@@ -11,7 +11,7 @@ branch: feat/world-clock-search-show-all-matches-and-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T04:37:00Z"
-updated_at: "2026-10-14T04:50:45Z"
+updated_at: "2026-10-14T04:52:28Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -72,3 +72,4 @@ Screenshots from the maintainer are attached. The first (screenshot 1) shows 'si
 - 2026-10-14T04:49:19Z · note: review pass 1: needs some work
 - 2026-10-14T04:49:19Z · status review→active
 - 2026-10-14T04:50:45Z · message_queued at 2026-10-14T04:50:45.863Z
+- 2026-10-14T04:52:28Z · status active→review
