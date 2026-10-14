@@ -2,14 +2,14 @@
 id: "0098"
 title: "World clock search: type an offset such as +7 or -8 to find zones in that offset"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-search-type-an-offset-such-a
 created_at: "2026-10-14T05:15:41Z"
-updated_at: "2026-10-14T05:30:26Z"
+updated_at: "2026-10-14T05:41:38Z"
 ---
 ## Problem
 The Add timezone search only matches city or zone names. To add a zone by its offset, the user has to know the city name.
@@ -32,3 +32,4 @@ The current search lives in WorldClockPopover.swift (updateResults). Zone identi
 - 2026-10-14T05:15:41Z · created · njachowski@gmail.com
 - 2026-10-14T05:15:42Z · status inbox→ready
 - 2026-10-14T05:30:26Z · status ready→active, branch
+- 2026-10-14T05:41:38Z · status active→review
