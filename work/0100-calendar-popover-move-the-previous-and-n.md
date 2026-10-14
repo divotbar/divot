@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-14T08:52:40Z"
+review_passes: 1
 id: "0100"
 title: "Calendar popover: move the previous and next month arrows beside the month and year"
 type: feature
@@ -11,7 +13,6 @@ branch: feat/calendar-popover-move-the-previous-and-n
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T08:39:43Z"
-updated_at: "2026-10-14T08:52:40Z"
 ---
 ## Problem
 In the date calendar popover, the previous and next month arrows sit at the top right of the header, away from the month name. They read as separate controls and are easy to miss.
@@ -57,3 +58,4 @@ The calendar popover is macos/Sources/DivotAppKit/CalendarPopover.swift; the hea
 - 2026-10-14T08:48:52Z · body: section Shots
 - 2026-10-14T08:51:30Z · status active→review
 - 2026-10-14T08:52:40Z · note: review pass 1: needs some work
+
