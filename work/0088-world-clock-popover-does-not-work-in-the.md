@@ -257,3 +257,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:25:29Z · status review→active
 - 2026-10-14T03:25:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T03:30:33Z · message_queued at 2026-10-14T03:30:33.549Z
+- 2026-10-14T03:30:33Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
