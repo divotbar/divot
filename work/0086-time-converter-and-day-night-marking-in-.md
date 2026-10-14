@@ -2,13 +2,13 @@
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
-status: ready
+status: active
 priority: p3
 area: macos
 depends_on: ["0085"]
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
@@ -37,3 +37,4 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 - 2026-10-13T13:29:21Z · created · njachowski@gmail.com
 - 2026-10-13T19:09:06Z · status inbox→ready
 - 2026-10-14T03:55:12Z · cli_override, model_override
+- 2026-10-14T03:55:12Z · status ready→active, branch
