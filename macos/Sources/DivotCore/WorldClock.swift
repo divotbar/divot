@@ -28,6 +28,56 @@ public struct WorldClockEntry: Equatable, Sendable {
 
 /// Pure logic for computing world clock entries from a timezone list.
 public enum WorldClock {
+    /// The zones a first-time user sees before they have configured a list, in
+    /// display order (San Francisco, London, Singapore).
+    public static let defaultTimezones = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
+
+    /// Resolve the stored timezone list into the zones to show.
+    ///
+    /// An absent list (`nil`) means the user has never configured one, so the
+    /// defaults are used — minus the local zone, which the header already shows.
+    /// Any stored array (including an empty one) is returned as-is, so an
+    /// explicitly emptied list stays empty and the defaults never come back on
+    /// their own.
+    public static func resolvedTimezones(configured: [String]?,
+                                         localTimeZone: TimeZone = .current) -> [String] {
+        guard let configured else {
+            return defaultTimezones.filter { !isSameZone($0, localTimeZone.identifier) }
+        }
+        return configured
+    }
+
+    /// True when two identifiers name the same zone, following IANA aliases.
+    ///
+    /// `US/Pacific` and `America/Los_Angeles` are distinct identifiers with the
+    /// same rules, and Foundation does not canonicalise them, so compare the
+    /// resolved zones instead of the strings: identical standard *and* daylight
+    /// offsets (two instants a half-year apart) means the same zone, while a
+    /// fixed-offset zone that merely shares the winter offset stays distinct.
+    public static func isSameZone(_ lhs: String, _ rhs: String) -> Bool {
+        if lhs == rhs { return true }
+        guard let a = TimeZone(identifier: lhs), let b = TimeZone(identifier: rhs) else { return false }
+        let winter = Date(timeIntervalSince1970: 1_704_067_200) // 2024-01-01
+        let summer = Date(timeIntervalSince1970: 1_719_792_000) // 2024-07-01
+        return a.secondsFromGMT(for: winter) == b.secondsFromGMT(for: winter)
+            && a.secondsFromGMT(for: summer) == b.secondsFromGMT(for: summer)
+    }
+
+    /// The friendly name to show for a zone: the well-known zones are named by
+    /// city (San Francisco for `America/Los_Angeles`), and every other identifier
+    /// falls back to its last path segment with underscores as spaces. Kept in one
+    /// place so the popover, its search results and the Settings list cannot drift.
+    public static func friendlyName(for identifier: String) -> String {
+        let friendlyNames: [String: String] = [
+            "America/Los_Angeles": "San Francisco",
+            "Europe/London": "London",
+            "Asia/Singapore": "Singapore"
+        ]
+        if let name = friendlyNames[identifier] { return name }
+        return (identifier.components(separatedBy: "/").last ?? identifier)
+            .replacingOccurrences(of: "_", with: " ")
+    }
+
     /// Compute world clock entries for the given timezones.
     ///
     /// - Parameters:
@@ -52,8 +102,7 @@ public enum WorldClock {
                 continue
             }
 
-            let displayName = (tzString.components(separatedBy: "/").last ?? tzString)
-                .replacingOccurrences(of: "_", with: " ")
+            let displayName = friendlyName(for: tzString)
             let offsetSeconds = tz.secondsFromGMT(for: referenceDate)
             let localOffsetSeconds = localTimeZone.secondsFromGMT(for: referenceDate)
             let diffSeconds = offsetSeconds - localOffsetSeconds

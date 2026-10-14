@@ -227,7 +227,8 @@ public enum ConfigurationSchema {
                 default: .ampm, \.widgets.time.timeFormat),
         optionalText("widgets.time.customPattern", "Custom time format pattern for timeFormat=custom.",
                      \.widgets.time.customPattern),
-        timezoneArray("widgets.time.timezones", "User's added world timezones (IANA identifiers).",
+        timezoneArray("widgets.time.timezones",
+                      "User's added world timezones (IANA identifiers). An absent key resolves to the three defaults (San Francisco, London and Singapore, minus the local zone); an explicitly empty list stays empty.",
                       \.widgets.time.timezones),
         boolean("widgets.network.showWifiName", "Show the connected Wi-Fi network name (asks for Location permission).",
                 default: false, \.widgets.network.showWifiName),
@@ -532,21 +533,25 @@ public enum ConfigurationSchema {
     }
 
     private static func timezoneArray(_ key: String, _ summary: String,
-                                      _ keyPath: WritableKeyPath<DivotConfiguration, [String]>) -> ConfigurationSetting {
+                                      _ keyPath: WritableKeyPath<DivotConfiguration, [String]?>) -> ConfigurationSetting {
         let knownTimezones = Set(TimeZone.knownTimeZoneIdentifiers)
         return ConfigurationSetting(
-            key: key, type: .stringArray, defaultValue: .stringArray([]), summary: summary,
-            read: { .stringArray($0[keyPath: keyPath]) },
+            key: key, type: .stringArray, defaultValue: .null, summary: summary,
+            read: { configuration in configuration[keyPath: keyPath].map { .stringArray($0) } ?? .null },
             write: { configuration, newValue in
-                guard case .stringArray(let array) = newValue else {
-                    throw ConfigurationError(path: key, message: "expected string array")
-                }
-                for timezone in array {
-                    if !knownTimezones.contains(timezone) {
-                        throw ConfigurationError(path: key, message: "unknown timezone: \(timezone)")
+                switch newValue {
+                case .null:
+                    configuration[keyPath: keyPath] = nil
+                case .stringArray(let array):
+                    for timezone in array {
+                        if !knownTimezones.contains(timezone) {
+                            throw ConfigurationError(path: key, message: "unknown timezone: \(timezone)")
+                        }
                     }
+                    configuration[keyPath: keyPath] = array
+                default:
+                    throw ConfigurationError(path: key, message: "expected string array or unset")
                 }
-                configuration[keyPath: keyPath] = array
             })
     }
 

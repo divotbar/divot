@@ -328,6 +328,17 @@ public final class DivotSettingsModel {
         update { $0.widgets.time.timezones = timezones }
     }
 
+    /// Add one world clock zone to the currently shown list (the defaults when
+    /// the key is absent, else the stored list), so the Settings empty state has
+    /// a working Add control. An alias of a zone already shown is ignored rather
+    /// than added as a duplicate.
+    public func addWorldClockTimezone(_ identifier: String) {
+        var list = WorldClock.resolvedTimezones(configured: configuration.widgets.time.timezones)
+        guard !list.contains(where: { WorldClock.isSameZone($0, identifier) }) else { return }
+        list.append(identifier)
+        updateWorldClockTimezones(list)
+    }
+
     // MARK: Keep awake
 
     /// Turn the "remember across launches" policy on or off. Enabling captures

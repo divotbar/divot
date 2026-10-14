@@ -13,8 +13,63 @@ final class WorldClockTests: XCTestCase {
         let timezones = ["America/Los_Angeles", "Asia/Tokyo"]
         let entries = WorldClock.entries(for: timezones)
         XCTAssertEqual(entries.count, 2)
-        XCTAssertEqual(entries[0].displayName, "Los Angeles")
+        XCTAssertEqual(entries[0].displayName, "San Francisco")
         XCTAssertEqual(entries[1].displayName, "Tokyo")
+    }
+
+    func testFriendlyNamesForDefaultTimezones() {
+        let entries = WorldClock.entries(for: ["America/Los_Angeles", "Europe/London", "Asia/Singapore"])
+        XCTAssertEqual(entries.count, 3)
+        XCTAssertEqual(entries[0].displayName, "San Francisco")
+        XCTAssertEqual(entries[1].displayName, "London")
+        XCTAssertEqual(entries[2].displayName, "Singapore")
+    }
+
+    func testResolvedTimezonesUsesDefaultsWhenAbsent() {
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: nil, localTimeZone: jakarta),
+                       ["America/Los_Angeles", "Europe/London", "Asia/Singapore"])
+    }
+
+    func testResolvedTimezonesDropsTheLocalDefault() {
+        // The header already shows the local zone, so it is not repeated as a row.
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: nil, localTimeZone: TimeZone(identifier: "Asia/Singapore")!),
+                       ["America/Los_Angeles", "Europe/London"])
+    }
+
+    func testResolvedTimezonesKeepsAnExplicitListVerbatim() {
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: [], localTimeZone: jakarta), [],
+                       "an explicitly emptied list stays empty")
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: ["Asia/Tokyo"], localTimeZone: jakarta),
+                       ["Asia/Tokyo"])
+    }
+
+    func testResolvedTimezonesTreatsAnAliasOfTheLocalZoneAsTheLocalZone() {
+        // US/Pacific is the same zone as America/Los_Angeles, so the default must
+        // not be shown a second time when the local zone is the alias.
+        let usPacific = TimeZone(identifier: "US/Pacific")!
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: nil, localTimeZone: usPacific),
+                       ["Europe/London", "Asia/Singapore"],
+                       "an alias of a default is not duplicated")
+    }
+
+    func testIsSameZoneFollowsAliasesButKeepsDifferentZonesApart() {
+        XCTAssertTrue(WorldClock.isSameZone("US/Pacific", "America/Los_Angeles"))
+        XCTAssertTrue(WorldClock.isSameZone("Asia/Calcutta", "Asia/Kolkata"))
+        XCTAssertTrue(WorldClock.isSameZone("Europe/London", "Europe/London"))
+        // A fixed-offset zone that shares London's winter offset is not London.
+        XCTAssertFalse(WorldClock.isSameZone("Europe/London", "Africa/Abidjan"))
+        XCTAssertFalse(WorldClock.isSameZone("America/Los_Angeles", "America/New_York"))
+        XCTAssertFalse(WorldClock.isSameZone("Not/AZone", "Europe/London"))
+    }
+
+    func testFriendlyNameMappingAndFallback() {
+        // The same mapping the popover, its search results and the Settings list
+        // use, so the defaults are named by city everywhere.
+        XCTAssertEqual(WorldClock.friendlyName(for: "America/Los_Angeles"), "San Francisco")
+        XCTAssertEqual(WorldClock.friendlyName(for: "Europe/London"), "London")
+        XCTAssertEqual(WorldClock.friendlyName(for: "Asia/Singapore"), "Singapore")
+        XCTAssertEqual(WorldClock.friendlyName(for: "America/New_York"), "New York")
+        XCTAssertEqual(WorldClock.friendlyName(for: "Asia/Kolkata"), "Kolkata")
     }
 
     func testInvalidTimezones() {
