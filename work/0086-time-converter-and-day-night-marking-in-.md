@@ -12,7 +12,7 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T04:20:17Z"
+updated_at: "2026-10-14T04:21:20Z"
 ---
 ## Problem
 #0085 shows the current time in the user's chosen timezones. The next question people ask is 'what is 9 am my time over there', and whether it is a sensible hour to call.
@@ -39,7 +39,7 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 "label": "World clock popover at now: sun/moon working-hours markers and the scrubber at the current minute",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "worldclock"
+"DIVOT_SNAPSHOT_ONLY": "worldclock"
 },
 "glob": "*worldclock*default-defaults.png"
 },
@@ -47,7 +47,7 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 "label": "World clock popover scrubbed to 22:00 UTC: a day-boundary row (Kiritimati/Tokyo Tomorrow), a mix of sun and moon markers, and the enabled Now control",
 "target": "Divot bar",
 "env": {
-  "DIVOT_SNAPSHOT_ONLY": "worldclock"
+"DIVOT_SNAPSHOT_ONLY": "worldclock"
 },
 "glob": "*worldclock*scrubbed.png"
 }
@@ -62,3 +62,4 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 - 2026-10-14T03:55:12Z · status ready→active, branch
 - 2026-10-14T04:12:47Z · body: section Shots
 - 2026-10-14T04:20:17Z · status active→review
+- 2026-10-14T04:21:20Z · note: review pass 1: needs some work
