@@ -671,6 +671,133 @@ struct WorldClockPopoverRealControllerTests {
         walk(view)
         return scrolls
     }
+
+    /// Present the real controller and also hand back its host, so a test can
+    /// read the live panel frame (not just the content view's size).
+    private func presentingControllerWithHost(store: ConfigurationStore)
+        -> (WorldClockPopoverController, BarPopoverHost, NSWindow, NSView) {
+        let host = BarPopoverHost(monitors: StubPopoverMonitor(), presenter: RecordingWindowPresenter())
+        let anchorWindow = NSWindow(contentRect: NSRect(x: 200, y: 600, width: 200, height: 24),
+                                    styleMask: .borderless, backing: .buffered, defer: false)
+        let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
+        anchorWindow.contentView?.addSubview(anchor)
+        let controller = WorldClockPopoverController(
+            testingHost: host,
+            openDateTimeSettings: {},
+            getConfiguration: { store.current },
+            updateTimezones: { updated in
+                var config = store.current
+                config.widgets.time.timezones = updated
+                try? store.save(config)
+            })
+        controller.present(relativeTo: anchor)
+        return (controller, host, anchorWindow, anchor)
+    }
+
+    private func keyEvent(_ keyCode: UInt16) -> NSEvent {
+        NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
+                         timestamp: 0, windowNumber: 0, context: nil,
+                         characters: "", charactersIgnoringModifiers: "",
+                         isARepeat: false, keyCode: keyCode)!
+    }
+
+    /// The results list appearing and disappearing must resize the real panel,
+    /// not just the content view: the host is only told to resize on a full
+    /// render otherwise, so a typed query used to overflow the panel.
+    @Test func typingASearchQueryGrowsTheLivePanel() throws {
+        let (store, dir) = try makeTempStore()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        // An explicit empty list (not the defaults) so `los` is not already added
+        // and therefore not excluded from the results.
+        var config = store.current
+        config.widgets.time.timezones = []
+        try store.save(config)
+
+        let (controller, host, window, _) = presentingControllerWithHost(store: store)
+        defer { controller.dismiss(); _ = window }
+
+        guard let content = controller.contentForTesting,
+              let search = firstSearchField(in: content.view),
+              let panel = host.panel else {
+            Issue.record("expected a presented panel with a search field")
+            return
+        }
+
+        let heightBefore = panel.frame.height
+        search.stringValue = "los"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+
+        #expect(!resultRowNames(in: content.view).isEmpty, "the query shows results")
+        #expect(panel.frame.height > heightBefore,
+                "the live panel grows when the results list appears (before \(heightBefore), after \(panel.frame.height))")
+
+        let heightWithResults = panel.frame.height
+        search.stringValue = ""
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        #expect(panel.frame.height < heightWithResults,
+                "the live panel shrinks again when the results list hides")
+    }
+
+    /// Tab moves focus from the search field into the results list, Return adds
+    /// the highlighted row, and Escape clears the search — the keyboard add flow
+    /// on the live panel.
+    @Test func searchResultsSupportTabReturnAndEscapeFocus() throws {
+        let (store, dir) = try makeTempStore()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        // An explicit empty list so `los` is a real, addable result.
+        var config = store.current
+        config.widgets.time.timezones = []
+        try store.save(config)
+
+        let (controller, host, window, _) = presentingControllerWithHost(store: store)
+        defer { controller.dismiss(); _ = window }
+
+        guard let content = controller.contentForTesting,
+              let search = firstSearchField(in: content.view),
+              let panel = host.panel,
+              let table = firstTableView(in: content.view) else {
+            Issue.record("expected a presented panel with a search field and a results table")
+            return
+        }
+
+        search.stringValue = "los"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        #expect(!resultRowNames(in: content.view).isEmpty, "the query shows results")
+
+        // Tab moves focus from the field into the results list.
+        #expect(panel.makeFirstResponder(search), "the search field takes focus")
+        search.keyDown(with: keyEvent(48)) // Tab
+        #expect(panel.firstResponder === table, "Tab moves focus into the results list")
+
+        // Return adds the highlighted row.
+        table.selectRowIndexes([0], byExtendingSelection: false)
+        table.keyDown(with: keyEvent(36)) // Return
+        #expect(store.current.widgets.time.timezones == ["America/Los_Angeles"],
+                "Return adds the highlighted result")
+
+        // The rebuild leaves a fresh field: type again, Escape clears it and
+        // hides the list, and Tab from the list returns focus to the field.
+        guard let search2 = firstSearchField(in: content.view),
+              let table2 = firstTableView(in: content.view) else {
+            Issue.record("expected a rebuilt search field and results table")
+            return
+        }
+
+        search2.stringValue = "tok"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search2)
+        #expect(!resultRowNames(in: content.view).isEmpty, "the second query shows results")
+
+        search2.keyDown(with: keyEvent(53)) // Escape
+        #expect(search2.stringValue.isEmpty, "Escape clears the search field")
+        #expect(table2.enclosingScrollView?.isHidden == true, "Escape hides the results list")
+
+        search2.stringValue = "tok"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search2)
+        #expect(panel.makeFirstResponder(table2), "the results list takes focus")
+        table2.keyDown(with: keyEvent(48)) // Tab
+        #expect(panel.firstResponder === search2.currentEditor(),
+                "Tab returns focus to the search field")
+    }
 }
 
 // Stub monitor from BarPopoverTests for use in real flow tests

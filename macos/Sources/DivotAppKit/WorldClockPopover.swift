@@ -1,16 +1,18 @@
 import AppKit
 import DivotCore
 
-/// NSSearchField subclass that handles Escape key to clear search
+/// NSSearchField subclass that handles Escape (clear the search) and Tab (move
+/// focus into the results list) keys.
 @MainActor
 private final class SearchFieldWithEscape: NSSearchField {
     var onEscape: (() -> Void)?
+    var onTab: (() -> Void)?
 
     override func keyDown(with event: NSEvent) {
-        if event.keyCode == 53 { // Escape key
-            onEscape?()
-        } else {
-            super.keyDown(with: event)
+        switch event.keyCode {
+        case 53: onEscape?()   // Escape
+        case 48: onTab?()      // Tab
+        default: super.keyDown(with: event)
         }
     }
 }
@@ -31,15 +33,22 @@ private final class TimezoneResultRowView: NSTableRowView {
     }
 }
 
-/// NSTableView subclass that handles Return/arrow keys for results navigation
+/// NSTableView subclass that handles Return (add the highlighted row), Escape
+/// (clear the search) and Tab (move focus back to the search field) keys.
 @MainActor
 private final class TimezoneResultsTableView: NSTableView {
     var onReturnKey: (() -> Void)?
+    var onEscape: (() -> Void)?
+    var onTab: (() -> Void)?
 
     override func keyDown(with event: NSEvent) {
         switch event.keyCode {
         case 36: // Return key
             onReturnKey?()
+        case 53: // Escape key
+            onEscape?()
+        case 48: // Tab key
+            onTab?()
         case 125: // Down arrow
             selectRowIndexes(NSIndexSet(index: min(selectedRow + 1, numberOfRows - 1)) as IndexSet, byExtendingSelection: false)
         case 126: // Up arrow
@@ -173,6 +182,7 @@ public final class WorldClockPopoverController {
             self?.updateTimezones(timezones)
             self?.render()
         }
+        controller.onContentSizeChanged = { [weak self] in self?.resizeToContent() }
 
         host.present(controller, relativeTo: view)
         self.content = controller
@@ -195,6 +205,14 @@ public final class WorldClockPopoverController {
                        timeFormat: config.widgets.time.timeFormat,
                        showSeconds: config.widgets.time.seconds,
                        customPattern: config.widgets.time.customPattern)
+        resizeToContent()
+    }
+
+    /// Match the shown panel to the content's current preferred size. Used after
+    /// a full render and whenever the content changes size on its own (the
+    /// search results list appearing or disappearing).
+    private func resizeToContent() {
+        guard let content else { return }
         host.resize(to: content.preferredSize)
     }
 
@@ -241,6 +259,10 @@ public final class WorldClockPopoverController {
 final class WorldClockPopoverContentController: BarPopoverContentController {
     var onOpenDateTimeSettings: @MainActor () -> Void = {}
     var onUpdateTimezones: (([String]) -> Void)? = nil
+    /// Called when the content's own size changes outside a full render — the
+    /// search results list appearing or disappearing — so the host can resize
+    /// the real panel to match. A full render resizes through the host anyway.
+    var onContentSizeChanged: (() -> Void)? = nil
 
     private var currentTimezones: [String] = []
     private var searchField: NSSearchField?
@@ -317,6 +339,9 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         search.onEscape = { [weak self] in
             self?.clearSearch()
         }
+        search.onTab = { [weak self] in
+            self?.focusResults()
+        }
         self.searchField = search
         styleSearchField()
 
@@ -339,6 +364,8 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             theme: theme,
             currentTimezones: timezones
         )
+        resultsController.onEscape = { [weak self] in self?.clearSearch() }
+        resultsController.onTab = { [weak self] in self?.focusSearchField() }
         self.resultsController = resultsController
 
         let addStack = NSStackView(views: [addLabel, search])
@@ -389,11 +416,29 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         // Hide the list when there is nothing to show, so an unmatched query
         // does not leave a blank gap under the field.
         resultsController.view.isHidden = resultsController.results.isEmpty
+        // The list just appeared or disappeared, so the panel must grow or
+        // shrink with it (the host only resizes on a full render otherwise).
+        onContentSizeChanged?()
     }
 
     private func clearSearch() {
         searchField?.stringValue = ""
         resultsController?.view.isHidden = true
+        onContentSizeChanged?()
+    }
+
+    /// Move keyboard focus from the search field into the visible results list,
+    /// so Return can add the highlighted row without a click.
+    private func focusResults() {
+        guard let resultsController, !resultsController.view.isHidden,
+              !resultsController.results.isEmpty else { return }
+        view.window?.makeFirstResponder(resultsController.focusView)
+    }
+
+    /// Move keyboard focus back to the search field (Tab from the results list).
+    private func focusSearchField() {
+        guard let searchField else { return }
+        view.window?.makeFirstResponder(searchField)
     }
 
     private func addTimezone(_ timezone: String) {
@@ -404,6 +449,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         onUpdateTimezones?(updated)
         searchField?.stringValue = ""
         resultsController?.view.isHidden = true
+        onContentSizeChanged?()
     }
 
     func formatCompactOffset(_ offsetSeconds: Int) -> String {
@@ -505,6 +551,12 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
     private(set) var results: [(identifier: String, displayName: String)] = []
     private var theme: BarTheme
     private let currentTimezones: [String]
+    /// Tab pressed in the list: move focus back to the search field.
+    var onTab: (() -> Void)?
+    /// Escape pressed in the list: clear the search.
+    var onEscape: (() -> Void)?
+    /// The view that takes keyboard focus when Tab enters the list.
+    var focusView: NSView { tableView }
     /// The scroll view's height, driven by the row count so the visible results
     /// list has a real height under Auto Layout (a plain frame change is ignored
     /// once the view is an arranged subview).
@@ -551,6 +603,8 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         tableView.onReturnKey = { [weak self] in
             self?.selectCurrentRow()
         }
+        tableView.onTab = { [weak self] in self?.onTab?() }
+        tableView.onEscape = { [weak self] in self?.onEscape?() }
     }
 
     /// The most matches shown at once. The list scrolls beyond this.
