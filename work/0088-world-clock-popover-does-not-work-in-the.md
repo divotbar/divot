@@ -13,7 +13,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-14T03:49:45Z"
+updated_at: "2026-10-14T03:50:49Z"
 review_passes: 10
 close_out_repair_count: 1
 review_rounds: 2
@@ -267,3 +267,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:39:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T03:39:30Z · message_delivered: 1 message(s)
 - 2026-10-14T03:49:45Z · body: section Shot descriptions
+- 2026-10-14T03:50:49Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
