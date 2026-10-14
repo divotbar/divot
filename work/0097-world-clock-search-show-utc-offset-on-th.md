@@ -1,5 +1,4 @@
 ---
-close_out_repair_count: 1
 id: "0097"
 title: "World clock search: show UTC offset on the right of each result"
 type: feature
@@ -12,7 +11,8 @@ branch: feat/world-clock-search-show-utc-offset-on-th
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T05:11:50Z"
-updated_at: "2026-10-14T05:24:00Z"
+updated_at: "2026-10-14T05:24:01Z"
+close_out_repair_count: 1
 review_passes: 2
 review_rounds: 1
 ---
@@ -68,4 +68,4 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 - 2026-10-14T05:24:00Z · status review→active
 - 2026-10-14T05:24:00Z · note: close-out repair: merge-conflict
 - 2026-10-14T05:24:00Z · message_delivered: 1 message(s)
-
+- 2026-10-14T05:24:01Z · message_queued at 2026-10-14T05:24:01.200Z
