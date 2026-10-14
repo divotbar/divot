@@ -9,7 +9,7 @@ assigned_to: ai
 created_by: api
 branch: feat/make-the-wi-fi-network-list-scrollable
 created_at: "2026-10-14T03:49:52Z"
-updated_at: "2026-10-14T04:17:30Z"
+updated_at: "2026-10-14T04:17:33Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -71,3 +71,4 @@ When there are many wifi networks the list view gets too long, instead it should
 - 2026-10-14T04:11:13Z · status review→active
 - 2026-10-14T04:12:57Z · message_queued at 2026-10-14T04:12:57.656Z
 - 2026-10-14T04:17:30Z · status active→review
+- 2026-10-14T04:17:33Z · note: shots: skipped — 10 handoff shots already captured for this exact plan (c58edcc7) during finalization (#0734)
