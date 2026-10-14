@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-search-type-an-offset-such-a
 created_at: "2026-10-14T05:15:41Z"
-updated_at: "2026-10-14T05:45:10Z"
+updated_at: "2026-10-14T05:45:11Z"
 review_rounds: 1
 review_passes: 1
 ---
@@ -56,3 +56,4 @@ The current search lives in WorldClockPopover.swift (updateResults). Zone identi
 - 2026-10-14T05:42:36Z · body: section Shots
 - 2026-10-14T05:43:03Z · message_queued at 2026-10-14T05:43:03.106Z
 - 2026-10-14T05:45:10Z · status active→review
+- 2026-10-14T05:45:11Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (f84bc8bd) during finalization (#0734)
