@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T05:11:50Z"
-updated_at: "2026-10-14T05:11:53Z"
+updated_at: "2026-10-14T05:11:54Z"
 ---
 ## Problem
 The Add timezone results show only the city name. It is hard to tell offsets apart when scanning the list.
@@ -36,3 +38,4 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 - 2026-10-14T05:11:50Z · created · njachowski@gmail.com
 - 2026-10-14T05:11:50Z · screenshots
 - 2026-10-14T05:11:53Z · status inbox→ready
+- 2026-10-14T05:11:54Z · cli_override, model_override
