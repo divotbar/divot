@@ -1,15 +1,18 @@
 ---
+close_out_repair_count: 1
 id: "0098"
 title: "World clock search: type an offset such as +7 or -8 to find zones in that offset"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-search-type-an-offset-such-a
 created_at: "2026-10-14T05:15:41Z"
-updated_at: "2026-10-14T05:41:38Z"
+updated_at: "2026-10-14T05:46:56Z"
+review_passes: 2
+review_rounds: 1
 ---
 ## Problem
 The Add timezone search only matches city or zone names. To add a zone by its offset, the user has to know the city name.
@@ -27,9 +30,35 @@ Typing a signed offset in the search field, for example '+7' or '-8', lists the 
 ## Notes for AI
 The current search lives in WorldClockPopover.swift (updateResults). Zone identifiers come from TimeZone.knownTimeZoneIdentifiers (443 zones on this Mac). Depends on #0097 for the offset display, so it should land after #0097.
 
+## Shots
+```json
+[
+{
+"label": "World clock search by offset: a +7 query lists each zone at UTC+7 with its UTC offset",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "worldclock"
+},
+"glob": "*offset-query*.png"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-14T05:15:41Z · created · njachowski@gmail.com
 - 2026-10-14T05:15:42Z · status inbox→ready
 - 2026-10-14T05:30:26Z · status ready→active, branch
-- 2026-10-14T05:41:38Z · status active→review
+- 2026-10-14T05:37:38Z · body: section Shots
+- 2026-10-14T05:41:39Z · status active→review
+- 2026-10-14T05:42:14Z · note: shots: skipped — capture command for "Divot bar" produced no image files matching *worldclock-offset-query*.png 􁁛  Test "World clock popover — four zones with day labels, all themes × light/dark" passed after 34.422 seconds. 􁁛  Test "Volume popover — all themes × light/dark × larger text (16pt)" passed after 34.422 seconds. 􁁛  Test "World clock popover — add flow (typed 'los'), all themes × light/dark" passed after 34.422 seconds. 􁁛  Test "World clock popover — one zone, all themes × light/dark" passed after 34.422 seconds. 􁁛  Test rendersToast(config:) with 8 test cases passed after 34.422 seconds. 􁁛  Suite "Popover snapshots" passed after 34.422 seconds. 􁁛  Suite "Bar snapshots" passed after 34.422 seconds. 􁁛  Suite "Keep-awake toast snapshots" passed after 34.422 seconds. 􁁛  Test run with 29 tests in 4 suites passed after 34.427 seconds. Building for debugging... [0/10] Write swift-version--58304C5D6DBC2206.txt Build complete! (0.09s)
+- 2026-10-14T05:42:18Z · note: review pass 1: needs some work
+- 2026-10-14T05:42:18Z · status review→active
+- 2026-10-14T05:42:36Z · body: section Shots
+- 2026-10-14T05:43:03Z · message_queued at 2026-10-14T05:43:03.106Z
+- 2026-10-14T05:45:10Z · status active→review
+- 2026-10-14T05:45:11Z · note: shots: skipped — 2 handoff shots already captured for this exact plan (f84bc8bd) during finalization (#0734)
+- 2026-10-14T05:46:14Z · note: review pass 2: good to go
+- 2026-10-14T05:46:56Z · status review→active
+- 2026-10-14T05:46:56Z · note: close-out repair: merge-conflict
+- 2026-10-14T05:46:56Z · message_delivered: 1 message(s)

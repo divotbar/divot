@@ -1103,6 +1103,22 @@ struct WorldClockSearchOffsetTests {
         #expect(jakarta.isAlreadyAdded, "a zone already in the list is marked 'Already added'")
         #expect(jakarta.utcOffset == "UTC+7", "an already-added row still shows its offset")
     }
+
+    /// Already-added is alias-aware: a zone counts as present when the list holds
+    /// an equivalent identifier, not only the exact spelling. Europe/Kiev and
+    /// Europe/Kyiv are the same zone (as US/Pacific and America/Los_Angeles are),
+    /// and both are in `knownTimeZoneIdentifiers`.
+    @Test func aliasOfAnAddedZoneCountsAsAlreadyAdded() {
+        let controller = makeController()
+        controller.updateResults(for: "kiev", currentTimezones: ["Europe/Kyiv"], at: winter)
+
+        guard let kiev = controller.results.first(where: { $0.identifier == "Europe/Kiev" }) else {
+            Issue.record("expected Europe/Kiev in the results (got \(controller.results.map(\.identifier)))")
+            return
+        }
+        #expect(kiev.isAlreadyAdded,
+                "Europe/Kiev is an alias of the added Europe/Kyiv, so it counts as already added")
+    }
 }
 
 // Stub monitor from BarPopoverTests for use in real flow tests
