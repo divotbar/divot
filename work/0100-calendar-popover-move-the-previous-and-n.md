@@ -1,4 +1,5 @@
 ---
+handoff_signal_retry_count: 1
 id: "0100"
 title: "Calendar popover: move the previous and next month arrows beside the month and year"
 type: feature
@@ -60,3 +61,4 @@ The calendar popover is macos/Sources/DivotAppKit/CalendarPopover.swift; the hea
 - 2026-10-14T08:51:30Z · status active→review
 - 2026-10-14T08:52:40Z · note: review pass 1: needs some work
 - 2026-10-14T08:52:41Z · status review→active
+
