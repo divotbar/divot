@@ -1,13 +1,8 @@
 ---
-updated_at: "2026-10-14T02:32:52Z"
-review_passes: 9
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
 status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p0
 area: macos
 assigned_to: ""
@@ -18,6 +13,8 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T16:20:27Z"
+updated_at: "2026-10-14T03:25:29Z"
+review_passes: 9
 close_out_repair_count: 1
 review_rounds: 2
 dev_error_count: 1
@@ -256,4 +253,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T02:30:19Z · needs_input (review-failed) cleared for review again by human
 - 2026-10-14T02:32:52Z · note: review pass 10: needs some work
 - 2026-10-14T02:32:52Z · needs_input
-
+- 2026-10-14T03:25:29Z · needs_input
