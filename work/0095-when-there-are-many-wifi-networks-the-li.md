@@ -2,14 +2,14 @@
 id: "0095"
 title: Make the Wi-Fi network list scrollable
 type: feature
-status: ready
+status: active
 priority: p2
 area: macos
 assigned_to: ai
 created_by: api
-branch: ""
+branch: feat/make-the-wi-fi-network-list-scrollable
 created_at: "2026-10-14T03:49:52Z"
-updated_at: "2026-10-14T04:02:50Z"
+updated_at: "2026-10-14T04:02:59Z"
 ---
 ## Problem
 
@@ -48,3 +48,4 @@ When there are many wifi networks the list view gets too long, instead it should
 - 2026-10-14T03:49:52Z · screenshots
 - 2026-10-14T03:50:06Z · status draft→inbox, title, area, assigned_to, body
 - 2026-10-14T04:02:50Z · status inbox→ready
+- 2026-10-14T04:02:59Z · status ready→active, branch
