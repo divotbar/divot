@@ -93,3 +93,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:35:15Z · body: section Evidence
 - 2026-10-14T04:36:26Z · message_queued at 2026-10-14T04:36:26.572Z
 - 2026-10-14T04:38:14Z · status active→review
+- 2026-10-14T04:38:14Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
