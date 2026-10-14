@@ -2,7 +2,7 @@
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
-status: active
+status: review
 priority: p3
 area: macos
 depends_on: ["0085"]
@@ -92,4 +92,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:33:10Z · status review→active
 - 2026-10-14T04:35:15Z · body: section Evidence
 - 2026-10-14T04:36:26Z · message_queued at 2026-10-14T04:36:26.572Z
-- 2026-10-14T04:38:14Z · note: shots: skipped — 16 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-14T04:38:14Z · status active→review
