@@ -1058,6 +1058,14 @@ struct WorldClockSearchOffsetTests {
                 "+5.5 matches the same zones as +5:30")
     }
 
+    @Test func quarterHourQueryMatchesZonesAtThatOffset() {
+        let controller = makeController()
+        controller.updateResults(for: "+5:45", currentTimezones: [], at: winter)
+        #expect(!controller.results.isEmpty, "a quarter-hour offset finds zones (Nepal is UTC+5:45)")
+        #expect(controller.results.allSatisfy { $0.utcOffset == "UTC+5:45" },
+                "every result shows the queried quarter-hour offset")
+    }
+
     @Test func offsetMatchFollowsDaylightSaving() {
         let controller = makeController()
         controller.updateResults(for: "-8", currentTimezones: [], at: winter)
