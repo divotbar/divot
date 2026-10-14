@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-14T06:26:49Z"
+review_passes: 1
 id: "0080"
 title: Measure the banner window level with the probe and decide the fix
 type: chore
@@ -12,7 +14,6 @@ branch: feat/measure-the-banner-window-level-with-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T07:47:17Z"
-updated_at: "2026-10-14T06:26:49Z"
 ---
 ## Problem
 #0075 shipped an investigation, evidence doc and a read-only divot-notification-banner-probe, but nobody has measured the notification banner window yet, so the core question is still open: can Divot sit below banners (or otherwise avoid hiding their content) with public API? Maintainer screenshot 2026-10-13 shows a Chrome / Google Calendar banner whose title row is tucked under the Divot bar.
@@ -85,3 +86,4 @@ Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPan
 - 2026-10-14T06:26:03Z · status active→review
 - 2026-10-14T06:26:31Z · note: 60 more images not shown (cap 12 per task) — declare a `## Shots` entry with a `glob` to capture a specific one
 - 2026-10-14T06:26:49Z · note: review pass 1: good to go
+
