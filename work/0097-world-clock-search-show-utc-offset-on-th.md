@@ -2,12 +2,12 @@
 id: "0097"
 title: "World clock search: show UTC offset on the right of each result"
 type: feature
-status: ready
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
-branch: ""
+branch: feat/world-clock-search-show-utc-offset-on-th
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T05:11:50Z"
@@ -39,3 +39,4 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 - 2026-10-14T05:11:50Z · screenshots
 - 2026-10-14T05:11:53Z · status inbox→ready
 - 2026-10-14T05:11:54Z · cli_override, model_override
+- 2026-10-14T05:11:54Z · status ready→active, branch
