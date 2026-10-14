@@ -13,7 +13,7 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-14T03:36:03Z"
+updated_at: "2026-10-14T03:37:53Z"
 review_passes: 9
 close_out_repair_count: 1
 review_rounds: 2
@@ -260,3 +260,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:30:33Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-14T03:36:03Z · status active→review
 - 2026-10-14T03:36:03Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-14T03:37:53Z · note: review pass 11: needs some work
