@@ -2,7 +2,7 @@
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: review
+status: active
 priority: p0
 area: macos
 assigned_to: ""
@@ -254,3 +254,5 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T02:32:52Z · note: review pass 10: needs some work
 - 2026-10-14T02:32:52Z · needs_input
 - 2026-10-14T03:25:29Z · needs_input
+- 2026-10-14T03:25:29Z · status review→active
+- 2026-10-14T03:25:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
