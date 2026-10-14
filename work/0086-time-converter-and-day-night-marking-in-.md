@@ -2,7 +2,7 @@
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
-status: review
+status: active
 priority: p3
 area: macos
 depends_on: ["0085"]
@@ -97,3 +97,5 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:39:18Z · note: review pass 3: needs some work
 - 2026-10-14T04:39:18Z · needs_input
 - 2026-10-14T04:41:15Z · needs_input
+- 2026-10-14T04:41:15Z · status review→active
+- 2026-10-14T04:41:15Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
