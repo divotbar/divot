@@ -495,6 +495,47 @@ struct PopoverSnapshotTests {
                          expectSelectedFill: expectSelectedFill, label: name)
     }
 
+    /// Render a popover through the real panel path: present the content in a
+    /// `BarPopoverHost` (which builds and sizes a `BarPopoverPanel`), then render
+    /// the panel's chrome + content at the size the host computed. The content
+    /// view's pixel rules still run, so alignment/contrast coverage is unchanged;
+    /// the saved PNG is the real panel, not the bare content view.
+    private func testPanelPopover(
+        name: String,
+        maker: (CGFloat) -> BarPopoverContentController,
+        appearance: AppearanceConfiguration,
+        isDark: Bool,
+        fontSize: CGFloat
+    ) throws {
+        let theme = BarTheme.resolve(appearance, dark: isDark)
+        let controller = maker(fontSize)
+        controller.apply(theme: theme)
+
+        let host = BarPopoverHost(monitors: NoopPopoverMonitor(), presenter: RecordingWindowPresenter())
+        let anchorWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 40, height: 24),
+                                    styleMask: .borderless, backing: .buffered, defer: false)
+        let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 40, height: 24))
+        anchorWindow.contentView?.addSubview(anchor)
+        host.present(controller, relativeTo: anchor)
+        defer { host.dismiss() }
+
+        // Keep the content-view pixel assertions the other popovers use.
+        let contentSize = controller.preferredSize
+        if let contentRep = renderView(controller.view, size: contentSize) {
+            assertPixelRules(rep: contentRep, size: contentSize, theme: theme,
+                             expectSelectedFill: false, label: name)
+        }
+
+        guard let panel = host.panel, let chrome = panel.contentView else { return }
+        let panelSize = chrome.frame.size
+        chrome.appearance = NSAppearance(named: isDark ? .darkAqua : .aqua)
+        guard let rep = renderView(chrome, size: panelSize) else {
+            print("PopoverSnapshotTests [\(name)]: Skipped — offscreen rendering unavailable (headless environment)")
+            return
+        }
+        try writeBitmapToPNG(name: name, rep: rep)
+    }
+
     // MARK: - Tests
 
     @Test("Volume popover — all themes × light/dark × default size")
@@ -620,8 +661,8 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "worldclock-popover-\(familyName)-\(variantName)-default-zero-timezones"
-                try testPopover(name: name, maker: { self.makeWorldClockEmptyController(fontSize: $0) },
-                               appearance: appearance, isDark: isDark, fontSize: 12)
+                try testPanelPopover(name: name, maker: { self.makeWorldClockEmptyController(fontSize: $0) },
+                                     appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }
@@ -636,8 +677,8 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "worldclock-popover-\(familyName)-\(variantName)-default-defaults"
-                try testPopover(name: name, maker: { self.makeWorldClockDefaultsController(fontSize: $0) },
-                               appearance: appearance, isDark: isDark, fontSize: 12)
+                try testPanelPopover(name: name, maker: { self.makeWorldClockDefaultsController(fontSize: $0) },
+                                     appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }
@@ -652,8 +693,8 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "worldclock-popover-\(familyName)-\(variantName)-default-one-zone"
-                try testPopover(name: name, maker: { self.makeWorldClockOneZoneController(fontSize: $0) },
-                               appearance: appearance, isDark: isDark, fontSize: 12)
+                try testPanelPopover(name: name, maker: { self.makeWorldClockOneZoneController(fontSize: $0) },
+                                     appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }
@@ -668,8 +709,8 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "worldclock-popover-\(familyName)-\(variantName)-default-day-label"
-                try testPopover(name: name, maker: { self.makeWorldClockDayLabelController(fontSize: $0) },
-                               appearance: appearance, isDark: isDark, fontSize: 12)
+                try testPanelPopover(name: name, maker: { self.makeWorldClockDayLabelController(fontSize: $0) },
+                                     appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }
@@ -684,8 +725,8 @@ struct PopoverSnapshotTests {
                 let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "worldclock-popover-\(familyName)-\(variantName)-default-add-flow"
-                try testPopover(name: name, maker: { self.makeWorldClockAddFlowController(fontSize: $0) },
-                               appearance: appearance, isDark: isDark, fontSize: 12)
+                try testPanelPopover(name: name, maker: { self.makeWorldClockAddFlowController(fontSize: $0) },
+                                     appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
     }

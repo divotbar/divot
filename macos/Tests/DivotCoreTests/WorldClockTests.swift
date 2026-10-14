@@ -43,6 +43,25 @@ final class WorldClockTests: XCTestCase {
                        ["Asia/Tokyo"])
     }
 
+    func testResolvedTimezonesTreatsAnAliasOfTheLocalZoneAsTheLocalZone() {
+        // US/Pacific is the same zone as America/Los_Angeles, so the default must
+        // not be shown a second time when the local zone is the alias.
+        let usPacific = TimeZone(identifier: "US/Pacific")!
+        XCTAssertEqual(WorldClock.resolvedTimezones(configured: nil, localTimeZone: usPacific),
+                       ["Europe/London", "Asia/Singapore"],
+                       "an alias of a default is not duplicated")
+    }
+
+    func testIsSameZoneFollowsAliasesButKeepsDifferentZonesApart() {
+        XCTAssertTrue(WorldClock.isSameZone("US/Pacific", "America/Los_Angeles"))
+        XCTAssertTrue(WorldClock.isSameZone("Asia/Calcutta", "Asia/Kolkata"))
+        XCTAssertTrue(WorldClock.isSameZone("Europe/London", "Europe/London"))
+        // A fixed-offset zone that shares London's winter offset is not London.
+        XCTAssertFalse(WorldClock.isSameZone("Europe/London", "Africa/Abidjan"))
+        XCTAssertFalse(WorldClock.isSameZone("America/Los_Angeles", "America/New_York"))
+        XCTAssertFalse(WorldClock.isSameZone("Not/AZone", "Europe/London"))
+    }
+
     func testFriendlyNameMappingAndFallback() {
         // The same mapping the popover, its search results and the Settings list
         // use, so the defaults are named by city everywhere.

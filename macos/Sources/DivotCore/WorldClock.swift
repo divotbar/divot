@@ -42,9 +42,25 @@ public enum WorldClock {
     public static func resolvedTimezones(configured: [String]?,
                                          localTimeZone: TimeZone = .current) -> [String] {
         guard let configured else {
-            return defaultTimezones.filter { $0 != localTimeZone.identifier }
+            return defaultTimezones.filter { !isSameZone($0, localTimeZone.identifier) }
         }
         return configured
+    }
+
+    /// True when two identifiers name the same zone, following IANA aliases.
+    ///
+    /// `US/Pacific` and `America/Los_Angeles` are distinct identifiers with the
+    /// same rules, and Foundation does not canonicalise them, so compare the
+    /// resolved zones instead of the strings: identical standard *and* daylight
+    /// offsets (two instants a half-year apart) means the same zone, while a
+    /// fixed-offset zone that merely shares the winter offset stays distinct.
+    public static func isSameZone(_ lhs: String, _ rhs: String) -> Bool {
+        if lhs == rhs { return true }
+        guard let a = TimeZone(identifier: lhs), let b = TimeZone(identifier: rhs) else { return false }
+        let winter = Date(timeIntervalSince1970: 1_704_067_200) // 2024-01-01
+        let summer = Date(timeIntervalSince1970: 1_719_792_000) // 2024-07-01
+        return a.secondsFromGMT(for: winter) == b.secondsFromGMT(for: winter)
+            && a.secondsFromGMT(for: summer) == b.secondsFromGMT(for: summer)
     }
 
     /// The friendly name to show for a zone: the well-known zones are named by

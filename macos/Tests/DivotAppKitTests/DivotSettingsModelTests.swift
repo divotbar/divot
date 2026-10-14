@@ -513,3 +513,33 @@ private let wifiNameDeniedMessage = "Location permission is needed to show the W
     #expect(DivotSettingsModel.locationServicesURL.absoluteString
         == "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")
 }
+
+/// The Settings empty state's Add control calls `addWorldClockTimezone`, so
+/// removing the last zone is not a dead end. The action must produce a
+/// non-empty, persisted list and must not duplicate a zone via an alias.
+@MainActor
+@Test func settingsEmptyStateAddControlAddsAZoneWithoutDuplicatingAliases() throws {
+    let (model, controller) = try makeModel()
+
+    // Remove every zone: the stored list is explicitly empty, so the empty
+    // state (and its Add control) is what Settings shows.
+    model.updateWorldClockTimezones([])
+    #expect(WorldClock.resolvedTimezones(configured: model.configuration.widgets.time.timezones).isEmpty,
+            "the empty state starts with no zones")
+
+    model.addWorldClockTimezone("America/Los_Angeles")
+    #expect(WorldClock.resolvedTimezones(configured: model.configuration.widgets.time.timezones)
+            == ["America/Los_Angeles"],
+            "the Add control yields a non-empty list")
+
+    // Adding the same zone under an alias is ignored, not a second row.
+    model.addWorldClockTimezone("US/Pacific")
+    #expect(WorldClock.resolvedTimezones(configured: model.configuration.widgets.time.timezones)
+            == ["America/Los_Angeles"],
+            "an alias of an added zone is not duplicated")
+
+    // The added list is persisted.
+    let reloaded = ConfigurationStore(configURL: controller.configURL)
+    #expect(reloaded.load() == .loaded)
+    #expect(reloaded.current.widgets.time.timezones == ["America/Los_Angeles"])
+}
