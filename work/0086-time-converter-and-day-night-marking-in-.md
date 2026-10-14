@@ -3,6 +3,9 @@ id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
 status: review
+needs_input: true
+needs_input_reason: review-rounds-exhausted
+needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
 priority: p3
 area: macos
 depends_on: ["0085"]
@@ -103,3 +106,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:43:23Z · status active→review
 - 2026-10-14T04:43:23Z · note: shots: skipped — 24 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-14T04:44:09Z · note: review pass 4: needs some work
+- 2026-10-14T04:44:09Z · needs_input
