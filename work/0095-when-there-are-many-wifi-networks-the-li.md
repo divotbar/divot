@@ -1,16 +1,17 @@
 ---
-updated_at: "2026-10-14T04:11:11Z"
-review_passes: 1
 id: "0095"
 title: Make the Wi-Fi network list scrollable
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ai
 created_by: api
 branch: feat/make-the-wi-fi-network-list-scrollable
 created_at: "2026-10-14T03:49:52Z"
+updated_at: "2026-10-14T04:11:13Z"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 
@@ -67,4 +68,4 @@ When there are many wifi networks the list view gets too long, instead it should
 - 2026-10-14T04:07:22Z · body: section Shots
 - 2026-10-14T04:10:02Z · status active→review
 - 2026-10-14T04:11:10Z · note: review pass 1: needs some work
-
+- 2026-10-14T04:11:13Z · status review→active
