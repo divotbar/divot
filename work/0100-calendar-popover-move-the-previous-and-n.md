@@ -8,8 +8,10 @@ area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T08:39:43Z"
-updated_at: "2026-10-14T08:39:47Z"
+updated_at: "2026-10-14T08:39:57Z"
 ---
 ## Problem
 In the date calendar popover, the previous and next month arrows sit at the top right of the header, away from the month name. They read as separate controls and are easy to miss.
@@ -36,3 +38,4 @@ The calendar popover is macos/Sources/DivotAppKit/CalendarPopover.swift; the hea
 - 2026-10-14T08:39:43Z · created · njachowski@gmail.com
 - 2026-10-14T08:39:43Z · screenshots
 - 2026-10-14T08:39:47Z · status inbox→ready
+- 2026-10-14T08:39:57Z · cli_override, model_override
