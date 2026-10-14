@@ -12,7 +12,7 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T04:33:10Z"
+updated_at: "2026-10-14T04:35:15Z"
 review_rounds: 2
 review_passes: 2
 ---
@@ -57,14 +57,16 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 ```
 
 ## Evidence
-Shots re-captured on the final HEAD, the merge of `main` (commit `07f68749`). The `Divot bar` target ran with `DIVOT_SNAPSHOT_ONLY=worldclock` under the reduced `DIVOT_SNAPSHOT_SET=shots`, so each state is captured in Native and Gruvbox, light and dark (the `-2` filenames).
+Shots were re-captured on the final HEAD (merge of `main`). The `Divot bar` target runs with `DIVOT_SNAPSHOT_ONLY=worldclock` under the reduced `DIVOT_SNAPSHOT_SET=shots`, so each state is captured in Native and Gruvbox, light and dark.
 
-**At now — `worldclock-popover-{native,gruvbox}-{light,dark}-default-defaults-2.png`**
+RepoOS stores the handoff captures as `work/.attachments/0086/shots/divot-bar-<state>-1.png` (the `-1` suffix is the handoff capture; a manual `repoos shot` re-run appends `-2`, `-3`, …). The eight images are:
+
+**At now — `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-defaults-1.png`**
 - Header reads the current local time and zone (captured `11:29 UTC+7` / `Jakarta`); the scrubber thumb sits at the current minute with its `11:29` label, and the **Now** control is greyed out because the converter is un-scrubbed.
 - Rows convert at that instant: San Francisco `21:29 (14 h behind) Yesterday` with a moon, London `05:29 (6 h behind)` with a moon, Singapore `12:29 (1 h ahead)` with a sun. The sun/moon marker shows each zone's fixed 09:00–18:00 local working window at a glance.
 - Native and Gruvbox differ only in palette (Native neutral grey; Gruvbox warm sepia light / warm brown dark); layout and content are identical.
 
-**Scrubbed — `worldclock-popover-{native,gruvbox}-{light,dark}-default-scrubbed-2.png`**
+**Scrubbed — `divot-bar-worldclock-popover-{native,gruvbox}-{light,dark}-default-scrubbed-1.png`**
 - The scrubber is moved to `22:00 UTC+0` (`GMT`): the thumb sits near the right end and the **Now** control is enabled.
 - Every row shows the converted instant with a day boundary in one view: Kiritimati `12:00 (14 h ahead) Tomorrow` (sun), Midway `11:00 (11 h behind)` (sun), Tokyo `07:00 (9 h ahead) Tomorrow` (moon), San Francisco `14:00 (8 h behind)` (sun) — a mix of sun and moon markers plus Tomorrow labels.
 - Same palette difference across Native and Gruvbox, light and dark.
@@ -88,3 +90,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:32:16Z · note: shots: skipped — 8 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-14T04:33:10Z · note: review pass 2: needs some work
 - 2026-10-14T04:33:10Z · status review→active
+- 2026-10-14T04:35:15Z · body: section Evidence
