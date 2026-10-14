@@ -15,14 +15,24 @@ public struct WorldClockEntry: Equatable, Sendable {
     public let dayLabel: String?
     /// Hour offset from local time (can be fractional for half-hour zones).
     public let hourOffset: Double
+    /// Minutes since midnight in this zone (0..<1440), for the converted instant.
+    /// Lets the row show a day/night marker without re-deriving the wall clock.
+    public let localMinutesOfDay: Int
+    /// True when the converted instant falls inside the fixed 09:00–18:00 local
+    /// working window. Drives the sun/moon marker on the row.
+    public let isWorkingHours: Bool
 
-    public init(timezone: String, displayName: String, date: Date, offsetSeconds: Int, dayLabel: String?, hourOffset: Double) {
+    public init(timezone: String, displayName: String, date: Date, offsetSeconds: Int,
+                dayLabel: String?, hourOffset: Double, localMinutesOfDay: Int = 0,
+                isWorkingHours: Bool = true) {
         self.timezone = timezone
         self.displayName = displayName
         self.date = date
         self.offsetSeconds = offsetSeconds
         self.dayLabel = dayLabel
         self.hourOffset = hourOffset
+        self.localMinutesOfDay = localMinutesOfDay
+        self.isWorkingHours = isWorkingHours
     }
 }
 
@@ -152,13 +162,18 @@ public enum WorldClock {
                 dayLabel = nil
             }
 
+            let localMinutes = WorldClockScrubber.minutesOfDay(of: referenceDate,
+                                                              in: tz,
+                                                              calendar: calendar)
             let entry = WorldClockEntry(
                 timezone: tzString,
                 displayName: displayName,
                 date: referenceDate,
                 offsetSeconds: offsetSeconds,
                 dayLabel: dayLabel,
-                hourOffset: hourOffset
+                hourOffset: hourOffset,
+                localMinutesOfDay: localMinutes,
+                isWorkingHours: WorldClockScrubber.isWorkingHours(referenceDate, in: tz, calendar: calendar)
             )
             entries.append(entry)
         }

@@ -2,18 +2,21 @@
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
-status: active
+status: done
 priority: p3
 area: macos
 depends_on: ["0085"]
+merged_commit: dfba06cca31a2c62cf3dcdcf6ef8811b0711bc99
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T05:06:20Z"
-review_passes: 5
+updated_at: "2026-10-14T05:21:16Z"
+last_close_out_gate_ms: 113877
+last_close_out_gate_at: "2026-10-14T05:21:09.043Z"
+review_passes: 6
 review_rounds: 2
 ---
 ## Problem
@@ -115,3 +118,8 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:56:41Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T05:06:20Z · message_queued at 2026-10-14T05:06:20.204Z
 - 2026-10-14T05:06:20Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
+- 2026-10-14T05:14:45Z · status active→review
+- 2026-10-14T05:14:45Z · note: shots: skipped — 8 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-14T05:15:46Z · note: review pass 6: good to go
+- 2026-10-14T05:21:09Z · close-out gate completed in 114s
+- 2026-10-14T05:21:16Z · status review→done, release:success
