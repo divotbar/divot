@@ -1,17 +1,18 @@
 ---
-last_close_out_gate_ms: 144745
-last_close_out_gate_at: "2026-10-14T05:58:20.204Z"
 id: "0098"
 title: "World clock search: type an offset such as +7 or -8 to find zones in that offset"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: af9b321e063897c3f21372bccd82f008804a649c
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-search-type-an-offset-such-a
 created_at: "2026-10-14T05:15:41Z"
-updated_at: "2026-10-14T05:58:20Z"
+updated_at: "2026-10-14T05:58:25Z"
+last_close_out_gate_ms: 144745
+last_close_out_gate_at: "2026-10-14T05:58:20.204Z"
 review_passes: 3
 close_out_repair_count: 1
 review_rounds: 1
@@ -68,4 +69,4 @@ The current search lives in WorldClockPopover.swift (updateResults). Zone identi
 - 2026-10-14T05:54:22Z · note: shots: skipped — 4 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-14T05:54:57Z · note: review pass 3: good to go
 - 2026-10-14T05:58:20Z · close-out gate completed in 145s
-
+- 2026-10-14T05:58:25Z · status review→done, release:success
