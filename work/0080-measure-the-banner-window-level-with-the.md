@@ -2,7 +2,7 @@
 id: "0080"
 title: Measure the banner window level with the probe and decide the fix
 type: chore
-status: review
+status: inbox
 priority: p3
 area: macos
 depends_on: ["0075"]
