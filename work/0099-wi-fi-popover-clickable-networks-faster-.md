@@ -1,18 +1,19 @@
 ---
-last_close_out_gate_ms: 271543
-last_close_out_gate_at: "2026-10-14T08:25:27.874Z"
 id: "0099"
 title: "Wi-Fi popover: clickable networks, faster first paint, and a scanning state that is clearly in progress"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 3581cf85a2464a63794baaa329fd6d4e9f77b52f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/wi-fi-popover-clickable-networks-faster-
 model_override: opencode-go/muse-spark-1.3-contributor
 created_at: "2026-10-14T07:17:58Z"
-updated_at: "2026-10-14T08:25:27Z"
+updated_at: "2026-10-14T08:25:32Z"
+last_close_out_gate_ms: 271543
+last_close_out_gate_at: "2026-10-14T08:25:27.874Z"
 review_passes: 2
 review_rounds: 1
 dev_error_count: 1
@@ -106,4 +107,4 @@ In production the live leg adds the real CoreWLAN scan (about 5.6 s first scan p
 - 2026-10-14T08:20:18Z · note: review pass 2: good to go
 - 2026-10-14T08:20:53Z · needs_input (dev-error) dismissed by human
 - 2026-10-14T08:25:27Z · close-out gate completed in 272s
-
+- 2026-10-14T08:25:32Z · status review→done, release:success
