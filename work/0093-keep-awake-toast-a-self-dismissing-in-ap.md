@@ -1,6 +1,4 @@
 ---
-updated_at: "2026-10-14T02:31:02Z"
-review_passes: 2
 id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
@@ -13,6 +11,8 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
+updated_at: "2026-10-14T02:31:02Z"
+review_passes: 2
 review_rounds: 1
 dev_error_count: 1
 ---
@@ -98,4 +98,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:40:36Z · note: review pass 2: failed — no usable report
 - 2026-10-14T02:29:57Z · needs_input (dev-error) cleared for review again by human
 - 2026-10-14T02:31:02Z · note: review pass 3: needs some work
-
+- 2026-10-14T02:31:02Z · message_expired: not delivered within timeout
