@@ -47,8 +47,14 @@ The popover is macos/Sources/DivotAppKit/WifiPopover.swift; the scanner is WifiN
 ![10](/api/tasks/0099/attachments/screenshot-1.png)
 ![11](/api/tasks/0099/attachments/screenshot-2.png)
 
+## Measurements
+- CWInterface.scanForNetworks, first call in a standalone process: 5.57 s, 11 networks.
+- Second and third calls in the same standalone process: 0.02 s, 26 networks. This does NOT match the maintainer's experience in the app, where each open takes about 5-7 s. The engineer must measure in-app timing (popover open to list shown) before relying on any fast-path numbers.
+- CWInterface.configuration().networkProfiles returns 211 saved profiles on this Mac. These are not a usable list (see Desired UX).
+
 ## Activity
 
 - 2026-10-14T07:17:58Z · created · njachowski@gmail.com
 - 2026-10-14T07:17:58Z · screenshots
 - 2026-10-14T07:28:55Z · body: section Desired UX
+- 2026-10-14T07:28:55Z · body: section Measurements
