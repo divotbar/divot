@@ -88,6 +88,21 @@ public enum WorldClock {
             .replacingOccurrences(of: "_", with: " ")
     }
 
+    /// Format a zone's current UTC offset for display beside a name: "UTC+7",
+    /// "UTC+5:30", "UTC-3:30", or "UTC+0" for zero. Hours are compact (no leading
+    /// zero), minutes are two digits when present, and the sign is always shown.
+    /// Kept here so the popover header and the search-result rows cannot drift.
+    public static func utcOffsetLabel(forOffsetSeconds offsetSeconds: Int) -> String {
+        let sign = offsetSeconds < 0 ? "-" : "+"
+        let absOffset = abs(offsetSeconds)
+        let hours = absOffset / 3600
+        let minutes = (absOffset % 3600) / 60
+        if minutes == 0 {
+            return "UTC\(sign)\(hours)"
+        }
+        return String(format: "UTC%@%d:%02d", sign, hours, minutes)
+    }
+
     /// Compute world clock entries for the given timezones.
     ///
     /// - Parameters:
