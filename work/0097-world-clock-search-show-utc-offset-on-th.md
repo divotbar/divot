@@ -62,3 +62,4 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 - 2026-10-14T05:19:42Z · status review→active
 - 2026-10-14T05:21:27Z · message_queued at 2026-10-14T05:21:27.757Z
 - 2026-10-14T05:22:44Z · status active→review
+- 2026-10-14T05:22:44Z · note: shots: skipped — 24 handoff shots already captured for this exact plan (9d094f5b) during finalization (#0734)
