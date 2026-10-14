@@ -1,15 +1,11 @@
 ---
-last_close_out_gate_ms: 78862
-last_close_out_gate_at: "2026-10-14T03:55:04.418Z"
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: review
-needs_input: true
-needs_input_reason: review-rounds-exhausted
-needs_input_detail: The reviewer sent this back to the engineer 2 times and still found issues. Human review needed.
+status: done
 priority: p0
 area: macos
+merged_commit: "081ae0c7a4e784b898b8072fb2966d65137c325a"
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-popover-does-not-work-in-the
@@ -18,7 +14,9 @@ model_override: opencode-go/deepseek-v4.1-flash
 review_cli_override: github copilot
 review_model_override: default
 created_at: "2026-10-13T16:20:27Z"
-updated_at: "2026-10-14T03:55:04Z"
+updated_at: "2026-10-14T03:55:07Z"
+last_close_out_gate_ms: 78862
+last_close_out_gate_at: "2026-10-14T03:55:04.418Z"
 review_passes: 11
 close_out_repair_count: 1
 review_rounds: 2
@@ -277,4 +275,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:52:21Z · note: review pass 12: needs some work
 - 2026-10-14T03:52:21Z · needs_input
 - 2026-10-14T03:55:04Z · close-out gate completed in 79s
-
+- 2026-10-14T03:55:07Z · status review→done, release:success
