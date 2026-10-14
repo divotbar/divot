@@ -169,6 +169,14 @@ final class WorldClockTests: XCTestCase {
         XCTAssertEqual(entry.hourOffset, 5.5, accuracy: 0.01)
     }
 
+    func testUTCOffsetLabelCoversPositiveNegativeAndZero() {
+        XCTAssertEqual(WorldClock.utcOffsetLabel(forOffsetSeconds: 25200), "UTC+7", "positive whole-hour offset")
+        XCTAssertEqual(WorldClock.utcOffsetLabel(forOffsetSeconds: 19800), "UTC+5:30", "positive half-hour offset")
+        XCTAssertEqual(WorldClock.utcOffsetLabel(forOffsetSeconds: -18000), "UTC-5", "negative whole-hour offset")
+        XCTAssertEqual(WorldClock.utcOffsetLabel(forOffsetSeconds: -12600), "UTC-3:30", "negative half-hour offset")
+        XCTAssertEqual(WorldClock.utcOffsetLabel(forOffsetSeconds: 0), "UTC+0", "zero offset has an explicit sign")
+    }
+
     func testUTCOffsetFormatting() {
         // Test positive offset formatting: UTC+05:30
         let positiveOffset = 19800  // 5.5 hours

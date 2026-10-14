@@ -832,11 +832,13 @@ private func worldClockTimeString(_ date: Date,
 /// Wi-Fi network list does.
 @MainActor
 final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NSTableViewDelegate {
-    /// One search hit, and whether it is already in the user's list.
+    /// One search hit, and whether it is already in the user's list, with the
+    /// zone's current UTC offset formatted for the row's right-hand column.
     struct Result: Equatable {
         let identifier: String
         let displayName: String
         let isAlreadyAdded: Bool
+        let utcOffset: String
     }
 
     /// The most the list may grow before it scrolls. Set by the content
@@ -927,7 +929,7 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
         tableView.scrollRowToVisible(next)
     }
 
-    func updateResults(for query: String, currentTimezones: [String]) {
+    func updateResults(for query: String, currentTimezones: [String], at date: Date = Date()) {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmed.isEmpty else {
@@ -962,9 +964,11 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
             } else {
                 score = 3
             }
+            let offsetSeconds = TimeZone(identifier: id)?.secondsFromGMT(for: date) ?? 0
             ranked.append((Result(identifier: id,
                                   displayName: displayName,
-                                  isAlreadyAdded: addedSet.contains(id)), score))
+                                  isAlreadyAdded: addedSet.contains(id),
+                                  utcOffset: WorldClock.utcOffsetLabel(forOffsetSeconds: offsetSeconds)), score))
         }
 
         ranked.sort {
@@ -1023,19 +1027,38 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
         }
 
         let cell = NSTableCellView()
-        let textField = NSTextField(labelWithString: "")
-        textField.attributedStringValue = text
-        textField.lineBreakMode = .byTruncatingTail
-        textField.maximumNumberOfLines = 1
-        textField.setAccessibilityLabel(accessibilityLabel(for: result))
-        cell.addSubview(textField)
 
-        textField.translatesAutoresizingMaskIntoConstraints = false
+        // The city name stays in one left-aligned column; the current UTC offset
+        // is a separate, right-aligned field that hugs its own width, so rows
+        // line up whatever the offset is (UTC+7, UTC-3:30, ...).
+        let nameField = NSTextField(labelWithString: "")
+        nameField.attributedStringValue = text
+        nameField.lineBreakMode = .byTruncatingTail
+        nameField.maximumNumberOfLines = 1
+        nameField.setAccessibilityLabel(accessibilityLabel(for: result))
+        nameField.translatesAutoresizingMaskIntoConstraints = false
+        // The name gives way first so the offset never truncates.
+        nameField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        let offsetField = NSTextField(labelWithString: result.utcOffset)
+        offsetField.font = font
+        offsetField.textColor = theme.popoverPalette.secondary
+        offsetField.identifier = BarPopoverContentController.secondaryIdentifier
+        offsetField.alignment = .right
+        offsetField.translatesAutoresizingMaskIntoConstraints = false
+        offsetField.setContentHuggingPriority(.required, for: .horizontal)
+        offsetField.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        cell.addSubview(nameField)
+        cell.addSubview(offsetField)
+
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: cell.leadingAnchor),
-            textField.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -4),
-            textField.topAnchor.constraint(equalTo: cell.topAnchor),
-            textField.bottomAnchor.constraint(equalTo: cell.bottomAnchor)
+            nameField.leadingAnchor.constraint(equalTo: cell.leadingAnchor),
+            nameField.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+            nameField.trailingAnchor.constraint(lessThanOrEqualTo: offsetField.leadingAnchor, constant: -8),
+
+            offsetField.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -6),
+            offsetField.centerYAnchor.constraint(equalTo: cell.centerYAnchor)
         ])
 
         cell.setAccessibilityLabel(accessibilityLabel(for: result))
@@ -1056,7 +1079,8 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
     }
 
     private func accessibilityLabel(for result: Result) -> String {
-        result.isAlreadyAdded ? "\(result.displayName), already added" : result.displayName
+        let base = "\(result.displayName), \(result.utcOffset)"
+        return result.isAlreadyAdded ? "\(base), already added" : base
     }
 
     @objc private func tableViewDoubleClicked(_ sender: NSTableView) {
