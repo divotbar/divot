@@ -2,7 +2,7 @@
 id: "0088"
 title: "World clock popover does not work in the real app and does not match its shots: fix, simplify, verify the real flow"
 type: bug
-status: active
+status: review
 priority: p0
 area: macos
 assigned_to: ""
@@ -267,4 +267,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:39:29Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T03:39:30Z · message_delivered: 1 message(s)
 - 2026-10-14T03:49:45Z · body: section Shot descriptions
-- 2026-10-14T03:50:49Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-14T03:50:49Z · status active→review
