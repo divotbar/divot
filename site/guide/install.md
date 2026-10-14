@@ -100,10 +100,11 @@ to **System Settings → Privacy & Security → Location Services**, and the bar
 shows the network icon without a name. Divot never reads the SSID while the
 permission is off.
 
-The same permission gates the read-only **Wi-Fi popover** that opens when you
+The same permission gates the **Wi-Fi popover** that opens when you
 click the network item: it lists nearby networks, and without permission it shows
 a short message with a button to the Location Services pane instead of an empty
-list. The popover never joins a network or asks for a password.
+list. Clicking a network joins it; a secured network asks for its password in a
+Divot dialog, and the password is never written to Divot's configuration or logs.
 
 See [Widgets](./widgets) for the network item and [Troubleshooting](./troubleshooting)
 for the permission details.

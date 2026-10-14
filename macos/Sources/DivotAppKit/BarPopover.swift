@@ -3,7 +3,7 @@ import DivotCore
 
 /// Shared scaffolding for the popovers anchored to Divot's bar items.
 ///
-/// The read-only Wi-Fi popover (task 0070), the output-volume popover (task
+/// The Wi-Fi popover (task 0070, clickable since task 0099), the output-volume popover (task
 /// 0071), and the appearance popover (task 0072) present the same way: an
 /// `NSPopover` anchored below the item, holding a vertical stack of a header, a
 /// body, a separator, and a final settings row. This base owns that AppKit look

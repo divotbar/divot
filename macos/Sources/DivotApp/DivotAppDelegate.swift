@@ -40,7 +40,8 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
     /// Reads and toggles the app appearance; reused across all clicks so only
     /// one subscription is held.
     private var appearanceReading: SystemAppearanceReading?
-    /// Owns the read-only Wi-Fi popover anchored to the network item. One
+    /// Owns the Wi-Fi popover anchored to the network item (clickable since
+    /// task 0099). One
     /// instance is shared by every display's bar so only one popover is open.
     private var wifiPopover: WifiPopoverController?
     /// Owns the output-volume popover anchored to the volume item. One instance
@@ -103,7 +104,7 @@ public final class DivotAppDelegate: NSObject, NSApplicationDelegate {
         let icons = WorkspaceIconInventory()
         self.workspaceIcons = icons
 
-        // The read-only Wi-Fi popover is created once and shared across
+        // The Wi-Fi popover is created once and shared across
         // displays; its scan runs only when the network item is clicked, never
         // on a timer. Its last row opens the Wi-Fi pane from #0069, and its
         // permission state opens the Location Services pane.
