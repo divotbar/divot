@@ -11,7 +11,7 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-14T03:28:08Z"
+updated_at: "2026-10-14T03:28:58Z"
 close_out_repair_count: 1
 review_passes: 3
 review_rounds: 2
@@ -109,3 +109,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-14T03:25:14Z · message_queued at 2026-10-14T03:25:14.198Z
 - 2026-10-14T03:28:08Z · status active→review
 - 2026-10-14T03:28:08Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (5132b83b) during finalization (#0734)
+- 2026-10-14T03:28:58Z · note: review pass 5: good to go
