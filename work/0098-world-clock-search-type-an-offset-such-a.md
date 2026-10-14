@@ -2,7 +2,7 @@
 id: "0098"
 title: "World clock search: type an offset such as +7 or -8 to find zones in that offset"
 type: feature
-status: active
+status: review
 priority: p2
 area: macos
 assigned_to: ""
@@ -62,4 +62,4 @@ The current search lives in WorldClockPopover.swift (updateResults). Zone identi
 - 2026-10-14T05:46:56Z · status review→active
 - 2026-10-14T05:46:56Z · note: close-out repair: merge-conflict
 - 2026-10-14T05:46:56Z · message_delivered: 1 message(s)
-- 2026-10-14T05:54:22Z · note: shots: skipped — 4 shots already captured — an engineer-made capture pre-empts the automatic one
+- 2026-10-14T05:54:22Z · status active→review
