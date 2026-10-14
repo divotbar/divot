@@ -2,7 +2,7 @@
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
-status: active
+status: review
 priority: p3
 area: macos
 depends_on: ["0085"]
@@ -12,7 +12,7 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T04:41:15Z"
+updated_at: "2026-10-14T04:43:23Z"
 review_passes: 3
 review_rounds: 2
 ---
@@ -100,3 +100,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:41:15Z · status review→active
 - 2026-10-14T04:41:15Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T04:41:15Z · message_delivered: 1 message(s)
+- 2026-10-14T04:43:23Z · status active→review
