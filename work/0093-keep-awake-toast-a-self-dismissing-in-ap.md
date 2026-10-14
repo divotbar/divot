@@ -108,3 +108,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-14T03:25:11Z · note: close-out repair: merge-conflict
 - 2026-10-14T03:25:14Z · message_queued at 2026-10-14T03:25:14.198Z
 - 2026-10-14T03:28:08Z · status active→review
+- 2026-10-14T03:28:08Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (5132b83b) during finalization (#0734)
