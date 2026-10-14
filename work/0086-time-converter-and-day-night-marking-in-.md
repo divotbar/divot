@@ -2,7 +2,7 @@
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
-status: active
+status: review
 priority: p3
 area: macos
 depends_on: ["0085"]
@@ -12,7 +12,7 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T03:55:12Z"
+updated_at: "2026-10-14T04:20:15Z"
 ---
 ## Problem
 #0085 shows the current time in the user's chosen timezones. The next question people ask is 'what is 9 am my time over there', and whether it is a sensible hour to call.
@@ -38,3 +38,4 @@ Builds on #0085; reuse its list model and popover layout. Do not add sunrise/sun
 - 2026-10-13T19:09:06Z · status inbox→ready
 - 2026-10-14T03:55:12Z · cli_override, model_override
 - 2026-10-14T03:55:12Z · status ready→active, branch
+- 2026-10-14T04:20:15Z · status active→review
