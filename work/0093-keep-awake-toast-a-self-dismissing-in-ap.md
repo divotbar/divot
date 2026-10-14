@@ -1,19 +1,20 @@
 ---
-last_close_out_gate_ms: 67412
-last_close_out_gate_at: "2026-10-14T03:30:58.826Z"
 id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
-status: review
+status: done
 priority: p2
 area: macos
+merged_commit: 5132b83be244ed7ab3b663069caa3a901072410a
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-14T03:30:58Z"
+updated_at: "2026-10-14T03:31:01Z"
+last_close_out_gate_ms: 67412
+last_close_out_gate_at: "2026-10-14T03:30:58.826Z"
 review_passes: 4
 close_out_repair_count: 1
 review_rounds: 2
@@ -113,4 +114,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-14T03:28:08Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (5132b83b) during finalization (#0734)
 - 2026-10-14T03:28:58Z · note: review pass 5: good to go
 - 2026-10-14T03:30:58Z · close-out gate completed in 67s
-
+- 2026-10-14T03:31:01Z · status review→done, release:success
