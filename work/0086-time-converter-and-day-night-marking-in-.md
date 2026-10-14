@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-14T04:33:10Z"
+review_passes: 2
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
@@ -12,9 +14,7 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T04:33:10Z"
 review_rounds: 1
-review_passes: 1
 ---
 ## Problem
 #0085 shows the current time in the user's chosen timezones. The next question people ask is 'what is 9 am my time over there', and whether it is a sensible hour to call.
@@ -87,3 +87,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:32:16Z · status active→review
 - 2026-10-14T04:32:16Z · note: shots: skipped — 8 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-14T04:33:10Z · note: review pass 2: needs some work
+
