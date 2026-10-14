@@ -940,7 +940,37 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
         }
 
         let lowercasedQuery = trimmed.lowercased()
-        let addedSet = Set(currentTimezones)
+
+        // A zone counts as already added when the list holds it or an alias of
+        // it (US/Pacific vs America/Los_Angeles, Asia/Calcutta vs Asia/Kolkata),
+        // matching how the rest of the popover treats equivalent identifiers.
+        func isAlreadyAdded(_ id: String) -> Bool {
+            currentTimezones.contains { WorldClock.isSameZone($0, id) }
+        }
+
+        // A signed-offset query lists every zone whose *current* offset matches,
+        // so the user can pick a city by the clock they are thinking in (#0098).
+        // Offsets are resolved at `date`, so a DST shift moves zones in and out
+        // of the match as expected. Any non-offset query still searches names.
+        if let targetOffset = WorldClock.offsetSeconds(forQuery: trimmed) {
+            var offsetMatches: [Result] = []
+            for id in TimeZone.knownTimeZoneIdentifiers {
+                guard let zone = TimeZone(identifier: id),
+                      zone.secondsFromGMT(for: date) == targetOffset else { continue }
+                offsetMatches.append(Result(
+                    identifier: id,
+                    displayName: WorldClock.friendlyName(for: id),
+                    isAlreadyAdded: isAlreadyAdded(id),
+                    utcOffset: WorldClock.utcOffsetLabel(forOffsetSeconds: targetOffset)))
+            }
+            offsetMatches.sort {
+                $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+            }
+            results = offsetMatches
+            tableView.reloadData()
+            applyHeight()
+            return
+        }
 
         // Rank every match — including zones already added — so a city-name
         // match comes before an identifier-only match, and a name that starts
@@ -967,7 +997,7 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
             let offsetSeconds = TimeZone(identifier: id)?.secondsFromGMT(for: date) ?? 0
             ranked.append((Result(identifier: id,
                                   displayName: displayName,
-                                  isAlreadyAdded: addedSet.contains(id),
+                                  isAlreadyAdded: isAlreadyAdded(id),
                                   utcOffset: WorldClock.utcOffsetLabel(forOffsetSeconds: offsetSeconds)), score))
         }
 
