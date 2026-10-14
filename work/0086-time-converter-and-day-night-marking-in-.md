@@ -114,3 +114,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:56:41Z · status review→active
 - 2026-10-14T04:56:41Z · note: follow-up message — moved from review to active so work can be committed and re-handoffed
 - 2026-10-14T05:06:20Z · message_queued at 2026-10-14T05:06:20.204Z
+- 2026-10-14T05:06:20Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
