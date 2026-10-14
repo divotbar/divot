@@ -166,7 +166,7 @@ enum SnapshotTestHelpers {
 
             // If this is the first snapshot and no matches found yet, print summary
             if !filterMatchFound && !filterSummaryPrinted && !tokens.isEmpty {
-                let knownTokens = ["bar", "volume", "wifi", "appearance", "calendar", "worldclock", "charging", "battery", "caffeine-toast"]
+                let knownTokens = ["bar", "volume", "wifi", "appearance", "calendar", "worldclock", "charging", "battery", "keep-awake", "caffeine-toast"]
                 let unknownTokens = tokens.filter { !knownTokens.contains($0) }
                 if !unknownTokens.isEmpty {
                     let tokenList = unknownTokens.joined(separator: ", ")
@@ -183,7 +183,8 @@ enum SnapshotTestHelpers {
     /// Whether `name` belongs in this run's output. The full matrix is written
     /// unless `DIVOT_SNAPSHOT_SET=shots`, which keeps a small representative set
     /// for RepoOS evidence: native light and dark at the default text size, the
-    /// bar with chips off and chips on (translucent), Gruvbox popovers (non-bar)
+    /// bar with chips off and chips on (translucent), the keep-awake battery for
+    /// Native and Gruvbox with chips on and off, Gruvbox popovers (non-bar)
     /// light and dark, and each popover. Assertions run for every name either way.
     /// `DIVOT_SNAPSHOT_ONLY` filters by tokens if set.
     static func wantsPNG(named name: String) -> Bool {
@@ -194,7 +195,13 @@ enum SnapshotTestHelpers {
         if name.contains("caffeine-toast") {
             return (name.contains("-native-") || name.contains("-gruvbox-")) && name.contains("-default")
         }
-        // Native or (Gruvbox non-bar only), light and dark, at the default size.
+        // Keep-awake bar renders: Native and Gruvbox only, light and dark, default size, chips on and off
+        if name.hasPrefix("keep-awake-") {
+            return (name.contains("-native-") || name.contains("-gruvbox-")) &&
+                   name.contains("-default") &&
+                   (name.hasSuffix("-chips-off") || name.hasSuffix("-chips-on"))
+        }
+        // Native or Gruvbox non-bar, light and dark, at the default size
         guard name.contains("-native-") || (name.contains("-gruvbox-") && !name.hasPrefix("bar-")),
               name.contains("-default") else { return false }
         if !name.hasPrefix("bar-") { return true }

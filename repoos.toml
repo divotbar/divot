@@ -66,6 +66,13 @@ name = "native-app-bundle"
 command = "scripts/smoke-app-bundle.sh"
 required = true
 
+# Exercise the packaged Dev target's script (#0094) without launching any UI:
+# argument handling, exact-PID discovery and the planned build/launch/stop steps.
+[[check.steps]]
+name = "run-packaged-dry-run"
+command = "scripts/run-packaged.sh --dry-run"
+required = true
+
 [[preview.targets]]
 name = "website"
 areas = ["web", "docs"]
@@ -130,11 +137,23 @@ label = "Website (HMR)"
 healthCheck = { url = "http://127.0.0.1:5180/" }
 
 # The native Divot bar: a foreground process with no URL, run from the Dev page.
+# It is the bare dev binary (no Info.plist, no bundle identity), so it cannot
+# hold Location permission and its Accessibility grant attaches to the host.
+# scripts/run-dev.sh stops a running packaged bar first so two bars never stack.
 [[dev.targets]]
 name = "divot"
 kind = "process"
-command = "swift run --package-path macos divot"
+command = "scripts/run-dev.sh"
 label = "Divot bar"
+
+# The real product bundle: scripts/run-packaged.sh rebuilds dist/Divot.app from
+# this checkout, stops this checkout's other bar, and runs the bundle with
+# `open` so it holds Location/Accessibility like the shipped app (#0094).
+[[dev.targets]]
+name = "divot-packaged"
+kind = "process"
+command = "scripts/run-packaged.sh"
+label = "Divot bar (packaged)"
 
 # Product releases are opt-in (#0067). Pushing an annotated v<version> tag from
 # clean main triggers .github/workflows/release.yml, which builds the DMG and

@@ -16,6 +16,12 @@ The Wi-Fi name needs Location permission, which macOS requires for reading the c
 
 Clicking the network item opens a read-only popover of nearby networks. That list also needs Location permission, because macOS gates network names on it. Without permission the popover shows a short message and a button to **System Settings → Privacy & Security → Location Services** instead of an empty list; grant access there and click the item again. Divot scans only when the popover opens, so a network that appears later shows up on the next open. The popover never joins a network and never asks for a password; use **Open Wi-Fi Settings…** at its last row for anything beyond looking.
 
+## Permissions only work in the packaged app
+
+macOS ties Location permission to an app's bundle identity, so only the packaged `Divot.app` can ask for it. If you run the bare development binary (`swift run --package-path macos divot`, or the Dev page's **Divot bar** target), there is no bundle to grant Location to and the Wi-Fi name and nearby-network list stay empty — that is expected, not a bug. Run the packaged build instead: the Dev page's **Divot bar (packaged)** target, or `just app-run-packaged` (equivalent to `scripts/run-packaged.sh`, which rebuilds `dist/Divot.app` and opens it).
+
+Accessibility behaves the same way: a grant made while running the dev binary attaches to your terminal or the host app, not to Divot. Grant it to `dist/Divot.app`. Both Accessibility and Location grants persist per app, but the local preview is ad-hoc signed, so a rebuild changes its signature and an earlier grant may stop matching; if that happens, remove the stale Divot row and add the current app again. Only one bar runs at a time — starting either target stops the other first. See the [build guide](./build) for the local-preview commands.
+
 ## The volume slider doesn't move the volume
 
 Clicking the volume item opens a popover with a slider for the default output, a **Mute** toggle, and **Open Sound Settings…** at its last row. Moving the slider changes the default output's volume and the bar item's icon and percentage follow; while the popover is open it also follows volume changes made elsewhere, such as the keyboard volume keys. If the slider is disabled with a short note, that output exposes no settable volume control — some HDMI and DisplayPort devices do not — so use the display's or device's own controls. For input devices, per-app volume, or a different output device, use the Sound pane. This is implemented from public Core Audio only and is not physically validated yet.
@@ -48,15 +54,33 @@ Run `divot status --json` for a read-only diagnostic snapshot: the app version, 
 
 When the native macOS menu bar is auto-hidden (set to auto-hide in System Settings), notification banners from Calendar, Mail, or other apps may appear with their top edge tucked under the Divot bar, partly covering the banner's title. This is a reported limitation.
 
+### Measure the overlap
+
+Build and run the measurement probe to see window layers and Divot's actual position:
+
+```bash
+swift build --package-path macos && macos/.build/debug/divot-notification-banner-probe --watch 20
+```
+
+This polls `CGWindowListCopyWindowInfo` twice per second (0.5-second intervals) and prints every newly appearing window or layer change:
+- Timestamp, owner name, owner PID, window name, layer, bounds (CG and AppKit coordinates), alpha, on-screen status
+- Window classification (`[NotificationCenter banner]`, `[ControlCenter]`, or `[Divot panel]`)
+- Divot panel's measured layer and bounds for comparison
+- Per-window comparison line: e.g. `ControlCenter panel layer 101 is above Divot panel layer 24 (Divot y=1068 h=39)`
+- Final summary: highest-layer windows observed
+
+**Prerequisites:**
+- Do Not Disturb must be OFF (notifications are suppressed when enabled)
+- Trigger a notification via `osascript -e 'display notification "Test message" with title "Divot test"'` (if DND is off)
+- OR: Open System Settings → Control Center and toggle a control (Wi-Fi, Bluetooth, etc.) — the ControlCenter panel appears as `[ControlCenter]` in the output and provides a reliable overlay for comparison without waiting for notifications
+
 ### Why it happens
 
-Divot is positioned at the very top of the screen (y=0) to stay out of the way while the menu bar is hidden. Notification banners also appear near the top of the screen in this case. The visual overlap is reported by the maintainer, but the exact positioning mechanism and z-order (which draws on top) have not been measured.
-
-A precise explanation requires window-level data from a live notification on macOS.
+Divot is positioned at the very top of the screen (y=0) to stay out of the way while the menu bar is hidden. Notification banners also appear near the top of the screen in this case. The exact positioning mechanism and z-order (which draws on top) are not yet measured.
 
 ### What to do
 
-- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. Banners are expected to reposition below the visible menu bar, avoiding overlap. (Not verified with a live notification; awaiting testing.)
+- **Disable auto-hide:** Turn off auto-hide in System Settings → Dock & Menu Bar. Banners are expected to reposition below the visible menu bar, avoiding overlap. (Not yet verified with a live notification and measured layers.)
 - **Use Divot's cursor-reveal setting:** Turn on **Settings → Move below the menu bar when it appears**. When you move your pointer to the top of the screen, the native menu bar slides into view and Divot slides below it temporarily. Banners do not follow this animation, so overlap can still occur if a notification arrives while the bar is at the top.
 - **Accept the limitation:** This is how some third-party top-edge bars behave on macOS. Notification content is still readable, just with partial overlap at the very top.
 
