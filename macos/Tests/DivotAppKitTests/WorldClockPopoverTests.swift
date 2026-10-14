@@ -978,6 +978,33 @@ struct WorldClockSearchResultOffsetTests {
         #expect(name.frame.maxX <= offset.frame.minX,
                 "the city name never overlaps the offset column")
     }
+
+    @Test func alreadyAddedRowStillShowsItsLabelAndRightAlignedOffset() {
+        let controller = makeController()
+        controller.updateResults(for: "singapore", currentTimezones: ["Asia/Singapore"], at: winter)
+
+        guard let table = controller.view.documentView as? NSTableView,
+              let row = table.rowView(atRow: 0, makeIfNecessary: true) else {
+            Issue.record("expected a result row")
+            return
+        }
+        row.frame = NSRect(x: 0, y: 0, width: 272, height: TimezoneSearchResultsController.rowHeight)
+        row.layoutSubtreeIfNeeded()
+
+        let rowFields = fields(in: row)
+        guard let name = rowFields.first(where: { $0.stringValue.contains("Singapore") }),
+              let offset = rowFields.first(where: { $0.stringValue == "UTC+8" }) else {
+            Issue.record("expected a Singapore row with a UTC+8 offset (got \(rowFields.map(\.stringValue)))")
+            return
+        }
+
+        #expect(name.stringValue.contains("Already added"), "an already-added row keeps its label")
+        #expect(offset.alignment == .right, "the offset stays right-aligned")
+        #expect(offset.frame.minX > row.bounds.width * 0.6,
+                "the offset sits at the trailing edge while the label stays leading")
+        #expect(name.frame.maxX <= offset.frame.minX,
+                "the already-added label never overlaps the offset column")
+    }
 }
 
 // Stub monitor from BarPopoverTests for use in real flow tests
