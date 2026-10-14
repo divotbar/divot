@@ -439,6 +439,33 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    /// A broad query ("a") over the three defaults: every match is listed and
+    /// the results list is capped to a pinned screen height and scrolls (#0096).
+    /// The screen height is pinned so the shot shows the cap deterministically.
+    private func makeWorldClockManyResultsController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = makeWorldClockController(timezones: Self.worldClockSearchZones)
+        controller.screenHeightForTesting = 600
+        if let search = firstSearchField(in: controller.view) {
+            search.stringValue = "a"
+            NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        }
+        return controller
+    }
+
+    /// A "sin" query with Singapore already in the list: the result is shown
+    /// disabled and marked "Already added" instead of looking missing (#0096).
+    private func makeWorldClockAlreadyAddedController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = makeWorldClockController(timezones: Self.worldClockSearchZones)
+        if let search = firstSearchField(in: controller.view) {
+            search.stringValue = "sin"
+            NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        }
+        return controller
+    }
+
+    /// Fixed zones for the search shots, independent of the machine's local zone.
+    private static let worldClockSearchZones = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
+
     private func firstSearchField(in view: NSView) -> NSSearchField? {
         if let field = view as? NSSearchField { return field }
         for subview in view.subviews {
@@ -792,6 +819,28 @@ struct PopoverSnapshotTests {
                 try testPanelPopover(name: name, maker: { self.makeWorldClockAddFlowController(fontSize: $0) },
                                      appearance: appearance, isDark: isDark, fontSize: 12)
             }
+        }
+    }
+
+    @Test("World clock popover — many results (capped, scrolling), native light/dark")
+    func worldClockPopoverManyResults() throws {
+        // Native light and dark only, so the reduced `DIVOT_SNAPSHOT_SET=shots`
+        // set carries the capped, scrolling results list as visual proof.
+        for (variantName, isDark) in [("light", false), ("dark", true)] {
+            let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
+            let name = "worldclock-popover-native-\(variantName)-default-many-results"
+            try testPanelPopover(name: name, maker: { self.makeWorldClockManyResultsController(fontSize: $0) },
+                                 appearance: appearance, isDark: isDark, fontSize: 12)
+        }
+    }
+
+    @Test("World clock popover — already-added search result, native light/dark")
+    func worldClockPopoverAlreadyAdded() throws {
+        for (variantName, isDark) in [("light", false), ("dark", true)] {
+            let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
+            let name = "worldclock-popover-native-\(variantName)-default-already-added"
+            try testPanelPopover(name: name, maker: { self.makeWorldClockAlreadyAddedController(fontSize: $0) },
+                                 appearance: appearance, isDark: isDark, fontSize: 12)
         }
     }
 

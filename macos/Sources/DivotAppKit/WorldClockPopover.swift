@@ -157,6 +157,9 @@ private final class TimezoneResultsTableView: NSTableView {
     var onReturnKey: (() -> Void)?
     var onEscape: (() -> Void)?
     var onTab: (() -> Void)?
+    /// Move the selection by one row. The controller owns the move so the arrow
+    /// keys can skip rows that cannot be added (already-added zones).
+    var onMoveSelection: ((Int) -> Void)?
 
     override func keyDown(with event: NSEvent) {
         switch event.keyCode {
@@ -167,9 +170,9 @@ private final class TimezoneResultsTableView: NSTableView {
         case 48: // Tab key
             onTab?()
         case 125: // Down arrow
-            selectRowIndexes(NSIndexSet(index: min(selectedRow + 1, numberOfRows - 1)) as IndexSet, byExtendingSelection: false)
+            onMoveSelection?(1)
         case 126: // Up arrow
-            selectRowIndexes(NSIndexSet(index: max(selectedRow - 1, 0)) as IndexSet, byExtendingSelection: false)
+            onMoveSelection?(-1)
         default:
             super.keyDown(with: event)
         }
@@ -410,6 +413,19 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
     /// Test seam: the live slider, so a test can drive the real arrow-key path.
     var scrubberSliderForTesting: NSSlider? { scrubberSlider }
 
+    /// The fraction of the screen height the search results — and the popover
+    /// around them — may occupy before scrolling.
+    static let maximumResultsHeightFraction: CGFloat = 0.9
+
+    /// Test seam: pins the screen height the results cap is computed from. `nil`
+    /// (the default) uses the popover window's screen, then the main screen; when
+    /// no screen is known (a headless run) the results are left uncapped.
+    var screenHeightForTesting: CGFloat?
+
+    /// The search results controller while a render is live, for tests that
+    /// assert the live panel path's cap and scrolling.
+    var searchResultsForTesting: TimezoneSearchResultsController? { resultsController }
+
     /// The always-last row: a separator and the Date & Time settings link. Built
     /// by every render because `clearRows()` removes the previous one.
     private func addSettingsRow() {
@@ -518,8 +534,7 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
             onSelect: { [weak self] timezone in
                 self?.addTimezone(timezone)
             },
-            theme: theme,
-            currentTimezones: timezones
+            theme: theme
         )
         resultsController.onEscape = { [weak self] in self?.clearSearch() }
         resultsController.onTab = { [weak self] in self?.focusSearchField() }
@@ -690,13 +705,43 @@ final class WorldClockPopoverContentController: BarPopoverContentController {
         guard let resultsController = resultsController,
               let searchField = searchField else { return }
         let query = searchField.stringValue
-        resultsController.updateResults(for: query, excluding: currentTimezones)
-        // Hide the list when there is nothing to show, so an unmatched query
-        // does not leave a blank gap under the field.
+        // Build the list uncapped first, then trim it by the height it pushes
+        // past the 90% screen cap. Measuring the rendered content (rather than
+        // guessing the rows' overhead) keeps the whole popover inside the cap.
+        resultsController.maximumHeight = nil
+        resultsController.updateResults(for: query, currentTimezones: currentTimezones)
+        // Show the list when there is something to show, and hide it for an
+        // unmatched query so it does not leave a blank gap under the field.
         resultsController.view.isHidden = resultsController.results.isEmpty
+        if !resultsController.results.isEmpty, let cap = maximumPanelContentHeight {
+            let fullHeight = view.fittingSize.height
+            if fullHeight > cap {
+                let excess = fullHeight - cap
+                resultsController.maximumHeight = max(
+                    TimezoneSearchResultsController.rowHeight,
+                    resultsController.cappedHeight - excess)
+                resultsController.applyHeight()
+            }
+        }
         // The list just appeared or disappeared, so the panel must grow or
         // shrink with it (the host only resizes on a full render otherwise).
         onContentSizeChanged?()
+    }
+
+    /// 90% of the screen, less the popover chrome the host draws around the
+    /// content, so the live panel itself stays within the cap.
+    private var maximumPanelContentHeight: CGFloat? {
+        guard let screenHeight else { return nil }
+        return screenHeight * Self.maximumResultsHeightFraction
+            - PopoverChromeView.arrowHeight - 2
+    }
+
+    /// The screen the popover is shown on, or `nil` when none is known (a
+    /// headless run), which leaves the results uncapped.
+    private var screenHeight: CGFloat? {
+        screenHeightForTesting
+            ?? view.window?.screen?.frame.height
+            ?? NSScreen.main?.frame.height
     }
 
     private func clearSearch() {
@@ -779,14 +824,34 @@ private func worldClockTimeString(_ date: Date,
 }
 
 /// Controller for displaying and selecting from timezone search results.
+///
+/// It lists every match, including the zones already in the user's list. Those
+/// are shown disabled and marked "Already added", so a default like Singapore
+/// reads as present rather than missing. The list fits its content up to the
+/// space left under the 90% screen cap and scrolls beyond that, the same way the
+/// Wi-Fi network list does.
 @MainActor
-private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NSTableViewDelegate {
+final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NSTableViewDelegate {
+    /// One search hit, and whether it is already in the user's list.
+    struct Result: Equatable {
+        let identifier: String
+        let displayName: String
+        let isAlreadyAdded: Bool
+    }
+
+    /// The most the list may grow before it scrolls. Set by the content
+    /// controller from the 90% screen cap minus the surrounding rows, so the
+    /// whole popover stays within the cap. `nil` leaves it uncapped.
+    var maximumHeight: CGFloat?
+
+    /// The height of one result row.
+    static let rowHeight: CGFloat = 22
+
     let view: NSScrollView
     private let tableView: TimezoneResultsTableView
     private let onSelect: (String) -> Void
-    private(set) var results: [(identifier: String, displayName: String)] = []
+    private(set) var results: [Result] = []
     private var theme: BarTheme
-    private let currentTimezones: [String]
     /// Tab pressed in the list: move focus back to the search field.
     var onTab: (() -> Void)?
     /// Escape pressed in the list: clear the search.
@@ -798,12 +863,15 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
     /// once the view is an arranged subview).
     private var heightConstraint: NSLayoutConstraint?
 
-    init(onSelect: @escaping (String) -> Void, theme: BarTheme, currentTimezones: [String]) {
+    /// The height the list is currently pinned to. Exposed for tests that assert
+    /// the screen cap without depending on a laid-out frame.
+    var cappedHeight: CGFloat { heightConstraint?.constant ?? 0 }
+
+    init(onSelect: @escaping (String) -> Void, theme: BarTheme) {
         self.onSelect = onSelect
         self.theme = theme
-        self.currentTimezones = currentTimezones
 
-        tableView = TimezoneResultsTableView(frame: NSRect(x: 0, y: 0, width: 272, height: 6 * 22))
+        tableView = TimezoneResultsTableView(frame: NSRect(x: 0, y: 0, width: 272, height: 6 * Self.rowHeight))
         tableView.headerView = nil
         tableView.selectionHighlightStyle = .regular
         // `.fullWidth` (the default is `.automatic`, which becomes the inset style
@@ -826,7 +894,7 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         view.hasHorizontalScroller = false
         view.autohidesScrollers = true
         view.translatesAutoresizingMaskIntoConstraints = false
-        let height = view.heightAnchor.constraint(equalToConstant: 22)
+        let height = view.heightAnchor.constraint(equalToConstant: Self.rowHeight)
         height.isActive = true
         heightConstraint = height
 
@@ -841,30 +909,43 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         }
         tableView.onTab = { [weak self] in self?.onTab?() }
         tableView.onEscape = { [weak self] in self?.onEscape?() }
+        tableView.onMoveSelection = { [weak self] delta in self?.moveSelection(by: delta) }
     }
 
-    /// The most matches shown at once. The list scrolls beyond this.
-    static let maximumResults = 6
+    /// Move the keyboard selection by `delta`, skipping already-added rows so
+    /// the arrow keys always land on a row that can be added.
+    func moveSelection(by delta: Int) {
+        guard !results.isEmpty, delta != 0 else { return }
+        var index = tableView.selectedRow
+        if index < 0 { index = delta > 0 ? -1 : results.count }
+        var next = index + delta
+        while next >= 0, next < results.count, results[next].isAlreadyAdded {
+            next += delta
+        }
+        guard next >= 0, next < results.count else { return }
+        tableView.selectRowIndexes([next], byExtendingSelection: false)
+        tableView.scrollRowToVisible(next)
+    }
 
-    func updateResults(for query: String, excluding: [String] = []) {
+    func updateResults(for query: String, currentTimezones: [String]) {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmed.isEmpty else {
             results = []
             tableView.reloadData()
-            heightConstraint?.constant = 22
+            setHeight(Self.rowHeight)
             return
         }
 
         let lowercasedQuery = trimmed.lowercased()
-        let excludingSet = Set(excluding)
+        let addedSet = Set(currentTimezones)
 
-        // Rank the matches so a city-name match comes before an identifier-only
-        // match, and a name that starts with the query comes first of all. The
-        // first `maximumResults` are therefore the most useful, not merely the
-        // alphabetically first identifiers.
-        var ranked: [(identifier: String, displayName: String, score: Int)] = []
-        for id in TimeZone.knownTimeZoneIdentifiers where !excludingSet.contains(id) {
+        // Rank every match — including zones already added — so a city-name
+        // match comes before an identifier-only match, and a name that starts
+        // with the query comes first of all. Nothing is truncated here: the list
+        // shows every match and scrolls once it exceeds the screen cap.
+        var ranked: [(result: Result, score: Int)] = []
+        for id in TimeZone.knownTimeZoneIdentifiers {
             let displayName = WorldClock.friendlyName(for: id)
             let lowercasedName = displayName.lowercased()
             let matchesName = lowercasedName.contains(lowercasedQuery)
@@ -881,19 +962,30 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
             } else {
                 score = 3
             }
-            ranked.append((identifier: id, displayName: displayName, score: score))
+            ranked.append((Result(identifier: id,
+                                  displayName: displayName,
+                                  isAlreadyAdded: addedSet.contains(id)), score))
         }
 
         ranked.sort {
             if $0.score != $1.score { return $0.score < $1.score }
-            return $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+            return $0.result.displayName.localizedCaseInsensitiveCompare($1.result.displayName) == .orderedAscending
         }
-        results = ranked.prefix(Self.maximumResults).map { ($0.identifier, $0.displayName) }
+        results = ranked.map(\.result)
 
         tableView.reloadData()
+        applyHeight()
+    }
 
-        let idealHeight = min(CGFloat(results.count) * 22, 132)
-        heightConstraint?.constant = max(22, idealHeight)
+    /// Size the list to its content, clamped to `maximumHeight`, so it scrolls
+    /// once there are more matches than fit.
+    func applyHeight() {
+        let contentHeight = CGFloat(results.count) * Self.rowHeight
+        setHeight(min(contentHeight, maximumHeight ?? contentHeight))
+    }
+
+    private func setHeight(_ height: CGFloat) {
+        heightConstraint?.constant = max(Self.rowHeight, height)
     }
 
     /// Recolour the list after the bar theme changes while the popover is open,
@@ -920,13 +1012,22 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
         guard row >= 0, row < results.count else { return nil }
 
         let result = results[row]
-        let displayText = result.displayName
+        let font = NSFont.systemFont(ofSize: 11)
+        let text = NSMutableAttributedString(
+            string: result.displayName,
+            attributes: [.font: font, .foregroundColor: theme.popoverPalette.label])
+        if result.isAlreadyAdded {
+            text.append(NSAttributedString(
+                string: "  Already added",
+                attributes: [.font: font, .foregroundColor: theme.popoverPalette.secondary]))
+        }
 
         let cell = NSTableCellView()
-        let textField = NSTextField(labelWithString: displayText)
-        textField.font = .systemFont(ofSize: 11)
-        textField.textColor = theme.popoverPalette.label
-        textField.setAccessibilityLabel(displayText)
+        let textField = NSTextField(labelWithString: "")
+        textField.attributedStringValue = text
+        textField.lineBreakMode = .byTruncatingTail
+        textField.maximumNumberOfLines = 1
+        textField.setAccessibilityLabel(accessibilityLabel(for: result))
         cell.addSubview(textField)
 
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -937,14 +1038,25 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
             textField.bottomAnchor.constraint(equalTo: cell.bottomAnchor)
         ])
 
-        cell.setAccessibilityLabel(displayText)
-        cell.setAccessibilityRole(.button)
+        cell.setAccessibilityLabel(accessibilityLabel(for: result))
+        // An already-added row is informational, not an action.
+        cell.setAccessibilityRole(result.isAlreadyAdded ? .staticText : .button)
 
         return cell
     }
 
+    /// An already-added result cannot be selected or added again.
+    func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
+        guard row >= 0, row < results.count else { return false }
+        return !results[row].isAlreadyAdded
+    }
+
     func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
-        return 22
+        return Self.rowHeight
+    }
+
+    private func accessibilityLabel(for result: Result) -> String {
+        result.isAlreadyAdded ? "\(result.displayName), already added" : result.displayName
     }
 
     @objc private func tableViewDoubleClicked(_ sender: NSTableView) {
@@ -952,13 +1064,14 @@ private final class TimezoneSearchResultsController: NSObject, NSTableViewDataSo
     }
 
     func tableView(_ tableView: NSTableView, didClick tableColumn: NSTableColumn, row: Int) {
-        guard row >= 0, row < results.count else { return }
+        guard row >= 0, row < results.count, !results[row].isAlreadyAdded else { return }
         onSelect(results[row].identifier)
     }
 
     private func selectCurrentRow() {
         let selectedRow = tableView.selectedRow
-        guard selectedRow >= 0, selectedRow < results.count else { return }
+        guard selectedRow >= 0, selectedRow < results.count,
+              !results[selectedRow].isAlreadyAdded else { return }
         onSelect(results[selectedRow].identifier)
     }
 }
