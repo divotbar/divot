@@ -1,4 +1,5 @@
 ---
+close_out_repair_count: 1
 id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
@@ -105,3 +106,4 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-14T02:35:19Z · note: review pass 4: good to go
 - 2026-10-14T03:25:11Z · status review→active
 - 2026-10-14T03:25:11Z · note: close-out repair: merge-conflict
+
