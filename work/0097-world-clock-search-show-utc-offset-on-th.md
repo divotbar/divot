@@ -11,7 +11,7 @@ branch: feat/world-clock-search-show-utc-offset-on-th
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T05:11:50Z"
-updated_at: "2026-10-14T05:11:54Z"
+updated_at: "2026-10-14T05:16:42Z"
 ---
 ## Problem
 The Add timezone results show only the city name. It is hard to tell offsets apart when scanning the list.
@@ -33,6 +33,20 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 ![3](/api/tasks/0097/attachments/screenshot-1.png)
 ![4](/api/tasks/0097/attachments/screenshot-2.png)
 
+## Shots
+```json
+[
+{
+  "label": "World clock search results with right-aligned UTC offsets",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "worldclock"
+  },
+  "glob": "*worldclock*.png"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-14T05:11:50Z · created · njachowski@gmail.com
@@ -40,3 +54,4 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 - 2026-10-14T05:11:53Z · status inbox→ready
 - 2026-10-14T05:11:54Z · cli_override, model_override
 - 2026-10-14T05:11:54Z · status ready→active, branch
+- 2026-10-14T05:16:42Z · body: section Shots
