@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-14T04:44:09Z"
+review_passes: 4
 id: "0086"
 title: Time converter and day/night marking in the world clock popover
 type: feature
@@ -15,8 +17,6 @@ branch: feat/time-converter-and-day-night-marking-in-
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T13:29:21Z"
-updated_at: "2026-10-14T04:44:09Z"
-review_passes: 3
 review_rounds: 2
 ---
 ## Problem
@@ -107,3 +107,4 @@ The offscreen pixel assertions also ran on every render (opaque palette fill, le
 - 2026-10-14T04:43:23Z · note: shots: skipped — 24 shots already captured — an engineer-made capture pre-empts the automatic one
 - 2026-10-14T04:44:09Z · note: review pass 4: needs some work
 - 2026-10-14T04:44:09Z · needs_input
+
