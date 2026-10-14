@@ -28,17 +28,18 @@ appearance mode, theme family, and whether Accessibility permission was granted.
 - [ ] Activating an interactive item with `VO-Space` performs the same action as
       a click: battery toggles keep-awake, the appearance item opens the
       appearance popover (mode and theme family, whose last row opens Divot
-      settings), the network item opens the read-only Wi-Fi
-      popover (whose last row opens the Wi-Fi pane), the volume item opens the
+      settings), the network item opens the
+      Wi-Fi popover (whose last row opens the Wi-Fi pane), the volume item opens the
       output-volume popover (whose last row opens the Sound pane), date/time items
       open the matching System Settings pane, front-app activates the running app.
 - [ ] The appearance popover's mode and theme choices are reachable and
       selectable with the keyboard, each announced with its mode/theme label and
       whether it is the current selection, and a change applies immediately to the
       bar and is reflected in the Settings window.
-- [ ] A network row in the Wi-Fi popover is announced with its name, secure/open
-      state, signal bars, and the connected mark rather than as an unlabeled
-      group.
+- [ ] A network row in the Wi-Fi popover is announced as a button with its name,
+      secure/open state, signal bars, and the connected mark rather than as an
+      unlabeled group; the "Previously joined" rows are announced as static text
+      with their previously-joined mark.
 - [ ] The volume popover's slider is announced with an "Output volume" label and
       its current percentage, is adjustable with the arrow keys, and its mute
       checkbox announces its state; an output with no settable volume has the
