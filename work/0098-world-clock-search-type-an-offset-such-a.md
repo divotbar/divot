@@ -1,16 +1,17 @@
 ---
-updated_at: "2026-10-14T05:42:18Z"
-review_passes: 1
 id: "0098"
 title: "World clock search: type an offset such as +7 or -8 to find zones in that offset"
 type: feature
-status: review
+status: active
 priority: p2
 area: macos
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-search-type-an-offset-such-a
 created_at: "2026-10-14T05:15:41Z"
+updated_at: "2026-10-14T05:42:18Z"
+review_rounds: 1
+review_passes: 1
 ---
 ## Problem
 The Add timezone search only matches city or zone names. To add a zone by its offset, the user has to know the city name.
@@ -51,4 +52,4 @@ The current search lives in WorldClockPopover.swift (updateResults). Zone identi
 - 2026-10-14T05:41:39Z · status active→review
 - 2026-10-14T05:42:14Z · note: shots: skipped — capture command for "Divot bar" produced no image files matching *worldclock-offset-query*.png 􁁛  Test "World clock popover — four zones with day labels, all themes × light/dark" passed after 34.422 seconds. 􁁛  Test "Volume popover — all themes × light/dark × larger text (16pt)" passed after 34.422 seconds. 􁁛  Test "World clock popover — add flow (typed 'los'), all themes × light/dark" passed after 34.422 seconds. 􁁛  Test "World clock popover — one zone, all themes × light/dark" passed after 34.422 seconds. 􁁛  Test rendersToast(config:) with 8 test cases passed after 34.422 seconds. 􁁛  Suite "Popover snapshots" passed after 34.422 seconds. 􁁛  Suite "Bar snapshots" passed after 34.422 seconds. 􁁛  Suite "Keep-awake toast snapshots" passed after 34.422 seconds. 􁁛  Test run with 29 tests in 4 suites passed after 34.427 seconds. Building for debugging... [0/10] Write swift-version--58304C5D6DBC2206.txt Build complete! (0.09s)
 - 2026-10-14T05:42:18Z · note: review pass 1: needs some work
-
+- 2026-10-14T05:42:18Z · status review→active
