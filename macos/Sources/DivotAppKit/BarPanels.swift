@@ -74,6 +74,18 @@ public final class NSPanelBarSurface: BarDisplaySurface {
     /// How far the optional bottom shadow reaches below the bar.
     private static let bottomShadowHeight: CGFloat = 6
 
+    /// The window level the two panels sit at (#0080).
+    ///
+    /// Divot parks one level *below* the notification-banner layer so a banner's
+    /// title and body draw over the bar instead of being hidden beneath it. The
+    /// notification-banner probe measured system banners at layer 21 on macOS
+    /// 26.5 (`docs/evidence/0075-notification-banner-overlap.md`), so the bar
+    /// sits at 20: above ordinary app content (level 0) and below the native
+    /// menu bar (24) and its pop-up menus (101), which still open above Divot.
+    /// Window level is orthogonal to `collectionBehavior`, so the all-Spaces /
+    /// fullscreen placement from #0021/#0023 is unaffected.
+    static let panelLevel = NSWindow.Level(rawValue: 20)
+
     public init(id: DisplayBarID,
                 on screen: CGRect,
                 configuration: DivotConfiguration = .default,
@@ -218,11 +230,10 @@ public final class NSPanelBarSurface: BarDisplaySurface {
         // would rim every edge, including the camera-housing gap on a notched
         // display. The panel itself stays shadowless.
         panel.hasShadow = false
-        // Just under the system menu bar, so native menus still open above
-        // Divot. Spatial placement already avoids overlap on notch-free
-        // displays; this keeps the native bar on top in the unresolved notched
-        // case. Final level/collection choices are physical-validation items.
-        panel.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue - 1)
+        // Below the notification-banner layer so banners draw over the bar
+        // (#0080); still below the native menu bar so menus open above Divot.
+        // See `panelLevel` for the measurement behind the value.
+        panel.level = Self.panelLevel
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
         panel.animationBehavior = .none
         panel.contentView = BarPanelContainer(content: content, shadowHeight: shadowHeight)

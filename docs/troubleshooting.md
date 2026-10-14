@@ -4,42 +4,41 @@ This document lists known limitations and technical constraints that affect Divo
 
 ## Notification banner overlap when the menu bar is auto-hidden
 
-**Reported limitation:** When the native macOS menu bar is set to auto-hide and a
-notification banner appears, the banner may be visually overlapped by the Divot bar.
+**Root cause measured, fix implemented (#0080).** When the native macOS menu bar
+is auto-hidden and a notification banner appears, the banner used to be tucked
+under the Divot bar, hiding its title row. The [probe measurement](evidence/0075-notification-banner-overlap.md)
+showed why: Divot's panel drew at window layer 23 and the banner at layer 21, so
+Divot was ordered *above* the banner and its opaque full-width top strip covered
+the banner's title. Divot now sets its panel one layer below the banner (level
+20), so a banner draws **over** the bar instead of being hidden by it, while the
+bar stays above ordinary app windows and below the native menu bar and its menus.
 
-**Root cause:** Not fully understood. See [evidence/0075-notification-banner-overlap.md](evidence/0075-notification-banner-overlap.md)
-for the investigation. The likely mechanism:
+The fix uses the public `NSWindow.level` only. It does not change placement,
+`collectionBehavior`, or fullscreen behavior, and it is unit-tested. The
+maintainer's eye check on the packaged app with a real notification is still
+pending — the visual result is not yet signed off.
 
-- Divot is positioned at y=0 (screen top) when the native menu bar is hidden.
-- Notification banners are positioned in the 33-point menu-bar region when the bar is hidden.
-- Both Divot and the banner title row occupy overlapping y-coordinates.
-
-Exact z-order (which draws on top) and notification window levels are unmeasured.
-
-**Measurement:** If you encounter this limitation, you can help diagnose it by measuring your system's actual window layers:
+**Measurement:** You can re-measure your system's window layers with the probe:
 
 1. Build the measurement probe: `swift build --package-path macos`
 2. Run the watch mode: `macos/.build/debug/divot-notification-banner-probe --watch 30`
 3. While watching, use one of these triggers:
    - **Reliable (no notifications needed):** Open System Settings → Control Center and toggle a control (Wi-Fi, Bluetooth, etc.) — the Control Center panel appears as `[ControlCenter]` in the output
    - **Alternative:** Trigger a notification via `osascript -e 'display notification "Test message" with title "Divot"'` (only works if Do Not Disturb is OFF)
-4. Share the output showing the window layer and bounds (AppKit coordinates) for comparison
+4. For the banner's own bounds, run the one-shot probe (`divot-notification-banner-probe`, no `--watch`) while a banner is visible; the `--watch` summary reports levels only.
 
 The probe also measures and displays Divot's real panel layer in real time, making it easy to see how other windows rank against it.
 
-**Workarounds:**
+**If a banner still overlaps (or you prefer the bar on top):**
 
 1. **Disable menu bar auto-hide:** In System Settings → Dock & Menu Bar, turn off auto-hide.
-   Banners are expected to reposition below the visible menu bar, avoiding overlap.
-   (Not yet verified with a live notification and measured layers.)
-
+   Banners then reposition below the visible menu bar, well clear of the bar.
 2. **Use cursor-reveal (Settings → Move below the menu bar when it appears):**
    When you move your pointer to the top, Divot temporarily slides below a revealed menu bar.
    Notification banners do not follow this animation, so overlap can still occur if a banner
    arrives while the bar is at the top edge.
-
-3. **Accept the limitation:** This is how some third-party top-edge bars behave on macOS.
-   Notification content remains readable despite partial visual overlap.
+3. **Accept the limitation:** reduced but not eliminated — on a side Dock the revealed Dock
+   can still draw over the bar's end, because level 20 equals the Dock's level.
 
 **Note:** Notifications are suppressed when Do Not Disturb or Focus modes are active. If no notifications appear while measuring, check that Do Not Disturb is OFF in Control Center.
 

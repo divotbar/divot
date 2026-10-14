@@ -3,6 +3,24 @@ import Testing
 import DivotCore
 @testable import DivotAppKit
 
+/// The bar panels sit *below* the notification-banner layer (#0080), so a
+/// banner draws over the bar and its title/body are never tucked under it,
+/// while the bar stays above ordinary app content and below the native menu bar
+/// so system menus, which are their own higher layers, still open above Divot.
+@MainActor
+@Test func barPanelsSitBelowNotificationBannersButAboveAppWindows() {
+    let level = NSPanelBarSurface.panelLevel.rawValue
+
+    // Above ordinary app windows.
+    #expect(level > NSWindow.Level.normal.rawValue)
+    // Below the measured notification-banner layer (21 on macOS 26.5); see
+    // docs/evidence/0075-notification-banner-overlap.md.
+    #expect(level < 21)
+    // Below the native menu bar and its pop-up menus.
+    #expect(level < NSWindow.Level.mainMenu.rawValue)
+    #expect(level < NSWindow.Level.popUpMenu.rawValue)
+}
+
 /// The optional bottom shadow (#0025) is drawn by enlarging the panel and
 /// placing a gradient strip below the bar, so it never rims the other edges.
 @MainActor
