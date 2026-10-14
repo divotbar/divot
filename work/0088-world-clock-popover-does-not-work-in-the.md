@@ -259,3 +259,4 @@ Consolidated into **Root cause** above (the two headings are left from parallel 
 - 2026-10-14T03:30:33Z · message_queued at 2026-10-14T03:30:33.549Z
 - 2026-10-14T03:30:33Z · CTO nudge: sent engineer a completion reminder after 5m without worktree activity
 - 2026-10-14T03:36:03Z · status active→review
+- 2026-10-14T03:36:03Z · note: shots: skipped — 20 shots already captured — an engineer-made capture pre-empts the automatic one
