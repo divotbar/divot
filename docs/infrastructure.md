@@ -31,10 +31,25 @@ swift build --package-path macos -c release --product divot
 macos/.build/release/divot --bench
 scripts/package-app.sh        # assemble + ad-hoc sign the local Divot.app preview
 scripts/smoke-app-bundle.sh   # package + verify + launch the bundled executable
+scripts/run-packaged.sh       # build + run the real Divot.app (Dev page packaged target)
+scripts/run-dev.sh            # run the bare dev binary (Dev page Divot bar target)
 repoos check
 ```
 
-The RepoOS plan declares web configuration validation/static build, native core tests, an app build gate (`native-app`), and a local preview package-and-launch gate (`native-app-bundle`). `bun run check` also runs `scripts/docs-drift.ts`, which fails a native configuration-source change that does not update `docs/configuration.md` and `site/reference/configuration.md` (`DOCS_DRIFT_ALLOW=1` overrides it when a task records why no docs change applies). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md) and the [local preview](local-preview.md).
+The RepoOS plan declares web configuration validation/static build, native core tests, an app build gate (`native-app`), a local preview package-and-launch gate (`native-app-bundle`), and a dry-run gate for the packaged Dev target (`run-packaged-dry-run`, which exercises `scripts/run-packaged.sh` without launching any UI). `bun run check` also runs `scripts/docs-drift.ts`, which fails a native configuration-source change that does not update `docs/configuration.md` and `site/reference/configuration.md` (`DOCS_DRIFT_ALLOW=1` overrides it when a task records why no docs change applies). Native tests and the app build require macOS with a compatible Swift toolchain. Release/device checks are a separate human gate; CI cannot prove VoiceOver, physical notch behavior, or fullscreen/Spaces behavior. The `divot --bench` harness runs in-process for the deterministic scenarios, but its Release numbers on a stable reference machine are the only performance evidence; see [Performance](performance.md) and the [local preview](local-preview.md).
+
+## Dev targets
+
+`repoos.toml` declares the runnable targets the Dev page starts and stops. Two of
+them run a Divot bar and only one may run at a time — two bars stack on screen —
+so each stops the other first (matched by exact executable path and stopped by
+PID, never by name or pattern). **Divot bar** (`scripts/run-dev.sh`) is the bare
+dev binary: no `Info.plist` and no bundle identity, so it cannot hold Location
+permission and its Accessibility grant attaches to the host. **Divot bar
+(packaged)** (`scripts/run-packaged.sh`) rebuilds `dist/Divot.app` from the
+checkout and runs the real bundle with `open`, so it holds Location and
+Accessibility like the product and shows the build commit and PID. See the
+[local preview](local-preview.md) for the permission differences.
 
 ## Tests
 
@@ -223,4 +238,4 @@ No telemetry by default. Native built-ins collect locally. Weather/network integ
 
 ## Just recipes
 
-Run `just` for documented, grouped commands. Common entry points: `just install`, `just dev`, `just web-check`, `just macos-test`, `just check`, and `just list`. The local preview recipes are `just app-package` (assemble + ad-hoc sign `dist/Divot.app` and the versioned archive), `just app-smoke` (package + verify + launch), and `just app-run` (build and open the app). `just serve` is a foreground, human-operated RepoOS server. `just review <id>` and `just done <id>` use the supported control plane; done still requires human approval. There is no blanket staging/commit recipe.
+Run `just` for documented, grouped commands. Common entry points: `just install`, `just dev`, `just web-check`, `just macos-test`, `just check`, and `just list`. The local preview recipes are `just app-package` (assemble + ad-hoc sign `dist/Divot.app` and the versioned archive), `just app-smoke` (package + verify + launch), `just app-run` (build and open the app), `just app-run-packaged` (the Dev page's packaged target: rebuild, stop the other bar, and run the real bundle), and `just app-dev` (the bare dev binary). `just serve` is a foreground, human-operated RepoOS server. `just review <id>` and `just done <id>` use the supported control plane; done still requires human approval. There is no blanket staging/commit recipe.

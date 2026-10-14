@@ -7,7 +7,7 @@
     "dev": "vitepress dev site --host 127.0.0.1",
     "build": "vitepress build site",
     "preview": "vitepress preview site --host 127.0.0.1",
-    "check": "bun run scripts/check-config.ts && bun run scripts/docs-drift.ts && bun test scripts/config-schema.test.ts scripts/native-app-gate.test.ts scripts/local-preview-gate.test.ts scripts/docs-drift.test.ts scripts/release-config.test.ts scripts/windowless-tests.test.ts && bun run build",
+    "check": "bun run scripts/check-config.ts && bun run scripts/docs-drift.ts && bun test scripts/config-schema.test.ts scripts/native-app-gate.test.ts scripts/local-preview-gate.test.ts scripts/run-packaged.test.ts scripts/docs-drift.test.ts scripts/release-config.test.ts scripts/windowless-tests.test.ts && bun run build",
     "test:core": "scripts/swift-test-lock.sh"
   },
   "devDependencies": {

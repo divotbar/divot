@@ -20,6 +20,10 @@ A Swift/AppKit application for macOS 26+ on Apple silicon. A polished default â€
 - [Read the configuration proposal](../reference/configuration).
 - [Help implement the native app](../contributing/).
 
+## Running it locally
+
+There is no published download yet, so today the app runs from source as a local, ad-hoc-signed preview. Two ways to run it behave differently: the bare development binary (`swift run --package-path macos divot`) has no bundle identity, so macOS will not grant it Location and its Accessibility grant attaches to your terminal; the packaged `Divot.app` is the real bundle and is the one that gets the Location prompt and holds Accessibility as Divot. Use the packaged build for anything permission-related â€” `just app-run-packaged`, or the Dev page's **Divot bar (packaged)** target. Only one bar runs at a time, and the [build guide](./build) has the commands. See [Troubleshooting](./troubleshooting) for the permission details.
+
 ## Availability
 
 The first public release is not published yet, so there is no DMG or signed app to install today. The [install guide](./install) shows the current state, the local-preview path that works now, and the exact first-launch, permission, checksum, and Homebrew steps the first unsigned release will use. The Homebrew cask is prepared but only installs once a release exists. Signed and notarized distribution remains planned.

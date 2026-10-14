@@ -3,9 +3,6 @@ id: "0093"
 title: "Keep-awake toast: a self-dismissing in-app message under the battery when caffeine is toggled"
 type: feature
 status: active
-needs_input: true
-needs_input_reason: dev-error
-needs_input_detail: the agent process exited with an error — open the task to see the full output
 priority: p2
 area: macos
 assigned_to: ""
@@ -14,7 +11,10 @@ branch: feat/keep-awake-toast-a-self-dismissing-in-ap
 cli_override: cursor
 model_override: composer-2.5
 created_at: "2026-10-13T17:13:26Z"
-updated_at: "2026-10-13T19:10:57Z"
+updated_at: "2026-10-14T03:25:14Z"
+close_out_repair_count: 1
+review_passes: 3
+review_rounds: 2
 dev_error_count: 1
 ---
 ## Problem
@@ -39,6 +39,44 @@ Clicking the battery item toggles keep-awake (#0018, #0051), but the only feedba
 ## Notes for AI
 Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look at how the battery click toggles keep-awake (WidgetActions toggleKeepAwake) and the #0087 cup colours. Work in stages, commit after each, and do not hand off until swift build, swift test --package-path macos and bun run check pass.
 
+## Shots
+```json
+[
+{
+"label": "Caffeine on toast (Native light)",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-native-light-on*.png"
+},
+{
+"label": "Caffeine off toast (Native light)",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-native-light-off*.png"
+},
+{
+"label": "Caffeine on toast (Gruvbox dark)",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-gruvbox-dark-on*.png"
+},
+{
+"label": "Caffeine off toast (Gruvbox dark)",
+"target": "Divot bar",
+"env": {
+"DIVOT_SNAPSHOT_ONLY": "caffeine-toast"
+},
+"glob": "*caffeine-toast-gruvbox-dark-off*.png"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-13T17:13:26Z · created · njachowski@gmail.com
@@ -48,3 +86,24 @@ Reuse BarPopoverHost/BarPopoverPanel chrome and the window-presenter seam; look 
 - 2026-10-13T19:06:09Z · agent exited with an error (claude) · the agent process exited with an error — open the task to see the full output
 - 2026-10-13T19:10:42Z · cli_override, model_override
 - 2026-10-13T19:10:46Z · model_override
+- 2026-10-13T19:19:50Z · body: section Shots
+- 2026-10-13T19:22:31Z · status active→review
+- 2026-10-13T19:24:00Z · note: review pass 1: needs some work
+- 2026-10-13T19:24:00Z · message_queued at 2026-10-13T19:24:00.904Z
+- 2026-10-13T19:24:00Z · status review→active
+- 2026-10-13T19:24:35Z · note: handoff requested (ui-review)
+- 2026-10-13T19:24:36Z · status active→review
+- 2026-10-13T19:24:36Z · note: review without checks by human
+- 2026-10-13T19:24:36Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (82a4efae) during finalization (#0734)
+- 2026-10-13T19:24:36Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (82a4efae) during finalization (#0734)
+- 2026-10-13T19:40:36Z · note: review pass 2: failed — no usable report
+- 2026-10-14T02:29:57Z · needs_input (dev-error) cleared for review again by human
+- 2026-10-14T02:31:02Z · note: review pass 3: needs some work
+- 2026-10-14T02:31:02Z · message_expired: not delivered within timeout
+- 2026-10-14T02:31:02Z · status review→active
+- 2026-10-14T02:34:17Z · status active→review
+- 2026-10-14T02:34:18Z · note: shots: skipped — 4 handoff shots already captured for this exact plan (8ec800c0) during finalization (#0734)
+- 2026-10-14T02:35:19Z · note: review pass 4: good to go
+- 2026-10-14T03:25:11Z · status review→active
+- 2026-10-14T03:25:11Z · note: close-out repair: merge-conflict
+- 2026-10-14T03:25:14Z · message_queued at 2026-10-14T03:25:14.198Z
