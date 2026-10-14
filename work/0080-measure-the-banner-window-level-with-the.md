@@ -2,17 +2,18 @@
 id: "0080"
 title: Measure the banner window level with the probe and decide the fix
 type: chore
-status: inbox
+status: done
 priority: p3
 area: macos
 depends_on: ["0075"]
+merged_commit: 6ed22c75c3dd6706ccdc248f2f9ce11d9f63471f
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/measure-the-banner-window-level-with-the
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T07:47:17Z"
-updated_at: "2026-10-14T06:33:12Z"
+updated_at: "2026-10-14T06:33:18Z"
 last_close_out_gate_ms: 152986
 last_close_out_gate_at: "2026-10-14T06:33:10.311Z"
 review_passes: 1
@@ -91,3 +92,4 @@ Implemented in `NSPanelBarSurface.panelLevel` (`macos/Sources/DivotAppKit/BarPan
 - 2026-10-14T06:33:10Z · close-out gate completed in 153s
 - 2026-10-14T06:33:12Z · note: handoff requested (cli)
 - 2026-10-14T06:33:12Z · handoff failed · task-file handoff failed at validate · task must be active or review, but is inbox
+- 2026-10-14T06:33:18Z · status inbox→done, release:success
