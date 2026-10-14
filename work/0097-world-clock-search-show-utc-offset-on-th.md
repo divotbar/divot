@@ -1,4 +1,6 @@
 ---
+updated_at: "2026-10-14T05:19:41Z"
+review_passes: 1
 id: "0097"
 title: "World clock search: show UTC offset on the right of each result"
 type: feature
@@ -11,7 +13,6 @@ branch: feat/world-clock-search-show-utc-offset-on-th
 cli_override: opencode
 model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-14T05:11:50Z"
-updated_at: "2026-10-14T05:19:41Z"
 ---
 ## Problem
 The Add timezone results show only the city name. It is hard to tell offsets apart when scanning the list.
@@ -57,3 +58,4 @@ Screenshots 3 and 4 from the maintainer are attached: 'Lon' and 'Sing' searches 
 - 2026-10-14T05:16:42Z · body: section Shots
 - 2026-10-14T05:19:00Z · status active→review
 - 2026-10-14T05:19:41Z · note: review pass 1: needs some work
+
