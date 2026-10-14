@@ -9,6 +9,8 @@ depends_on: ["0075"]
 assigned_to: ""
 created_by: njachowski@gmail.com
 branch: ""
+cli_override: opencode
+model_override: opencode-go/deepseek-v4.1-flash
 created_at: "2026-10-13T07:47:17Z"
 updated_at: "2026-10-14T06:15:13Z"
 ---
@@ -68,3 +70,4 @@ Highest-layer windows visible at end of watch period:
 - 2026-10-13T16:27:12Z · body: section Screenshots
 - 2026-10-13T19:20:59Z · status inbox→ready
 - 2026-10-14T06:15:13Z · body: section Probe output
+- 2026-10-14T06:15:13Z · cli_override, model_override
