@@ -463,6 +463,17 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    /// An offset query ("+7") with the results list visible: every zone whose
+    /// current offset is UTC+7 is listed, each with its UTC offset (#0098).
+    private func makeWorldClockOffsetQueryController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = makeWorldClockController(timezones: WorldClock.resolvedTimezones(configured: []))
+        if let search = firstSearchField(in: controller.view) {
+            search.stringValue = "+7"
+            NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+        }
+        return controller
+    }
+
     /// Fixed zones for the search shots, independent of the machine's local zone.
     private static let worldClockSearchZones = ["America/Los_Angeles", "Europe/London", "Asia/Singapore"]
 
@@ -840,6 +851,16 @@ struct PopoverSnapshotTests {
             let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
             let name = "worldclock-popover-native-\(variantName)-default-already-added"
             try testPanelPopover(name: name, maker: { self.makeWorldClockAlreadyAddedController(fontSize: $0) },
+                                 appearance: appearance, isDark: isDark, fontSize: 12)
+        }
+    }
+
+    @Test("World clock popover — offset query (+7) results, native light/dark")
+    func worldClockPopoverOffsetQuery() throws {
+        for (variantName, isDark) in [("light", false), ("dark", true)] {
+            let appearance = AppearanceConfiguration(family: .native, mode: isDark ? .dark : .light, material: .opaque)
+            let name = "worldclock-popover-native-\(variantName)-default-offset-query"
+            try testPanelPopover(name: name, maker: { self.makeWorldClockOffsetQueryController(fontSize: $0) },
                                  appearance: appearance, isDark: isDark, fontSize: 12)
         }
     }

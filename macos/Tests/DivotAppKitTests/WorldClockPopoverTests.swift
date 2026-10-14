@@ -1007,6 +1007,120 @@ struct WorldClockSearchResultOffsetTests {
     }
 }
 
+/// Typing a signed offset in the search field lists the zones whose current UTC
+/// offset matches (#0098), while any non-offset query still searches names.
+@MainActor
+@Suite("World clock search by offset")
+struct WorldClockSearchOffsetTests {
+    /// 2026-01-01T00:00Z and 2026-07-01T00:00Z, so winter/summer offsets
+    /// (and therefore DST) are deterministic.
+    private let winter = Date(timeIntervalSince1970: 1_767_225_600)
+    private let summer = Date(timeIntervalSince1970: 1_782_864_000)
+
+    private func makeController() -> TimezoneSearchResultsController {
+        TimezoneSearchResultsController(onSelect: { _ in }, theme: .systemDefault)
+    }
+
+    @Test func wholeHourQueryListsEveryZoneAtThatOffset() {
+        let controller = makeController()
+        controller.updateResults(for: "+7", currentTimezones: [], at: winter)
+
+        let ids = Set(controller.results.map(\.identifier))
+        #expect(ids.contains("Asia/Jakarta"), "Jakarta is UTC+7")
+        #expect(ids.contains("Asia/Bangkok"), "Bangkok is UTC+7")
+        #expect(ids.contains("Asia/Ho_Chi_Minh"), "Ho Chi Minh City is UTC+7")
+        #expect(!ids.contains("Asia/Tokyo"), "Tokyo is UTC+9, not a +7 match")
+        #expect(controller.results.allSatisfy { $0.utcOffset == "UTC+7" },
+                "every result shows the queried offset")
+    }
+
+    @Test func negativeWholeHourQueryListsEveryZoneAtThatOffset() {
+        let controller = makeController()
+        controller.updateResults(for: "-8", currentTimezones: [], at: winter)
+
+        let ids = Set(controller.results.map(\.identifier))
+        #expect(ids.contains("America/Los_Angeles"), "Los Angeles is UTC-8 in winter")
+        #expect(ids.contains("America/Vancouver"), "Vancouver is UTC-8 in winter")
+        #expect(ids.contains("America/Tijuana"), "Tijuana is UTC-8 in winter")
+        #expect(controller.results.allSatisfy { $0.utcOffset == "UTC-8" },
+                "every result shows the queried offset")
+    }
+
+    @Test func halfHourQueryMatchesAndDecimalFormIsEquivalent() {
+        let controller = makeController()
+        controller.updateResults(for: "+5:30", currentTimezones: [], at: winter)
+        let colon = Set(controller.results.map(\.identifier))
+        #expect(colon.contains("Asia/Calcutta"), "Kolkata (Asia/Calcutta) is UTC+5:30")
+        #expect(colon.contains("Asia/Colombo"), "Colombo is UTC+5:30")
+
+        controller.updateResults(for: "+5.5", currentTimezones: [], at: winter)
+        #expect(Set(controller.results.map(\.identifier)) == colon,
+                "+5.5 matches the same zones as +5:30")
+    }
+
+    @Test func quarterHourQueryMatchesZonesAtThatOffset() {
+        let controller = makeController()
+        controller.updateResults(for: "+5:45", currentTimezones: [], at: winter)
+        #expect(!controller.results.isEmpty, "a quarter-hour offset finds zones (Nepal is UTC+5:45)")
+        #expect(controller.results.allSatisfy { $0.utcOffset == "UTC+5:45" },
+                "every result shows the queried quarter-hour offset")
+    }
+
+    @Test func offsetMatchFollowsDaylightSaving() {
+        let controller = makeController()
+        controller.updateResults(for: "-8", currentTimezones: [], at: winter)
+        #expect(controller.results.contains { $0.identifier == "America/Los_Angeles" },
+                "Los Angeles is a -8 match in winter")
+
+        controller.updateResults(for: "-7", currentTimezones: [], at: summer)
+        #expect(controller.results.contains { $0.identifier == "America/Los_Angeles" },
+                "Los Angeles shifts to UTC-7 in summer, so -7 finds it")
+
+        controller.updateResults(for: "-8", currentTimezones: [], at: summer)
+        #expect(!controller.results.contains { $0.identifier == "America/Los_Angeles" },
+                "Los Angeles is no longer a -8 match in summer")
+    }
+
+    @Test func nonOffsetQueryStillSearchesByName() {
+        let controller = makeController()
+        controller.updateResults(for: "jakarta", currentTimezones: [], at: winter)
+        #expect(controller.results.contains { $0.identifier == "Asia/Jakarta" },
+                "a city-name query is still handled as a name search")
+
+        controller.updateResults(for: "7", currentTimezones: [], at: winter)
+        #expect(!controller.results.contains { $0.identifier == "Asia/Bangkok" },
+                "an unsigned number is a name search, not an offset (Bangkok is +7)")
+    }
+
+    @Test func alreadyAddedZoneKeepsItsLabelInOffsetResults() {
+        let controller = makeController()
+        controller.updateResults(for: "+7", currentTimezones: ["Asia/Jakarta"], at: winter)
+
+        guard let jakarta = controller.results.first(where: { $0.identifier == "Asia/Jakarta" }) else {
+            Issue.record("expected Jakarta in the +7 results")
+            return
+        }
+        #expect(jakarta.isAlreadyAdded, "a zone already in the list is marked 'Already added'")
+        #expect(jakarta.utcOffset == "UTC+7", "an already-added row still shows its offset")
+    }
+
+    /// Already-added is alias-aware: a zone counts as present when the list holds
+    /// an equivalent identifier, not only the exact spelling. Europe/Kiev and
+    /// Europe/Kyiv are the same zone (as US/Pacific and America/Los_Angeles are),
+    /// and both are in `knownTimeZoneIdentifiers`.
+    @Test func aliasOfAnAddedZoneCountsAsAlreadyAdded() {
+        let controller = makeController()
+        controller.updateResults(for: "kiev", currentTimezones: ["Europe/Kyiv"], at: winter)
+
+        guard let kiev = controller.results.first(where: { $0.identifier == "Europe/Kiev" }) else {
+            Issue.record("expected Europe/Kiev in the results (got \(controller.results.map(\.identifier)))")
+            return
+        }
+        #expect(kiev.isAlreadyAdded,
+                "Europe/Kiev is an alias of the added Europe/Kyiv, so it counts as already added")
+    }
+}
+
 // Stub monitor from BarPopoverTests for use in real flow tests
 @MainActor
 private final class StubPopoverMonitor: PopoverEventMonitoring {

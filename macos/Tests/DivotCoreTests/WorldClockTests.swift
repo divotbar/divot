@@ -177,6 +177,27 @@ final class WorldClockTests: XCTestCase {
         XCTAssertEqual(WorldClock.utcOffsetLabel(forOffsetSeconds: 0), "UTC+0", "zero offset has an explicit sign")
     }
 
+    func testOffsetQueryParsingCoversWholeHalfAndDecimalHours() {
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "+7"), 25200, "a positive whole hour")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "-8"), -28800, "a negative whole hour")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "+5:30"), 19800, "hours and minutes")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "-3:30"), -12600, "a negative half hour")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "+5.5"), 19800, "a decimal fraction of an hour")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "+5:45"), 20700, "a quarter hour")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "+0"), 0, "zero is accepted")
+        XCTAssertEqual(WorldClock.offsetSeconds(forQuery: "  +2  "), 7200, "surrounding whitespace is ignored")
+    }
+
+    func testOffsetQueryParsingRejectsNamesAndMalformedText() {
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: "Tokyo"), "a city name is not an offset")
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: "7"), "the sign is required")
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: "+"), "a bare sign is not an offset")
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: "+5:99"), "minutes must be below 60")
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: "UTC+7"), "a prefixed label is not an offset query")
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: "+5:"), "a trailing colon is not an offset")
+        XCTAssertNil(WorldClock.offsetSeconds(forQuery: ""), "an empty query is not an offset")
+    }
+
     func testUTCOffsetFormatting() {
         // Test positive offset formatting: UTC+05:30
         let positiveOffset = 19800  // 5.5 hours
