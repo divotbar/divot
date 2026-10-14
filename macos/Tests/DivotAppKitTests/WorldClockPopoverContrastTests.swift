@@ -65,6 +65,25 @@ struct WorldClockPopoverContrastTests {
                 walk(controller.view)
 
                 #expect(fields > 0, "the world clock popover should have text fields for \(family)")
+
+                // The sun/moon working-hours markers are images, not text, so
+                // they are audited at the non-text floor with their tint.
+                var markers = 0
+                func walkMarkers(_ view: NSView) {
+                    if let image = view as? NSImageView,
+                       let label = image.accessibilityLabel(),
+                       label == "Working hours" || label == "Outside working hours" {
+                        markers += 1
+                        let tint = srgb(image.contentTintColor ?? .labelColor, in: appearance)
+                        let ratio = ContrastAudit.ratio(tint, background)
+                        #expect(ratio >= ContrastAudit.nonTextThreshold,
+                                "world clock marker contrast \(ratio) is below \(ContrastAudit.nonTextThreshold) for \(family) in \(dark ? "dark" : "light")")
+                    }
+                    view.subviews.forEach(walkMarkers)
+                }
+                walkMarkers(controller.view)
+
+                #expect(markers > 0, "the world clock popover should have day/night markers for \(family)")
             }
         }
     }

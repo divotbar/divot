@@ -490,6 +490,24 @@ struct PopoverSnapshotTests {
         return controller
     }
 
+    /// The time converter scrubbed twelve hours from the fixed day-label instant:
+    /// local 22:00Z, where Kiritimati is tomorrow at noon (working), Midway today
+    /// at 11:00 (working), Tokyo tomorrow at 07:00 and Los Angeles today at 14:00.
+    /// Shows the scrubber with its time, the enabled "Now" control and both a sun
+    /// and a moon marker.
+    private func makeWorldClockScrubbedController(fontSize: CGFloat = 12) -> WorldClockPopoverContentController {
+        let controller = WorldClockPopoverContentController()
+        _ = controller.view
+        controller.render(timezones: ["Pacific/Kiritimati", "Pacific/Midway", "Asia/Tokyo", "America/Los_Angeles"],
+                          timeFormat: .ampm,
+                          showSeconds: false,
+                          customPattern: nil,
+                          at: Date(timeIntervalSince1970: 1_767_261_600),
+                          localTimeZone: TimeZone(identifier: "UTC")!)
+        controller.stepScrubber(by: 48)
+        return controller
+    }
+
     /// Apply a larger font size to all text fields in a view.
     private func applyFontSize(_ size: CGFloat, to view: NSView) {
         let scale = size / 12.0
@@ -767,6 +785,22 @@ struct PopoverSnapshotTests {
                 let familyName = family == .native ? "native" : family.rawValue
                 let name = "worldclock-popover-\(familyName)-\(variantName)-default-day-label"
                 try testPanelPopover(name: name, maker: { self.makeWorldClockDayLabelController(fontSize: $0) },
+                                     appearance: appearance, isDark: isDark, fontSize: 12)
+            }
+        }
+    }
+
+    @Test("World clock popover — scrubbed time converter, all themes × light/dark")
+    func worldClockPopoverScrubbed() throws {
+        let families: [AppearanceConfiguration.Family] = [.native, .alpine, .gruvbox, .ayu, .dracula, .tokyoNight]
+        let variants: [(String, Bool)] = [("light", false), ("dark", true)]
+
+        for family in families {
+            for (variantName, isDark) in variants {
+                let appearance = AppearanceConfiguration(family: family, mode: isDark ? .dark : .light, material: .opaque)
+                let familyName = family == .native ? "native" : family.rawValue
+                let name = "worldclock-popover-\(familyName)-\(variantName)-default-scrubbed"
+                try testPanelPopover(name: name, maker: { self.makeWorldClockScrubbedController(fontSize: $0) },
                                      appearance: appearance, isDark: isDark, fontSize: 12)
             }
         }
