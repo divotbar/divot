@@ -9,7 +9,7 @@ assigned_to: ""
 created_by: njachowski@gmail.com
 branch: feat/world-clock-search-type-an-offset-such-a
 created_at: "2026-10-14T05:15:41Z"
-updated_at: "2026-10-14T05:30:26Z"
+updated_at: "2026-10-14T05:37:38Z"
 ---
 ## Problem
 The Add timezone search only matches city or zone names. To add a zone by its offset, the user has to know the city name.
@@ -27,8 +27,23 @@ Typing a signed offset in the search field, for example '+7' or '-8', lists the 
 ## Notes for AI
 The current search lives in WorldClockPopover.swift (updateResults). Zone identifiers come from TimeZone.knownTimeZoneIdentifiers (443 zones on this Mac). Depends on #0097 for the offset display, so it should land after #0097.
 
+## Shots
+```json
+[
+{
+  "label": "World clock search by offset: a +7 query lists each zone at UTC+7 with its UTC offset",
+  "target": "Divot bar",
+  "env": {
+    "DIVOT_SNAPSHOT_ONLY": "worldclock"
+  },
+  "glob": "*worldclock-offset-query*.png"
+}
+]
+```
+
 ## Activity
 
 - 2026-10-14T05:15:41Z · created · njachowski@gmail.com
 - 2026-10-14T05:15:42Z · status inbox→ready
 - 2026-10-14T05:30:26Z · status ready→active, branch
+- 2026-10-14T05:37:38Z · body: section Shots
