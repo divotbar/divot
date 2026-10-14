@@ -678,6 +678,34 @@ struct WorldClockPopoverRealControllerTests {
         #expect(reported == nil, "an already-added row cannot be added again")
     }
 
+    /// Arrow keys skip an already-added headline match so they land on a row
+    /// that can actually be added (#0096 review round 2).
+    @Test func arrowKeysSkipAlreadyAddedResults() {
+        let controller = WorldClockPopoverContentController()
+        _ = controller.view
+        controller.render(timezones: ["Asia/Singapore"], timeFormat: .twentyFourHour, showSeconds: false)
+
+        guard let search = firstSearchField(in: controller.view) else {
+            Issue.record("expected a search field")
+            return
+        }
+        search.stringValue = "sin"
+        NotificationCenter.default.post(name: NSControl.textDidChangeNotification, object: search)
+
+        guard let results = controller.searchResultsForTesting,
+              let table = firstTableView(in: controller.view) else {
+            Issue.record("expected search results")
+            return
+        }
+        #expect(results.results.first?.isAlreadyAdded == true,
+                "Singapore ranks first and is already added (got \(results.results.map(\.displayName)))")
+
+        table.keyDown(with: keyEvent(125)) // Down arrow
+        #expect(table.selectedRow >= 0, "Down selects a row")
+        #expect(results.results[table.selectedRow].isAlreadyAdded == false,
+                "Down skips the already-added Singapore row")
+    }
+
     @Test func zoneRowsAreCappedAtEightAndScrollBeyond() {
         let many = Array(TimeZone.knownTimeZoneIdentifiers.filter { $0.contains("/") }.prefix(12))
 

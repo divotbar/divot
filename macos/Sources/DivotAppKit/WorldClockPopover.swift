@@ -40,6 +40,9 @@ private final class TimezoneResultsTableView: NSTableView {
     var onReturnKey: (() -> Void)?
     var onEscape: (() -> Void)?
     var onTab: (() -> Void)?
+    /// Move the selection by one row. The controller owns the move so the arrow
+    /// keys can skip rows that cannot be added (already-added zones).
+    var onMoveSelection: ((Int) -> Void)?
 
     override func keyDown(with event: NSEvent) {
         switch event.keyCode {
@@ -50,9 +53,9 @@ private final class TimezoneResultsTableView: NSTableView {
         case 48: // Tab key
             onTab?()
         case 125: // Down arrow
-            selectRowIndexes(NSIndexSet(index: min(selectedRow + 1, numberOfRows - 1)) as IndexSet, byExtendingSelection: false)
+            onMoveSelection?(1)
         case 126: // Up arrow
-            selectRowIndexes(NSIndexSet(index: max(selectedRow - 1, 0)) as IndexSet, byExtendingSelection: false)
+            onMoveSelection?(-1)
         default:
             super.keyDown(with: event)
         }
@@ -670,6 +673,22 @@ final class TimezoneSearchResultsController: NSObject, NSTableViewDataSource, NS
         }
         tableView.onTab = { [weak self] in self?.onTab?() }
         tableView.onEscape = { [weak self] in self?.onEscape?() }
+        tableView.onMoveSelection = { [weak self] delta in self?.moveSelection(by: delta) }
+    }
+
+    /// Move the keyboard selection by `delta`, skipping already-added rows so
+    /// the arrow keys always land on a row that can be added.
+    func moveSelection(by delta: Int) {
+        guard !results.isEmpty, delta != 0 else { return }
+        var index = tableView.selectedRow
+        if index < 0 { index = delta > 0 ? -1 : results.count }
+        var next = index + delta
+        while next >= 0, next < results.count, results[next].isAlreadyAdded {
+            next += delta
+        }
+        guard next >= 0, next < results.count else { return }
+        tableView.selectRowIndexes([next], byExtendingSelection: false)
+        tableView.scrollRowToVisible(next)
     }
 
     func updateResults(for query: String, currentTimezones: [String]) {
