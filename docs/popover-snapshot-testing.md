@@ -56,6 +56,7 @@ Token values for filtering:
 - `worldclock`: world clock popover (all timezone variants)
 - `charging`: bar with battery charging and green indicator
 - `battery`: bar with battery not charging
+- `caffeine-toast`: keep-awake toast (`caffeine-toast-*-on-default`, `caffeine-toast-*-off-default`)
 
 Unknown tokens produce a diagnostic message and produce zero PNG files. Assertions still run against all rendered snapshots (filtered or not) — only the PNG output decision is controlled by the filter.
 
