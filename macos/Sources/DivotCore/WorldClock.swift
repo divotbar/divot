@@ -88,6 +88,58 @@ public enum WorldClock {
             .replacingOccurrences(of: "_", with: " ")
     }
 
+    /// Format a zone's current UTC offset for display beside a name: "UTC+7",
+    /// "UTC+5:30", "UTC-3:30", or "UTC+0" for zero. Hours are compact (no leading
+    /// zero), minutes are two digits when present, and the sign is always shown.
+    /// Kept here so the popover header and the search-result rows cannot drift.
+    public static func utcOffsetLabel(forOffsetSeconds offsetSeconds: Int) -> String {
+        let sign = offsetSeconds < 0 ? "-" : "+"
+        let absOffset = abs(offsetSeconds)
+        let hours = absOffset / 3600
+        let minutes = (absOffset % 3600) / 60
+        if minutes == 0 {
+            return "UTC\(sign)\(hours)"
+        }
+        return String(format: "UTC%@%d:%02d", sign, hours, minutes)
+    }
+
+    /// Parse a signed UTC-offset query into an offset in seconds, or `nil` when
+    /// the text is not an offset.
+    ///
+    /// Accepts `+N`/`-N` whole hours, `+N:MM`/`-N:MM` hours and minutes, and
+    /// `+N.N`/`-N.N` decimal hours, so `+5:30` and `+5.5` both resolve to
+    /// 5 h 30 min (#0098). The sign is required: a bare number never turns a
+    /// city-name search into an offset search.
+    public static func offsetSeconds(forQuery query: String) -> Int? {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let sign = trimmed.first, sign == "+" || sign == "-" else { return nil }
+        let magnitude = trimmed.dropFirst()
+        guard !magnitude.isEmpty else { return nil }
+
+        let seconds: Int
+        if magnitude.contains(":") {
+            let parts = magnitude.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2,
+                  !parts[0].isEmpty, parts[0].allSatisfy({ $0.isNumber }),
+                  !parts[1].isEmpty, parts[1].allSatisfy({ $0.isNumber }),
+                  let hours = Int(parts[0]),
+                  let minutes = Int(parts[1]), minutes < 60 else { return nil }
+            seconds = hours * 3600 + minutes * 60
+        } else if magnitude.contains(".") {
+            let parts = magnitude.split(separator: ".", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2,
+                  !parts[0].isEmpty, parts[0].allSatisfy({ $0.isNumber }),
+                  !parts[1].isEmpty, parts[1].allSatisfy({ $0.isNumber }),
+                  let hours = Double("\(parts[0]).\(parts[1])") else { return nil }
+            seconds = Int((hours * 3600).rounded())
+        } else {
+            guard magnitude.allSatisfy({ $0.isNumber }), let hours = Int(magnitude) else { return nil }
+            seconds = hours * 3600
+        }
+
+        return sign == "-" ? -seconds : seconds
+    }
+
     /// Compute world clock entries for the given timezones.
     ///
     /// - Parameters:
